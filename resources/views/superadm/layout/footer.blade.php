@@ -221,7 +221,7 @@ $(document).ready(function() {
 <script src="{{ asset('asset/plugins/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 
 <script src="{{ asset('asset/plugins/sweetalert/sweetalert2@11.js') }}"></script>
-
+@yield('scripts')
 </body>
 
 </html>

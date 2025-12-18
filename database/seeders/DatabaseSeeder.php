@@ -15,6 +15,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
+        $this->call(CategorySeeder::class);
+        $this->call(FacingDirectionSeeder::class);
+        $this->call(IlluminationSeeder::class);
+
 
         Employees::create(
             [
@@ -32,7 +36,5 @@ class DatabaseSeeder extends Seeder
             ]
 
         );
-
-        
     }
 }
