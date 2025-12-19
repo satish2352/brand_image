@@ -18,21 +18,29 @@ return new class extends Migration
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('area_id');
             $table->unsignedBigInteger('category_id');
-            $table->string('media_code')->unique();
-            $table->string('media_title');
-            $table->text('address');
+            $table->string('media_code')->nullable();
+            $table->string('media_title')->nullable();
+            $table->text('address')->nullable();
             $table->decimal('width', 8, 2);
             $table->decimal('height', 8, 2);
-            $table->unsignedBigInteger('illumination_id');
-            $table->string('facing_id');
+            $table->unsignedBigInteger('illumination_id')->nullable();
+            $table->string('facing_id')->nullable();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-
-            // Booking & pricing
-            $table->integer('minimum_booking_days')->default(1);
+            $table->integer('minimum_booking_days')->nullable();
             $table->float('price', 10, 2);
             $table->string('vendor_name');
-            // $table->json('images');
+            $table->string('mall_name')->nullable();
+            $table->string('media_format')->nullable();
+            $table->string('airport_name')->nullable();
+            $table->string('zone_type')->nullable();
+            $table->string('media_type')->nullable();
+            $table->string('transit_type')->nullable();
+            $table->string('branding_type')->nullable();
+            $table->string('vehicle_count')->nullable();
+            $table->string('building_name')->nullable();
+            $table->string('wall_length')->nullable();
+            $table->string('area_auto')->nullable();
             $table->tinyInteger('is_active')->default(1);
             $table->tinyInteger('is_deleted')->default(0);
             $table->timestamps();

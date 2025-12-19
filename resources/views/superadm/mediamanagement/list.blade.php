@@ -42,14 +42,17 @@
                             @forelse ($mediaList as $key => $media)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $media->media_code }}</td>
-                                    <td>{{ $media->media_title }}</td>
-                                    <td>{{ $media->category_name }}</td>
-                                    <td>{{ $media->state_name }}</td>
-                                    <td>{{ $media->district_name }}</td>
-                                    <td>{{ $media->city_name }}</td>
-                                    <td>{{ $media->area_name }}</td>
-                                    <td>₹ {{ number_format($media->price, 2) }}</td>
+                                  <td>{{ $media->media_code ?? '-' }}</td>
+                                    <td>{{ $media->media_title ?? '-' }}</td>
+                                    <td>{{ $media->category_name ?? '-' }}</td>
+                                    <td>{{ $media->state_name ?? '-' }}</td>
+                                    <td>{{ $media->district_name ?? '-' }}</td>
+                                    <td>{{ $media->city_name ?? '-' }}</td>
+                                    <td>{{ $media->area_name ?? '-' }}</td>
+
+                                    <td>
+                                        ₹ {{ $media->price !== null ? number_format($media->price, 2) : '-' }}
+                                    </td>
 
                                     <td>
                                         <label class="switch">
@@ -61,8 +64,22 @@
                                         </label>
                                     </td>
                                     <td class="d-flex">
+
+                                        <a href="{{ route('media.viewdetails', encrypt($media->category_id)) }}"
+   class="btn btn-info btn-sm mr-1"
+   title="View Details">
+    <i class="fa fa-eye"></i>
+</a>
+
+                                        <a href="{{ route('media.view', encrypt($media->id)) }}"
+   class="btn btn-info btn-sm mr-1"
+   title="View Images">
+    <i class="fa fa-eye"></i>
+</a>
+
+
                                         <a href="{{ route('media.edit', base64_encode($media->id)) }}"
-                                        class="btn btn-sm btn-primary me-2">
+                                        class="btn btn-sm btn-primary mr-1 ">
                                             <i class="mdi mdi-square-edit-outline"></i>
                                         </a>
 
@@ -77,7 +94,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center">
+                                    <td colspan="11" class="text-center">
                                         No media found
                                     </td>
                                 </tr>

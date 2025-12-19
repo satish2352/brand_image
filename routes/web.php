@@ -123,6 +123,24 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         // ✅ THIS FIXES YOUR ERROR
         Route::post('status', [MediaManagementController::class, 'updateStatus'])
             ->name('media.status');
+
+        /* =========================
+       👁 VIEW MEDIA IMAGES
+    ========================== */
+        Route::get('view/{encodedId}', [MediaManagementController::class, 'view'])
+            ->name('media.view');
+
+        /* =========================
+       🗑 DELETE SINGLE IMAGE
+    ========================== */
+        Route::post('image/delete', [MediaManagementController::class, 'deleteImage'])
+            ->name('media.image.delete');
+
+        Route::post('image/upload', [MediaManagementController::class, 'uploadImage'])
+            ->name('media.image.upload');
+
+        Route::get('view-details/{encodedId}', [MediaManagementController::class, 'viewDetails'])
+            ->name('media.viewdetails');
     });
 
 
