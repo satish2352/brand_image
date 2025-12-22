@@ -13,11 +13,12 @@ use App\Http\Controllers\Superadm\MediaManagementController;
 use App\Http\Controllers\Superadm\EmployeesController;
 use App\Http\Controllers\Superadm\ChangePasswordController;
 use App\Http\Controllers\Superadm\EmployeeLoginController;
-
+use App\Http\Controllers\Website\CartController;
+use App\Http\Controllers\Website\CheckoutController;
 // website
 use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\AuthController;
-
+use App\Http\Controllers\Website\CampaignController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -225,3 +226,53 @@ Route::get('/', [HomeController::class, 'index'])->name('website.home');
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');
 Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.logout');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('/cart/add/{mediaId}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart/remove/{mediaId}', [CartController::class, 'remove'])->name('cart.remove');
+// Route::get('/checkout', [CheckoutController::class, 'index'])
+//     ->name('checkout.index');
+// Route::post(
+//     '/checkout/place-order',
+//     [CheckoutController::class, 'placeOrder']
+// )->name('checkout.place')
+//     ->middleware('auth:website');
+
+// Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
+//     ->name('checkout.pay');
+
+// Route::post('/payment/success', [CheckoutController::class, 'success'])
+//     ->name('payment.success');
+// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+
+
+
+Route::get('/checkout', [CheckoutController::class, 'index'])
+    ->name('checkout.index');
+
+Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder'])
+    ->name('checkout.create');
+
+
+Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])
+    ->name('checkout.place');
+// ->middleware('auth:website');
+
+Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
+    ->name('checkout.pay');
+
+Route::post('/payment/success', [CheckoutController::class, 'success'])
+    ->name('payment.success');
+
+Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+
+
+
+Route::middleware(['web'])->group(function () {
+    Route::post('/campaign/store', [CampaignController::class, 'store'])
+        ->name('campaign.store');
+
+    Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
+        ->name('campaign.list');
+});

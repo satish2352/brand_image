@@ -315,7 +315,8 @@ class MediaManagementController extends Controller
 
 
                     // Media
-                    'media_code'  => 'required|string|max:255|media_code,NULL,id,is_deleted,0',
+                    'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
+
                     'media_title' => 'required|string|max:255',
 
                     // Address

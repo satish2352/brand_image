@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        /* ================= WEBSITE USERS ================= */
+        'website' => [
+            'driver' => 'session',
+            'provider' => 'website_users',
+        ],
     ],
 
     /*
@@ -65,10 +70,11 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        /* WEBSITE USERS */
+        'website_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\WebsiteUser::class,
+        ],
     ],
 
     /*
@@ -97,6 +103,13 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        'website_users' => [
+            'provider' => 'website_users',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        // 'password_timeout' => 10800,
     ],
 
     /*

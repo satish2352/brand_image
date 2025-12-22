@@ -13,12 +13,12 @@
                     </div>
 
                     <div class="col-md-2 col-12">
-                        <select class="form-select custom-select" id="state_id">
+                        {{-- <select class="form-select custom-select" id="state_id">
                             <option value="">Select State</option>
                             @foreach($states as $s)
                                 <option value="{{ $s->id }}">{{ $s->state }}</option>
                             @endforeach
-                        </select>
+                        </select> --}}
                     </div>
 
                     <div class="col-md-2 col-12">
@@ -58,10 +58,9 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script>
+{{-- <script>
 $(document).ready(function() {
 
-    // When State changes → load Districts
     $("#state_id").on("change", function() {
         let stateId = $(this).val();
         $("#district_id").html('<option>Loading...</option>');
@@ -111,4 +110,4 @@ $(document).ready(function() {
     });
 
 });
-</script>
+</script> --}}

@@ -21,6 +21,17 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url('/about') }}">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url('/contact') }}">Contact Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url('/media-search') }}">Search Media</a></li>
+                 {{-- <li class="nav-item"><a class="nav-link" href="{{ url('/campaign-list') }}">Campaign List</a></li>
+                  --}}
+                  <li class="nav-item">
+    <form action="{{ route('campaign.list') }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit" class="nav-link btn btn-link p-0">
+            Campaign List
+        </button>
+    </form>
+</li>
+
             </ul>
 
             <!-- Right Login -->

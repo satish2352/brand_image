@@ -30,6 +30,6 @@
 
     {{-- Search Section Include --}}
     @include('website.search')
-
+  @include('website.mediacarts')
 
 @endsection

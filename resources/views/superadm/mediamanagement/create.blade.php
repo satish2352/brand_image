@@ -317,7 +317,7 @@
                     @enderror
                 </div>
                  <div class="col-md-3 mb-3">
-                    <label>Vendor Name</label>
+                    <label>Vendor Name <span class="text-danger">*</span></label>
                     <input type="text" name="vendor_name"
                            value="{{ old('vendor_name') }}"
                            class="form-control @error('vendor_name') is-invalid @enderror">
@@ -356,7 +356,7 @@
             </div>
              <div class="row" id="wallWrap">
                 <div class="col-md-3 mb-3">
-                    <label>Area (sq.ft) <span class="text-danger">*</span></label>
+                    <label>Area (sq.ft)</label>
                     <input type="text"
                         name="area_auto"
                         id="area_auto"
@@ -369,8 +369,8 @@
                 </div>
 
             </div>
-            <div class="text-end">
-                <a href="{{ route('media.list') }}" class="btn btn-secondary me-2">Cancel</a>
+            <div class="text-end d-flex justify-content-end">
+                <a href="{{ route('media.list') }}" class="btn btn-secondary mr-2">Cancel</a>
                 <button class="btn btn-success">Save Media</button>
             </div>
 
