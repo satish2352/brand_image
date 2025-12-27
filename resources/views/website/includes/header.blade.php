@@ -17,10 +17,9 @@
         <div class="collapse navbar-collapse" id="navbarContent">
 
             <ul class="navbar-nav mb-2 mb-lg-0 text-center">
-                <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/about') }}">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/contact') }}">Contact Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url('/media-search') }}">Search Media</a></li>
+                <li class="nav-item"><a class="nav-link {{ Request::is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link {{ Request::is('about') ? 'active' : '' }}" href="{{ url('/about') }}">About</a></li>
+                <li class="nav-item"><a class="nav-link {{ Request::is('contact') ? 'active' : '' }}" href="{{ url('/contact') }}">Contact Us</a></li>
             </ul>
 
             <!-- Right Login -->
@@ -70,11 +69,9 @@
 
                 @else
 
-                    <button class="btn btn-dark px-4"
-                            data-bs-toggle="modal"
-                            data-bs-target="#authModal">
-                        Login
-                    </button>
+<button class="login-btn" data-bs-toggle="modal" data-bs-target="#authModal">
+    <i class="bi bi-person-circle"></i> Login
+</button>
 
                 @endif
 
