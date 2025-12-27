@@ -33,5 +33,7 @@
 
     @include('website.index_2')
 
+    @include('website.search')
+  @include('website.mediacarts')
 
 @endsection

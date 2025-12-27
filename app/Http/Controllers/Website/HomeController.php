@@ -3,18 +3,39 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
-use App\Models\State;
+use App\Http\Services\Website\HomeService;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class HomeController extends Controller
 {
+    protected HomeService $homeService;
+
+    // ✅ Dependency Injection
+    public function __construct(HomeService $homeService)
+    {
+        $this->homeService = $homeService;
+    }
+
     public function index()
     {
-        // fetch active states for search dropdown
-        $states = State::where('is_active', 1)
-                       ->where('is_deleted', 0)
-                       ->orderBy('state', 'asc')
-                       ->get();
+        try {
+            $mediaList = $this->homeService->getAllMediaCartsData();
 
-        return view('website.home', compact('states'));
+            return view('website.home', compact('mediaList'));
+        } catch (Throwable $e) {
+
+            // ✅ Log exact error
+            Log::error('Home page error', [
+                'message' => $e->getMessage(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+            ]);
+
+            // ✅ Safe fallback
+            return view('website.home', [
+                'mediaList' => []
+            ])->with('error', 'Unable to load media at the moment.');
+        }
     }
 }

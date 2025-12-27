@@ -14635,3 +14635,17 @@ input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::after {
   color: #67757c !important;
   margin-left: 0.4rem;
 }
+/* ================================== */
+.media-img-wrapper {
+    overflow: hidden;
+    border-radius: 6px;
+    cursor: zoom-in;
+}
+
+.media-img {
+    transition: transform 0.4s ease;
+}
+
+.media-img-wrapper:hover .media-img {
+    transform: scale(1.8); /* zoom level */
+}

@@ -37,21 +37,7 @@
                             @enderror
                         </div> --}}
 
-                        {{-- Department --}}
-                        {{-- <div class="form-group">
-                            <label for="department_id">Select Department <span class="text-danger">*</span></label>
-                            <select id="department_id" name="department_id[]" multiple="multiple" class="form-control">
-                                @foreach ($departments as $dept)
-                                    <option value="{{ $dept->id }}"
-                                        {{ in_array($dept->id, explode(',', $employee->department_id)) ? 'selected' : '' }}>
-                                        {{ $dept->department_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('department_id')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div> --}}
+                      
 
                         {{-- Projects --}}
                         {{-- <div class="form-group">

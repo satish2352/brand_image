@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Http\Controllers\Superadm;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Service\Superadm\DashboardService;
 use App\Models\{
-    Roles,
-    Designations,
-    PlantMasters,
+    Area,
+    MediaManagement,
+    Category,
     Employees,
-    Projects,
-    Departments,
+    FacingDirection,
+    Illumination,
     EmployeeType,
     FinancialYear,
     EmployeePlantAssignment
@@ -32,27 +33,21 @@ class DashboardController extends Controller
                 $allSessions = $req->session()->all();
                 // dd($allSessions);
 
-                $allRoles = Roles::where('is_deleted', 0)->count();
-                $allDesignations = Designations::where('is_deleted', 0)->count();
-                $allPlants = PlantMasters::where('is_deleted', 0)->count();
-                $allProjects = Projects::where('is_deleted', 0)->count();
-                $allDepartments = Departments::where('is_deleted', 0)->count();
-                $allEmployees = Employees::where('is_deleted', 0)->count();
-                $allEmployeeTypes = EmployeeType::where('is_deleted', 0)->count();
-                $allfinancialyears = FinancialYear::where('is_deleted', 0)->count();
-                $allEmployeeAssignments = EmployeePlantAssignment::where('is_deleted', 0)->count();
+                $allArea = Area::where('is_deleted', 0)->count();
+                $allMediaManagement = MediaManagement::where('is_deleted', 0)->count();
+                $allCategory = Category::where('is_deleted', 0)->count();
+                $allFacingDirection = FacingDirection::where('is_deleted', 0)->count();
+                $allIllumination = Illumination::where('is_deleted', 0)->count();
+
 
 
                 return view('dashboard.dashboard', compact(
-                    'allRoles',
-                    'allDesignations',
-                    'allPlants',
-                    'allProjects',
-                    'allDepartments',
-                    'allEmployees',
-                    'allEmployeeTypes',
-                    'allfinancialyears',
-                    'allEmployeeAssignments'
+                    'allArea',
+                    'allMediaManagement',
+                    'allCategory',
+                    'allFacingDirection',
+                    'allIllumination',
+
                 ));
             } else {
                 $projects = Employees::leftJoin('projects', function ($join) {

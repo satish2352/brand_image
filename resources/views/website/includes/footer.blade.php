@@ -93,3 +93,9 @@
 	<script src="{{ asset('assets/js/sticker.js') }}"></script>
 	<!-- main js -->
 	<script src="assets/js/main.js"></script>
+
+<script>
+    function setRedirect(url) {
+        sessionStorage.setItem('redirect_after_login', url);
+    }
+</script>

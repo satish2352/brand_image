@@ -12,7 +12,7 @@
                     <div class="row">
                         <!-- Roles Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('roles.list') }}" class="text-decoration-none text-dark">
+                            <a href="{{ route('area.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-role">
                                         <div class="d-flex flex-row">
@@ -22,7 +22,7 @@
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
-                                                    Roles <strong>{{ $allRoles }}</strong>
+                                                    Area <strong>{{ $allArea }}</strong>
                                                 </h3>
                                             </div>
                                         </div>
@@ -33,7 +33,7 @@
 
                         <!-- Designations Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('designations.list') }}" class="text-decoration-none text-dark">
+                            <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-designation">
                                         <div class="d-flex flex-row">
@@ -43,7 +43,7 @@
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
-                                                    Designations <strong>{{ $allDesignations }}</strong>
+                                                    Media <strong>{{ $allMediaManagement }}</strong>
                                                 </h3>
                                             </div>
                                         </div>
@@ -54,7 +54,7 @@
 
                         <!-- Plants Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('plantmaster.list') }}" class="text-decoration-none text-dark">
+                            <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-plants ">
                                         <div class="d-flex flex-row">
@@ -64,7 +64,7 @@
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
-                                                    Plants <strong>{{ $allPlants }}</strong>
+                                                    Category <strong>{{ $allCategory }}</strong>
                                                 </h3>
                                             </div>
                                         </div>
@@ -76,7 +76,7 @@
 
                           <!-- Plants Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('projects.list') }}" class="text-decoration-none text-dark">
+                            <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-projects">
                                         <div class="d-flex flex-row">
@@ -86,7 +86,7 @@
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
-                                                    Projects <strong>{{ $allProjects }}</strong>
+                                                    Facing Direction <strong>{{ $allFacingDirection }}</strong>
                                                 </h3>
                                             </div>
                                         </div>
@@ -98,7 +98,7 @@
 
                           <!-- Plants Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('departments.list') }}" class="text-decoration-none text-dark">
+                            <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-department">
                                         <div class="d-flex flex-row">
@@ -108,7 +108,7 @@
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
-                                                    Departments <strong>{{ $allDepartments }}</strong>
+                                                    Illumination <strong>{{ $allIllumination }}</strong>
                                                 </h3>
                                             </div>
                                         </div>
@@ -119,7 +119,7 @@
 
 
                           <!-- Plants Card -->
-                        <div class="col-lg-3 col-md-6 mb-4">
+                        {{-- <div class="col-lg-3 col-md-6 mb-4">
                             <a href="{{ route('employees.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-employees ">
@@ -137,10 +137,10 @@
                                     </div>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
 
                         <!-- Employee Types Card -->
-                        <div class="col-lg-3 col-md-6 mb-4">
+                        {{-- <div class="col-lg-3 col-md-6 mb-4">
                             <a href="{{ route('employee-types.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-employee-type">
@@ -157,10 +157,10 @@
                                     </div>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
 
                         <!-- Financial Years -->
-                        <div class="col-lg-3 col-md-6 mb-4">
+                        {{-- <div class="col-lg-3 col-md-6 mb-4">
                             <a href="{{ route('financial-year.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-financial">
@@ -177,10 +177,10 @@
                                     </div>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
 
                         <!-- Employee Assignments Card -->
-                        <div class="col-lg-3 col-md-6 mb-4">
+                        {{-- <div class="col-lg-3 col-md-6 mb-4">
                             <a href="{{ route('employee.assignments.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-assignment">
@@ -197,7 +197,7 @@
                                     </div>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
 
                     </div>
 
