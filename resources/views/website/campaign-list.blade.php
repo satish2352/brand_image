@@ -6,15 +6,23 @@
 <style>
     .nav-tabs {
     border-bottom:none !important;
+     font-size: 26px !important;
+}
+.nav-tabs .nav-link {
+    color: #000;
 }
     .nav-tabs .nav-link.active {
         border: none !important;
         border-color:none !important;
+        color: #28a745;
+        font-weight: 600;
+        
+       
     }
 </style>
 <div class="container my-5">
 
-    <h3 class="mb-4">Campaigns</h3>
+   
 
     {{-- ================= TAB HEADERS ================= --}}
     <ul class="nav nav-tabs mb-4" id="campaignTabs" role="tablist">
