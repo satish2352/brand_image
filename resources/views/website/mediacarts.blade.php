@@ -40,7 +40,7 @@
 </style>
 
 @php
-    $cart = session()->get('cart', []);
+    // $cart = session()->get('cart', []);
 @endphp
 
 <div class="container my-5">
@@ -49,8 +49,8 @@
         @forelse($mediaList as $media)
 
             @php
-                $inCart = isset($cart[$media->id]);
-                $qty = $inCart ? $cart[$media->id]['qty'] : 1;
+                // $inCart = isset($cart[$media->id]);
+                // $qty = $inCart ? $cart[$media->id]['qty'] : 1;
             @endphp
 
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
@@ -64,62 +64,57 @@
 
                     <div class="media-body">
 
-                        <h6>{{ $media->media_title ?? $media->category_name }}</h6>
+                        <h6> {{ $media->area_name }}, {{ $media->city_name }}</h6>
 
                         <small class="text-muted d-block">
-                            {{ $media->area_name }}, {{ $media->city_name }}
+                          {{ $media->media_title ?? $media->category_name }} 
                         </small>
 
                         <p class="mt-2">
                             ₹ {{ number_format($media->price, 2) }}
                         </p>
 
-                        <div class="media-actions mt-2">
+                        <div class="media-actions mt-2 d-flex justify-content-end">
 
-                            <a href="{{ url('media/view-details/' . encrypt($media->id)) }}"
+                            {{-- <a href="{{ url('media/view-details/' . encrypt($media->id)) }}"
                                class="btn btn-sm btn-primary">
                                 View
-                            </a>
+                            </a> --}}
 
                             {{-- ONLY FOR ALLOWED CATEGORIES --}}
+                           {{-- ONLY FOR ALLOWED CATEGORIES --}}
                             @if(
-                                $media->category_name === 'Hoardings/Billboards' ||
-                                $media->category_name === 'Digital Wall painting/Wall Painting'
+                                $media->category_name === 'Hoardings/Billboards'
                             )
 
-                                {{-- IF NOT IN CART --}}
-                                {{-- @if(!$inCart) --}}
+                                @auth('website')
+                                    {{-- User Logged In --}}
                                     <a href="{{ route('cart.add', encrypt($media->id)) }}"
-                                       class="btn btn-sm btn-success">
+                                    class="btn btn-sm btn-success">
                                         Add to Cart
                                     </a>
-                                {{-- @else --}}
-                                    {{-- QUANTITY CONTROLS --}}
-                                    {{-- <form method="POST"
-                                          action="{{ route('cart.update') }}"
-                                          class="qty-box">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $media->id }}">
+                                @else
+                                    {{-- User NOT Logged In --}}
+                                    {{-- <a href="{{ route('login') }}"
+                                    class="btn btn-sm btn-success">
+                                        Add to Cart
+                                    </a> --}}
 
-                                        <button type="submit"
-                                                name="qty"
-                                                value="{{ $qty - 1 }}"
-                                                class="btn btn-sm btn-secondary">−</button>
+                                   <button class="btn btn-sm btn-success"
+        data-bs-toggle="modal"
+        data-bs-target="#authModal"
+        onclick="setRedirect('{{ route('cart.add', encrypt($media->id)) }}')">
+    Add to Cart
+</button>
 
-                                        <input type="text" value="{{ $qty }}" readonly>
-
-                                        <button type="submit"
-                                                name="qty"
-                                                value="{{ $qty + 1 }}"
-                                                class="btn btn-sm btn-secondary">+</button>
-                                    </form> --}}
-                                {{-- @endif --}}
+                                @endauth
 
                             @else
-                                <a href="{{ url('login') }}"
-                                   class="btn btn-sm btn-warning">
-                                    Contact Us
-                                </a>
+                                <a href="{{ route('contact.create') }}"
+   class="btn btn-sm btn-warning">
+    Contact Us
+</a>
+
                             @endif
 
                         </div>

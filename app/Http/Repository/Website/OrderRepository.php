@@ -5,6 +5,8 @@ namespace App\Http\Repository\Website;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\CartItem;
+
 use Illuminate\Support\Facades\Auth;
 
 class OrderRepository

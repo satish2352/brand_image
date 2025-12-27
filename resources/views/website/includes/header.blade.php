@@ -24,12 +24,14 @@
                  {{-- <li class="nav-item"><a class="nav-link" href="{{ url('/campaign-list') }}">Campaign List</a></li>
                   --}}
                   <li class="nav-item">
-    <form action="{{ route('campaign.list') }}" method="POST" class="d-inline">
-        @csrf
-        <button type="submit" class="nav-link btn btn-link p-0">
-            Campaign List
-        </button>
-    </form>
+    <a class="nav-link" href="{{ route('campaign.list') }}">
+        Campaign List
+    </a>
+</li>
+
+  <li class="nav-item"><a class="nav-link" href="{{ url('/contact-us') }}">Contact Us</a></li>
+       <li class="nav-item">
+    
 </li>
 
             </ul>
@@ -37,7 +39,30 @@
             <!-- Right Login -->
             <div class="ms-lg-auto d-flex align-items-center">
 
-                @if(session()->has('website_user'))
+                {{-- @if(session()->has('website_user')) --}}
+
+                <div class="ms-lg-auto d-flex align-items-center gap-3">
+
+    {{-- ================= CART ICON ================= --}}
+   @auth('website')
+<a href="{{ route('cart.index') }}" class="btn btn-light position-relative">
+    <i class="bi bi-cart3 fs-5"></i>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ $cartCount }}
+    </span>
+</a>
+@else
+<button class="btn btn-light position-relative" onclick="openLoginForCart()">
+    <i class="bi bi-cart3 fs-5"></i>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        0
+    </span>
+</button>
+@endauth
+
+
+    {{-- ================= USER / LOGIN ================= --}}
+@auth('website')
 
                     <div class="dropdown user-dropdown">
 
@@ -45,7 +70,7 @@
                                 data-bs-toggle="dropdown">
 
                             <!-- USER NAME + ARROW -->
-                            <span class="me-2 user-name">{{ session('website_user')->name }}</span>
+                            {{-- <span class="me-2 user-name">{{ session('website')->name }}</span> --}}
                             
                             <i class="bi bi-caret-down-fill dropdown-arrow"></i>
 
@@ -58,8 +83,15 @@
                         <ul class="dropdown-menu dropdown-menu-end user-menu shadow-lg">
 
                             <li class="dropdown-header text-center">
-                                <strong>{{ session('website_user')->name }}</strong><br>
-                                <small class="text-muted">{{ session('website_user')->email }}</small>
+                                @auth('website')
+    <strong>{{ Auth::guard('website')->user()->name }}</strong><br>
+    <small class="text-muted">
+        {{ Auth::guard('website')->user()->email }}
+    </small>
+@endauth
+
+                                {{-- <strong>{{ session('website')->name }}</strong><br>
+                                <small class="text-muted">{{ session('website')->email }}</small> --}}
                             </li>
 
                             <li><hr class="dropdown-divider"></li>
@@ -286,10 +318,27 @@ $(document).ready(function () {
             success: function(res){
                 hideLoader();
 
-                if(res.status){
-                    Swal.fire("Success!", res.message, "success")
-                    .then(() => window.location.reload());
-                } else {
+                // if(res.status){
+                //     Swal.fire("Success!", res.message, "success")
+                //     .then(() => window.location.reload());
+                // } 
+                if (res.status) {
+
+                        let redirectUrl = sessionStorage.getItem('redirect_after_login');
+
+                        Swal.fire("Success!", res.message, "success").then(() => {
+
+                            if (redirectUrl) {
+                                sessionStorage.removeItem('redirect_after_login');
+                                window.location.href = redirectUrl; // ✅ ADD TO CART
+                            } else {
+                                window.location.reload(); // normal login
+                            }
+
+                        });
+                    }
+
+                else {
                     Swal.fire("Error!", res.message, "error");
                 }
             },

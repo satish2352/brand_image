@@ -8,7 +8,7 @@
         <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/theamoriginalalf/images/logo_bg1.ico') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/theamoriginalalf/images/logo.png') }}">
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
    <title> ALF </title>
@@ -31,13 +31,39 @@
     border-top-right-radius: 0.5rem;
     border-bottom-right-radius: 0.5rem;
 }
+
+.login-bg {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.login-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* 🔥 key line */
+}
+.login-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 30px 25px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    max-width: 600px;
+    margin: auto;
+}
+
+.login-card .card-header img {
+    margin-bottom: 15px;
+}
+
+.login-card label {
+    color: #344767; /* dark soft-ui text */
+    font-weight: 500;
+}
+
 </style>
 
     </head>
-    <body style="background-image: url('{{ asset('asset/theamoriginalalf/images/bg_color2.jpg') }}'); 
-             background-size: cover; 
-             background-repeat: no-repeat; 
-             background-position: center center;">
+    <body >
 
         <div class="container position-sticky z-index-sticky top-0">
             <div class="row">
@@ -49,59 +75,29 @@
         <main class="main-content  mt-0">
             <section>
                 <div class="page-header min-vh-75" style="padding-bottom: 40px; margin: 0px;">
-                    <div class="container">
+                    <div class="container-fluid">
 
                             <div class="row">
-                            <div class="col-sm-8">
-                                <style>
-                                  .reflected-text {
-                                    display: inline-block;
-                                    position: relative;
-                                    color: #333; /* Change the color of the text */
-                                    font-family: Arial, sans-serif; /* Set the font family */
-                                  }
-                                  .reflected-text:after {
-                                    content: attr(data-text);
-                                    position: absolute;
-                                    top: 100%;
-                                    left: 0;
-                                    transform: scaleY(-1);
-                                    color: #999; /* Change the color of the reflection */
-                                    margin-top: -30px; /* Adjust this value to remove the space */
-                                    opacity: 0.1; /* Set the opacity for a transparent reflection */
-                                  }
-                                </style>
-                                 <div class="row">
-                                    <div class="col-sm-12"> 
+                                <div class="col-sm-6 login-bg d-none d-sm-block">
+    <img src="{{ asset('asset/theamoriginalalf/images/loginbg.png') }}" alt="Login Image">
+</div>
 
-                                         <div class="reflected-text" style="font-size: 58px;width: 100%;color: white;margin-top: 42%;" data-text="ALF ENGINEERING PVT LTD">ALF ENGINEERING PVT LTD</div>
 
-                                    </div>
-                                    <div class="col-sm-12"> 
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    
-                                </div>
-                            </div>
-                            <div class="col-sm-4 d-flex flex-column mx-auto">
-                                <div class="card card-plain mt-8">
+                            
+                            <div class="col-sm-6 d-flex flex-column mx-auto">
+                                <div class="card login-card">
                                     <div class="card-header pb-0 text-left bg-transparent text-center">
-                                         
-                                        <img src="{{ asset('asset/theamoriginalalf/images/logo_bg1.ico') }}" style="height: 80px;width:30%;">
-
-                                       
+                                        <img src="{{ asset('asset/theamoriginalalf/images/logo.png') }}" style="width: 329px;">
                                     </div>
                                  
                                     <div class="card-body">
 
                                        @if (session('error'))
-                        <div class="alert alert-danger">{{ session('error') }}</div>
-                    @endif
+                                    <div class="alert alert-danger">{{ session('error') }}</div>
+                                      @endif
                                                                                 
-                                            <form class="form-horizontal form-material" method="POST" id="loginform"
-                        action="{{ route('superlogin') }}">
-                        @csrf
+                                            <form class="form-horizontal form-material" method="POST" id="loginform" action="{{ route('superlogin') }}">
+                                                 @csrf
                                             <label style="color:#fff">User name</label>
                                             <div class="mb-3">
                                                 <input type="text" id="superemail" name="superemail" value="" class="form-control" placeholder="User" aria-label="user" aria-describedby="email-addon">

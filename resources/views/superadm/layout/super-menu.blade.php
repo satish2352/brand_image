@@ -35,6 +35,24 @@
                 <span>Media Management</span>
             </a>
         </li>
+         <li class="nav-item {{ request()->is('website-user/list') || request()->is('website-user/add') || request()->is('website-user/edit/*') ? 'active' : '' }}">
+            <a href="{{ route('website-user.list') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>Website User</span>
+            </a>
+        </li>
+                 <li class="nav-item {{ request()->is('contact-us/list')}}">
+            <a href="{{ route('contact-us.list') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>Contact Us</span>
+            </a>
+        </li>
+                  <li class="nav-item {{ request()->is('user-payment/list')}}">
+            <a href="{{ route('user-payment.list') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>User Payment</span>
+            </a>
+        </li>
         
         <li class="nav-item {{ request()->is('radius/list') || request()->is('radius/add') || request()->is('radius/edit/*') ? 'active' : '' }}">
             <a href="{{ route('radius.list') }}">

@@ -6,31 +6,37 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('cart_id');
-            $table->unsignedBigInteger('media_id');
+
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('session_id', 100)->nullable();
+
+            $table->unsignedBigInteger('media_id')->nullable();
+            $table->unsignedBigInteger('campaign_id')->nullable();
+
             $table->decimal('price', 10, 2);
+            $table->enum('cart_type', ['NORMAL', 'CAMPAIGN'])->default('NORMAL');
+            $table->enum('status', ['ACTIVE', 'ORDERED'])->default('ACTIVE');
             $table->integer('qty')->default(1);
             $table->tinyInteger('is_active')->default(1);
             $table->tinyInteger('is_deleted')->default(0);
             $table->timestamps();
 
-            $table->foreign('cart_id')
-                ->references('id')
-                ->on('carts')
-                ->onDelete('cascade');
+            // $table->foreign('user_id')
+            //     ->references('id')
+            //     ->on('users')
+            //     ->onDelete('cascade');
+
+            // $table->foreign('media_id')
+            //     ->references('id')
+            //     ->on('media_management')
+            //     ->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('cart_items');

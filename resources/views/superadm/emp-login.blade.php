@@ -95,7 +95,7 @@ select.form-control {
                                 <div class="card card-plain mt-2">
                                     <div class="card-header pb-0 text-left bg-transparent text-center">
                                          
-                                        <img src="{{ asset('asset/theamoriginalalf/images/logo_bg1.ico') }}" style="height: 80px;width:30%;">
+                                        <img src="{{ asset('asset/theamoriginalalf/images/logo_bg1.ico') }}" >
 
                                        
                                     </div>

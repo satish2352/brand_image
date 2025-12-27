@@ -7,28 +7,45 @@ use Illuminate\Support\Facades\DB;
 
 class CampaignService
 {
-    protected $campaignRepo;
+    public function __construct(
+        protected CampaignRepository $repo
+    ) {}
 
-    public function __construct(CampaignRepository $campaignRepo)
-    {
-        $this->campaignRepo = $campaignRepo;
-    }
-
+    // public function saveCampaign($userId, $campaignName)
+    // {
+    //     return DB::transaction(function () use ($userId, $campaignName) {
+    //         return $this->repo->createCampaignByCopyingCart(
+    //             $userId,
+    //             $campaignName
+    //         );
+    //     });
+    // }
     public function saveCampaign($userId, $campaignName)
     {
-        return DB::transaction(function () use ($userId, $campaignName) {
-            return $this->campaignRepo->updateCartCampaign(
-                $userId,
-                $campaignName
-            );
-        });
+        return $this->repo->createCampaignAndMoveCart(
+            $userId,
+            $campaignName
+        );
     }
 
-    public function getCampaignList($userId)
+    public function getCampaignList($userId, $request)
     {
-        $data_output = $this->campaignRepo->getCampaignList($userId);
+        $data_output = $this->repo->getCampaignList($userId, $request);
+
+        return $data_output;
+    }
+
+    public function getCampaignDetailsByCartItem($userId, $cartItemId)
+    {
+        $data_output = $this->repo->getCampaignDetailsByCartItem($userId, $cartItemId);
         // dd($data_output);
-        // die();
+        return $data_output;
+    }
+
+    public function getInvoicePayments($userId)
+    {
+        $data_output = $this->repo->getPaidCampaignInvoices($userId);
+
         return $data_output;
     }
 }

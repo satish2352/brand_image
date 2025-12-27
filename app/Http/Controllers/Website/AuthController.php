@@ -117,9 +117,18 @@ class AuthController extends Controller
             ]);
         }
 
-        // STORE SESSION
-        session(['website_user' => $user]);
+        //  ACCOUNT INACTIVE CHECK ( MAIN FIX)
+        if ($user->is_active == 0) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Your account is inactive. Please contact admin to activate your account.'
+            ]);
+        }
 
+        // STORE SESSION
+        // session(['website_user' => $user]);
+        Auth::guard('website')->login($user);
+        $req->session()->regenerate();
         return response()->json([
             'status' => true,
             'message' => 'Login successful!'
@@ -128,11 +137,15 @@ class AuthController extends Controller
 
 
 
-    public function logout()
+    public function logout(Request $request)
     {
-        session()->forget('website_user');
+        Auth::guard('website')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect('/')->with('success', 'Logged out successfully!');
     }
+
 
     //   public function login(Request $req)
     // {

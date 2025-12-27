@@ -2,66 +2,291 @@
 
 namespace App\Http\Repository\Website;
 
+use App\Models\Campaign;
+use App\Models\CartItem;
 use Illuminate\Support\Facades\DB;
-use App\Models\Cart;
 
 class CampaignRepository
 {
-    public function updateCartCampaign($userId, $campaignName)
+    /**
+     * Insert campaign + update cart_items
+     */
+    // public function createCampaignAndUpdateCart($userId, $campaignName)
+    // {
+    //     // 1️⃣ Create campaign
+    //     $campaign = Campaign::create([
+    //         'user_id'       => $userId,
+    //         'campaign_name' => $campaignName,
+    //         'is_active'     => 1,
+    //         'is_deleted'    => 0,
+    //     ]);
+
+    //     // 2️⃣ Update cart_items with SAME campaign_id
+    //     $query = CartItem::where('status', 'ACTIVE')
+    //         ->where('cart_type', 'NORMAL');
+
+    //     if ($userId) {
+    //         $query->where('user_id', $userId);
+    //     } else {
+    //         $query->whereNull('user_id')
+    //             ->where('session_id', session()->getId());
+    //     }
+
+    //     $query->update([
+    //         'cart_type'   => 'CAMPAIGN',
+    //         'campaign_id' => $campaign->id, // ✅ MUST MATCH
+    //     ]);
+
+    //     return true;
+    // }
+    // public function createCampaignByCopyingCart($userId, $campaignName)
+    // {
+    //     return DB::transaction(function () use ($userId, $campaignName) {
+
+    //         $campaign = Campaign::create([
+    //             'user_id' => $userId,
+    //             'campaign_name' => $campaignName,
+    //             'is_active' => 1,
+    //             'is_deleted' => 0,
+    //         ]);
+
+    //         $normalItems = CartItem::where('user_id', $userId)
+    //             ->where('cart_type', 'NORMAL')
+    //             ->where('status', 'ACTIVE')
+    //             ->get();
+
+    //         if ($normalItems->isEmpty()) {
+    //             throw new \Exception('Cart is empty');
+    //         }
+
+    //         foreach ($normalItems as $item) {
+    //             CartItem::create([
+    //                 'user_id' => $item->user_id,
+    //                 'session_id' => $item->session_id,
+    //                 'media_id' => $item->media_id,
+    //                 'price' => $item->price,
+    //                 'qty' => $item->qty,
+    //                 'cart_type' => 'CAMPAIGN',
+    //                 'campaign_id' => $campaign->id,
+    //                 'status' => 'ACTIVE',
+    //                 'is_active' => 1,
+    //                 'is_deleted' => 0,
+    //             ]);
+    //         }
+
+    //         return true;
+    //     });
+    // }
+
+    public function createCampaignAndMoveCart($userId, $campaignName)
     {
-        $cart = Cart::where('is_active', '1')
-            ->where(function ($q) use ($userId) {
-                if ($userId) {
-                    $q->where('user_id', $userId);
-                } else {
-                    $q->where('session_id', session()->getId());
-                }
-            })
-            ->first();
+        return DB::transaction(function () use ($userId, $campaignName) {
 
-        if (!$cart) {
-            throw new \Exception('Active cart not found');
-        }
+            // 1️⃣ Create campaign
+            $campaign = Campaign::create([
+                'user_id'       => $userId,
+                'campaign_name' => $campaignName,
+                'is_active'     => 1,
+                'is_deleted'    => 0,
+            ]);
 
-        $cart->campaign_name = $campaignName;
+            // 2️⃣ Update existing NORMAL cart items
+            $query = CartItem::where('status', 'ACTIVE')
+                ->where('cart_type', 'NORMAL')
+                ->where('user_id', $userId);
 
-        // 🔥 attach user if logged in
-        if ($userId) {
-            $cart->user_id = $userId;
-        }
+            if (!$query->exists()) {
+                throw new \Exception('Cart is empty');
+            }
 
-        $cart->save(); // ✅ FORCE SAVE
+            $query->update([
+                'cart_type'   => 'CAMPAIGN',
+                'campaign_id' => $campaign->id,
+            ]);
 
-        return $cart;
+            return true;
+        });
     }
 
 
-    public function getCampaignList($userId)
+    /**
+     * Campaign list
+     */
+    // public function getCampaignList($userId, $request)
+    // {
+    //     return DB::table('campaign as c')
+    //         ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
+    //         ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+    //         ->select(
+    //             'c.id as campaign_id',
+    //             'c.campaign_name',
+    //             'ci.price',
+    //             'ci.qty',
+    //             'ci.created_at as campaign_date',
+    //             'm.media_title',
+    //             'm.width',
+    //             'm.height'
+    //         )
+    //         ->where('c.user_id', $userId)
+    //         ->where('ci.cart_type', 'CAMPAIGN')
+    //         ->where('ci.status', 'ACTIVE')
+    //         ->where('c.is_active', 1)
+    //         ->where('c.is_deleted', 0)
+    //         ->orderBy('c.id', 'DESC')
+    //         ->paginate(10);
+    // }
+    public function getCampaignList($userId, $request)
     {
-        return DB::table('carts as c')
-            ->join('cart_items as ci', 'ci.cart_id', '=', 'c.id')
+        $query = DB::table('campaign as c')
+            ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->select(
-                'c.id as cart_id',
+                'ci.id as cart_item_id',
+                'c.id as campaign_id',
                 'c.campaign_name',
-                'c.created_at as campaign_date',
-
+                'ci.media_id',
                 'ci.price',
                 'ci.qty',
-
+                'ci.created_at as campaign_date',
                 'm.media_title',
                 'm.width',
                 'm.height'
             )
-            ->where('c.is_active', 1)
-            ->where(function ($q) use ($userId) {
-                if ($userId) {
-                    $q->where('c.user_id', $userId);
-                } else {
-                    $q->where('c.session_id', session()->getId());
-                }
-            })
+            ->where('c.user_id', $userId)
+            ->where('ci.cart_type', 'CAMPAIGN')
+            ->where('ci.status', 'ACTIVE');
+
+        if ($request->filled('campaign_name')) {
+            $query->where('c.campaign_name', 'like', '%' . $request->campaign_name . '%');
+        }
+
+        return $query
             ->orderBy('c.id', 'DESC')
+            ->get()
+            ->groupBy('campaign_id'); // ⭐ IMPORTANT
+    }
+
+    public function getCampaignDetailsByCartItem($userId, $cartItemId)
+    {
+        $data = DB::table('cart_items as ci')
+            ->join('campaign as c', 'c.id', '=', 'ci.campaign_id')
+            ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+            ->leftJoin('media_images as mi', function ($join) {
+                $join->on('mi.media_id', '=', 'm.id')
+                    ->where('mi.is_deleted', 0);
+            })
+            ->select(
+                'c.campaign_name',
+                'ci.price',
+                'ci.qty',
+                'ci.created_at',
+                'm.media_title',
+                'm.width',
+                'm.height',
+                DB::raw('GROUP_CONCAT(mi.images) as images')
+            )
+            ->where('ci.id', $cartItemId)
+            ->where('c.user_id', $userId)
+            ->where('ci.cart_type', 'CAMPAIGN')
+            ->where('ci.status', 'ACTIVE')
+            ->groupBy(
+                'c.campaign_name',
+                'ci.price',
+                'ci.qty',
+                'ci.created_at',
+                'm.media_title',
+                'm.width',
+                'm.height'
+            )
+            ->get();
+
+
+        if ($data->isEmpty()) {
+            throw new \Exception('Invalid campaign/cart item');
+        }
+
+        return $data;
+    }
+    // public function getPaidCampaignInvoices($userId)
+    // {
+    //     return DB::table('orders as o')
+    //         ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+    //         ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+    //         ->leftJoin('campaign as c', 'c.user_id', '=', 'o.user_id')
+    //         ->select(
+    //             'o.order_no as invoice_no',
+    //             'o.id as order_id',
+    //             'o.order_no',
+    //             'o.total_amount as amount',
+    //             'o.payment_status as status',
+    //             'o.payment_id',
+    //             'o.created_at ad created_at',
+    //             'c.campaign_name'
+    //         )
+    //         ->where('o.user_id', $userId)
+    //         ->where('o.payment_status', 'PAID')
+    //         ->groupBy(
+    //             'o.id',
+    //             'o.order_no',
+    //             'o.total_amount',
+    //             'o.payment_status',
+    //             'o.payment_id',
+    //             'o.created_at',
+    //             'c.campaign_name'
+    //         )
+    //         ->orderBy('o.id', 'DESC')
+    //         ->get();
+    // }
+
+    public function getPaidCampaignInvoices($userId)
+    {
+        return DB::table('orders as o')
+            ->select(
+                'o.id as order_id',
+                'o.order_no',
+                'o.total_amount',
+                'o.payment_status',
+                'o.payment_id',
+                'o.created_at'
+            )
+            ->where('o.user_id', $userId)
+            ->where('o.payment_status', 'PAID')
+            ->orderBy('o.id', 'DESC')
             ->get();
     }
+
+    // public function getPaidCampaignInvoices($userId)
+    // {
+    //     return DB::table('orders as o')
+    //         ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+    //         ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+    //         ->leftJoin('category as cat', 'cat.id', '=', 'm.category_id')
+    //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+    //         ->leftJoin('campaign as c', 'c.id', '=', 'oi.campaign_id')
+    //         ->where('o.user_id', $userId)
+    //         ->where('o.payment_status', 'PAID')
+    //         ->select(
+    //             'o.id as order_id',
+    //             'o.order_no',
+    //             'o.total_amount',
+    //             'o.payment_status',
+    //             'o.payment_id',
+    //             'o.created_at',
+
+    //             // 🔹 campaign
+    //             'c.campaign_name',
+
+    //             // 🔹 media
+    //             'm.media_title',
+    //             'm.media_code',
+
+    //             // 🔹 category
+    //             'cat.category_name',
+
+    //             // 🔹 area
+    //             'a.area_name'
+    //         )
+    //         ->orderBy('o.id', 'DESC')
+    //         ->get();
+    // }
 }

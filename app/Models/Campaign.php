@@ -4,16 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CartItem extends Model
+class Campaign extends Model
 {
-    protected $table = 'cart_items';
+    protected $table = 'campaign';
 
     protected $fillable = [
         'user_id',
-        'media_id',
-        'session_id',
-        'price',
-        'qty',
+        'campaign_name',
     ];
 
     /**

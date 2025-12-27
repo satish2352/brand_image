@@ -7,48 +7,39 @@ use Illuminate\Support\Facades\DB;
 
 class CartService
 {
-    protected $repo;
+    public function __construct(private CartRepository $repo) {}
 
-    public function __construct(CartRepository $repo)
+    public function getCartItems()
     {
-        $this->repo = $repo;
-    }
-
-    public function getCart()
-    {
-        $cart = $this->repo->getOrCreateCart();
-        $items = $this->repo->getCartItems($cart->id);
-
-        return [$cart, $items];
+        return $this->repo->getCartItems();
     }
 
     public function addToCart($mediaId)
     {
-        $cart = $this->repo->getOrCreateCart();
-
         $media = DB::table('media_management')
-            ->select('id', 'price')
             ->where('id', $mediaId)
+            ->select('id', 'price')
             ->first();
 
-        $this->repo->addItem($cart->id, $media->id, $media->price);
+        if (!$media) {
+            throw new \Exception('Media not found');
+        }
+
+        $this->repo->addItem($media->id, $media->price);
     }
 
-    /**
-     * ✅ FIXED: pass cart_id
-     */
     public function updateQty($itemId, $qty)
     {
-        $cart = $this->repo->getOrCreateCart();
-        $this->repo->updateQty($itemId, $qty, $cart->id);
+        $this->repo->updateQty($itemId, $qty);
     }
 
-    /**
-     * ✅ FIXED: pass cart_id
-     */
     public function removeItem($itemId)
     {
-        $cart = $this->repo->getOrCreateCart();
-        $this->repo->removeItem($itemId, $cart->id);
+        $this->repo->removeItem($itemId);
+    }
+
+    public function clearCart()
+    {
+        $this->repo->clearCart();
     }
 }

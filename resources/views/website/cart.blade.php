@@ -8,12 +8,7 @@
 <div class="container my-5">
 
   <div class="d-flex justify-content-end">
-    <button type="button"
-        class="btn btn-success"
-        data-bs-toggle="modal"
-        data-bs-target="#campaignModal">
-    Campaign
-</button>
+  
   </div>
 
 
@@ -67,10 +62,10 @@
 
                         <input type="hidden" name="item_id" value="{{ $item->id }}">
 
-                        <button type="submit"
+                        {{-- <button type="submit"
                                 name="qty"
                                 value="{{ $item->qty - 1 }}"
-                                class="btn btn-sm btn-secondary">−</button>
+                                class="btn btn-sm btn-secondary">−</button> --}}
 
                         <input type="text"
                                value="{{ $item->qty }}"
@@ -78,10 +73,10 @@
                                style="width:50px"
                                readonly>
 
-                        <button type="submit"
+                        {{-- <button type="submit"
                                 name="qty"
                                 value="{{ $item->qty + 1 }}"
-                                class="btn btn-sm btn-secondary">+</button>
+                                class="btn btn-sm btn-secondary">+</button> --}}
                     </form>
                 </td>
 
@@ -113,27 +108,28 @@
         <a href="{{ url('/') }}" class="btn btn-outline-secondary">
             Continue Shopping
         </a>
-{{-- <form action="{{ route('checkout.place') }}" method="POST">
-    @csrf
 
-    <button type="submit" class="btn btn-success">
-        Place Order
-    </button>
-</form> --}}
-{{-- <a href="{{ route('checkout.index') }}" class="btn btn-success">
-    Proceed to Checkout
-</a> --}}
 <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
     @csrf
     <button type="submit" class="btn btn-success">
         Proceed to Checkout
     </button>
 </form>
+@if($items->count() > 0)
+<button type="button"
+    class="btn btn-success"
+    data-bs-toggle="modal"
+    data-bs-target="#campaignModal">
+    Campaign
+</button>
+@endif
 
-        {{-- <a href="{{ route('checkout.place') }}"
-           class="btn btn-success">
-            Proceed to Checkout
-        </a> --}}
+        {{-- <button type="button"
+        class="btn btn-success"
+        data-bs-toggle="modal"
+        data-bs-target="#campaignModal">
+    Campaign
+</button> --}}
     </div>
 
     @endif

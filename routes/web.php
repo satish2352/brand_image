@@ -19,6 +19,10 @@ use App\Http\Controllers\Website\CheckoutController;
 use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\AuthController;
 use App\Http\Controllers\Website\CampaignController;
+use App\Http\Controllers\Website\ContactController;
+use App\Http\Controllers\Superadm\WebsiteUserController;
+use App\Http\Controllers\Superadm\ContactUsController;
+use App\Http\Controllers\Superadm\UserPaymentController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -157,6 +161,26 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::post('/media/update-status', [MediaManagementController::class, 'getAreaParents'])->name('media.updatestatus');
     Route::post('/media/update-status', [MediaManagementController::class, 'getDistricts'])->name('media.updatestatus');
     Route::post('/media/update-status', [MediaManagementController::class, 'getAreas'])->name('media.updatestatus');
+
+
+
+
+    Route::prefix('website-user')->group(function () {
+        Route::get('list', [WebsiteUserController::class, 'index'])->name('website-user.list');
+        Route::post('delete', [WebsiteUserController::class, 'delete'])->name('website-user.delete');
+        Route::post('toggle-status', [WebsiteUserController::class, 'toggleStatus'])
+            ->name('website-user.toggle-status');
+    });
+    Route::prefix('contact-us')->group(function () {
+        Route::get('list', [ContactUsController::class, 'index'])->name('contact-us.list');
+        Route::post('delete', [ContactUsController::class, 'delete'])->name('contact-us.delete');
+    });
+    Route::prefix('user-payment')->group(function () {
+        Route::get('list', [UserPaymentController::class, 'index'])->name('user-payment.list');
+        Route::get('details/{orderId}', [UserPaymentController::class, 'details'])
+            ->name('user-payment.details');
+    });
+
     // Radius Master
     Route::get('radius/list', [RadiusController::class, 'index'])->name('radius.list');
     Route::get('radius/create', [RadiusController::class, 'create'])->name('radius.create');
@@ -227,10 +251,12 @@ Route::post('/website/signup', [AuthController::class, 'signup'])->name('website
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');
 Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.logout');
 
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::get('/cart/add/{mediaId}', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
-Route::get('/cart/remove/{mediaId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::middleware('auth:website')->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/cart/add/{mediaId}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::get('/cart/remove/{mediaId}', [CartController::class, 'remove'])->name('cart.remove');
+});
 // Route::get('/checkout', [CheckoutController::class, 'index'])
 //     ->name('checkout.index');
 // Route::post(
@@ -255,8 +281,8 @@ Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder']
     ->name('checkout.create');
 
 
-Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])
-    ->name('checkout.place');
+Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])
+    ->name('checkout.create');
 // ->middleware('auth:website');
 
 Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
@@ -264,6 +290,9 @@ Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
 
 Route::post('/payment/success', [CheckoutController::class, 'success'])
     ->name('payment.success');
+// Route::get('/payment/thank-you', function () {
+//     return view('website.payment-success');
+// })->name('payment.thankyou');
 
 Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
@@ -273,6 +302,34 @@ Route::middleware(['web'])->group(function () {
     Route::post('/campaign/store', [CampaignController::class, 'store'])
         ->name('campaign.store');
 
-    Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
+    // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
+    //     ->name('campaign.list');
+    Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])
         ->name('campaign.list');
+
+    Route::get(
+        '/campaign-export-excel/{campaignId}',
+        [CampaignController::class, 'exportExcel']
+    )->name('campaign.export.excel');
+
+
+    Route::post(
+        '/checkout/campaign/{campaignId}',
+        [CheckoutController::class, 'placeCampaignOrder']
+    )->name('checkout.campaign');
+
+    Route::get('/campaign-invoice-payments', [CampaignController::class, 'invoicePayments'])
+        ->name('campaign.invoice.payments')
+        ->middleware('auth:website');
+
+    Route::get(
+        '/campaign/details/{cart_item_id}',
+        [CampaignController::class, 'viewDetails']
+    )->name('campaign.details');
+
+    Route::get('/campaign-invoice/{orderId}', [CampaignController::class, 'viewInvoice'])
+        ->name('campaign.invoice.view');
 });
+
+Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');
+Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');

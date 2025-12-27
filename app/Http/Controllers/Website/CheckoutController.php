@@ -7,139 +7,90 @@ use App\Http\Repository\Website\CartRepository;
 use App\Http\Repository\Website\OrderRepository;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use App\Models\Cart;
 use App\Models\CartItem;
 
 class CheckoutController extends Controller
 {
-    protected $cartRepo;
-    protected $orderRepo;
-
     public function __construct(
-        CartRepository $cartRepo,
-        OrderRepository $orderRepo
-    ) {
-        $this->cartRepo  = $cartRepo;
-        $this->orderRepo = $orderRepo;
-    }
+        private CartRepository $cartRepo,
+        private OrderRepository $orderRepo
+    ) {}
 
-    // STEP 1: Checkout + Create Order
     // public function index()
     // {
-    //     $cart  = $this->cartRepo->getOrCreateCart();
-    //     $items = $this->cartRepo->getCartItems($cart->id);
+    //     $items = $this->cartRepo->getCartItems();
 
-    //     if ($items->count() === 0) {
+    //     if ($items->isEmpty()) {
     //         return redirect('/')->with('error', 'Cart is empty');
     //     }
 
     //     $total = $items->sum(fn($i) => $i->price * $i->qty);
 
-    //     $order = $this->orderRepo->createOrder(Auth::id(), $total);
-    //     $this->orderRepo->createOrderItems($order->id, $items);
-
-    //     session(['order_id' => $order->id]);
-
-    //     return view('website.checkout', compact('order', 'items', 'total'));
+    //     return view('website.checkout', compact('items', 'total'));
     // }
-    // public function index()
+    public function index()
+    {
+        $orderId = session('order_id');
+
+        if (!$orderId) {
+            return redirect('/')->with('error', 'Order not found');
+        }
+
+        $order = $this->orderRepo->findById($orderId);
+
+        $items = \App\Models\OrderItem::where('order_id', $orderId)
+            ->join('media_management as m', 'm.id', '=', 'order_items.media_id')
+            ->select(
+                'order_items.price',
+                'order_items.qty',
+                'm.media_title'
+            )
+            ->get();
+
+        return view('website.checkout', [
+            'items' => $items,
+            'total' => $order->total_amount
+        ]);
+    }
+
+    // public function placeOrder()
     // {
-    //     $cart  = $this->cartRepo->getOrCreateCart();
-    //     $items = $this->cartRepo->getCartItems($cart->id);
+    //     $items = $this->cartRepo->getCartItems();
 
-    //     if ($items->count() === 0) {
-    //         return redirect('/')->with('error', 'Cart is empty');
+    //     if ($items->isEmpty()) {
+    //         return response()->json(['error' => 'Cart is empty'], 400);
     //     }
 
-    //     // ✅ SAFE TOTAL
-    //     $total = 0;
-    //     foreach ($items as $item) {
-    //         $total += ($item->price * $item->qty);
-    //     }
+    //     $total = $items->sum(fn($i) => $i->price * $i->qty);
 
-    //     // ✅ DO NOT PASS Auth::id()
     //     $order = $this->orderRepo->createOrder($total);
     //     $this->orderRepo->createOrderItems($order->id, $items);
 
     //     session(['order_id' => $order->id]);
 
-    //     return view('website.checkout', compact('order', 'items', 'total'));
+    //     return response()->json(['success' => true]);
     // }
-    public function index()
-    {
-        $cart  = $this->cartRepo->getOrCreateCart();
-        $items = $this->cartRepo->getCartItems($cart->id);
-
-        if ($items->count() === 0) {
-            return redirect('/')->with('error', 'Cart is empty');
-        }
-
-        $total = 0;
-        foreach ($items as $item) {
-            $total += ($item->price * $item->qty);
-        }
-
-        return view('website.checkout', compact('items', 'total'));
-    }
     public function placeOrder()
     {
-        $cart  = $this->cartRepo->getOrCreateCart();
-        $items = $this->cartRepo->getCartItems($cart->id);
+        $items = $this->cartRepo->getCartItems();
 
-        if ($items->count() === 0) {
-            return response()->json(['error' => 'Cart is empty'], 400);
+        if ($items->isEmpty()) {
+            return redirect()->back()->with('error', 'Cart is empty');
         }
 
-        $total = 0;
-        foreach ($items as $item) {
-            $total += $item->price * $item->qty;
-        }
+        $total = $items->sum(fn($i) => $i->price * $i->qty);
 
         $order = $this->orderRepo->createOrder($total);
         $this->orderRepo->createOrderItems($order->id, $items);
 
         session(['order_id' => $order->id]);
 
-        return response()->json(['success' => true]);
-    }
-
-    public function createOrder()
-    {
-        $cart  = $this->cartRepo->getOrCreateCart();
-        $items = $this->cartRepo->getCartItems($cart->id);
-
-        if ($items->count() === 0) {
-            return redirect('/cart')->with('error', 'Cart is empty');
-        }
-
-        $total = 0;
-        foreach ($items as $item) {
-            $total += ($item->price * $item->qty);
-        }
-
-        // ✅ CREATE ORDER HERE
-        $order = $this->orderRepo->createOrder($total);
-        $this->orderRepo->createOrderItems($order->id, $items);
-
-        // store order in session
-        session(['order_id' => $order->id]);
-
-        // redirect to checkout page
         return redirect()->route('checkout.index');
     }
 
-
-    // STEP 2: Razorpay Order
     public function pay()
     {
         $orderId = session('order_id');
-
-        if (!$orderId) {
-            return response()->json(['error' => 'Order not found'], 400);
-        }
-
         $order = $this->orderRepo->findById($orderId);
 
         $api = new Api(
@@ -153,7 +104,7 @@ class CheckoutController extends Controller
             'currency' => 'INR',
         ]);
 
-        session()->put('razorpay_order_id', $razorpayOrder['id']);
+        session(['razorpay_order_id' => $razorpayOrder['id']]);
 
         return response()->json([
             'order_id' => $razorpayOrder['id'],
@@ -162,7 +113,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    // STEP 3: Payment Success
     // public function success(Request $request)
     // {
     //     $api = new Api(
@@ -170,25 +120,24 @@ class CheckoutController extends Controller
     //         config('services.razorpay.secret')
     //     );
 
-    //     try {
-    //         $api->utility->verifyPaymentSignature([
-    //             'razorpay_order_id' => session('razorpay_order_id'),
-    //             'razorpay_payment_id' => $request->razorpay_payment_id,
-    //             'razorpay_signature' => $request->razorpay_signature,
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return redirect('/checkout')->with('error', 'Payment verification failed');
-    //     }
+    //     $api->utility->verifyPaymentSignature([
+    //         'razorpay_order_id' => session('razorpay_order_id'),
+    //         'razorpay_payment_id' => $request->razorpay_payment_id,
+    //         'razorpay_signature' => $request->razorpay_signature,
+    //     ]);
 
     //     $orderId = session('order_id');
 
-    //     $this->orderRepo->markAsPaid(
-    //         $orderId,
-    //         $request->razorpay_payment_id
-    //     );
+    //     \App\Models\Order::where('id', $orderId)->update([
+    //         'payment_status' => 'PAID',
+    //         'payment_id' => $request->razorpay_payment_id,
+    //     ]);
 
-    //     $cart = $this->cartRepo->getOrCreateCart();
-    //     $this->cartRepo->clearCart($cart->id);
+    //     // $this->cartRepo->clearCart();
+
+    //     $this->cartRepo->softDeleteCartAfterOrder(
+    //         auth()->guard('website')->id()
+    //     );
 
     //     session()->forget(['order_id', 'razorpay_order_id']);
 
@@ -201,84 +150,75 @@ class CheckoutController extends Controller
             config('services.razorpay.secret')
         );
 
-        try {
-            $api->utility->verifyPaymentSignature([
-                'razorpay_order_id' => session('razorpay_order_id'),
-                'razorpay_payment_id' => $request->razorpay_payment_id,
-                'razorpay_signature' => $request->razorpay_signature,
-            ]);
-        } catch (\Exception $e) {
-            return redirect('/checkout')->with('error', 'Payment verification failed');
-        }
+        $api->utility->verifyPaymentSignature([
+            'razorpay_order_id' => session('razorpay_order_id'),
+            'razorpay_payment_id' => $request->razorpay_payment_id,
+            'razorpay_signature' => $request->razorpay_signature,
+        ]);
 
-        // ✅ GET EXISTING ORDER
-        $orderId = session('order_id');
+        $orderId    = session('order_id');
+        $campaignId = session('campaign_id');
+        $userId     = auth()->guard('website')->id();
 
-        if (!$orderId) {
-            return redirect('/cart')->with('error', 'Order not found');
-        }
-
-        // ✅ UPDATE PAYMENT STATUS
+        // ✅ Mark order paid
         \App\Models\Order::where('id', $orderId)->update([
-            'payment_status' => 'PAID',   // or SUCCESS
+            'payment_status' => 'PAID',
             'payment_id'     => $request->razorpay_payment_id,
         ]);
 
-        // ✅ CLEAR CART
-        $cart = $this->cartRepo->getOrCreateCart();
-        $this->cartRepo->clearCart($cart->id);
+        // ✅ 1️⃣ Clear NORMAL cart items (VERY IMPORTANT)
+        \App\Models\CartItem::where('user_id', $userId)
+            ->where('cart_type', 'NORMAL')
+            ->where('status', 'ACTIVE')
+            ->update([
+                'status'     => 'ORDERED',
+                'is_active'  => 0,
+                'is_deleted' => 1,
+            ]);
 
-        // ✅ CLEAR SESSION
-        session()->forget(['order_id', 'razorpay_order_id']);
+        // ✅ 2️⃣ Clear CAMPAIGN items if campaign order
+        if ($campaignId) {
+            \App\Models\CartItem::where('campaign_id', $campaignId)
+                ->where('cart_type', 'CAMPAIGN')
+                ->update([
+                    'status'     => 'ORDERED',
+                    'is_active'  => 0,
+                    'is_deleted' => 1,
+                ]);
+        }
+
+        session()->forget([
+            'order_id',
+            'campaign_id',
+            'razorpay_order_id'
+        ]);
 
         return view('website.payment-success');
     }
 
-    public function clearCart($cartId)
+
+    public function placeCampaignOrder($campaignId)
     {
-        CartItem::where('cart_id', $cartId)->delete();
-        Cart::where('id', $cartId)->delete();
-    }
+        $items = CartItem::where('campaign_id', $campaignId)
+            ->where('cart_type', 'CAMPAIGN')
+            ->where('status', 'ACTIVE')
+            ->get();
 
-
-    public function razorpayWebhook(Request $request)
-    {
-        $webhookSecret = config('services.razorpay.webhook_secret');
-
-        $signature = $request->header('X-Razorpay-Signature');
-        $payload   = $request->getContent();
-
-        // 🔐 Verify webhook signature
-        $expectedSignature = hash_hmac('sha256', $payload, $webhookSecret);
-
-        if (!hash_equals($expectedSignature, $signature)) {
-            Log::warning('Razorpay webhook signature mismatch');
-            return response()->json(['status' => 'invalid signature'], 400);
+        if ($items->isEmpty()) {
+            return back()->with('error', 'Campaign is empty');
         }
 
-        $data = json_decode($payload, true);
+        $total = $items->sum(fn($i) => $i->price * $i->qty);
 
-        // ✅ Only handle payment.captured
-        if (
-            isset($data['event']) &&
-            $data['event'] === 'payment.captured'
-        ) {
-            $payment = $data['payload']['payment']['entity'];
+        $order = $this->orderRepo->createOrder($total);
+        $this->orderRepo->createOrderItems($order->id, $items);
 
-            $paymentId = $payment['id'];
-            $orderNo   = $payment['notes']['receipt'] ?? null;
+        // ONLY STORE ORDER ID
+        session([
+            'order_id'    => $order->id,
+            'campaign_id' => $campaignId,
+        ]);
 
-            if ($orderNo) {
-                // Update order ONLY from webhook
-                \App\Models\Order::where('order_no', $orderNo)
-                    ->where('payment_status', 'PENDING') // prevent duplicate
-                    ->update([
-                        'payment_status' => 'PAID',
-                        'payment_id'     => $paymentId,
-                    ]);
-            }
-        }
-
-        return response()->json(['status' => 'ok'], 200);
+        return redirect()->route('checkout.index');
     }
 }

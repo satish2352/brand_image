@@ -20,50 +20,50 @@ class PlantsExport implements FromCollection, WithHeadings, WithStyles, WithEven
         $this->search = $search;
     }
 
-    public function collection()
-    {
-        $query = PlantMasters::where('is_deleted', 0);
+    // public function collection()
+    // {
+    //     $query = PlantMasters::where('is_deleted', 0);
 
-        if ($this->search) {
-            $query->where(function($q) {
-                $q->where('plant_code', 'like', '%' . $this->search . '%')
-                  ->orWhere('plant_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('address', 'like', '%' . $this->search . '%')
-                  ->orWhere('city', 'like', '%' . $this->search . '%')
-                  ->orWhere('plant_short_name', 'like', '%' . $this->search . '%');
-            });
-        }
+    //     if ($this->search) {
+    //         $query->where(function($q) {
+    //             $q->where('plant_code', 'like', '%' . $this->search . '%')
+    //               ->orWhere('plant_name', 'like', '%' . $this->search . '%')
+    //               ->orWhere('address', 'like', '%' . $this->search . '%')
+    //               ->orWhere('city', 'like', '%' . $this->search . '%')
+    //               ->orWhere('plant_short_name', 'like', '%' . $this->search . '%');
+    //         });
+    //     }
 
-        $plants = $query->select(
-            'plant_code',
-            'plant_name',
-            'address',
-            'city',
-            'plant_short_name',
-            'created_by',
-            'created_at',
-            'is_active'
-        )->get();
+    //     $plants = $query->select(
+    //         'plant_code',
+    //         'plant_name',
+    //         'address',
+    //         'city',
+    //         'plant_short_name',
+    //         'created_by',
+    //         'created_at',
+    //         'is_active'
+    //     )->get();
 
-        $srNo = 1;
-        return $plants->map(function($plant) use (&$srNo) {
-            return [
-                'Sr No'       => $srNo++,
-                'Plant Code'       => $plant->plant_code,
-                'Plant Name'       => $plant->plant_name,
-                'Address'          => $plant->address ?? '-',
-                'City'             => $plant->city ?? '-',
-                'Short Name'       => $plant->plant_short_name ?? '-',
-                'Created By'       => $plant->created_by ?? '-',
-                'Created Date'     => $plant->created_at
-                                        ? Carbon::parse($plant->created_at)
-                                                ->setTimezone('Asia/Kolkata')
-                                                ->format('d-m-Y h:i:s A')
-                                        : '-',
-                'Status'           => $plant->is_active == 1 ? 'Active' : 'Deactive',
-            ];
-        });
-    }
+    //     $srNo = 1;
+    //     return $plants->map(function($plant) use (&$srNo) {
+    //         return [
+    //             'Sr No'       => $srNo++,
+    //             'Plant Code'       => $plant->plant_code,
+    //             'Plant Name'       => $plant->plant_name,
+    //             'Address'          => $plant->address ?? '-',
+    //             'City'             => $plant->city ?? '-',
+    //             'Short Name'       => $plant->plant_short_name ?? '-',
+    //             'Created By'       => $plant->created_by ?? '-',
+    //             'Created Date'     => $plant->created_at
+    //                                     ? Carbon::parse($plant->created_at)
+    //                                             ->setTimezone('Asia/Kolkata')
+    //                                             ->format('d-m-Y h:i:s A')
+    //                                     : '-',
+    //             'Status'           => $plant->is_active == 1 ? 'Active' : 'Deactive',
+    //         ];
+    //     });
+    // }
 
     public function headings(): array
     {
@@ -92,7 +92,7 @@ class PlantsExport implements FromCollection, WithHeadings, WithStyles, WithEven
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
                 $lastRow = $sheet->getHighestRow();

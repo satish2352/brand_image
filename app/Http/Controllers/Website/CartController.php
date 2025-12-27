@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\MediaManagement;
-use Illuminate\Support\Facades\DB;
 use App\Http\Services\Website\CartService;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -16,16 +15,25 @@ class CartController extends Controller
     {
         $this->service = $service;
     }
+
     public function index()
     {
-        [$cart, $items] = $this->service->getCart();
-        return view('website.cart', compact('cart', 'items'));
+        $items = $this->service->getCartItems();
+        return view('website.cart', compact('items'));
     }
 
     public function add($mediaId)
     {
+        if (!Auth::guard('website')->check()) {
+            return redirect()->route('website.home')
+                ->with('error', 'Please login to add items to cart');
+        }
+
         $this->service->addToCart(decrypt($mediaId));
-        return redirect()->route('cart.index')->with('success', 'Item added to cart');
+
+        return redirect()
+            ->route('cart.index')
+            ->with('success', 'Item added to cart');
     }
 
     public function update(Request $request)
