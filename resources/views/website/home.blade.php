@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="container-fluid g-0">
+    {{-- <div class="container-fluid g-0">
         <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
@@ -26,9 +26,13 @@
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Search Section Include --}}
+    {{-- @include('website.search') --}}
+
+    @include('website.index_2')
+
     @include('website.search')
   @include('website.mediacarts')
 

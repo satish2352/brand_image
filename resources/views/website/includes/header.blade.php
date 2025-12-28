@@ -113,11 +113,9 @@
 
                 @else
 
-                    <button class="btn btn-dark px-4"
-                            data-bs-toggle="modal"
-                            data-bs-target="#authModal">
-                        Login
-                    </button>
+<button class="login-btn" data-bs-toggle="modal" data-bs-target="#authModal">
+    <i class="bi bi-person-circle"></i> Login
+</button>
 
                 @endif
 

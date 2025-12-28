@@ -1,7 +1,6 @@
-/* Header */
-
+Header
 .navbar-custom {
-    background: #ffeb00 !important; /* Yellow */
+    background: #ffeb00 !important;
     padding: 12px 0;
     font-weight: 600;
     font-size: 16px;
@@ -11,6 +10,75 @@
     margin: auto;
     gap: 25px;
 }
+
+/* Base nav link styling */
+.navbar-light .navbar-nav .nav-link {
+    position: relative;
+    color: #fff;
+    font-weight: bold;
+    font-size: 17px;
+    display: inline-block; /* ⭐ IMPORTANT */
+    padding: 0 4px 6px 4px;
+    transition: 0.3s ease;
+}
+
+/* Hover text color */
+.navbar-light .navbar-nav .nav-link:hover {
+    color: #000;
+}
+
+/* Underline Animation */
+.navbar-light .navbar-nav .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 2px;
+    background: #FF8800; 
+    transition: width 0.3s ease;
+}
+
+/* Hover + Active underline */
+.navbar-light .navbar-nav .nav-link:hover::after,
+.navbar-light .navbar-nav .nav-link.active::after {
+    width: 100%;
+}
+
+/* Active link text color */
+.navbar-light .navbar-nav .nav-link.active {
+    color: #FF8800 !important;
+}
+
+/* login btn */
+
+/* Modern Login Button */
+.login-btn {
+    /* background: linear-gradient(135deg, #5c41ff, #6739ff); */
+    background: linear-gradient(135deg, rgb(255, 136, 0) 0%, rgb(231, 176, 8) 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s ease;
+    /* box-shadow: 0 4px 12px rgba(103, 57, 255, 0.3); */
+}
+
+.login-btn i {
+    font-size: 20px;
+}
+
+.login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(103, 57, 255, 0.45);
+    color: #fff;
+}
+
 
 /* Modal Design */
 .auth-modal-left {

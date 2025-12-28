@@ -9,6 +9,23 @@
     {{-- Bootstrap 5 CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
+    <!-- fontawesome -->
+	<link rel="stylesheet" href="{{ asset('assets/css/all.min.css') }}">
+	<!-- bootstrap -->
+	{{-- <link rel="stylesheet" href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}"> --}}
+	<!-- owl carousel -->
+	<link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.css') }}">
+	<!-- magnific popup -->
+	<link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
+	<!-- animate css -->
+	<link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}">
+	<!-- mean menu css -->
+	<link rel="stylesheet" href="{{ asset('assets/css/meanmenu.min.css') }}">
+	<!-- main style -->
+	<link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
+	<!-- responsive -->
+	<link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
+
     {{-- Custom Website CSS --}}
     <link rel="stylesheet" href="{{ asset('asset/css/website_css/style.css') }}">
 
@@ -25,6 +42,7 @@
 
     {{-- Include Header --}}
     @include('website.includes.header')
+    {{-- @include('website.includes.newheader') --}}
 
     {{-- Main Content --}}
     <main class="flex-fill">
