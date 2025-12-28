@@ -22,14 +22,23 @@ class CartController extends Controller
         return view('website.cart', compact('items'));
     }
 
+    // public function add($mediaId)
+    // {
+    //     if (!Auth::guard('website')->check()) {
+    //         return redirect()->route('website.home')
+    //             ->with('error', 'Please login to add items to cart');
+    //     }
+
+    //     $this->service->addToCart(decrypt($mediaId));
+
+    //     return redirect()
+    //         ->route('cart.index')
+    //         ->with('success', 'Item added to cart');
+    // }
     public function add($mediaId)
     {
-        if (!Auth::guard('website')->check()) {
-            return redirect()->route('website.home')
-                ->with('error', 'Please login to add items to cart');
-        }
-
-        $this->service->addToCart(decrypt($mediaId));
+        $mediaId = base64_decode($mediaId);
+        $this->service->addToCart($mediaId);
 
         return redirect()
             ->route('cart.index')
@@ -42,9 +51,16 @@ class CartController extends Controller
         return back();
     }
 
+    // public function remove($itemId)
+    // {
+    //     $this->service->removeItem(decrypt($itemId));
+    //     return back()->with('success', 'Item removed');
+    // }
     public function remove($itemId)
     {
-        $this->service->removeItem(decrypt($itemId));
+        $itemId = base64_decode($itemId);
+        $this->service->removeItem($itemId);
+
         return back()->with('success', 'Item removed');
     }
 }

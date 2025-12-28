@@ -65,13 +65,13 @@
                                     </td>
                                     <td class="d-flex">
 
-                                        <a href="{{ route('media.viewdetails', encrypt($media->category_id)) }}"
+                                        <a href="{{ route('media.viewdetails', base64_encode($media->category_id)) }}"
    class="btn btn-info btn-sm mr-1"
    title="View Details">
     <i class="fa fa-eye"></i>
 </a>
 
-                                        <a href="{{ route('media.view', encrypt($media->id)) }}"
+                                        <a href="{{ route('media.view', base64_encode($media->id)) }}"
    class="btn btn-info btn-sm mr-1"
    title="View Images">
     <i class="fa fa-eye"></i>

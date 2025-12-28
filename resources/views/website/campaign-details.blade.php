@@ -18,8 +18,8 @@
                 <th>Media</th>
                 <th>Size</th>
                 <th>Price</th>
-                <th>Qty</th>
-                <th>Total</th>
+                {{-- <th>Qty</th> --}}
+                {{-- <th>Total</th> --}}
                 <th>Date</th>
             </tr>
         </thead>
@@ -46,9 +46,9 @@
 
                 <td>₹ {{ number_format($row->price, 2) }}</td>
 
-                <td>{{ $row->qty }}</td>
+                {{-- <td>{{ $row->qty }}</td> --}}
 
-                <td>₹ {{ number_format($row->price * $row->qty, 2) }}</td>
+                {{-- <td>₹ {{ number_format($row->price * $row->qty, 2) }}</td> --}}
 
                 <td>{{ \Carbon\Carbon::parse($row->created_at)->format('d M Y') }}</td>
             </tr>

@@ -55,7 +55,7 @@ class MediaManagementController extends Controller
     public function view($encodedId)
     {
         try {
-            $id = decrypt($encodedId);
+            $id = base64_decode($encodedId);
 
             $media = MediaManagement::with(['images' => function ($q) {
                 $q->where('is_deleted', 0);
@@ -69,7 +69,7 @@ class MediaManagementController extends Controller
     public function viewDetails($encodedId)
     {
         try {
-            $id = decrypt($encodedId);
+            $id = base64_decode($encodedId);
 
             $media = $this->mediaService->viewDetails($id);
 

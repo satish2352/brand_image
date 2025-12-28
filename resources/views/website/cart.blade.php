@@ -30,7 +30,7 @@
             <tr>
                 <th>Media</th>
                 <th>Price</th>
-                <th width="180">Quantity</th>
+                {{-- <th width="180">Quantity</th> --}}
                 <th>Total</th>
                 <th>Action</th>
             </tr>
@@ -54,38 +54,38 @@
                     ₹ {{ number_format($item->price, 2) }}
                 </td>
 
-                <td>
+                {{-- <td>
                     <form method="POST"
                           action="{{ route('cart.update') }}"
                           class="d-flex justify-content-center align-items-center">
                         @csrf
 
-                        <input type="hidden" name="item_id" value="{{ $item->id }}">
+                        <input type="hidden" name="item_id" value="{{ $item->id }}"> --}}
 
                         {{-- <button type="submit"
                                 name="qty"
                                 value="{{ $item->qty - 1 }}"
                                 class="btn btn-sm btn-secondary">−</button> --}}
 
-                        <input type="text"
+                        {{-- <input type="text"
                                value="{{ $item->qty }}"
                                class="form-control text-center mx-2"
                                style="width:50px"
-                               readonly>
+                               readonly> --}}
 
                         {{-- <button type="submit"
                                 name="qty"
                                 value="{{ $item->qty + 1 }}"
                                 class="btn btn-sm btn-secondary">+</button> --}}
-                    </form>
-                </td>
+                    {{-- </form>
+                </td> --}}
 
                 <td>
                     ₹ {{ number_format($total, 2) }}
                 </td>
 
                 <td>
-                    <a href="{{ route('cart.remove', encrypt($item->id)) }}"
+                    <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
                        class="btn btn-sm btn-danger">
                         Remove
                     </a>

@@ -312,6 +312,11 @@ Route::middleware(['web'])->group(function () {
         [CampaignController::class, 'exportExcel']
     )->name('campaign.export.excel');
 
+    Route::get(
+        '/campaign-export-ppt/{campaignId}',
+        [CampaignController::class, 'exportPpt']
+    )->name('campaign.export.ppt');
+
 
     Route::post(
         '/checkout/campaign/{campaignId}',
