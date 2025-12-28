@@ -199,6 +199,8 @@ class CheckoutController extends Controller
 
     public function placeCampaignOrder($campaignId)
     {
+        $campaignId = base64_decode($campaignId);
+
         $items = CartItem::where('campaign_id', $campaignId)
             ->where('cart_type', 'CAMPAIGN')
             ->where('status', 'ACTIVE')

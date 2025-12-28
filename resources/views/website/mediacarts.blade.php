@@ -89,7 +89,7 @@
 
                                 @auth('website')
                                     {{-- User Logged In --}}
-                                    <a href="{{ route('cart.add', encrypt($media->id)) }}"
+                                    <a href="{{ route('cart.add', base64_encode($media->id)) }}"
                                     class="btn btn-sm btn-success">
                                         Add to Cart
                                     </a>
@@ -103,7 +103,7 @@
                                    <button class="btn btn-sm btn-success"
         data-bs-toggle="modal"
         data-bs-target="#authModal"
-        onclick="setRedirect('{{ route('cart.add', encrypt($media->id)) }}')">
+        onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
     Add to Cart
 </button>
 

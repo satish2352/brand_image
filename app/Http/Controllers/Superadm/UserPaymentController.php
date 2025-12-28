@@ -22,6 +22,8 @@ class UserPaymentController extends Controller
 
     public function details($orderId)
     {
+        $orderId = base64_decode($orderId);
+
         $order = $this->service->getOrderDetails($orderId);
         return view('superadm.user-payment.user-payment-details', compact('order'));
     }
