@@ -41,8 +41,8 @@
 <body class="d-flex flex-column min-vh-100">
 
     {{-- Include Header --}}
-    @include('website.includes.header')
-    {{-- @include('website.includes.newheader') --}}
+    {{-- @include('website.includes.header') --}}
+    @include('website.includes.newheader')
 
     {{-- Main Content --}}
     <main class="flex-fill">

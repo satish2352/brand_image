@@ -34,6 +34,6 @@
     @include('website.index_2')
 
     @include('website.search')
-  @include('website.mediacarts')
+    @include('website.mediacarts')
 
 @endsection
