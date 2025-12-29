@@ -241,22 +241,220 @@ class CampaignController extends Controller
 
 
 
+    // public function exportPpt($campaignId)
+    // {
+    //     $campaignId = base64_decode($campaignId);
+
+    //     /* ================= FETCH DATA ================= */
+    //     $campaign = DB::table('campaign')->where('id', $campaignId)->first();
+
+    //     $items = DB::table('cart_items as ci')
+    //         ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+    //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+    //         ->select(
+    //             'm.media_title',
+    //             'm.width',
+    //             'm.height',
+    //             'm.price',
+    //             'a.common_stdiciar_name'
+    //         )
+    //         ->where('ci.campaign_id', $campaignId)
+    //         ->where('ci.cart_type', 'CAMPAIGN')
+    //         ->get();
+
+    //     /* ================= INIT PPT ================= */
+    //     $ppt = new PhpPresentation();
+
+    //     /* =====================================================
+    //    SLIDE 1 : COVER SLIDE (BLUE BACKGROUND)
+    // ===================================================== */
+    //     $slide1 = $ppt->getActiveSlide();
+
+    //     // Background Image (ALWAYS FIRST)
+    //     $bg = $slide1->createDrawingShape();
+    //     $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg.png'))
+    //         ->setWidth(960)
+    //         ->setHeight(540)
+    //         ->setOffsetX(0)
+    //         ->setOffsetY(0);
+
+    //     // Logo White Background
+    //     $logoBg = $slide1->createRichTextShape();
+    //     $logoBg->setOffsetX(30)
+    //         ->setOffsetY(30)
+    //         ->setWidth(220)
+    //         ->setHeight(80);
+
+    //     $logoBg->getFill()
+    //         ->setFillType(Fill::FILL_SOLID)
+    //         ->setStartColor(new Color('FFFFFFFF'));
+
+    //     // Logo
+    //     $logo = $slide1->createDrawingShape();
+    //     $logo->setPath(public_path('asset/theamoriginalalf/images/logo.png'))
+    //         ->setHeight(60)
+    //         ->setOffsetX(40)
+    //         ->setOffsetY(40);
+
+    //     // Title
+    //     $title = $slide1->createRichTextShape()
+    //         ->setOffsetX(260)
+    //         ->setOffsetY(230)
+    //         ->setWidth(500);
+
+    //     $title->getActiveParagraph()->getAlignment()
+    //         ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+    //     $title->createTextRun("MEDIA PLAN PRESENTATION\n")
+    //         ->getFont()
+    //         ->setSize(34)
+    //         ->setBold(true)
+    //         ->setColor(new Color('FF0F2A44'));
+
+    //     $title->createTextRun($campaign->campaign_name)
+    //         ->getFont()
+    //         ->setSize(22)
+    //         ->setColor(new Color('FF0F2A44'));
+
+    //     /* =====================================================
+    //    SLIDE 2 : CAMPAIGN OVERVIEW
+    // ===================================================== */
+    //     $slide2 = $ppt->createSlide();
+
+    //     $overview = $slide2->createRichTextShape()
+    //         ->setOffsetX(80)
+    //         ->setOffsetY(120)
+    //         ->setWidth(800);
+
+    //     $overview->createTextRun("CAMPAIGN OVERVIEW\n\n")
+    //         ->getFont()
+    //         ->setSize(26)
+    //         ->setBold(true);
+
+    //     $overview->createTextRun(
+    //         "Campaign Name : {$campaign->campaign_name}\n" .
+    //             "City          : Nashik\n" .
+    //             "Total Sites   : {$items->count()}\n" .
+    //             "Date          : " . now()->format('d M Y')
+    //     )->getFont()->setSize(18);
+
+    //     /* =====================================================
+    //    SLIDE 3+ : SITE DETAIL SLIDES
+    // ===================================================== */
+    //     foreach ($items as $item) {
+
+    //         $slide = $ppt->createSlide();
+
+    //         // Site Title
+    //         $siteTitle = $slide->createRichTextShape()
+    //             ->setOffsetX(40)
+    //             ->setOffsetY(30)
+    //             ->setWidth(850);
+
+    //         $siteTitle->createTextRun($item->media_title)
+    //             ->getFont()
+    //             ->setSize(22)
+    //             ->setBold(true);
+
+    //         // Left Image Placeholder
+    //         $imageBox = $slide->createRichTextShape()
+    //             ->setOffsetX(40)
+    //             ->setOffsetY(120)
+    //             ->setWidth(320)
+    //             ->setHeight(220);
+
+    //         $imageBox->getFill()
+    //             ->setFillType(Fill::FILL_SOLID)
+    //             ->setStartColor(new Color('FFEFEFEF'));
+
+    //         $imageBox->getActiveParagraph()
+    //             ->getAlignment()
+    //             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+    //         $imageBox->createTextRun("SITE IMAGE")
+    //             ->getFont()
+    //             ->setSize(14)
+    //             ->setBold(true)
+    //             ->setColor(new Color('FF777777'));
+
+    //         // Details Box
+    //         $details = $slide->createRichTextShape()
+    //             ->setOffsetX(400)
+    //             ->setOffsetY(120)
+    //             ->setWidth(450);
+
+    //         $details->createTextRun("SITE DETAILS\n\n")
+    //             ->getFont()
+    //             ->setSize(18)
+    //             ->setBold(true);
+
+    //         $details->createTextRun(
+    //             "Location : {$item->common_stdiciar_name}\n" .
+    //                 "Size     : {$item->width} × {$item->height}\n" .
+    //                 "Media    : Billboard\n" .
+    //                 "Price    : ₹ " . number_format($item->price, 2) . "\n" .
+    //                 "Lighting : Non-Lit"
+    //         )->getFont()->setSize(14);
+    //     }
+
+    //     /* =====================================================
+    //    LAST SLIDE : THANK YOU (FULL IMAGE)
+    // ===================================================== */
+    //     $thankSlide = $ppt->createSlide();
+
+    //     $thankBg = $thankSlide->createDrawingShape();
+    //     $thankBg->setPath(public_path('asset/theamoriginalalf/images/thankyou.png'))
+    //         ->setWidth(960)
+    //         ->setHeight(540)
+    //         ->setOffsetX(0)
+    //         ->setOffsetY(0);
+
+    //     /* ================= DOWNLOAD ================= */
+    //     $fileName = 'Media_Plan_' . now()->format('d-m-Y') . '.pptx';
+
+    //     $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
+
+    //     return response()->streamDownload(function () use ($writer) {
+    //         $writer->save('php://output');
+    //     }, $fileName);
+    // }
+
     public function exportPpt($campaignId)
     {
         $campaignId = base64_decode($campaignId);
 
-        /* ================= FETCH DATA ================= */
-        $campaign = DB::table('campaign')->where('id', $campaignId)->first();
+        /* ================= CAMPAIGN ================= */
+        $campaign = DB::table('campaign')
+            ->where('id', $campaignId)
+            ->first();
 
+        if (!$campaign) {
+            abort(404, 'Campaign not found');
+        }
+
+        /* ================= ITEMS + FIRST IMAGE ================= */
         $items = DB::table('cart_items as ci')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin(DB::raw('
+        (
+            SELECT mi1.media_id, mi1.images
+            FROM media_images mi1
+            INNER JOIN (
+                SELECT media_id, MIN(id) AS min_id
+                FROM media_images
+                WHERE is_deleted = 1
+                GROUP BY media_id
+            ) mi2 ON mi2.min_id = mi1.id
+        ) mi
+    '), 'mi.media_id', '=', 'm.id')
             ->select(
                 'm.media_title',
                 'm.width',
                 'm.height',
                 'm.price',
-                'a.common_stdiciar_name'
+                'a.common_stdiciar_name',
+                'mi.images as first_image'
             )
             ->where('ci.campaign_id', $campaignId)
             ->where('ci.cart_type', 'CAMPAIGN')
@@ -266,28 +464,17 @@ class CampaignController extends Controller
         $ppt = new PhpPresentation();
 
         /* =====================================================
-       SLIDE 1 : COVER SLIDE (BLUE BACKGROUND)
+       SLIDE 1 : COVER SLIDE
     ===================================================== */
         $slide1 = $ppt->getActiveSlide();
 
-        // Background Image (ALWAYS FIRST)
+        // Background
         $bg = $slide1->createDrawingShape();
         $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg.png'))
             ->setWidth(960)
             ->setHeight(540)
             ->setOffsetX(0)
             ->setOffsetY(0);
-
-        // Logo White Background
-        $logoBg = $slide1->createRichTextShape();
-        $logoBg->setOffsetX(30)
-            ->setOffsetY(30)
-            ->setWidth(220)
-            ->setHeight(80);
-
-        $logoBg->getFill()
-            ->setFillType(Fill::FILL_SOLID)
-            ->setStartColor(new Color('FFFFFFFF'));
 
         // Logo
         $logo = $slide1->createDrawingShape();
@@ -299,25 +486,21 @@ class CampaignController extends Controller
         // Title
         $title = $slide1->createRichTextShape()
             ->setOffsetX(260)
-            ->setOffsetY(230)
+            ->setOffsetY(220)
             ->setWidth(500);
 
-        $title->getActiveParagraph()->getAlignment()
+        $title->getActiveParagraph()
+            ->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $title->createTextRun("MEDIA PLAN PRESENTATION\n")
-            ->getFont()
-            ->setSize(34)
-            ->setBold(true)
-            ->setColor(new Color('FF0F2A44'));
+            ->getFont()->setSize(34)->setBold(true);
 
         $title->createTextRun($campaign->campaign_name)
-            ->getFont()
-            ->setSize(22)
-            ->setColor(new Color('FF0F2A44'));
+            ->getFont()->setSize(22);
 
         /* =====================================================
-       SLIDE 2 : CAMPAIGN OVERVIEW
+       SLIDE 2 : OVERVIEW
     ===================================================== */
         $slide2 = $ppt->createSlide();
 
@@ -327,9 +510,7 @@ class CampaignController extends Controller
             ->setWidth(800);
 
         $overview->createTextRun("CAMPAIGN OVERVIEW\n\n")
-            ->getFont()
-            ->setSize(26)
-            ->setBold(true);
+            ->getFont()->setSize(26)->setBold(true);
 
         $overview->createTextRun(
             "Campaign Name : {$campaign->campaign_name}\n" .
@@ -339,54 +520,66 @@ class CampaignController extends Controller
         )->getFont()->setSize(18);
 
         /* =====================================================
-       SLIDE 3+ : SITE DETAIL SLIDES
+       SLIDE 3+ : SITE DETAILS
     ===================================================== */
         foreach ($items as $item) {
 
             $slide = $ppt->createSlide();
 
-            // Site Title
+            /* ---------- TITLE ---------- */
             $siteTitle = $slide->createRichTextShape()
                 ->setOffsetX(40)
                 ->setOffsetY(30)
                 ->setWidth(850);
 
             $siteTitle->createTextRun($item->media_title)
-                ->getFont()
-                ->setSize(22)
-                ->setBold(true);
+                ->getFont()->setSize(22)->setBold(true);
 
-            // Left Image Placeholder
-            $imageBox = $slide->createRichTextShape()
-                ->setOffsetX(40)
-                ->setOffsetY(120)
-                ->setWidth(320)
-                ->setHeight(220);
+            /* ---------- IMAGE ---------- */
+            $imagePath = null;
 
-            $imageBox->getFill()
-                ->setFillType(Fill::FILL_SOLID)
-                ->setStartColor(new Color('FFEFEFEF'));
+            if (!empty($item->first_image)) {
+                $imagePath = public_path(
+                    config('fileConstants.IMAGE_VIEW') . $item->first_image
+                );
+            }
 
-            $imageBox->getActiveParagraph()
-                ->getAlignment()
-                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            if ($imagePath && file_exists($imagePath)) {
 
-            $imageBox->createTextRun("SITE IMAGE")
-                ->getFont()
-                ->setSize(14)
-                ->setBold(true)
-                ->setColor(new Color('FF777777'));
+                $siteImage = $slide->createDrawingShape();
+                $siteImage->setPath($imagePath)
+                    ->setWidth(320)
+                    ->setHeight(220)
+                    ->setOffsetX(40)
+                    ->setOffsetY(120);
+            } else {
 
-            // Details Box
+                $imageBox = $slide->createRichTextShape()
+                    ->setOffsetX(40)
+                    ->setOffsetY(120)
+                    ->setWidth(320)
+                    ->setHeight(220);
+
+                $imageBox->getFill()
+                    ->setFillType(Fill::FILL_SOLID)
+                    ->setStartColor(new Color('FFEFEFEF'));
+
+                $imageBox->getActiveParagraph()
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $imageBox->createTextRun("NO IMAGE AVAILABLE")
+                    ->getFont()->setSize(14)->setBold(true);
+            }
+
+            /* ---------- DETAILS ---------- */
             $details = $slide->createRichTextShape()
                 ->setOffsetX(400)
                 ->setOffsetY(120)
                 ->setWidth(450);
 
             $details->createTextRun("SITE DETAILS\n\n")
-                ->getFont()
-                ->setSize(18)
-                ->setBold(true);
+                ->getFont()->setSize(18)->setBold(true);
 
             $details->createTextRun(
                 "Location : {$item->common_stdiciar_name}\n" .
@@ -398,7 +591,7 @@ class CampaignController extends Controller
         }
 
         /* =====================================================
-       LAST SLIDE : THANK YOU (FULL IMAGE)
+       LAST SLIDE : THANK YOU
     ===================================================== */
         $thankSlide = $ppt->createSlide();
 
@@ -418,7 +611,6 @@ class CampaignController extends Controller
             $writer->save('php://output');
         }, $fileName);
     }
-
 
     public function viewInvoice($orderId)
     {

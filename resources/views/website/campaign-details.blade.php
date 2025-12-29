@@ -44,7 +44,7 @@
 
                 <td>{{ $row->width }} × {{ $row->height }}</td>
 
-                <td>₹ {{ number_format($row->price, 2) }}</td>
+                <td>₹ {{ number_format($row->total_price, 2) }}</td>
 
                 {{-- <td>{{ $row->qty }}</td> --}}
 

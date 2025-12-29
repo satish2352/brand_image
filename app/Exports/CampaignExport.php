@@ -17,110 +17,128 @@ class CampaignExport implements
     WithStyles,
     ShouldAutoSize
 {
-    protected $userId;
-    protected $campaignId;
-    protected $srNo = 0;
+    /**
+     * Logged in user id
+     */
+    protected int $userId;
 
-    public function __construct($userId, $campaignId)
+    /**
+     * Campaign id
+     */
+    protected int $campaignId;
+
+    /**
+     * Serial number counter
+     */
+    protected int $srNo = 0;
+
+    /**
+     * Constructor
+     */
+    public function __construct(int $userId, int $campaignId)
     {
-        $this->userId = $userId;
+        $this->userId     = $userId;
         $this->campaignId = $campaignId;
     }
 
+    /**
+     * Fetch campaign cart items from database
+     */
     public function collection()
     {
         return DB::table('cart_items as ci')
             ->join('campaign as c', 'c.id', '=', 'ci.campaign_id')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as ar', 'ar.id', '=', 'm.area_id')
-            ->leftJoin('tbl_location as state', 'state.location_id', '=', 'ar.state_id')
             ->leftJoin('tbl_location as district', 'district.location_id', '=', 'ar.district_id')
             ->leftJoin('tbl_location as city', 'city.location_id', '=', 'ar.city_id')
-
-            // 🔥 CRITICAL FILTERS
             ->where('c.user_id', $this->userId)
             ->where('ci.campaign_id', $this->campaignId)
             ->where('ci.is_active', 1)
             ->where('ci.is_deleted', 0)
-
             ->select(
-                'c.campaign_name',
-                'state.name as state_name',
                 'district.name as district_name',
                 'city.name as city_name',
-                'ar.area_name',
                 'm.media_code',
-                'm.address',
+                'ar.area_name',
                 'm.width',
                 'm.height',
-                'ci.price',
-                'ci.qty'
+                'm.price as monthly_price',
+                'ci.per_day_price',
+                'ci.total_days',
+                'ci.total_price'
             )
+            ->orderBy('ci.id')
             ->get();
     }
 
+    /**
+     * Map each row to Excel columns
+     */
     public function map($row): array
     {
         $this->srNo++;
 
-        $sqft = $row->width * $row->height;
-        $perMonth = $sqft * 30;
-        $printing = $perMonth / 3;
-        $amount = $printing * 0.8;
-        $total = $amount * $row->qty;
+        $totalSqft = ($row->width ?? 0) * ($row->height ?? 0);
 
         return [
-            $this->srNo,
-            $row->campaign_name,
-            $row->state_name,
-            $row->district_name,
-            $row->city_name,
-            $row->area_name,
-            $row->media_code,
-            $row->address,
-            $row->width,
-            $row->height,
-            $sqft,
-            round($perMonth, 2),
-            round($printing, 2),
-            round($amount, 2),
-            round($total, 2),
+            $this->srNo,                                  // Sr No
+            $row->district_name ?? '-',                   // District
+            $row->city_name ?? '-',                       // Town
+            $row->media_code ?? '-',                      // Site Code
+            $row->area_name ?? '-',                       // Location
+            $row->width ?? 0,                             // Width
+            $row->height ?? 0,                            // Height
+            $totalSqft,                                   // Total Sqft
+            number_format($row->monthly_price, 2),        // Monthly Price
+            number_format($row->per_day_price, 2),        // Per Day Price
+            $row->total_days ?? 0,                        // Total Days
+            number_format($row->total_price, 2),          // Amount
+            number_format($row->total_price, 2),          // Total Amount
         ];
     }
 
+    /**
+     * Excel column headings
+     */
     public function headings(): array
     {
         return [
             'Sr No',
-            'Campaign Name',
-            'State',
             'District',
-            'City',
-            'Area',
-            'Media Code',
+            'Town',
+            'Site Code',
             'Location',
             'Width',
             'Height',
             'Total Sqft',
-            'Per Month',
-            'Printing Amount',
-            'Amount',
-            'Total Amount',
+            'Monthly Price (₹)',
+            'Per Day Price (₹)',
+            'Total Days',
+            'Amount (₹)',
+            'Total Amount (₹)',
         ];
     }
 
+    /**
+     * Apply Excel styles
+     */
     public function styles(Worksheet $sheet)
     {
         return [
-            1 => [
-                'font' => ['bold' => true],
+            1 => [ // Header row
+                'font' => [
+                    'bold' => true,
+                ],
                 'fill' => [
                     'fillType' => 'solid',
-                    'startColor' => ['rgb' => 'FFD966'],
+                    'startColor' => [
+                        'rgb' => 'FFD966',
+                    ],
                 ],
                 'alignment' => [
                     'horizontal' => 'center',
-                    'vertical' => 'center',
+                    'vertical'   => 'center',
                 ],
             ],
         ];

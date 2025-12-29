@@ -37,7 +37,8 @@ class OrderRepository
             OrderItem::create([
                 'order_id' => $orderId,
                 'media_id' => $item->media_id,
-                'price'    => $item->price,
+                // 'price'    => $item->price,
+                'price' => $item->total_price,
                 'qty'      => $item->qty,
             ]);
         }

@@ -82,7 +82,8 @@
                 @foreach($campaigns as $campaignId => $items)
                     @php
                         $campaignName = $items->first()->campaign_name;
-                        $totalAmount = $items->sum(fn($i) => $i->price * $i->qty);
+                        // $totalAmount = $items->sum(fn($i) => $i->price * $i->qty);
+                        $totalAmount = $items->sum(fn($i) => $i->total_price);
                     @endphp
 
                     <div class="accordion-item mb-3 shadow-sm">
@@ -158,7 +159,7 @@
                                                <td>{{ $row->common_stdiciar_name ?? '-' }}</td>
                                             <td>{{ $row->media_title ?? '-' }}</td>
                                             <td>{{ $row->width }} × {{ $row->height }}</td>
-                                            <td>₹ {{ number_format($row->price, 2) }}</td>
+                                            <td>₹ {{ number_format($row->total_price, 2) }}</td>
                                             {{-- <td>{{ $row->qty }}</td> --}}
                                             {{-- <td>₹ {{ number_format($row->price * $row->qty, 2) }}</td> --}}
                                             <td>{{ \Carbon\Carbon::parse($row->campaign_date)->format('d M Y') }}</td>

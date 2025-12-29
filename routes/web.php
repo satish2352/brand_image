@@ -256,7 +256,13 @@ Route::middleware('auth:website')->group(function () {
     Route::get('/cart/add/{mediaId}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
     Route::get('/cart/remove/{mediaId}', [CartController::class, 'remove'])->name('cart.remove');
+
+    Route::post('cart/add-with-date', [CartController::class, 'addWithDate'])
+        ->name('cart.add.with.date');
 });
+
+
+
 // Route::get('/checkout', [CheckoutController::class, 'index'])
 //     ->name('checkout.index');
 // Route::post(

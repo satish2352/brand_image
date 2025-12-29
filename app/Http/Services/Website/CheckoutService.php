@@ -27,16 +27,17 @@ class CheckoutService
                 throw new \Exception('User not logged in');
             }
 
-            $cart  = $this->cartRepo->getOrCreateCart();
-            $items = $this->cartRepo->getCartItems($cart->id);
+            // $cart  = $this->cartRepo->getOrCreateCart();
+            // $items = $this->cartRepo->getCartItems($cart->id);
+            $items = $this->cartRepo->getCartItems();
 
             if ($items->count() === 0) {
                 throw new \Exception('Cart is empty');
             }
 
             // ✅ Calculate total correctly
-            $total = $items->sum(fn($i) => $i->price * $i->qty);
-
+            // $total = $items->sum(fn($i) => $i->price * $i->qty);
+            $total = $items->sum(fn($i) => $i->total_price);
             // ✅ DO NOT pass user_id
             $order = $this->orderRepo->createOrder($total);
 

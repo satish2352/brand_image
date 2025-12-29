@@ -8,6 +8,8 @@ use App\Http\Repository\Website\OrderRepository;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 use App\Models\CartItem;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
@@ -72,21 +74,47 @@ class CheckoutController extends Controller
     // }
     public function placeOrder()
     {
-        $items = $this->cartRepo->getCartItems();
+        return DB::transaction(function () {
 
-        if ($items->isEmpty()) {
-            return redirect()->back()->with('error', 'Cart is empty');
-        }
+            if (!Auth::guard('website')->check()) {
+                throw new \Exception('User not logged in');
+            }
 
-        $total = $items->sum(fn($i) => $i->price * $i->qty);
+            $items = $this->cartRepo->getCartItems();
 
-        $order = $this->orderRepo->createOrder($total);
-        $this->orderRepo->createOrderItems($order->id, $items);
+            if ($items->count() === 0) {
+                throw new \Exception('Cart is empty');
+            }
 
-        session(['order_id' => $order->id]);
+            // ✅ CORRECT TOTAL (date-based)
+            $total = $items->sum(fn($i) => $i->total_price);
 
-        return redirect()->route('checkout.index');
+            $order = $this->orderRepo->createOrder($total);
+
+            $this->orderRepo->createOrderItems($order->id, $items);
+
+            return $order;
+        });
     }
+
+    // public function placeOrder()
+    // {
+    //     $items = $this->cartRepo->getCartItems();
+
+    //     if ($items->isEmpty()) {
+    //         return redirect()->back()->with('error', 'Cart is empty');
+    //     }
+
+    //     // $total = $items->sum(fn($i) => $i->price * $i->qty);
+    //     $total = $items->sum(fn($i) => $i->total_price);
+
+    //     $order = $this->orderRepo->createOrder($total);
+    //     $this->orderRepo->createOrderItems($order->id, $items);
+
+    //     session(['order_id' => $order->id]);
+
+    //     return redirect()->route('checkout.index');
+    // }
 
     public function pay()
     {
@@ -210,7 +238,8 @@ class CheckoutController extends Controller
             return back()->with('error', 'Campaign is empty');
         }
 
-        $total = $items->sum(fn($i) => $i->price * $i->qty);
+        // $total = $items->sum(fn($i) => $i->price * $i->qty);
+        $total = $items->sum(fn($i) => $i->total_price);
 
         $order = $this->orderRepo->createOrder($total);
         $this->orderRepo->createOrderItems($order->id, $items);

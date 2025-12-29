@@ -53,7 +53,13 @@ class HomeRepository
                 'a.common_stdiciar_name as area_name',
 
                 // ✅ FIRST IMAGE
-                'mi.first_image'
+                'mi.first_image',
+                DB::raw('
+        ROUND(
+            m.price / DAY(LAST_DAY(CURDATE())),
+            2
+        ) as per_day_price
+    ')
             ])
 
             ->where('m.is_deleted', 0)

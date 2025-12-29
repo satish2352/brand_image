@@ -14,6 +14,11 @@ class CartItem extends Model
         'session_id',
         'price',
         'qty',
+        'from_date',
+        'to_date',
+        'per_day_price',
+        'total_price',
+        'total_days',
     ];
 
     /**

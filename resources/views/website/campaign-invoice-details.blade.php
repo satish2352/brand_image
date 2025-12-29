@@ -208,7 +208,8 @@
                 @php $subTotal = 0; @endphp
                 @foreach($items as $i => $item)
                     @php
-                        $lineTotal = $item->price * $item->qty;
+                        // $lineTotal = $item->price * $item->qty;
+                        $lineTotal = $item->price; // already total_price
                         $subTotal += $lineTotal;
                     @endphp
                     <tr>

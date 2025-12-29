@@ -32,7 +32,7 @@ class CampaignExcelExport implements FromCollection, WithHeadings, WithStyles, W
             ->join('states as s', 's.id', '=', 'm.state_id')
             ->where('c.user_id', $this->userId)
             ->select(
-                's.state_name',
+                // 's.state_name',
                 'd.district_name',
                 'ci2.city_name',
                 'm.media_code',
@@ -51,7 +51,7 @@ class CampaignExcelExport implements FromCollection, WithHeadings, WithStyles, W
                 $total = $monthly + $printing + $amount;
 
                 return [
-                    $row->state_name,
+                    // $row->state_name,
                     $row->district_name,
                     $row->city_name,
                     $row->media_code,
@@ -70,10 +70,10 @@ class CampaignExcelExport implements FromCollection, WithHeadings, WithStyles, W
     public function headings(): array
     {
         return [
-            'State',
+            // 'State',
             'District',
-            'City',
-            'Media Code',
+            'Town',
+            'Site Code',
             'Location',
             'Width',
             'Height',

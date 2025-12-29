@@ -49,11 +49,17 @@
                             <option value="">Select Category</option>
 
                             @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}"
+                                {{-- <option value="{{ $cat->id }}"
                                     data-category="{{ $cat->slug }}"
                                     {{ old('category_id') == $cat->id ? 'selected' : '' }}>
                                     {{ $cat->category_name }}
-                                </option>
+                                </option> --}}
+                               <option value="{{ $cat->id }}"
+    data-category="{{ \Illuminate\Support\Str::slug($cat->slug ?? $cat->category_name) }}">
+    {{ $cat->category_name }}
+</option>
+
+
                             @endforeach
                         </select>
                     @error('category_id')
@@ -308,7 +314,7 @@
                     @enderror
                 </div>
                  <div class="col-md-3 mb-3">
-                    <label>Price <span class="text-danger">*</span></label>
+                    <label>Monthly Price <span class="text-danger">*</span></label>
                     <input type="number" step="0.01" name="price"
                            value="{{ old('price') }}"
                            class="form-control @error('price') is-invalid @enderror">
@@ -354,7 +360,7 @@
 </div>
 
             </div>
-             <div class="row" id="wallWrap">
+             <div class="row" id="wallWrapSection">
                 <div class="col-md-3 mb-3">
                     <label>Area (sq.ft)</label>
                     <input type="text"
@@ -381,6 +387,7 @@
 
 {{-- ================= SCRIPTS ================= --}}
 @section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function () {
 
@@ -461,6 +468,58 @@ $(document).ready(function () {
 $(document).ready(function () {
 
     function hideAllSections() {
+        $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrapSection')
+            .hide();
+    }
+
+    function showSection(category) {
+
+        hideAllSections();
+        console.log('Selected category:', category);
+
+        if (!category) return;
+
+        if (category.includes('hoardings')) {
+            $('#billboardsId').show();
+        }
+
+        if (category.includes('mall')) {
+            $('#mallMedia').show();
+        }
+
+        if (category.includes('airport')) {
+            $('#airportBranding').show();
+        }
+
+        if (category.includes('transit') || category.includes('transmit')) {
+            $('#transmitMedia').show();
+        }
+
+        if (category.includes('office')) {
+            $('#officeBranding').show();
+        }
+
+        if (category.includes('wall')) {
+            $('#wallWrapSection').show();
+        }
+    }
+
+    $('#category_id').on('change', function () {
+        showSection($(this).find(':selected').data('category'));
+    });
+
+    // On page load
+    showSection($('#category_id').find(':selected').data('category'));
+});
+</script>
+
+
+
+
+{{-- <script>
+$(document).ready(function () {
+
+    function hideAllSections() {
         $('#billboardsId').hide();
         $('#mallMedia').hide();
         $('#airportBranding').hide();
@@ -507,10 +566,9 @@ $(document).ready(function () {
         }
 
         // ✅ Office Branding
-        if (category === 'office-branding') {
-            $('#officeBranding').show();
-            return;
-        }
+        if (category === 'transit-media') {
+    $('#transmitMedia').show();
+}
 
         // ✅ Wall Wrap
         if (category === 'wall-wrap') {
@@ -539,7 +597,7 @@ showSectionByCategory(defaultCategory);
 
 
 });
-</script>
+</script> --}}
 
 
 
