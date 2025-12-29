@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Services\Superadm\RadiusService;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class RadiusController extends Controller
 {
@@ -30,20 +31,20 @@ class RadiusController extends Controller
     public function save(Request $req)
     {
         $req->validate([
-            'radius' => [
-                'required',
-                'max:50',
-                'regex:/^\s*\d+\s*km\s*-\s*\d+\s*km\s*$/i',
-            ]
+            'radius' => 'required|numeric|min:1|max:50'
         ]);
 
         try {
             $this->service->save($req);
-            return redirect()->route('radius.list')->with('success', 'Radius added successfully.');
+            return redirect()->route('radius.list')
+                ->with('success', 'Radius added successfully.');
         } catch (Exception $e) {
-            return back()->withErrors(['radius' => $e->getMessage()])->withInput();
+            return back()
+                ->withErrors(['radius' => $e->getMessage()])
+                ->withInput();
         }
     }
+
 
     public function edit($encodedId)
     {
@@ -55,20 +56,20 @@ class RadiusController extends Controller
     public function update(Request $req)
     {
         $req->validate([
-            'radius' => [
-                'required',
-                'max:50',
-                'regex:/^\s*\d+\s*km\s*-\s*\d+\s*km\s*$/i',
-            ]
+            'radius' => 'required|numeric|min:1|max:50'
         ]);
 
         try {
             $this->service->update($req);
-            return redirect()->route('radius.list')->with('success', 'Radius updated successfully.');
+            return redirect()->route('radius.list')
+                ->with('success', 'Radius updated successfully.');
         } catch (Exception $e) {
-            return back()->withErrors(['radius' => $e->getMessage()])->withInput();
+            return back()
+                ->withErrors(['radius' => $e->getMessage()])
+                ->withInput();
         }
     }
+
 
     public function delete(Request $req)
     {
@@ -85,13 +86,13 @@ class RadiusController extends Controller
         try {
             $id = base64_decode($request->id);
 
-            $radius = \DB::table('radius_master')->where('id', $id)->first();
+            $radius = DB::table('radius_master')->where('id', $id)->first();
 
             if (!$radius) {
                 return response()->json(['status' => false, 'message' => 'Radius not found'], 404);
             }
 
-            \DB::table('radius_master')
+            DB::table('radius_master')
                 ->where('id', $id)
                 ->update(['is_active' => $request->is_active]);
 
@@ -102,12 +103,8 @@ class RadiusController extends Controller
                 'radius' => $radius->radius,
                 'message' => "Radius {$radius->radius} $statusText Successfully"
             ]);
-
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => 'Failed to update: ' . $e->getMessage()]);
         }
     }
-
-
-
 }

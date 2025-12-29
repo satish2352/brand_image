@@ -378,7 +378,7 @@ p:last-child {
 }
 
 .pt-150 {
-  padding-top: 150px;
+  padding-top: 4rem;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -388,7 +388,7 @@ p:last-child {
 }
 
 .pb-150 {
-  padding-bottom: 150px;
+  padding-bottom: 4rem;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -471,7 +471,7 @@ a.boxed-btn, a.bordered-btn, a.cart-btn {
 }
 
 .section-title {
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 
 .breadcrumb-bg {
@@ -671,7 +671,7 @@ nav.mean-nav > ul > li:first-child > a {
 }
 
 .site-logo {
-  padding: 6px 0;
+  /* padding: 6px 0; */
 }
 
 .top-header-area.sepherate-header ul li > a, .top-header-area.sepherate-header .header-icons a {
@@ -721,8 +721,10 @@ nav.main-menu li a {
   z-index: 999 !important;
 }
 
+/* vivek */
 .sticky-wrapper.is-sticky .top-header-area {
-  background-color: #051922;
+  /* background-color: #051922; */
+  background-color: #ffc107;
   padding: 15px 0;
 }
 
@@ -732,9 +734,9 @@ nav.main-menu li a {
   transition: 0.3s;
 }
 
-ul.navbar-nav {
+/* ul.navbar-nav {
   margin: 0 auto;
-}
+} */
 
 .search-area {
   position: fixed;
@@ -846,6 +848,83 @@ a.mobile-show {
   letter-spacing: 7px;
 }
 
+/* ===== vivek Header Icon Spacing Fix ===== */
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* cart ani login madhla space */
+}
+
+.header-icons .btn,
+.header-icons a,
+.header-icons button {
+    margin: 0;
+    padding: 6px 10px;
+}
+
+/* ===== User Dropdown Fix ===== */
+
+.user-dropdown .user-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    /* padding: 6px 10px; */
+    padding: 2px 8px;
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    color: #fff;
+}
+
+.new-btn-light{
+   color: #000 !important;
+}
+
+.btn-check:focus+.btn, .btn:focus {
+  box-shadow: none;
+}
+
+/* ===== FIX USER DROPDOWN JUMP ISSUE ===== */
+
+.user-dropdown {
+    position: relative;
+}
+
+.user-dropdown .dropdown-menu {
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 8px !important;
+    transform: none !important;
+    animation: none !important;
+}
+
+.user-dropdown .dropdown-menu.show {
+    transform: none !important;
+}
+
+.user-dropdown .dropdown-menu {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.user-dropdown .dropdown-menu.show {
+    opacity: 1;
+}
+
+
+
 /* -----------------------------------------------------------------------------
 
 # Footer Styles
@@ -861,10 +940,12 @@ a.mobile-show {
   padding: 50px 0;
 }
 
+/* vivek */
 .footer-area {
   background-color: #051922;
   color: #fff;
-  padding: 150px 0;
+  /* padding: 150px 0; */
+  padding: 5rem 0;
 }
 
 h2.widget-title {
@@ -1175,8 +1256,10 @@ input[type="submit"] {
   border-radius: 50px !important;
 }
 
+/* vivek */
 input[type="submit"]:hover {
-  background-color: #051922;
+  /* background-color: #051922; */
+  background: #051922;
   color: #F28123;
 }
 
@@ -2318,7 +2401,7 @@ ul.social-link-team li a {
   font-size: 40px;
   margin: 0;
   font-weight: 600;
-  padding: 95px 0;
+  padding: 10px 0;
 }
 
 .find-location p i {

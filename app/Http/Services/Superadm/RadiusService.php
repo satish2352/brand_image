@@ -4,6 +4,7 @@ namespace App\Http\Services\Superadm;
 
 use App\Http\Repository\Superadm\RadiusRepository;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class RadiusService
 {
@@ -22,7 +23,7 @@ class RadiusService
     public function save($req)
     {
         // Duplicate check
-        $exists = \DB::table('radius_master')
+        $exists = DB::table('radius_master')
             ->where('radius', $req->radius)
             ->where('is_deleted', 0)
             ->exists();
@@ -52,7 +53,7 @@ class RadiusService
 
     public function update($req)
     {
-        $exists = \DB::table('radius_master')
+        $exists = DB::table('radius_master')
             ->where('radius', $req->radius)
             ->where('id', '!=', $req->id)
             ->where('is_deleted', 0)

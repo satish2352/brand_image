@@ -14,7 +14,8 @@ use App\Models\{
     FacingDirection,
     Illumination,
     MediaManagement,
-    MediaImage
+    MediaImage,
+    RadiusMaster
 };
 
 class MediaManagementController extends Controller
@@ -201,11 +202,15 @@ class MediaManagementController extends Controller
         $illuminations = Illumination::where('is_active', 1)
             ->where('is_deleted', 0)
             ->get();
+        $radius = RadiusMaster::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
 
         return view('superadm.mediamanagement.create', compact(
             'categories',
             'facings',
-            'illuminations'
+            'illuminations',
+            'radius'
         ));
     }
 

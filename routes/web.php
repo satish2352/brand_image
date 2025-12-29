@@ -246,6 +246,7 @@ Route::group(['middleware' => ['Employee']], function () {
 // Website Rotes
 
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
+Route::view('/about', 'website.about')->name('website.about');
 
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');
