@@ -378,7 +378,7 @@ p:last-child {
 }
 
 .pt-150 {
-  padding-top: 150px;
+  padding-top: 4rem;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -388,7 +388,7 @@ p:last-child {
 }
 
 .pb-150 {
-  padding-bottom: 150px;
+  padding-bottom: 4rem;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -471,7 +471,7 @@ a.boxed-btn, a.bordered-btn, a.cart-btn {
 }
 
 .section-title {
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 
 .breadcrumb-bg {
@@ -721,8 +721,10 @@ nav.main-menu li a {
   z-index: 999 !important;
 }
 
+/* vivek */
 .sticky-wrapper.is-sticky .top-header-area {
-  background-color: #051922;
+  /* background-color: #051922; */
+  background-color: #ffc107;
   padding: 15px 0;
 }
 
@@ -732,9 +734,9 @@ nav.main-menu li a {
   transition: 0.3s;
 }
 
-ul.navbar-nav {
+/* ul.navbar-nav {
   margin: 0 auto;
-}
+} */
 
 .search-area {
   position: fixed;
@@ -938,10 +940,12 @@ a.mobile-show {
   padding: 50px 0;
 }
 
+/* vivek */
 .footer-area {
   background-color: #051922;
   color: #fff;
-  padding: 150px 0;
+  /* padding: 150px 0; */
+  padding: 5rem 0;
 }
 
 h2.widget-title {
@@ -1252,8 +1256,10 @@ input[type="submit"] {
   border-radius: 50px !important;
 }
 
+/* vivek */
 input[type="submit"]:hover {
-  background-color: #051922;
+  /* background-color: #051922; */
+  background: #051922;
   color: #F28123;
 }
 
@@ -2395,7 +2401,7 @@ ul.social-link-team li a {
   font-size: 40px;
   margin: 0;
   font-weight: 600;
-  padding: 95px 0;
+  padding: 10px 0;
 }
 
 .find-location p i {

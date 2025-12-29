@@ -92,7 +92,7 @@
 	<!-- sticker js -->
 	<script src="{{ asset('assets/js/sticker.js') }}"></script>
 	<!-- main js -->
-	<script src="assets/js/main.js"></script>
+	<script src="{{ asset('assets/js/main.js') }}"></script>
 
 <script>
     function setRedirect(url) {
