@@ -171,6 +171,171 @@
 	<!-- Search Bar Section -->
 	@include('website.search')
 	<!-- end Bar Section -->
+
+	<!-- SERVICES SECTION -->
+	<section class="services-section">
+		<div class="container">
+
+			<!-- Heading -->
+			<div class="services-header text-center">
+				<span class="services-subtitle">OUR SERVICES</span>
+				<h2 class="services-title">
+					Outdoor Media <span>Solutions</span>
+				</h2>
+				<p class="services-desc">
+					Comprehensive outdoor advertising solutions tailored to reach your target
+					audience across India's diverse landscape.
+				</p>
+			</div>
+
+			<!-- Cards -->
+			<div class="row g-4">
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon"><i class="bi bi-display"></i></div>
+						<h4>Traditional OOH</h4>
+						<p>Billboards, hoardings, and unipoles across prime locations.</p>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon"><i class="bi bi-layers"></i></div>
+						<h4>Digital Displays</h4>
+						<p>LED screens and digital billboards with dynamic content.</p>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon highlight"><i class="bi bi-brush"></i></div>
+						<h4>Wall Painting</h4>
+						<p>Large-scale wall murals and paintings for lasting impressions.</p>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon"><i class="bi bi-shop"></i></div>
+						<h4>Mall Media</h4>
+						<p>Strategic placements in shopping malls to reach consumers.</p>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon"><i class="bi bi-building"></i></div>
+						<h4>Office Branding</h4>
+						<p>Corporate signage and office branding solutions.</p>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon"><i class="bi bi-train-front"></i></div>
+						<h4>Transit Media</h4>
+						<p>Bus, metro, and auto advertising for mobile exposure.</p>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon"><i class="bi bi-airplane"></i></div>
+						<h4>Airport Branding</h4>
+						<p>Premium airport advertising targeting affluent travelers.</p>
+					</div>
+				</div>
+
+				<div class="col-lg-3 col-md-6">
+					<div class="service-card">
+						<div class="service-icon"><i class="bi bi-palette"></i></div>
+						<h4>Wall Wraps</h4>
+						<p>Full building wraps and facade branding for landmarks.</p>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+	<!-- PROCESS SECTION -->
+<section class="process-section">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="process-header text-center">
+            <span class="process-subtitle">OUR PROCESS</span>
+            <h2 class="process-title">How We <span>Work</span></h2>
+            <p class="process-desc">
+                A seamless 6-step process to take your outdoor advertising
+                from concept to city-wide visibility.
+            </p>
+        </div>
+
+        <!-- Process Timeline -->
+        <div class="process-timeline">
+
+            <div class="timeline-line"></div>
+
+            <div class="process-step">
+                <div class="process-circle">
+                    <i class="bi bi-search"></i>
+                    <span class="step-no">01</span>
+                </div>
+                <h4>Search</h4>
+                <p>Browse our extensive inventory of outdoor media locations across India.</p>
+            </div>
+
+            <div class="process-step">
+                <div class="process-circle">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="step-no">02</span>
+                </div>
+                <h4>Make Plan</h4>
+                <p>Create a customized media plan based on your target audience and budget.</p>
+            </div>
+
+            <div class="process-step">
+                <div class="process-circle">
+                    <i class="bi bi-calendar-check"></i>
+                    <span class="step-no">03</span>
+                </div>
+                <h4>Book</h4>
+                <p>Reserve your preferred locations and timeframes with easy booking.</p>
+            </div>
+
+            <div class="process-step">
+                <div class="process-circle">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="step-no">04</span>
+                </div>
+                <h4>Approval</h4>
+                <p>Get quick approvals and clearances for your campaign materials.</p>
+            </div>
+
+            <div class="process-step">
+                <div class="process-circle">
+                    <i class="bi bi-credit-card"></i>
+                    <span class="step-no">05</span>
+                </div>
+                <h4>Pay</h4>
+                <p>Secure and flexible payment options for your convenience.</p>
+            </div>
+
+            <div class="process-step">
+                <div class="process-circle">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    <span class="step-no">06</span>
+                </div>
+                <h4>Go Live</h4>
+                <p>Watch your brand come to life across premium outdoor locations.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
 	
 	<!-- advertisement section -->
 	<div class="abt-section mt-5 mb-150">
@@ -254,7 +419,7 @@
 								{{-- Actions --}}
 								<div class="card-actions">
 
-									<a href="#" class="card-btn read">
+									<a href="{{ route('website.details') }}" class="card-btn read">
 										Read More →
 									</a>
 
