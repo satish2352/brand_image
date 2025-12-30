@@ -159,12 +159,19 @@
 @section('content')
 
 <style>
-.cart-card {
-    border: 1px solid #e5e5e5;
-    border-radius: 6px;
-    background: #fff;
-    padding: 12px;
-    height: 100%;
+.cart-card{
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(6px);
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+    transition: all 0.35s ease;
+}
+
+.cart-card:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 25px 55px rgba(0,0,0,0.12);
 }
 
 .cart-img-wrapper {
@@ -179,39 +186,43 @@
     gap: 6px;
 }
 
-.cart-thumbs img {
-    width: 100%;
-    height: 60px;
-    object-fit: cover;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    border-radius: 4px;
+.cart-thumbs img{
+    border-radius: 8px;
+    opacity: 0.75;
+    transition: 0.3s;
 }
 
-.cart-thumbs img.active {
-    border: 2px solid #0d6efd;
+.cart-thumbs img:hover,
+.cart-thumbs img.active{
+    opacity: 1;
+    border-color: #ff9800;
 }
 
-.cart-main-img {
-    flex: 1;
+.cart-main-img{
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f8f8f8;
 }
 
-.cart-main-img img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #eee;
+.cart-main-img img{
+    border-radius: 14px;
+    transition: transform 0.4s ease;
 }
 
-.cart-info h6 {
-    font-weight: 600;
-    margin-bottom: 4px;
+.cart-main-img:hover img{
+    transform: scale(1.08);
 }
 
-.cart-info p {
-    margin-bottom: 4px;
+.cart-info h6{
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.cart-info p{
     font-size: 14px;
+    margin-bottom: 6px;
+    color: #555;
 }
 
 .cart-footer {
@@ -237,15 +248,242 @@
 .cart-main-img.zoom-active img {
     transform: scale(2);
 }
+
+.remove-btn{
+    border-width: 1.5px;
+}
+
+.remove-btn:hover{
+    background: #dc3545;
+    color: #fff;
+}
+
+.cart-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 10px 20px;
+    border-radius: 14px;
+
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+
+    cursor: pointer;
+    border: none;
+    outline: none;
+
+    transition: all 0.3s ease;
+}
+
+.cart-btn-primary{
+    background: linear-gradient(135deg, #ff9800, #ffb703);
+    color: #fff;
+}
+
+.cart-btn-primary:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(255,152,0,0.4);
+}
+
+.cart-btn-dark{
+    background: #ffc107;
+    color: #fff;
+}
+
+.cart-btn-dark:hover{
+    background: #ffc107;
+    transform: translateY(-3px);
+}
+
+.cart-btn-outline{
+    background: transparent;
+    border: 1.5px solid rgba(0,0,0,0.35);
+    color: #ffc107;
+}
+
+.cart-btn-outline:hover{
+    border-color: #ff9800;
+    color: #ff9800;
+    transform: translateY(-3px);
+}
+
+@media(max-width: 575px){
+    .cart-btn{
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
+.cart-summary{
+    background: linear-gradient(
+        135deg,
+        #fff7e6 0%,
+        #ffffff 45%,
+        #fff1d6 100%
+    );
+    border: 1px solid rgba(255,165,0,0.35);
+    border-radius: 20px;
+    padding: 20px 30px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+}
+
+.campaign-modal-footer{
+    padding: 10px 26px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    border-top: 1px solid #eee;
+}
+
+/* Base */
+.campaign-btn{
+    padding: 8px 18px;
+    border-radius: 12px;
+
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+
+    transition: all 0.3s ease;
+}
+
+/* Outline */
+.campaign-btn-outline{
+    background: transparent;
+    border: 1.5px solid #ccc;
+    color: #333;
+}
+
+.campaign-btn-outline:hover{
+    border-color: #ff9800;
+    color: #ff9800;
+}
+
+/* Primary */
+.campaign-btn-primary{
+    background: linear-gradient(135deg, #ff9800, #ffb703);
+    color: #000;
+}
+
+.campaign-btn-primary:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(255,152,0,0.4);
+}
+
+@media(max-width: 575px){
+    .campaign-modal-footer{
+        flex-direction: column;
+    }
+
+    .campaign-btn{
+        width: 100%;
+    }
+}
+
+.campaign-modal-content{
+    border-radius: 20px;
+    border: none;
+
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+.campaign-modal-header{
+    padding: 18px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid #eee;
+}
+
+.campaign-modal-header h5{
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+}
+
+.campaign-close{
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    color: #999;
+    transition: 0.3s;
+}
+
+.campaign-close:hover{
+    color: #000;
+}
+
+.campaign-modal-body{
+    padding: 26px;
+}
+
+.campaign-label{
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.campaign-label .required{
+    color: #ff9800;
+}
+
+.campaign-input{
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid #ddd;
+
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.campaign-input:focus{
+    border-color: #ff9800;
+    box-shadow: 0 0 0 3px rgba(255,152,0,0.15);
+}
+
+
+
 </style>
+
+	<!-- breadcrumb-section -->
+	<div class="breadcrumb-section breadcrumb-bg">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 offset-lg-2 text-center">
+					<div class="breadcrumb-text">
+						<p>Read the Details</p>
+						<h1>Cart</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end breadcrumb section -->
 
 <div class="container my-5">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3>My Cart</h3>
-        <a href="{{ url('/') }}" class="btn btn-outline-secondary">
+        {{-- <a href="{{ url('/') }}" class="btn btn-outline-secondary">
             Continue Shopping
-        </a>
+        </a> --}}
     </div>
 
     @if($items->isEmpty())
@@ -307,7 +545,8 @@
                     <div class="cart-info mt-2">
                         <h6>{{ $item->media_title ?? $item->category_name }}</h6>
 
-                        <p class="text-muted">
+                        {{-- <p class="text-muted"> --}}
+                        <p class="badge bg-light text-dark">
                             📍 {{ $item->area_name ?? 'N/A' }}
                         </p>
 
@@ -318,16 +557,22 @@
                             {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
                         </p>
 
-                        <p class="text-success fw-bold">
-                           Monthly Price :  ₹ {{ number_format($item->price, 2) }}
-                        </p>
-<p class="text-success fw-bold">
-    ₹ {{ number_format($item->per_day_price, 2) }} / day
-</p>
+<div class="price-box mt-2">
+    <div class="text-muted small">Monthly Price</div>
+    <div class="fw-bold text-success fs-6">
+        ₹ {{ number_format($item->price, 2) }}
+    </div>
 
-<p class="fw-bold">
-    Total: ₹ {{ number_format($item->total_price, 2) }}
-</p>
+    <div class="small text-muted">
+        ₹ {{ number_format($item->per_day_price, 2) }} / day
+    </div>
+
+    <div class="mt-2 fw-bold fs-5">
+        Total: <span class="text-success">
+        ₹ {{ number_format($item->total_price, 2) }}
+        </span>
+    </div>
+</div>
 
                         
                     </div>
@@ -338,10 +583,10 @@
                     <div class="cart-footer">
                         {{-- <strong>Total: ₹ {{ number_format($total, 2) }}</strong> --}}
 
-                        <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
-                           class="btn btn-sm btn-danger">
-                            Remove
-                        </a>
+                    <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
+                    class="btn btn-outline-danger remove-btn btn-sm rounded-pill">
+                    <i class="bi bi-trash"></i>
+                    </a>
                     </div>
                 </div>
                 </div>
@@ -378,47 +623,84 @@
             </button>
         </div>
     </div> --}}
-<div class="row align-items-center mt-4">
 
-    {{-- LEFT : GRAND TOTAL (5 columns) --}}
-    <div class="col-md-5">
-        
-    </div>
+    <div class="cart-summary mt-5">
+        <div class="row align-items-center">
 
-    {{-- RIGHT : ACTION BUTTONS --}}
-    <div class="col-md-7 ">
-        @php $grandTotal = 0; @endphp
-@foreach($items as $item)
-    @php $grandTotal += $item->total_price; @endphp
-@endforeach
-        <h5 class="mb-0 text-start">
-            Grand Total:
-            <span class="text-success">
-                ₹ {{ number_format($grandTotal, 2) }}
-            </span>
-        </h5>
+            <!-- LEFT : GRAND TOTAL -->
+            <div class="col-md-6">
+                @php $grandTotal = 0; @endphp
+                @foreach($items as $item)
+                    @php $grandTotal += $item->total_price; @endphp
+                @endforeach
+                <h5 class="summary-label">Grand Total</h5>
+                <h3 class="summary-amount">
+                    ₹ {{ number_format($grandTotal, 2) }}
+                </h3>
+            </div>
 
-       
+            <!-- RIGHT : ACTION BUTTONS -->
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
 
+                <a href="{{ url('/') }}" class="btn cart-btn btn-cart-outline">
+                    Continue Shopping
+                </a>
 
+                <button class="btn cart-btn cart-btn-dark ms-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#campaignModal">
+                    Create Campaign
+                </button>
 
-        <div class="text-end">
-        <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
-            @csrf
-            <button class="btn btn-success">
-                Proceed to Checkout
-            </button>
-        </form>
+                <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button class="btn cart-btn cart-btn-primary ms-2">
+                        Proceed to Checkout
+                    </button>
+                </form>
 
-        <button class="btn btn-primary ms-2"
-                data-bs-toggle="modal"
-                data-bs-target="#campaignModal">
-            Create Campaign
-        </button>
+            </div>
         </div>
     </div>
+    {{-- <div class="row align-items-center mt-4">
 
-</div>
+        <div class="col-md-5">
+            
+        </div>
+
+        <div class="col-md-7 ">
+            @php $grandTotal = 0; @endphp
+            @foreach($items as $item)
+                @php $grandTotal += $item->total_price; @endphp
+            @endforeach
+            <h5 class="mb-0 text-start">
+                Grand Total:
+                <span class="text-success">
+                    ₹ {{ number_format($grandTotal, 2) }}
+                </span>
+            </h5>
+
+        
+
+
+
+            <div class="text-end">
+            <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
+                @csrf
+                <button class="btn btn-success">
+                    Proceed to Checkout
+                </button>
+            </form>
+
+            <button class="btn btn-primary ms-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#campaignModal">
+                Create Campaign
+            </button>
+            </div>
+        </div>
+
+    </div> --}}
 
     @endif
 </div>
@@ -440,28 +722,28 @@ function changeCartImage(el, src) {
 {{-- CAMPAIGN MODAL --}}
 <div class="modal fade" id="campaignModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content campaign-modal-content">
             <form method="POST" action="{{ route('campaign.store') }}">
                 @csrf
-                <div class="modal-header">
+                <div class="campaign-modal-header">
                     <h5>Create Campaign</h5>
                     <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
-                <div class="modal-body">
+                <div class="campaign-modal-body">
                     <input type="text"
                            name="campaign_name"
-                           class="form-control"
+                           class="campaign-input"
                            placeholder="Campaign name"
                            required>
                 </div>
 
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                <div class="campaign-modal-footer">
+                    <button type="button" class="campaign-btn campaign-btn-outline" data-bs-dismiss="modal">
                         Cancel
                     </button>
-                    <button class="btn btn-success">
-                        Save
+                    <button type="submit" class="campaign-btn campaign-btn-primary">
+                        Save Campaign
                     </button>
                 </div>
             </form>

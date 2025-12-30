@@ -1,6 +1,6 @@
 {{-- Search Section --}}
 <div class="container">
-    <div class="search-box-wrapper my-4">
+    <div class="search-box-wrapper mt-5 my-4">
         <div class="container">
             <div class="search-box p-3 p-md-4">
 

@@ -124,49 +124,56 @@
 	</div>
 	<!-- end home page slider -->
 
-	<!-- features list section -->
+	<!-- FEATURES SECTION -->
 	<div class="list-section pt-80 pb-80">
 		<div class="container">
 
 			<div class="row">
+
+				<!-- Feature 1 -->
 				<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
 					<div class="list-box d-flex align-items-center">
 						<div class="list-icon">
-							<i class="fas fa-shipping-fast"></i>
+							<i class="fas fa-bullhorn"></i>
 						</div>
 						<div class="content">
-							<h3>Free Shipping</h3>
-							<p>When order over $75</p>
+							<h3>Wide Media Reach</h3>
+							<p>Extensive outdoor media coverage across prime locations in India.</p>
 						</div>
 					</div>
 				</div>
+
+				<!-- Feature 2 -->
 				<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
 					<div class="list-box d-flex align-items-center">
 						<div class="list-icon">
-							<i class="fas fa-phone-volume"></i>
+							<i class="fas fa-lightbulb"></i>
 						</div>
 						<div class="content">
-							<h3>24/7 Support</h3>
-							<p>Get support all day</p>
+							<h3>Creative Strategy</h3>
+							<p>Innovative campaign planning tailored to your brand objectives.</p>
 						</div>
 					</div>
 				</div>
+
+				<!-- Feature 3 -->
 				<div class="col-lg-4 col-md-6">
-					<div class="list-box d-flex justify-content-start align-items-center">
+					<div class="list-box d-flex align-items-center">
 						<div class="list-icon">
-							<i class="fas fa-sync"></i>
+							<i class="fas fa-chart-line"></i>
 						</div>
 						<div class="content">
-							<h3>Refund</h3>
-							<p>Get refund within 3 days!</p>
+							<h3>Proven Results</h3>
+							<p>Data-driven execution ensuring maximum visibility and ROI.</p>
 						</div>
 					</div>
 				</div>
+
 			</div>
 
 		</div>
 	</div>
-	<!-- end features list section -->
+	<!-- END FEATURES SECTION -->
 
 	<!-- Search Bar Section -->
 	@include('website.search')
@@ -260,115 +267,153 @@
 	</section>
 
 	<!-- PROCESS SECTION -->
-<section class="process-section">
-    <div class="container">
-
-        <!-- Header -->
-        <div class="process-header text-center">
-            <span class="process-subtitle">OUR PROCESS</span>
-            <h2 class="process-title">How We <span>Work</span></h2>
-            <p class="process-desc">
-                A seamless 6-step process to take your outdoor advertising
-                from concept to city-wide visibility.
-            </p>
-        </div>
-
-        <!-- Process Timeline -->
-        <div class="process-timeline">
-
-            <div class="timeline-line"></div>
-
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-search"></i>
-                    <span class="step-no">01</span>
-                </div>
-                <h4>Search</h4>
-                <p>Browse our extensive inventory of outdoor media locations across India.</p>
-            </div>
-
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span class="step-no">02</span>
-                </div>
-                <h4>Make Plan</h4>
-                <p>Create a customized media plan based on your target audience and budget.</p>
-            </div>
-
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-calendar-check"></i>
-                    <span class="step-no">03</span>
-                </div>
-                <h4>Book</h4>
-                <p>Reserve your preferred locations and timeframes with easy booking.</p>
-            </div>
-
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-check-circle"></i>
-                    <span class="step-no">04</span>
-                </div>
-                <h4>Approval</h4>
-                <p>Get quick approvals and clearances for your campaign materials.</p>
-            </div>
-
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-credit-card"></i>
-                    <span class="step-no">05</span>
-                </div>
-                <h4>Pay</h4>
-                <p>Secure and flexible payment options for your convenience.</p>
-            </div>
-
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-rocket-takeoff"></i>
-                    <span class="step-no">06</span>
-                </div>
-                <h4>Go Live</h4>
-                <p>Watch your brand come to life across premium outdoor locations.</p>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-	
-	<!-- advertisement section -->
-	<div class="abt-section mt-5 mb-150">
+	<section class="process-section">
 		<div class="container">
-			<div class="row">
-				<div class="col-lg-6 col-md-12">
-					<div class="abt-bg">
-						<a href="https://www.youtube.com/watch?v=DBLlFWYcIGQ" class="video-play-btn popup-youtube"><i class="fas fa-play"></i></a>
+
+			<!-- Header -->
+			<div class="process-header text-center">
+				<span class="process-subtitle">OUR PROCESS</span>
+				<h2 class="process-title">How We <span>Work</span></h2>
+				<p class="process-desc">
+					A seamless 6-step process to take your outdoor advertising
+					from concept to city-wide visibility.
+				</p>
+			</div>
+
+			<!-- Process Timeline -->
+			<div class="process-timeline">
+
+				<div class="timeline-line"></div>
+
+				<div class="process-step">
+					<div class="process-circle">
+						<i class="bi bi-search"></i>
+						<span class="step-no">01</span>
 					</div>
+					<h4>Search</h4>
+					<p>Browse our extensive inventory of outdoor media locations across India.</p>
 				</div>
-				<div class="col-lg-6 col-md-12">
-					<div class="abt-text">
-						<p class="top-sub">Since Year 1999</p>
-						<h2>We are <span class="orange-text">Fruitkha</span></h2>
-						<p>Etiam vulputate ut augue vel sodales. In sollicitudin neque et massa porttitor vestibulum ac vel nisi. Vestibulum placerat eget dolor sit amet posuere. In ut dolor aliquet, aliquet sapien sed, interdum velit. Nam eu molestie lorem.</p>
-						<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente facilis illo repellat veritatis minus, et labore minima mollitia qui ducimus.</p>
-						<a href="about.html" class="boxed-btn mt-4">know more</a>
+
+				<div class="process-step">
+					<div class="process-circle">
+						<i class="bi bi-file-earmark-text"></i>
+						<span class="step-no">02</span>
 					</div>
+					<h4>Make Plan</h4>
+					<p>Create a customized media plan based on your target audience and budget.</p>
 				</div>
+
+				<div class="process-step">
+					<div class="process-circle">
+						<i class="bi bi-calendar-check"></i>
+						<span class="step-no">03</span>
+					</div>
+					<h4>Book</h4>
+					<p>Reserve your preferred locations and timeframes with easy booking.</p>
+				</div>
+
+				<div class="process-step">
+					<div class="process-circle">
+						<i class="bi bi-check-circle"></i>
+						<span class="step-no">04</span>
+					</div>
+					<h4>Approval</h4>
+					<p>Get quick approvals and clearances for your campaign materials.</p>
+				</div>
+
+				<div class="process-step">
+					<div class="process-circle">
+						<i class="bi bi-credit-card"></i>
+						<span class="step-no">05</span>
+					</div>
+					<h4>Pay</h4>
+					<p>Secure and flexible payment options for your convenience.</p>
+				</div>
+
+				<div class="process-step">
+					<div class="process-circle">
+						<i class="bi bi-rocket-takeoff"></i>
+						<span class="step-no">06</span>
+					</div>
+					<h4>Go Live</h4>
+					<p>Watch your brand come to life across premium outdoor locations.</p>
+				</div>
+
 			</div>
 		</div>
-	</div>
-	<!-- end advertisement section -->
-	
-	<!-- shop banner -->
-	<section class="shop-banner">
-    	<div class="container">
-        	<h3>December sale is on! <br> with big <span class="orange-text">Discount...</span></h3>
-            <div class="sale-percent"><span>Sale! <br> Upto</span>50% <span>off</span></div>
-            <a href="shop.html" class="cart-btn btn-lg">Shop Now</a>
-        </div>
-    </section>
-	<!-- end shop banner -->
+	</section>
+
+	<section class="about-modern">
+		<div class="container">
+			<div class="row align-items-center">
+
+				<!-- LEFT CONTENT -->
+				<div class="col-lg-6">
+					<span class="about-subtitle">ABOUT US</span>
+
+					<h2 class="about-title">
+						Business Has Only Two Functions:
+						<span>Marketing & Innovation</span>
+					</h2>
+
+					<p>
+						Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising
+						agency that specializes in assisting clients in reaching their target
+						audiences through innovative and customized solutions.
+					</p>
+
+					<p>
+						With over 12 years of valuable experience in Printing, Branding,
+						Advertising, and Events, we have gained extensive knowledge and
+						expertise in executing successful campaigns that deliver measurable
+						results.
+					</p>
+
+					<p>
+						From traditional billboards to cutting-edge digital displays, from
+						transit advertising to airport branding—we cover every aspect of
+						outdoor advertising to ensure your brand gets the visibility it
+						deserves.
+					</p>
+
+					{{-- <a href="#" class="about-btn">Learn More About Us</a> --}}
+				</div>
+
+				<!-- RIGHT STATS -->
+				<div class="col-lg-6">
+					<div class="stats-grid">
+
+						<div class="stat-card">
+							<i class="bi bi-award"></i>
+							<h3 class="counter" data-target="12">0</h3>
+							<span>Years Experience</span>
+						</div>
+
+						<div class="stat-card">
+							<i class="bi bi-people"></i>
+							<h3 class="counter" data-target="300">0</h3>
+							<span>Happy Clients</span>
+						</div>
+
+						<div class="stat-card">
+							<i class="bi bi-geo-alt"></i>
+							<h3 class="counter" data-target="50">0</h3>
+							<span>Cities Covered</span>
+						</div>
+
+						<div class="stat-card">
+							<i class="bi bi-stars"></i>
+							<h3 class="counter" data-target="500">0</h3>
+							<span>Campaigns</span>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
 
 	<div class="latest-news pt-150 pb-150">
 		<div class="container">
@@ -461,6 +506,35 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- CTA SECTION -->
+	<section class="cta-section">
+		<div class="container">
+			<div class="cta-box text-center">
+
+				<h2>
+					Ready to Amplify Your <br>
+					<span>Brand Presence?</span>
+				</h2>
+
+				<p>
+					Let's discuss how we can transform your advertising vision
+					into city-wide visibility. Get a free consultation today.
+				</p>
+
+				<div class="cta-actions">
+					<a href="{{ url('/contact-us') }}" class="btn-cta primary">
+						Get Free Quote <i class="bi bi-arrow-right"></i>
+					</a>
+
+					<a href="tel:+919999999999" class="btn-cta outline">
+						<i class="bi bi-telephone"></i> Call Us Now
+					</a>
+				</div>
+
+			</div>
+		</div>
+	</section>
 
 	<!-- logo carousel -->
 	<div class="logo-carousel-section">

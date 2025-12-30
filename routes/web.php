@@ -248,6 +248,19 @@ Route::group(['middleware' => ['Employee']], function () {
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
 Route::view('/about', 'website.about')->name('website.about');
 Route::view('/details', 'website.details')->name('website.details');
+// Route::view('/dashboard', 'website.dashboard')->name('website.dashboard');
+Route::prefix('dashboard')->group(function () {
+
+    Route::get('/', function () {
+        return view('website.dashboard.index');
+    })->name('dashboard.home');
+
+    Route::get('/profile', function () {
+        return view('website.dashboard.profile');
+    })->name('dashboard.profile');
+
+    // 
+});
 
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');

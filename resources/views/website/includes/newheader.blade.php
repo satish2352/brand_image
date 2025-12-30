@@ -29,11 +29,11 @@
 								<li><a href="{{ route('website.about') }}">About</a></li>
 								<li><a href="{{ url('/contact-us') }}">Contact Us</a></li>
 								{{-- <li><a href="{{ url('/media-search') }}">Search Media</a></li> --}}
-								<li>
+								{{-- <li>
 									<a href="{{ route('campaign.list') }}">
 										Campaign List
 									</a>
-								</li>
+								</li> --}}
 							</ul>	
 						</nav>
 								
@@ -74,34 +74,28 @@
 												</button>
 
 												<!-- SUPER ATTRACTIVE DROPDOWN -->
-												<ul class="dropdown-menu dropdown-menu-end user-menu shadow-lg">
+                                                <ul class="dropdown-menu dropdown-menu-end user-menu-v2">
 
-													<li class="dropdown-header text-center">
-														@auth('website')
-														<strong>{{ Auth::guard('website')->user()->name }}</strong><br>
-														<small class="text-muted">
-															{{ Auth::guard('website')->user()->email }}
-														</small>
-														@endauth
+                                                    <!-- USER INFO -->
+                                                    <li class="user-info">
+                                                        <strong>{{ Auth::guard('website')->user()->name }}</strong>
+                                                        <span>{{ Auth::guard('website')->user()->email }}</span>
+                                                    </li>
 
-														{{-- <strong>{{ session('website')->name }}</strong><br>
-														<small class="text-muted">{{ session('website')->email }}</small> --}}
-													</li>
+                                                    <!-- ACTIONS -->
+                                                    <li class="menu-actions">
+                                                        <a href="{{ route('dashboard.home') }}" class="menu-btn active">
+                                                            <i class="bi bi-speedometer2"></i>
+                                                            Dashboard
+                                                        </a>
 
-													<li><hr class="dropdown-divider"></li>
+                                                        <a href="{{ route('website.logout') }}" class="menu-btn logout">
+                                                            <i class="bi bi-box-arrow-right"></i>
+                                                            Logout
+                                                        </a>
+                                                    </li>
 
-													<li>
-														<a class="dropdown-item" href="{{ route('campaign.list') }}">
-															<i class="bi bi-speedometer2 me-2 text-primary"></i> Dashboard
-														</a>
-													</li>
-
-													<li>
-														<a class="dropdown-item text-danger" href="{{ route('website.logout') }}">
-															<i class="bi bi-box-arrow-right me-2"></i> Logout
-														</a>
-													</li>
-												</ul>
+                                                </ul>
 
 											</div>
 
@@ -130,9 +124,9 @@
 <!-- LOGIN / SIGNUP MODAL -->
 <!-- AUTH MODAL -->
 <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header" style="padding: 0.5rem 0.5rem;">
+            <div class="modal-header">
                 <h5 class="modal-title">Account Access</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -140,12 +134,12 @@
                 <div class="row g-0">
 
                     <!-- LEFT IMAGE -->
-                    <div class="col-md-5 auth-modal-left">
+                    {{-- <div class="col-md-5 auth-modal-left">
                         <img src="/images/login-banner.png" alt="Image">
-                    </div>
+                    </div> --}}
 
                     <!-- RIGHT SIDE -->
-                    <div class="col-md-7 p-4">
+                    <div class="col-md-12 p-4">
 
                         <!-- LOGIN FORM -->
                         <div id="loginArea">
@@ -172,6 +166,14 @@
                                 </div>
 
                                 <button type="submit" class="btn btn-dark w-100 mt-2">Login</button>
+
+								{{-- <a href="{{ route('auth.google.redirect') }}" class="google-btn"> --}}
+								{{-- <div class="social-login mt-4">
+									<a href="#" class="google-btn">
+										<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+										Continue with Google
+									</a>
+								</div> --}}
 
                                 <div class="auth-switch">
                                     Don't have an account?

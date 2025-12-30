@@ -1,8 +1,7 @@
-@extends('website.layout')
+@extends('website.dashboard.layout')
+@section('title', 'Dashboard')
+@section('dashboard-content')
 
-@section('title', 'My Campaigns')
-
-@section('content')
 <style>
     .nav-tabs {
     border-bottom:none !important;
@@ -20,21 +19,6 @@
        
     }
 </style>
-
-	<!-- breadcrumb-section -->
-	<div class="breadcrumb-section breadcrumb-bg">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-8 offset-lg-2 text-center">
-					<div class="breadcrumb-text">
-						<p>Read the Details</p>
-						<h1>Campaign List</h1>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end breadcrumb section -->
 
 <div class="container my-5">
 
