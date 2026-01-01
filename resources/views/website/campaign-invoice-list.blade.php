@@ -3,6 +3,22 @@
 @section('title', 'Invoice & Payments')
 
 @section('content')
+
+	<!-- breadcrumb-section -->
+	<div class="breadcrumb-section breadcrumb-bg">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 offset-lg-2 text-center">
+					<div class="breadcrumb-text">
+						<p>Campaign Invoice & Payment</p>
+						<h1>Campaign</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end breadcrumb section -->
+
 <div class="container my-5">
 
     <h3 class="mb-4">Invoice & Payments</h3>

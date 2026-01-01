@@ -113,9 +113,15 @@
              
             </div>
     <div class="col-md-2">
-    <button type="button"
+    {{-- <button type="button"
             class="btn btn-dark w-100"
             onclick="document.getElementById('searchForm').submit();">
+        Search Media
+    </button> --}}
+
+     <button type="button"
+            id="searchBtn"
+            class="btn btn-dark w-100">
         Search Media
     </button>
 </div>
@@ -208,7 +214,7 @@ document.getElementById('clearFilters').addEventListener('click', function () {
 
 {{-- 
 <div class="container">
-    <div class="search-box-wrapper my-4">
+    <div class="search-box-wrapper mt-5 my-4">
         <div class="container">
             <div class="search-box p-3 p-md-4">
 

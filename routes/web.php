@@ -254,6 +254,19 @@ Route::post('/search', [HomeController::class, 'search'])->name('website.search'
 
 Route::view('/about', 'website.about')->name('website.about');
 Route::view('/details', 'website.details')->name('website.details');
+// Route::view('/dashboard', 'website.dashboard')->name('website.dashboard');
+Route::prefix('dashboard')->group(function () {
+
+    Route::get('/', function () {
+        return view('website.dashboard.index');
+    })->name('dashboard.home');
+
+    Route::get('/profile', function () {
+        return view('website.dashboard.profile');
+    })->name('dashboard.profile');
+
+    // 
+});
 
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])
     ->name('website.media-details');

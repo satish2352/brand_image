@@ -272,7 +272,7 @@ Header
         gap: 10px;
 
         margin-left: auto;
-        margin-right: 3.4rem !important;   /* toggle पासून distance */
+        margin-right: 3.4rem !important; 
 
         position: relative;
         z-index: 1001;        /* toggle पेक्षा जास्त */
@@ -311,6 +311,82 @@ Header
         gap: 1rem;
     }
 
+}
+
+
+
+/* ===============================
+   USER DROPDOWN – CARD STYLE
+================================ */
+
+.user-menu-v2{
+    width: 200px;
+    padding: 14px;
+    border-radius: 16px;
+    border: none;
+    background: #f3f3f3;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+/* USER INFO */
+.user-menu-v2 .user-info{
+    text-align: center;
+    padding: 14px 10px;
+    border-radius: 12px;
+    background: #d6d6d6;
+    margin-bottom: 12px;
+}
+
+.user-menu-v2 .user-info strong{
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: #222;
+}
+
+.user-menu-v2 .user-info span{
+    font-size: 13px;
+    color: #555;
+    white-space: normal; 
+    word-break: break-word;
+}
+
+/* ACTIONS WRAPPER */
+.user-menu-v2 .menu-actions{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* BUTTON STYLE */
+.user-menu-v2 .menu-btn{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    background: #e0e0e0;
+    color: #111;
+    transition: all 0.25s ease;
+}
+
+/* ACTIVE (Dashboard) */
+.user-menu-v2 .menu-btn.active{
+    background: #0a2a7a;
+    color: #fff;
+}
+
+/* LOGOUT */
+.user-menu-v2 .menu-btn.logout{
+    color: #e53935;
+}
+
+/* HOVER EFFECT */
+.user-menu-v2 .menu-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.18);
 }
 
 
@@ -395,20 +471,6 @@ Header
     position: relative;
 }
 
-.password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 18px;
-    color: #666;
-}
-
-.password-toggle:hover {
-    color: #000;
-}
-
 /* all media card */
 .media-card {
     background: #fff;
@@ -457,7 +519,9 @@ Header
     padding: 100px 0;
     color: #fff;
 } */
-
+.services-section{
+    margin-top: 4rem;
+}
 /* Header */
 .services-header{
     max-width: 720px;
@@ -465,7 +529,7 @@ Header
 }
 .services-subtitle{
     color: #ff9800;
-    font-size: 13px;
+    font-size: 18px;
     letter-spacing: 2px;
 }
 .services-title{
@@ -579,7 +643,7 @@ Header
 }
 .process-subtitle{
     color: #ff9800;
-    font-size: 13px;
+    font-size: 18px;
     letter-spacing: 2px;
 }
 .process-title{
@@ -692,5 +756,748 @@ Header
     }
     .process-title{
         font-size: 32px;
+    }
+}
+
+/* =========================
+   ABOUT SECTION – WHITE
+========================= */
+
+.about-modern{
+    background: #f5f5f5;
+    padding: 4rem 0;
+}
+
+/* LEFT CONTENT */
+.about-subtitle{
+    color: #ff9800;
+    font-size: 18px;
+    letter-spacing: 2px;
+    font-weight: 600;
+}
+
+.about-title{
+    font-size: 44px;
+    font-weight: 700;
+    margin: 15px 0 25px;
+    line-height: 1.2;
+    color: #111;
+}
+
+.about-title span{
+    color: #ff9800;
+}
+
+.about-modern p{
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 18px;
+    line-height: 1.7;
+}
+
+/* BUTTON */
+.about-btn{
+    display: inline-block;
+    margin-top: 25px;
+    padding: 14px 34px;
+    background: #ff9800;
+    color: #000;
+    font-weight: 600;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.about-btn:hover{
+    background: #ffa726;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   STATS GRID
+========================= */
+
+.stats-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.stat-card{
+    background: #f9f9f9;
+    border-radius: 18px;
+    padding: 35px;
+    border: 1px solid #eee;
+    transition: 0.35s ease;
+}
+
+.stat-card i{
+    font-size: 34px;
+    color: #ff9800;
+    display: block;
+    margin-bottom: 20px;
+}
+
+.stat-card h3{
+    font-size: 46px;
+    font-weight: 700;
+    color: #ff9800;
+    margin-bottom: 5px;
+}
+
+.stat-card span{
+    font-size: 16px;
+    color: #666;
+}
+
+/* HOVER */
+.stat-card:hover{
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(255,152,0,0.18);
+    background: #fff;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 991px){
+    .about-title{
+        font-size: 36px;
+    }
+    .stats-grid{
+        margin-top: 50px;
+    }
+}
+
+@media(max-width: 575px){
+    .about-title{
+        font-size: 30px;
+    }
+    .stats-grid{
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ===== FEATURE SECTION FIX ===== */
+
+.feature-bg{
+    background: #fff;
+}
+
+/* Ensure equal left-right space */
+.feature-bg .container{
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Image wrapper */
+.feature-image-wrapper{
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+/* Image itself */
+.feature-image-wrapper img{
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* Prevent image touching screen edge */
+@media (min-width: 992px){
+    .feature-image-wrapper{
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* Mobile spacing */
+@media (max-width: 991px){
+    .feature-image-wrapper{
+        margin-top: 40px;
+    }
+}
+
+
+/* =========================
+   CTA SECTION – WHITE VERSION
+========================= */
+
+.cta-section{
+    background: #ffffff; 
+    margin-bottom: 4rem;
+}
+
+/* CTA Box */
+.cta-box{
+    position: relative;
+    padding: 80px 40px;
+    border-radius: 28px;
+
+    /* 🌟 Warm premium gradient */
+    /* background: linear-gradient(
+        135deg,
+        #fff7e6 0%,
+        #ffffff 40%,
+        #fff1d6 100%
+    ); */
+    background: linear-gradient(135deg, #ffe38e 0%, #f7eac3 40%, #e6ca79 100%);
+
+    /* background: linear-gradient(135deg, #fceaae 0%, #ffdb6d 35%, #f1b911b3 65%, #f3be43e0 100%); */
+
+    border: 1px solid rgba(255, 165, 0, 0.35);
+    /* box-shadow:
+        0 20px 50px rgba(0,0,0,0.12),
+        inset 0 0 0 1px rgba(255,255,255,0.6); */
+    box-shadow: 0 20px 50px rgb(0 0 0 / 3%), inset 0 0 0 1px rgb(255 255 255 / 0%);
+}
+
+/* Heading */
+.cta-box h2{
+    font-size: 48px;
+    font-weight: 700;
+    color: #111; /* ✅ dark text */
+    margin-bottom: 20px;
+}
+.cta-box h2 span{
+    color: #ff9800;
+}
+
+/* Description */
+.cta-box p{
+    max-width: 720px;
+    margin: 0 auto 40px;
+    font-size: 17px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.cta-actions{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-cta{
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+/* Primary Button */
+.btn-cta.primary{
+    background: #ff9800;
+    color: #000;
+}
+.btn-cta.primary:hover{
+    background: #ffb703;
+    transform: translateY(-3px);
+}
+
+/* Outline Button */
+.btn-cta.outline{
+    border: 1.5px solid rgba(0,0,0,0.3);
+    color: #111;
+    background: transparent;
+}
+.btn-cta.outline:hover{
+    border-color: #ff9800;
+    color: #ff9800;
+    transform: translateY(-3px);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 991px){
+    .cta-box h2{
+        font-size: 36px;
+    }
+}
+
+@media(max-width: 575px){
+    .cta-box{
+        padding: 60px 20px;
+    }
+    .cta-box h2{
+        font-size: 28px;
+    }
+    .cta-box p{
+        font-size: 15px;
+    }
+}
+
+/* =========================
+   PREMIUM FOOTER
+========================= */
+
+.premium-footer{
+    /* background: linear-gradient(180deg, #111, #0b0b0b); */
+    /* background-color: #051922; */
+    background: #051922a8;
+    color: #aaa;
+    padding-top: 70px;
+}
+
+/* Brand */
+.footer-brand p{
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 20px 0;
+}
+
+.brand-logo{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.brand-logo span{
+    background: #ffa000;
+    color: #000;
+    font-weight: 700;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.brand-logo h4{
+    color: #fff;
+    margin: 0;
+}
+.brand-logo h4 span{
+    color: #ffa000;
+}
+
+/* Titles */
+.footer-title{
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Links */
+.footer-links,
+.footer-contact{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.footer-contact{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.footer-links li{
+    margin-bottom: 10px;
+    color: #fff;
+}
+.footer-links a{
+    color: #fff;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.footer-links a:hover{
+    color: #ffa000;
+    padding-left: 4px;
+}
+
+
+/* Contact */
+.footer-links.no-anchor{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links.no-anchor li{
+    display: block;              /* 🔥 each item new line */
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    margin-bottom: 14px;
+    position: relative;
+    width: fit-content;          /* hover only on text */
+    transition: color 0.3s ease;
+}
+.footer-links.no-anchor li:hover{
+    color: #ffc107;
+}
+.footer-contact li{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    color: #fff;
+}
+.footer-contact i{
+    color: #ffa000;
+    font-size: 18px;
+}
+.footer-contact a{
+    color: #fff;
+}
+.footer-contact a:hover{
+    color: #ffa000;
+}
+
+/* Social */
+.footer-social{
+    display: flex;
+    gap: 12px;
+}
+.footer-social a{
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: 0.3s;
+}
+.footer-social a:hover{
+    background: #ffa000;
+    color: #000;
+}
+
+/* Bottom Bar */
+.footer-bottom{
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: 60px;
+    padding: 20px 0;
+    font-size: 14px;
+}
+.footer-bottom a{
+    color: #aaa;
+    margin-left: 15px;
+    text-decoration: none;
+}
+.footer-bottom a:hover{
+    color: #ffa000;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 767px){
+    .footer-col{
+        margin-bottom: 40px;
+    }
+    .footer-bottom a{
+        display: inline-block;
+        margin: 8px;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Hide left image cleanly */
+.auth-modal-left{
+    display: none;
+}
+
+/* Right side full width */
+#authModal .col-md-7{
+    width: 100%;
+}
+
+/* Glass modal */
+#authModal .modal-content{
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.35);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+}
+
+#authModal .modal-header{
+    border-bottom: none;
+    padding: 24px 30px 10px;
+}
+
+#authModal .modal-title{
+    font-size: 22px;
+    font-weight: 700;
+    color: #111;
+}
+
+#authModal .modal-body{
+    padding: 0;
+}
+
+#authModal .p-4{
+    padding: 30px 40px !important;
+}
+
+#authModal .form-control{
+    height: 52px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.15);
+    background: rgba(255,255,255,0.75);
+    font-size: 15px;
+}
+
+#authModal .form-control:focus{
+    border-color: #ff9800;
+    box-shadow: 0 0 0 3px rgba(255,152,0,0.25);
+    background: #fff;
+}
+
+#authModal .btn-dark{
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ff9800, #ffb703);
+    color: #000;
+    font-weight: 700;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+#authModal .btn-dark:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255,152,0,0.4);
+}
+
+/* Password wrapper fix */
+.password-wrapper{
+    position: relative;
+}
+
+/* Eye icon always center */
+.password-toggle{
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    pointer-events: auto;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Reserve space for error message */
+.password-wrapper + .text-danger,
+.form-control + .text-danger{
+    display: block;
+    min-height: 18px;   /* 🔥 space reserve */
+    margin-top: 6px;
+    font-size: 13px;
+}
+
+.password-toggle{
+    color: #999;
+}
+.password-toggle:hover{
+    color: #ff9800;
+}
+
+.password-wrapper{
+    position: relative;
+}
+
+/* Eye icon NEVER depends on content */
+.password-toggle{
+    position: absolute;
+    right: 14px;
+    top: 26px;              /* 🔥 exact half of 52px */
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+
+.auth-switch{
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.auth-switch a{
+    color: #ff9800;
+    font-weight: 700;
+}
+.auth-switch a:hover{
+    text-decoration: underline;
+}
+
+@media(max-width: 575px){
+    #authModal .p-4{
+        padding: 25px 20px !important;
+    }
+    #authModal .modal-title{
+        font-size: 20px;
+    }
+}
+
+.social-login{
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.google-btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    height: 50px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #111;
+    font-weight: 600;
+    text-decoration: none;
+
+    transition: all 0.3s ease;
+}
+
+.google-btn img{
+    width: 20px;
+    height: 20px;
+}
+
+.google-btn:hover{
+    background: #f5f5f5;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transform: translateY(-1px);
+}
+
+/* Webkit Browsers scroll bar thin */
+.modal-body::-webkit-scrollbar {
+    width: 6px;              /* 🔥 thin */
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.45);
+}
+
+/* User Dashboard */
+.accordion-button:focus{
+    box-shadow: none;
+}
+
+/* ================= DASHBOARD LAYOUT ================= */
+.dashboard-wrapper {
+    max-width: 1300px;
+    margin: auto;
+}
+
+/* ================= SIDEBAR ================= */
+.dashboard-sidebar {
+    background: #fff;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 110px;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* MENU */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 10px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    color: #333;
+    font-weight: 500;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.sidebar-menu a i {
+    font-size: 18px;
+    color: #ff9800;
+}
+
+/* Hover */
+.sidebar-menu a:hover {
+    background: #fff3e0;
+    color: #ff9800;
+}
+
+/* Active */
+.sidebar-menu li.active a {
+    background: linear-gradient(135deg, #ff9800, #ffb703);
+    color: #000;
+    font-weight: 600;
+}
+
+.sidebar-menu li.active a i {
+    color: #000;
+}
+
+/* ================= CONTENT ================= */
+.dashboard-content {
+    background: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 991px) {
+    .dashboard-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 575px) {
+    .dashboard-content {
+        padding: 20px;
     }
 }
