@@ -8,14 +8,13 @@
 			<div class="row footer-top">
 
 				<!-- Brand -->
-				<div class="col-lg-4 col-md-6 footer-col">
+				<div class="col-lg-3 col-md-6 footer-col mb-md-5">
 					<div class="footer-brand">
 						<div class="brand-logo">
 							<img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand_Image_Logo" style="height: 85px;">
 						</div>
 						<p>
-							India's premier outdoor advertising agency with 12+ years of
-							experience in creating impactful brand campaigns.
+							Brand Adda is a smart outdoor media portal offering real-time hoarding availability, 360° location views, and instant booking.
 						</p>
 
 						<div class="footer-social">
@@ -28,25 +27,33 @@
 				</div>
 
 				<!-- Quick Links -->
-				<div class="col-lg-2 col-md-6 footer-col">
-					<h5 class="footer-title">Quick Links</h5>
-					<ul class="footer-links">
-						<li><a href="{{ url('/') }}">Home</a></li>
-						<li><a href="{{ route('website.about') }}">About</a></li>
-						<li><a href="{{ url('/contact-us') }}">Contact</a></li>
+				<div class="col-lg-2 col-md-6 footer-col footer-links-wrap">
+					<h5 class="footer-title text-center">Quick Links</h5>
+
+					<ul class="footer-links footer-icon-list footer-links-center">
+						<li class="{{ request()->routeIs('website.home') ? 'active' : '' }}">
+							<a href="{{ url('/') }}"><span class="icon">›</span> Home</a>
+						</li>
+						<li class="{{ request()->routeIs('website.about') ? 'active' : '' }}">
+							<a href="{{ route('website.about') }}"><span class="icon">›</span> About</a>
+						</li>
+						<li class="{{ request()->routeIs('website.contact') ? 'active' : '' }}">
+							<a href="{{ url('/contact-us') }}"><span class="icon">›</span> Contact</a>
+						</li>
 					</ul>
 				</div>
 
 				<!-- Services -->
-				<div class="col-lg-3 col-md-6 footer-col">
-					<h5 class="footer-title">Services</h5>
-					<ul class="footer-links no-anchor">
-						<li>Traditional OOH</li>
-						<li>Digital Displays</li>
-						<li>Mall Media</li>
-						<li>Transit Media</li>
-						<li>Airport Branding</li>
-						<li>Wall Painting</li>
+				<div class="col-lg-4 col-md-6 footer-col footer-services-wrap">
+					<h5 class="footer-title text-center">Services</h5>
+
+					<ul class="footer-links footer-icon-list footer-services no-anchor">
+						<li><span class="icon">›</span> Traditional OOH</li>
+						<li><span class="icon">›</span> Digital Displays</li>
+						<li><span class="icon">›</span> Mall Media</li>
+						<li><span class="icon">›</span> Transit Media</li>
+						<li><span class="icon">›</span> Airport Branding</li>
+						<li><span class="icon">›</span> Wall Painting</li>
 					</ul>
 				</div>
 
@@ -59,20 +66,23 @@
 							<i class="bi bi-geo-alt"></i>
 							<a href="https://www.google.com/maps/place/Brand+Image+Media+Pvt+Ltd+%7C+Outdoor+Advertising+Agency/@19.9824861,73.7728886,17z/data=!3m1!4b1!4m6!3m5!1s0x3bddeb2094f5d9ff:0x57bf9c97dbf22492!8m2!3d19.9824861!4d73.7754635!16s%2Fg%2F11j1hly41b"
 							target="_blank" rel="noopener">
-								Brand Image Media Pvt Ltd,<br>
-								New Delhi, India
+								Brand Image Media Pvt Ltd,
+								Office No-4, 1st Floor,
+								Sadashiv Motkari Sankul,
+								Sadashiv Nagar,Opp.Sagar
+								Sweet, Nashik - 422009.
 							</a>
 						</li>
 
 						<li>
 							<i class="bi bi-telephone"></i>
-							<a href="tel:+919999999999">+91 99999 99999</a>
+							<a href="tel:+917770009506">+91 77700 09506</a>
 						</li>
 
 						<li>
 							<i class="bi bi-envelope"></i>
-							<a href="mailto:info@brand-image.co.in">
-								info@brand-image.co.in
+							<a href="mailto:brandimage.gmail.com">
+								brandimage.gmail.com
 							</a>
 						</li>
 					</ul>
@@ -86,7 +96,7 @@
 			<div class="container">
 				<div class="row align-items-center">
 					<div class="col-md-12 text-center">
-						<p>© 2025 Brand Image Media Pvt Ltd. All rights reserved.</p>
+						<p>© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.</p>
 					</div>
 				</div>
 			</div>

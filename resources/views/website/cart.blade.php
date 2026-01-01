@@ -463,15 +463,12 @@
 </style>
 
 	<!-- breadcrumb-section -->
-	<div class="breadcrumb-section breadcrumb-bg">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-8 offset-lg-2 text-center">
-					<div class="breadcrumb-text">
-						<p>Read the Details</p>
-						<h1>Cart</h1>
-					</div>
-				</div>
+	<div class="container-fluid about-banner-img g-0">
+		<div class="row">
+			<div class="col-md-12">
+				<img src="{{ asset('assets/img/cart.png') }}"
+					alt="About Banner"
+					class="img-fluid">
 			</div>
 		</div>
 	</div>
