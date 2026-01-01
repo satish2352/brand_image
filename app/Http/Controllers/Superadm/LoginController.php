@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Superadm;
+
 use Validator;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -12,14 +13,12 @@ use Illuminate\Support\Facades\Http;
 
 class LoginController extends Controller
 {
-   public function __construct()
-   {
-   }
+    public function __construct() {}
 
-   public function loginsuper()
-   {
-      return view('superadm.login');
-   }
+    public function loginsuper()
+    {
+        return view('superadm.login');
+    }
     public function validateSuperLogin(Request $req)
     {
         $req->validate([
@@ -61,8 +60,8 @@ class LoginController extends Controller
         $pass = $req->input('superpassword');
 
         $user = User::where('email', $uname)
-                         ->where('is_deleted', 0)
-                         ->first();
+            ->where('is_deleted', 0)
+            ->first();
 
         if (!$user) return redirect()->back()->with('error', 'User not found, contact admin');
         if ($user->is_active == 0) return redirect()->back()->with('error', 'User account is deactivated');
@@ -93,8 +92,4 @@ class LoginController extends Controller
             return redirect()->route('emp.login'); // employee login page
         }
     }
-
-
-
-
 }

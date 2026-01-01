@@ -11,7 +11,7 @@
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/theamoriginalalf/images/logo.png') }}">
          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-   <title> ALF </title>
+   <title> Brand Image </title>
    
    <link id="pagestyle" href="{{ asset('asset/theamoriginalalf/css/soft-ui-dashboard.css?v=1.0.3')}}" rel="stylesheet" />
  

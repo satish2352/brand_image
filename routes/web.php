@@ -265,6 +265,18 @@ Route::view('/details', 'website.details')->name('website.details');
 //         return view('website.dashboard.profile');
 //     })->name('dashboard.profile');
 // });
+Route::middleware('auth:website')
+    ->prefix('user/dashboard')
+    ->group(function () {
+
+        Route::get('/', function () {
+            return view('website.dashboard.index');
+        })->name('dashboard.home');
+
+        Route::get('/profile', function () {
+            return view('website.dashboard.profile');
+        })->name('dashboard.profile');
+    });
 
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])
     ->name('website.media-details');
