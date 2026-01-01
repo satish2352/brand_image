@@ -167,7 +167,7 @@
 </style>
 
 @section('content')
-<div class="invoice-wrapper">
+<div class="invoice-wrapper" style="margin-top: 200px;">
     <div class="invoice-ui-card">
         <div class="invoice-card">
 <div class="page-border">

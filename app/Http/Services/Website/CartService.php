@@ -74,34 +74,90 @@ class CartService
         return $items;
     }
 
-    // public function addToCart($mediaId)
-    // {
-    //     $media = DB::table('media_management')
-    //         ->where('id', $mediaId)
-    //         ->select('id', 'price')
-    //         ->first();
+    public function addToCart($mediaId)
+    {
+        $media = DB::table('media_management')
+            ->where('id', $mediaId)
+            ->select('id', 'price')
+            ->first();
 
-    //     if (!$media) {
-    //         throw new \Exception('Media not found');
+        if (!$media) {
+            throw new \Exception('Media not found');
+        }
+
+        $this->repo->addItem($media->id, $media->price);
+    }
+    //previous working
+    // public function addToCartWithDate($mediaId, $from, $to)
+    // {
+    //     $fromDate = Carbon::parse($from);
+    //     $toDate   = Carbon::parse($to);
+
+    //     $totalDays = $fromDate->diffInDays($toDate) + 1;
+
+    //     $monthlyPrice = DB::table('media_management')
+    //         ->where('id', $mediaId)
+    //         ->value('price');
+
+    //     $totalPrice = 0;
+    //     $current = $fromDate->copy();
+
+    //     while ($current->lte($toDate)) {
+    //         $daysInMonth = $current->daysInMonth;
+    //         $monthEnd = $current->copy()->endOfMonth();
+
+    //         $rangeEnd = $toDate->lessThan($monthEnd) ? $toDate : $monthEnd;
+    //         $bookedDays = $current->diffInDays($rangeEnd) + 1;
+
+    //         $perDay = $monthlyPrice / $daysInMonth;
+    //         $totalPrice += $perDay * $bookedDays;
+
+    //         $current = $current->addMonth()->startOfMonth();
     //     }
 
-    //     $this->repo->addItem($media->id, $media->price);
+    //     $this->repo->addItemWithDate(
+    //         $mediaId,
+    //         $monthlyPrice,
+    //         $from,
+    //         $to,
+    //         round($totalPrice / $totalDays, 2),
+    //         round($totalPrice, 2),
+    //         $totalDays
+    //     );
     // }
     public function addToCartWithDate($mediaId, $from, $to)
     {
         $fromDate = Carbon::parse($from);
         $toDate   = Carbon::parse($to);
 
-        $totalDays = $fromDate->diffInDays($toDate) + 1;
+        // 🔒 BLOCK already BOOKED dates (order_items only)
+        $alreadyBooked = DB::table('order_items')
+            ->where('media_id', $mediaId)
+            ->where(function ($q) use ($from, $to) {
+                $q->whereBetween('from_date', [$from, $to])
+                    ->orWhereBetween('to_date', [$from, $to])
+                    ->orWhere(function ($q2) use ($from, $to) {
+                        $q2->where('from_date', '<=', $from)
+                            ->where('to_date', '>=', $to);
+                    });
+            })
+            ->exists();
 
+        if ($alreadyBooked) {
+            throw new \Exception('Selected dates are already booked');
+        }
+
+        // 🔹 Calculate pricing
         $monthlyPrice = DB::table('media_management')
             ->where('id', $mediaId)
             ->value('price');
 
+        $totalDays = $fromDate->diffInDays($toDate) + 1;
         $totalPrice = 0;
         $current = $fromDate->copy();
 
         while ($current->lte($toDate)) {
+
             $daysInMonth = $current->daysInMonth;
             $monthEnd = $current->copy()->endOfMonth();
 

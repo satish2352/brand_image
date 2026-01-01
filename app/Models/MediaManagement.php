@@ -40,6 +40,8 @@ class MediaManagement extends Model
         'building_name',
         'wall_length',
         'area_auto',
+        'radius_id',
+        'area_type',
         'is_active',
         'is_deleted',
     ];

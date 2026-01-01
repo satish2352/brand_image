@@ -3,20 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OrderItem extends Model
+class MediaBookedDate extends Model
 {
+    use HasFactory;
+
+    protected $table = 'media_booked_date';
+
     protected $fillable = [
-        'order_id',
         'media_id',
         'from_date',
         'to_date',
-        'price',
-        'qty'
     ];
 
     protected $casts = [
         'from_date' => 'date',
         'to_date'   => 'date',
     ];
+
+    public $timestamps = true;
 }

@@ -10,6 +10,8 @@ use Razorpay\Api\Api;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Order;
+use App\Models\MediaBookedDate;
 
 class CheckoutController extends Controller
 {
@@ -72,29 +74,70 @@ class CheckoutController extends Controller
 
     //     return response()->json(['success' => true]);
     // }
+    //previous work
+    // public function placeOrder()
+    // {
+    //     return DB::transaction(function () {
+
+    //         if (!Auth::guard('website')->check()) {
+    //             throw new \Exception('User not logged in');
+    //         }
+
+    //         $items = $this->cartRepo->getCartItems();
+
+    //         if ($items->count() === 0) {
+    //             throw new \Exception('Cart is empty');
+    //         }
+
+    //         // ✅ CORRECT TOTAL (date-based)
+    //         $total = $items->sum(fn($i) => $i->total_price);
+
+    //         $order = $this->orderRepo->createOrder($total);
+
+    //         $this->orderRepo->createOrderItems($order->id, $items);
+
+    //         return $order;
+    //     });
+    // }
     public function placeOrder()
     {
-        return DB::transaction(function () {
+        try {
 
             if (!Auth::guard('website')->check()) {
-                throw new \Exception('User not logged in');
+                return redirect('/')->with('error', 'Please login to continue');
             }
 
             $items = $this->cartRepo->getCartItems();
 
             if ($items->count() === 0) {
-                throw new \Exception('Cart is empty');
+                return redirect('/')->with('error', 'Cart is empty');
             }
 
-            // ✅ CORRECT TOTAL (date-based)
+            // ✅ Correct date-based total
             $total = $items->sum(fn($i) => $i->total_price);
 
-            $order = $this->orderRepo->createOrder($total);
+            $order = DB::transaction(function () use ($items, $total) {
 
-            $this->orderRepo->createOrderItems($order->id, $items);
+                $order = $this->orderRepo->createOrder($total);
 
-            return $order;
-        });
+                $this->orderRepo->createOrderItems($order->id, $items);
+
+                return $order;
+            });
+
+            // ✅ STORE ORDER ID IN SESSION
+            session([
+                'order_id' => $order->id
+            ]);
+
+            // ✅ REDIRECT TO CHECKOUT PAGE (NO JSON)
+            return redirect()->route('checkout.index');
+        } catch (\Throwable $e) {
+
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
+        }
     }
 
     // public function placeOrder()
@@ -203,6 +246,34 @@ class CheckoutController extends Controller
                 'is_active'  => 0,
                 'is_deleted' => 1,
             ]);
+
+        // ✅ Load order with items
+        $order = Order::with('items')->findOrFail($orderId);
+
+        /*
+            |--------------------------------------------------------------------------
+            | INSERT / UPDATE MEDIA BOOKED DATES
+            |--------------------------------------------------------------------------
+            */
+        foreach ($order->items as $item) {
+
+            $existing = MediaBookedDate::where('media_id', $item->media_id)->first();
+
+            if ($existing) {
+                // ✅ ONLY update to_date
+                $existing->update([
+                    'to_date' => $item->to_date,
+                ]);
+            } else {
+                // ✅ Insert new record
+                MediaBookedDate::create([
+                    'media_id'  => $item->media_id,
+                    'from_date' => $item->from_date,
+                    'to_date'   => $item->to_date,
+                ]);
+            }
+        }
+
 
         // ✅ 2️⃣ Clear CAMPAIGN items if campaign order
         if ($campaignId) {

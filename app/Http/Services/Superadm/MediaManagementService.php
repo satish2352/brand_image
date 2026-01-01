@@ -78,6 +78,7 @@ class MediaManagementService
                 'minimum_booking_days',
                 'price',
                 'vendor_name',
+
             ]);
 
             /** -------------------------
@@ -95,6 +96,8 @@ class MediaManagementService
                 'building_name',
                 'wall_length',
                 'area_auto',
+                'radius_id',
+                'area_type',
             ];
 
             foreach ($optionalFields as $field) {
@@ -170,6 +173,8 @@ class MediaManagementService
                 'minimum_booking_days',
                 'price',
                 'vendor_name',
+
+
             ]);
 
             // Optional category fields
@@ -185,6 +190,8 @@ class MediaManagementService
                 'building_name',
                 'wall_length',
                 'area_auto',
+                'radius_id',
+                'area_type',
             ];
 
             foreach ($optionalFields as $field) {

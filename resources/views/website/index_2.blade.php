@@ -173,10 +173,10 @@
 	<!-- end Bar Section -->
 
 	<!-- SERVICES SECTION -->
-	<section class="services-section">
+	{{-- <section class="services-section">
 		<div class="container">
 
-			<!-- Heading -->
+		
 			<div class="services-header text-center">
 				<span class="services-subtitle">OUR SERVICES</span>
 				<h2 class="services-title">
@@ -188,7 +188,7 @@
 				</p>
 			</div>
 
-			<!-- Cards -->
+			
 			<div class="row g-4">
 
 				<div class="col-lg-3 col-md-6">
@@ -257,13 +257,13 @@
 
 			</div>
 		</div>
-	</section>
+	</section> --}}
 
 	<!-- PROCESS SECTION -->
-<section class="process-section">
+{{-- <section class="process-section">
     <div class="container">
 
-        <!-- Header -->
+      
         <div class="process-header text-center">
             <span class="process-subtitle">OUR PROCESS</span>
             <h2 class="process-title">How We <span>Work</span></h2>
@@ -273,7 +273,7 @@
             </p>
         </div>
 
-        <!-- Process Timeline -->
+       
         <div class="process-timeline">
 
             <div class="timeline-line"></div>
@@ -334,11 +334,11 @@
 
         </div>
     </div>
-</section>
+</section> --}}
 
 	
 	<!-- advertisement section -->
-	<div class="abt-section mt-5 mb-150">
+	{{-- <div class="abt-section mt-5 mb-150">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-6 col-md-12">
@@ -357,17 +357,17 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> --}}
 	<!-- end advertisement section -->
 	
 	<!-- shop banner -->
-	<section class="shop-banner">
+	{{-- <section class="shop-banner">
     	<div class="container">
         	<h3>December sale is on! <br> with big <span class="orange-text">Discount...</span></h3>
             <div class="sale-percent"><span>Sale! <br> Upto</span>50% <span>off</span></div>
             <a href="shop.html" class="cart-btn btn-lg">Shop Now</a>
         </div>
-    </section>
+    </section> --}}
 	<!-- end shop banner -->
 
 	<div class="latest-news pt-150 pb-150">
@@ -384,86 +384,13 @@
 			</div>
 
 			{{-- Cards --}}
-			<div class="row">
+			{{-- <div class="row" id="media-container">
+    @include('website.media-home-list', ['mediaList' => $mediaList])
+</div> --}}
 
-				@forelse($mediaList as $media)
-
-					<div class="col-lg-3 col-md-4 mb-5">
-						<div class="single-latest-news">
-
-							{{-- Image --}}
-								<div class="latest-news-bg"
-									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-								</div>
-
-							{{-- Content --}}
-							<div class="news-text-box">
-
-								<h3>
-									<a href="#">
-										{{ $media->media_title ?? $media->category_name }}
-									</a>
-								</h3>
-
-								{{-- Location --}}
-								<p class="blog-meta">
-									<i class="fas fa-map-marker-alt"></i>
-									{{ $media->area_name }}, {{ $media->city_name }}
-								</p>
-
-								{{-- Price --}}
-								<div class="media-price">
-									₹ {{ number_format($media->price, 2) }}
-								</div>
-
-								{{-- Actions --}}
-								<div class="card-actions">
-
-									<a href="{{ route('website.details') }}" class="card-btn read">
-										Read More →
-									</a>
-
-									@if($media->category_name === 'Hoardings/Billboards')
-
-										@auth('website')
-											<a href="{{ route('cart.add', base64_encode($media->id)) }}"
-											class="card-btn cart">
-												Add to Cart
-											</a>
-										@else
-											<button class="card-btn cart"
-													data-bs-toggle="modal"
-													data-bs-target="#authModal"
-													onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-												Add to Cart
-											</button>
-										@endauth
-
-									@else
-										<a href="{{ route('contact.create') }}"
-										class="card-btn contact">
-											Contact Us
-										</a>
-									@endif
-
-								</div>
-
-							</div>
-						</div>
-					</div>
-
-				@empty
-					<div class="col-12 text-center">
-						<p class="text-muted">No media available.</p>
-					</div>
-				@endforelse
-
-			</div>
-		</div>
-	</div>
 
 	<!-- logo carousel -->
-	<div class="logo-carousel-section">
+	{{-- <div class="logo-carousel-section">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
@@ -487,5 +414,5 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> --}}
 	<!-- end logo carousel -->

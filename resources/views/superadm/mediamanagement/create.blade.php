@@ -44,16 +44,31 @@
                 <div class="col-md-6 mb-3">
                     <label>Category <span class="text-danger">*</span></label>
                    @php use Illuminate\Support\Str; @endphp
+
                    <select name="category_id" id="category_id"
+        class="form-control @error('category_id') is-invalid @enderror">
+    <option value="">Select Category</option>
+
+    @foreach($categories as $cat)
+        @php
+            $slug = \Illuminate\Support\Str::slug($cat->slug ?? $cat->category_name);
+        @endphp
+
+        <option value="{{ $cat->id }}"
+            data-category="{{ $slug }}"
+            {{ old('category_id') == $cat->id ? 'selected' : '' }}>
+            {{ $cat->category_name }}
+        </option>
+    @endforeach
+</select>
+
+
+                   {{-- <select name="category_id" id="category_id"
                                 class="form-control @error('category_id') is-invalid @enderror">
                             <option value="">Select Category</option>
 
                             @foreach($categories as $cat)
-                                {{-- <option value="{{ $cat->id }}"
-                                    data-category="{{ $cat->slug }}"
-                                    {{ old('category_id') == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->category_name }}
-                                </option> --}}
+                               
                                <option value="{{ $cat->id }}"
     data-category="{{ \Illuminate\Support\Str::slug($cat->slug ?? $cat->category_name) }}">
     {{ $cat->category_name }}
@@ -61,7 +76,7 @@
 
 
                             @endforeach
-                        </select>
+                        </select> --}}
                     @error('category_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -509,7 +524,7 @@ $(document).ready(function () {
 });
 </script>
 
-<script>
+{{-- <script>
 $(document).ready(function () {
 
     function hideAllSections() {
@@ -556,10 +571,45 @@ $(document).ready(function () {
     // On page load
     showSection($('#category_id').find(':selected').data('category'));
 });
+</script> --}}
+
+
+<script>
+    $(document).ready(function () {
+
+    function hideAllSections() {
+        $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrapSection')
+            .hide();
+    }
+
+    function showSection(category) {
+        hideAllSections();
+
+        if (!category) return;
+
+        if (category.includes('hoardings')) $('#billboardsId').show();
+        if (category.includes('mall')) $('#mallMedia').show();
+        if (category.includes('airport')) $('#airportBranding').show();
+        if (category.includes('transit') || category.includes('transmit')) $('#transmitMedia').show();
+        if (category.includes('office')) $('#officeBranding').show();
+        if (category.includes('wall')) $('#wallWrapSection').show();
+    }
+
+    let selectedCategory = $('#category_id').find(':selected').data('category');
+
+    // ✅ FORCE OPEN SECTION IF VALIDATION ERROR EXISTS
+    @if ($errors->any())
+        showSection(selectedCategory);
+    @else
+        showSection(selectedCategory);
+    @endif
+
+    $('#category_id').on('change', function () {
+        showSection($(this).find(':selected').data('category'));
+    });
+});
+
 </script>
-
-
-
 
 {{-- <script>
 $(document).ready(function () {
