@@ -230,7 +230,7 @@ class HomeRepository
 
 
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
-        return $query->orderBy('m.id', 'DESC')->paginate(1);
+        return $query->orderBy('m.id', 'DESC')->paginate(10);
     }
 
 

@@ -96,7 +96,7 @@
         </a>
 
 
-            <span class="badge bg-danger">Booked</span>
+            {{-- <span class="badge bg-danger">Booked</span> --}}
         @endif
 
     @else
