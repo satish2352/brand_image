@@ -21,8 +21,8 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url('/about') }}">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url('/contact') }}">Contact Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url('/media-search') }}">Search Media</a></li>
-                 {{-- <li class="nav-item"><a class="nav-link" href="{{ url('/campaign-list') }}">Campaign List</a></li>
-                  --}}
+                 <li class="nav-item"><a class="nav-link" href="{{ url('/campaign-list') }}">Campaign List</a></li>
+                 
                   <li class="nav-item">
     <a class="nav-link" href="{{ route('campaign.list') }}">
         Campaign List
