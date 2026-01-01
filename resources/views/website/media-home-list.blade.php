@@ -78,7 +78,6 @@
             Read More →
         </a>
 
-        
                 <a href="{{ route('cart.add', base64_encode($media->id)) }}"
                    class="card-btn cart">
                     Add to Cart

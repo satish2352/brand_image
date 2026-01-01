@@ -29,11 +29,11 @@
 								<li><a href="{{ route('website.about') }}">About</a></li>
 								<li><a href="{{ url('/contact-us') }}">Contact Us</a></li>
 								{{-- <li><a href="{{ url('/media-search') }}">Search Media</a></li> --}}
-								{{-- <li>
+								<li>
 									<a href="{{ route('campaign.list') }}">
 										Campaign List
 									</a>
-								</li> --}}
+								</li>
 							</ul>	
 						</nav>
 								

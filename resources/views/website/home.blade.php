@@ -35,62 +35,7 @@
 
     {{-- @include('website.search') --}}
     {{-- @include('website.mediacarts') --}}
-<div class="row" id="media-container">
-    @include('website.media-home-list', ['mediaList' => $mediaList])
-</div>
 
-<div class="text-center my-4" id="lazy-loader" style="display:none;">
-    <span class="spinner-border text-warning"></span>
-</div>
-
-<script>
-let page = 1;
-let loading = false;
-
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
-
-$(window).on('scroll', function () {
-
-    if (loading) return;
-
-    if ($(window).scrollTop() + $(window).height() >= $('#lazy-loader').offset().top - 200) {
-
-        loading = true;
-        page++;
-
-        $('#lazy-loader').show();
-
-        // ✅ ALWAYS serialize search form
-        let formData = $('#searchForm').serialize();
-
-        $.ajax({
-            url: "{{ route('website.search') }}?page=" + page,
-            type: "POST",
-            data: formData,
-            success: function (html) {
-
-                if ($.trim(html) === '') {
-                    $('#lazy-loader').html('No more media');
-                    $(window).off('scroll');
-                    return;
-                }
-
-                $('#media-container').append(html);
-                loading = false;
-                $('#lazy-loader').hide();
-            },
-            error: function () {
-                loading = false;
-                $('#lazy-loader').hide();
-            }
-        });
-    }
-});
-</script>
 
 
     {{-- <script>

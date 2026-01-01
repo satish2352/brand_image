@@ -113,15 +113,9 @@
              
             </div>
     <div class="col-md-2">
-    {{-- <button type="button"
+    <button type="button"
             class="btn btn-dark w-100"
             onclick="document.getElementById('searchForm').submit();">
-        Search Media
-    </button> --}}
-
-     <button type="button"
-            id="searchBtn"
-            class="btn btn-dark w-100">
         Search Media
     </button>
 </div>
