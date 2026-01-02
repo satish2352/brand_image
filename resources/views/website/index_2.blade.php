@@ -1,70 +1,3 @@
-<style>
-.single-latest-news {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.news-text-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-}
-
-.news-text-box h3 {
-    font-size: 1.7rem;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
-.blog-meta {
-    font-size: 16px;
-    margin-bottom: 8px;
-	color: #6c757d
-}
-
-.media-price {
-    font-size: 18px;
-    font-weight: 700;
-    color: #28a745;
-    /* margin: 6px 0 10px; */
-}
-
-.card-actions {
-    margin-top: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.card-btn {
-    padding: 8px 16px;
-    font-size: 14px;
-    border-radius: 30px;
-    font-weight: 600;
-}
-
-.card-btn.cart {
-    background: #28a745;
-    color: #fff;
-}
-
-.card-btn.contact {
-    background: #ffb100;
-    color: #000;
-}
-
-.card-btn.read {
-    background: transparent;
-    color: #f28123;
-}
-
-.pricepermonth{
-	color: #a0a0a0;
-    font-weight: 400;
-}
-</style>
 
 
 	<!-- home page slider -->
@@ -181,65 +114,18 @@
 	<!-- END FEATURES SECTION -->
 
 	<!-- Search Bar Section -->
-	@include('website.search')
+	@include('website.search-form')
 	<!-- end Bar Section -->
-	<div class="container">
+	{{-- <div class="container">
 <div class="row" id="media-container">
     @include('website.media-home-list', ['mediaList' => $mediaList])
 </div>
 	</div>
 <div class="text-center my-4" id="lazy-loader" style="display:none;">
     <span class="spinner-border text-warning"></span>
-</div>
+</div> --}}
 
-<script>
-let page = 1;
-let loading = false;
 
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
-
-$(window).on('scroll', function () {
-
-    if (loading) return;
-
-    if ($(window).scrollTop() + $(window).height() >= $('#lazy-loader').offset().top - 200) {
-
-        loading = true;
-        page++;
-
-        $('#lazy-loader').show();
-
-        // ✅ ALWAYS serialize search form
-        let formData = $('#searchForm').serialize();
-
-        $.ajax({
-            url: "{{ route('website.search') }}?page=" + page,
-            type: "POST",
-            data: formData,
-            success: function (html) {
-
-                if ($.trim(html) === '') {
-                    $('#lazy-loader').html('No more media');
-                    $(window).off('scroll');
-                    return;
-                }
-
-                $('#media-container').append(html);
-                loading = false;
-                $('#lazy-loader').hide();
-            },
-            error: function () {
-                loading = false;
-                $('#lazy-loader').hide();
-            }
-        });
-    }
-});
-</script>
 	<!-- SERVICES SECTION -->
 	<section class="services-section">
 		<div class="container">

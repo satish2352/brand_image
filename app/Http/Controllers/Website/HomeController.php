@@ -49,7 +49,6 @@ class HomeController extends Controller
     //     return view('website.home', compact('mediaList', 'filters'));
     // }
 
-
     public function search(Request $request)
     {
         if ($request->filled('clear')) {
@@ -71,20 +70,50 @@ class HomeController extends Controller
 
         $mediaList = $this->homeService->searchMedia($filters);
 
-        // 🔥 AJAX REQUEST (LAZY LOAD)
-        // if ($request->ajax()) {
-        //     return view('website.media-home-list', compact('mediaList'))->render();
-        // }
-
-        // ⚡ AJAX (Lazy Load)
+        // 🔥 Lazy load AJAX
         if ($request->ajax()) {
-            return view('website.media-home-list', [
-                'mediaList' => $mediaList,
-                'filters'   => $filters
-            ])->render();
+            return view('website.media-home-list', compact('mediaList'))->render();
         }
-        return view('website.home', compact('mediaList', 'filters'));
+
+        // ✅ IMPORTANT: load SEARCH page, not HOME
+        return view('website.search', compact('mediaList', 'filters'));
     }
+
+    // public function search(Request $request)
+    // {
+    //     if ($request->filled('clear')) {
+    //         return redirect()->route('website.home');
+    //     }
+
+    //     $filters = $request->only([
+    //         'category_id',
+    //         'state_id',
+    //         'district_id',
+    //         'city_id',
+    //         'area_id',
+    //         'radius_id',
+    //         'from_date',
+    //         'to_date',
+    //         'area_type',
+    //         'available_days',
+    //     ]);
+
+    //     $mediaList = $this->homeService->searchMedia($filters);
+
+    //     // 🔥 AJAX REQUEST (LAZY LOAD)
+    //     // if ($request->ajax()) {
+    //     //     return view('website.media-home-list', compact('mediaList'))->render();
+    //     // }
+
+    //     // ⚡ AJAX (Lazy Load)
+    //     if ($request->ajax()) {
+    //         return view('website.media-home-list', [
+    //             'mediaList' => $mediaList,
+    //             'filters'   => $filters
+    //         ])->render();
+    //     }
+    //     return view('website.home', compact('mediaList', 'filters'));
+    // }
 
     public function getMediaDetails($mediaId)
     {

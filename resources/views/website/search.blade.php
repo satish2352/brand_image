@@ -1,269 +1,149 @@
-<div class="container mt-5">
-    <div class="search-box-wrapper my-4">
-        <div class="search-box p-3 p-md-4">
+@extends('website.layout')
 
-          <form method="POST" id="searchForm" action="{{ route('website.search') }}">
-@csrf
+@section('title', 'Search Media')
 
-<input type="hidden" name="clear" id="clearFlag">
+@section('content')
+<style>
+.single-latest-news {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 
-<div class="row g-2">
+.news-text-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
 
-    {{-- Category --}}
-    <div class="col-md-3">
-         <label>Category</label>
-        <select name="category_id" class="form-select">
-            <option value="">Category</option>
-            @foreach($categories as $cat)
-                <option value="{{ $cat->id }}"
-                    {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
-                    {{ $cat->category_name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+.news-text-box h3 {
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
 
-    {{-- State --}}
-    <div class="col-md-2">
-        <label>State</label>
-        <select name="state_id" id="state_id" class="form-select">
-            <option value="">State</option>
-            @foreach($states as $state)
-                <option value="{{ $state->location_id }}"
-                    {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
-                    {{ $state->name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+.blog-meta {
+    font-size: 16px;
+    margin-bottom: 8px;
+	color: #6c757d
+}
 
-    {{-- District --}}
-    <div class="col-md-2">
-         <label>District</label>
-        <select name="district_id" id="district_id" class="form-select">
-            <option value="">Select District</option>
-        </select>
-    </div>
+.media-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #28a745;
+    /* margin: 6px 0 10px; */
+}
 
-    {{-- City --}}
-    <div class="col-md-2">
-          <label>City</label>
-        <select name="city_id" id="city_id" class="form-select">
-            <option value="">Select City</option>
-        </select>
-    </div>
+.card-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    {{-- Area --}}
-    <div class="col-md-3">
-         <label>Area</label>
-        <select name="area_id" id="area_id" class="form-select">
-            <option value="">Select Area</option>
-        </select>
-    </div>
+.card-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 30px;
+    font-weight: 600;
+}
 
-    {{-- Radius --}}
-    <div class="col-md-3">
-        {{-- <select name="radius_id" class="form-select">
-            <option value="">Radius</option>
-            @foreach($radiusList as $r)
-                <option value="{{ $r->radius }}"
-                    {{ ($filters['radius_id'] ?? '') == $r->radius ? 'selected' : '' }}>
-                    {{ $r->radius }} KM
-                </option>
-            @endforeach
-        </select> --}}
-          <label>Radius</label>
-        <select name="radius_id" class="form-select">
-    <option value="">Radius</option>
-    @foreach($radiusList as $r)
-        <option value="{{ $r->radius }}"
-            {{ (string)($filters['radius_id'] ?? '') === (string)$r->radius ? 'selected' : '' }}>
-            {{ $r->radius }} KM
-        </option>
-    @endforeach
-</select>
+.card-btn.cart {
+    background: #28a745;
+    color: #fff;
+}
 
-    </div>
-<div class="col-md-3 mb-3">
-              <label>Area Type</label>  
-         <select name="area_type" class="form-control">
-    <option value="">Select Area Type</option>
-    <option value="rural" {{ ($filters['area_type'] ?? '') == 'rural' ? 'selected' : '' }}>Rural</option>
-    <option value="urban" {{ ($filters['area_type'] ?? '') == 'urban' ? 'selected' : '' }}>Urban</option>
-</select>
+.card-btn.contact {
+    background: #ffb100;
+    color: #000;
+}
 
+.card-btn.read {
+    background: transparent;
+    color: #f28123;
+}
 
-             
-            </div>
-    {{-- Dates --}}
-    <div class="col-md-2">
-        <label>From Date</label>
-        <input type="date" name="from_date" class="form-control"
-               value="{{ $filters['from_date'] ?? '' }}">
-    </div>
+.pricepermonth{
+	color: #a0a0a0;
+    font-weight: 400;
+}
+</style>
 
-    <div class="col-md-2">
-        <label>To Date</label>
-        <input type="date" name="to_date" class="form-control"
-               value="{{ $filters['to_date'] ?? '' }}">
-    </div>
-
-      
-
- <div class="col-md-2 mb-3">
-                <label>Available Days</label>  
-              <select name="available_days" class="form-control">
-    <option value="">Select Available Days</option>
-    <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>7 Days</option>
-    <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>15 Days</option>
-</select>
-
-             
-            </div>
-    <div class="col-md-2">
-    <button type="button"
-            class="btn btn-dark w-100"
-            onclick="document.getElementById('searchForm').submit();">
-        Search Media
-    </button>
+{{-- SEARCH FORM --}}
+<div class="mt-3">
+@include('website.search-form')
 </div>
+{{-- SEARCH RESULTS --}}
+@if($mediaList->count())
 
-
-    <div class="col-md-2">
-        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters" style="padding: 13px;">
-            Clear
-        </button>
-    </div>
-
-</div>
-</form>
-
-
-
+    <div class="container mt-4">
+        <div class="row" id="media-container">
+            @include('website.media-home-list', ['mediaList' => $mediaList])
         </div>
     </div>
-</div>
 
-{{-- jQuery --}}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <div class="text-center my-4  d-none" id="lazy-loader">
+        <span class="spinner-border text-warning"></span>
+    </div>
 
-<script>
-$(function () {
+@else
+    <div class="container mt-4 text-center">
+        <h5>No media found for selected filters</h5>
+    </div>
+@endif
+  <script>
+let page = 1;
+let loading = false;
+let noMoreData = false;
+let lazyTriggered = false; // ⭐ NEW
 
-    const csrf = "{{ csrf_token() }}";
+$(window).on('scroll', function () {
 
-    /* State → District */
-    $('#state_id').change(function () {
+    if (loading || noMoreData) return;
 
-        $('#district_id').html('<option>Loading...</option>');
-        $('#city_id').html('<option value="">Select City</option>');
-        $('#area_id').html('<option value="">Select Area</option>');
+    if ($(window).scrollTop() + $(window).height() >= $(document).height() - 300) {
 
-        $.post("{{ route('locations.districts') }}", {
-            _token: csrf,
-            state_id: $(this).val()
-        }, function (data) {
+        loading = true;
+        lazyTriggered = true; // ⭐ user actually scrolled
+        page++;
 
-            let html = '<option value="">Select District</option>';
-            data.forEach(d => html += `<option value="${d.location_id}">${d.name}</option>`);
-            $('#district_id').html(html);
+        let loader = $('#lazy-loader');
+        loader.removeClass('d-none').html(
+            '<span class="spinner-border text-warning"></span>'
+        );
+
+        $.ajax({
+            url: "{{ route('website.search') }}?page=" + page,
+            type: "POST",
+            data: $('#searchForm').serialize(),
+            success: function (html) {
+
+                if ($.trim(html) === '') {
+
+                    if (lazyTriggered) {
+                        loader.html('No more media');
+                    } else {
+                        loader.addClass('d-none');
+                    }
+
+                    noMoreData = true;
+                    return;
+                }
+
+                $('#media-container').append(html);
+                loader.addClass('d-none');
+                loading = false;
+            },
+            error: function () {
+                loader.addClass('d-none');
+                loading = false;
+            }
         });
-    });
-
-    /* District → City */
-    $('#district_id').change(function () {
-
-        $('#city_id').html('<option>Loading...</option>');
-        $('#area_id').html('<option value="">Select Area</option>');
-
-        $.post("{{ route('locations.cities') }}", {
-            _token: csrf,
-            district_id: $(this).val()
-        }, function (data) {
-
-            let html = '<option value="">Select City</option>';
-            data.forEach(c => html += `<option value="${c.location_id}">${c.name}</option>`);
-            $('#city_id').html(html);
-        });
-    });
-
-    /* City → Area */
-    $('#city_id').change(function () {
-
-        $('#area_id').html('<option>Loading...</option>');
-
-        $.post("{{ route('locations.areas') }}", {
-            _token: csrf,
-            city_id: $(this).val()
-        }, function (data) {
-
-            let html = '<option value="">Select Area</option>';
-            data.forEach(a => html += `<option value="${a.id}">${a.area_name}</option>`);
-            $('#area_id').html(html);
-        });
-    });
-
-});
-</script>
-<script>
-document.getElementById('clearFilters').addEventListener('click', function () {
-    document.getElementById('clearFlag').value = '1';
-    this.closest('form').submit();
+    }
 });
 </script>
 
 
-
-{{-- 
-<div class="container">
-    <div class="search-box-wrapper mt-5 my-4">
-        <div class="container">
-            <div class="search-box p-3 p-md-4">
-
-                <div class="row g-3 align-items-center">
-
-                    <div class="col-md-2 col-12">
-                        <select class="form-select custom-select">
-                            <option selected>Select Media Type</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-12">
-                        
-                    </div>
-
-                    <div class="col-md-2 col-12">
-                        <select class="form-select custom-select" id="district_id">
-                            <option value="">Select District</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-12">
-                        <select class="form-select custom-select" id="city_id">
-                            <option value="">Select City</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-12">
-                        <select class="form-select custom-select">
-                            <option selected>Select Radius</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-12">
-                        <select class="form-select custom-select">
-                            <option selected>Select Type</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 col-12">
-                        <button class="btn btn-dark w-100 fw-bold">Search Media</button>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div> --}}
-
+@endsection

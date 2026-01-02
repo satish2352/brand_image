@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
          * 🔍 Search dropdown data (ONLY website.search view)
          */
 
-        View::composer('website.search', function ($view) {
+        View::composer('website.search-form', function ($view) {
 
             $categories = DB::table('category')
                 ->where('is_active', 1)
