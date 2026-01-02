@@ -72,12 +72,12 @@
      @if($isBillboard)
 
         @if($isBooked === 0)
-            @auth('website')
+            
                <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
            class="card-btn read">
             Read More →
         </a>
-
+@auth('website')
                 <a href="{{ route('cart.add', base64_encode($media->id)) }}"
                    class="card-btn cart">
                     Add to Cart
@@ -106,9 +106,6 @@
         </a>
     @endif
 </div>
-
-
-
         </div>
     </div>
 </div>

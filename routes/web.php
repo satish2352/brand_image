@@ -299,7 +299,8 @@ Route::middleware('auth:website')->group(function () {
     Route::get('/cart/remove/{mediaId}', [CartController::class, 'remove'])->name('cart.remove');
 
     Route::post('cart/add-with-date', [CartController::class, 'addWithDate'])
-        ->name('cart.add.with.date');
+        ->name('cart.add.with.date')->middleware('auth:website');
+
 
     Route::post('/cart/update-dates', [CartController::class, 'updateDates'])
         ->name('cart.update.dates')
