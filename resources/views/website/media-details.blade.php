@@ -483,9 +483,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // ✅ VALID RANGE
-                fromInput.value = start.toISOString().split('T')[0];
-                toInput.value   = end.toISOString().split('T')[0];
+              
+
+                 fromInput.value = flatpickr.formatDate(start, "Y-m-d");
+                 toInput.value   = flatpickr.formatDate(end, "Y-m-d");
                 addBtn.disabled = false;
             }
         }
