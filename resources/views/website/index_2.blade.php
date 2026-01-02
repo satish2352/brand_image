@@ -241,7 +241,7 @@ $(window).on('scroll', function () {
 });
 </script>
 	<!-- SERVICES SECTION -->
-	{{-- <section class="services-section">
+	<section class="services-section">
 		<div class="container">
 
 		
@@ -325,10 +325,10 @@ $(window).on('scroll', function () {
 
 			</div>
 		</div>
-	</section> --}}
+	</section>
 
 	<!-- PROCESS SECTION -->
-	{{-- <section class="process-section">
+	<section class="process-section">
 		<div class="container">
 
 			
@@ -402,9 +402,9 @@ $(window).on('scroll', function () {
 
 			</div>
 		</div>
-	</section> --}}
+	</section>
 
-	{{-- <section class="about-modern">
+	<section class="about-modern">
 		<div class="container">
 			<div class="row align-items-center">
 
@@ -465,24 +465,10 @@ $(window).on('scroll', function () {
 
 			</div>
 		</div>
-	</section> --}}
+	</section>
+ 
 
-
-	{{-- <div class="latest-news pt-150 pb-150">
-		<div class="container">
-
-			<div class="row">
-				<div class="col-lg-8 offset-lg-2 text-center">
-					<div class="section-title">    
-						<h3><span class="orange-text">Latest</span> Media</h3>
-						<p>Premium outdoor media options curated for you</p>
-					</div>
-				</div>
-			</div> --}}
-		</div>
-	</div> 
-
-	    <div class="latest-news pt-150">
+	<div class="latest-news pt-150">
         <div class="container">
  
             {{-- Title --}}
