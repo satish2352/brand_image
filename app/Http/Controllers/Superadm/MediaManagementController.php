@@ -70,20 +70,39 @@ class MediaManagementController extends Controller
     }
     public function viewDetails($encodedId)
     {
-        try {
-            $id = base64_decode($encodedId);
+        $id = base64_decode($encodedId, true);
 
-            $media = $this->mediaService->viewDetails($id);
-
-            if (!$media) {
-                abort(404);
-            }
-
-            return view('superadm.mediamanagement.viewDetails', compact('media'));
-        } catch (\Exception $e) {
+        if (!$id || !is_numeric($id)) {
             abort(404);
         }
+
+        logger('Decoded Media ID:', [$id]); // 👈 ADD THIS
+
+        $media = $this->mediaService->viewDetails($id);
+
+        if (!$media) {
+            abort(404);
+        }
+
+        return view('superadm.mediamanagement.viewDetails', compact('media'));
     }
+
+    // public function viewDetails($encodedId)
+    // {
+    //     try {
+    //         $id = base64_decode($encodedId);
+
+    //         $media = $this->mediaService->viewDetails($id);
+
+    //         if (!$media) {
+    //             abort(404);
+    //         }
+
+    //         return view('superadm.mediamanagement.viewDetails', compact('media'));
+    //     } catch (\Exception $e) {
+    //         abort(404);
+    //     }
+    // }
     public function deleteImage(Request $request)
     {
         try {

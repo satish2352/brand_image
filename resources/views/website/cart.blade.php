@@ -832,6 +832,10 @@ function changeCartImage(el, src) {
     </div>
 </div>
 <script>
+const MIN_BOOKING_DAYS = 15;
+</script>
+
+<script>
 function zoomImage(e, container) {
     const img = container.querySelector('img');
     const rect = container.getBoundingClientRect();
@@ -863,6 +867,50 @@ function changeCartImage(el, src) {
 </script>
 {{-- ============== --}}
 <script>
+// document.querySelectorAll('.update-date-btn').forEach(btn => {
+
+//     btn.addEventListener('click', function () {
+
+//         const form     = this.closest('.cart-date-form');
+//         const fromDate = form.querySelector('.from-date').value;
+//         const toDate   = form.querySelector('.to-date').value;
+//         const errorBox = form.querySelector('.cart-date-error');
+
+//         // 🚫 stop if no dates
+//         if (!fromDate || !toDate) {
+//             errorBox.classList.remove('d-none');
+//             errorBox.innerText = 'Please select booking dates';
+//             return;
+//         }
+
+//         const formData = new FormData(form);
+
+//         fetch("{{ route('cart.update.dates') }}", {
+//             method: "POST",
+//             headers: {
+//                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
+//             },
+//             body: formData
+//         })
+//         .then(res => res.json())
+//         .then(data => {
+//             if (!data.success) {
+//                 errorBox.classList.remove('d-none');
+//                 errorBox.innerText = data.message;
+//             } else {
+//                 // ✅ CLEAR ERROR BEFORE RELOAD
+//                 errorBox.classList.add('d-none');
+//                 errorBox.innerText = '';
+//                 location.reload();
+//             }
+//         })
+//         .catch(() => {
+//             errorBox.classList.remove('d-none');
+//             errorBox.innerText = 'Something went wrong';
+//         });
+//     });
+
+// });
 document.querySelectorAll('.update-date-btn').forEach(btn => {
 
     btn.addEventListener('click', function () {
@@ -872,12 +920,27 @@ document.querySelectorAll('.update-date-btn').forEach(btn => {
         const toDate   = form.querySelector('.to-date').value;
         const errorBox = form.querySelector('.cart-date-error');
 
-        // 🚫 stop if no dates
         if (!fromDate || !toDate) {
             errorBox.classList.remove('d-none');
             errorBox.innerText = 'Please select booking dates';
             return;
         }
+
+        const start = new Date(fromDate);
+        const end   = new Date(toDate);
+
+        const diffDays =
+            Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+        if (diffDays < MIN_BOOKING_DAYS) {
+            errorBox.classList.remove('d-none');
+            errorBox.innerText =
+                `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
+            return;
+        }
+
+        errorBox.classList.add('d-none');
+        errorBox.innerText = '';
 
         const formData = new FormData(form);
 
@@ -894,9 +957,6 @@ document.querySelectorAll('.update-date-btn').forEach(btn => {
                 errorBox.classList.remove('d-none');
                 errorBox.innerText = data.message;
             } else {
-                // ✅ CLEAR ERROR BEFORE RELOAD
-                errorBox.classList.add('d-none');
-                errorBox.innerText = '';
                 location.reload();
             }
         })
@@ -907,6 +967,7 @@ document.querySelectorAll('.update-date-btn').forEach(btn => {
     });
 
 });
+
 </script>
 
 
@@ -927,45 +988,54 @@ document.querySelectorAll('.cart-calendar').forEach(calendar => {
         .then(res => res.json())
         .then(bookings => {
 
-            flatpickr(calendar, {
-                mode: "range",
-                inline: true,
-                static: true,
-                minDate: "today",
-                dateFormat: "Y-m-d",
+          flatpickr(calendar, {
+    mode: "range",
+    inline: true,
+    static: true,
+    minDate: "today",
+    dateFormat: "Y-m-d",
 
-                // ✅ SAFE preload (NO Blade vars here)
-                defaultDate: [fromDate, toDate],
+    defaultDate: [
+        calendar.dataset.fromDate || null,
+        calendar.dataset.toDate || null
+    ],
 
-                disable: bookings.map(b => ({
-                    from: b.from_date,
-                    to: b.to_date
-                })),
+    disable: bookings.map(b => ({
+        from: b.from_date,
+        to: b.to_date
+    })),
 
-                onReady: function (selectedDates) {
-                    if (selectedDates.length === 2) {
-                        fromInp.value = selectedDates[0].toISOString().split('T')[0];
-                        toInp.value   = selectedDates[1].toISOString().split('T')[0];
-                    }
-                },
+    onReady: function (selectedDates, dateStr, fp) {
+        if (selectedDates.length === 2) {
+            fromInp.value = fp.formatDate(selectedDates[0], "Y-m-d");
+            toInp.value   = fp.formatDate(selectedDates[1], "Y-m-d");
+        }
+    },
 
-                onDayCreate: function (dObj, dStr, fp, dayElem) {
-                    const date = dayElem.dateObj.toISOString().split('T')[0];
-                    bookings.forEach(b => {
-                        if (date >= b.from_date && date <= b.to_date) {
-                            dayElem.classList.add('booked-date');
-                        }
-                    });
-                },
+    onChange: function (dates, dateStr, fp) {
+        if (dates.length === 2) {
 
-                onChange: function (dates) {
-                    if (dates.length === 2) {
-                        fromInp.value = dates[0].toISOString().split('T')[0];
-                        toInp.value   = dates[1].toISOString().split('T')[0];
-                        error.classList.add('d-none');
-                    }
-                }
-            });
+            const start = dates[0];
+            const end   = dates[1];
+
+            const diffDays =
+                Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+            if (diffDays < MIN_BOOKING_DAYS) {
+                error.classList.remove('d-none');
+                error.innerText = `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
+                return;
+            }
+
+            fromInp.value = fp.formatDate(start, "Y-m-d");
+            toInp.value   = fp.formatDate(end, "Y-m-d");
+
+            error.classList.add('d-none');
+            error.innerText = '';
+        }
+    }
+});
+
 
         });
 });
@@ -974,6 +1044,40 @@ document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
 
 <script>
+// function validateCartDates() {
+//     let isValid = true;
+//     let firstInvalidForm = null;
+
+//     document.querySelectorAll('.cart-date-form').forEach(form => {
+
+//         const fromDate = form.querySelector('.from-date').value;
+//         const toDate   = form.querySelector('.to-date').value;
+//         const errorBox = form.querySelector('.cart-date-error');
+
+//         if (!fromDate || !toDate) {
+//             isValid = false;
+
+//             errorBox.classList.remove('d-none');
+//             errorBox.innerText = 'Please select booking dates';
+
+//             if (!firstInvalidForm) {
+//                 firstInvalidForm = form;
+//             }
+//         } else {
+//             errorBox.classList.add('d-none');
+//             errorBox.innerText = '';
+//         }
+//     });
+
+//     if (!isValid && firstInvalidForm) {
+//         firstInvalidForm.scrollIntoView({
+//             behavior: 'smooth',
+//             block: 'center'
+//         });
+//     }
+
+//     return isValid;
+// }
 function validateCartDates() {
     let isValid = true;
     let firstInvalidForm = null;
@@ -985,17 +1089,30 @@ function validateCartDates() {
         const errorBox = form.querySelector('.cart-date-error');
 
         if (!fromDate || !toDate) {
-            isValid = false;
-
             errorBox.classList.remove('d-none');
             errorBox.innerText = 'Please select booking dates';
-
-            if (!firstInvalidForm) {
-                firstInvalidForm = form;
-            }
+            isValid = false;
         } else {
-            errorBox.classList.add('d-none');
-            errorBox.innerText = '';
+
+            const start = new Date(fromDate);
+            const end   = new Date(toDate);
+
+            const diffDays =
+                Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+            if (diffDays < MIN_BOOKING_DAYS) {
+                errorBox.classList.remove('d-none');
+                errorBox.innerText =
+                    `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
+                isValid = false;
+            } else {
+                errorBox.classList.add('d-none');
+                errorBox.innerText = '';
+            }
+        }
+
+        if (!isValid && !firstInvalidForm) {
+            firstInvalidForm = form;
         }
     });
 
@@ -1008,6 +1125,7 @@ function validateCartDates() {
 
     return isValid;
 }
+
 </script>
 <script>
 function openCampaignModal() {

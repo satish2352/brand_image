@@ -244,6 +244,9 @@ class HomeRepository
             ->leftJoin('tbl_location as city', 'city.location_id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('facing_direction as fd', 'fd.id', '=', 'm.facing_id')
+            ->leftJoin('illumination as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('radius_master as rm', 'rm.id', '=', 'm.radius_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)
             ->select([
@@ -253,6 +256,9 @@ class HomeRepository
                 'district.name as district_name',
                 'city.name as city_name',
                 'a.common_stdiciar_name as area_name',
+                'fd.facing_name',
+                'il.illumination_name',
+                'rm.radius',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())),2) as per_day_price')
             ])
             ->first();

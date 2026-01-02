@@ -89,7 +89,12 @@ class CartController extends Controller
     {
         $request->validate([
             'media_id'  => 'required',
-            'from_date' => 'required|date|after_or_equal:today',
+            // 'from_date' => 'required|date|after_or_equal:today',
+            // 'from_date' => ['required', 'date', function ($attr, $value, $fail) {
+            //     if (Carbon::parse($value)->lt(Carbon::today())) {
+            //         $fail('From date must be today or a future date.');
+            //     }
+            // }],
             'to_date'   => 'required|date|after_or_equal:from_date',
         ]);
 
@@ -144,9 +149,10 @@ class CartController extends Controller
         try {
             $request->validate([
                 'cart_item_id' => 'required|exists:cart_items,id',
-                'from_date'    => 'required|date|after_or_equal:today',
+                'from_date'    => 'required|date',
                 'to_date'      => 'required|date|after_or_equal:from_date',
             ]);
+
 
             $this->service->updateCartDates(
                 $request->cart_item_id,
@@ -162,6 +168,7 @@ class CartController extends Controller
             ], 422);
         }
     }
+
 
     public function update(Request $request)
     {

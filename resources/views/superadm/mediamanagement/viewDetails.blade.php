@@ -21,7 +21,7 @@
         <h4 class="mb-4">Media Details</h4>
 
         {{-- CATEGORY SLUG --}}
-        <input type="hidden" id="category_slug" value="{{ $media->category_slug }}">
+        <input type="hidden" id="category_id" value="{{ $media->category_id }}">
 
         {{-- ================= COMMON BASIC DETAILS ================= --}}
         <h6>Basic Details</h6>
@@ -204,7 +204,7 @@
 <script>
 $(document).ready(function () {
 
-    const category = $('#category_slug').val();
+    const category = $('#category_id').val();
 
     function hideAll() {
         $('#billboardsBasic').hide();
