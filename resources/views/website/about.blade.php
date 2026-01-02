@@ -211,7 +211,7 @@
 				<!-- RIGHT IMAGE -->
 				<div class="col-lg-6">
 					<div class="feature-image-wrapper">
-						<img src="assets/img/one.png"
+						<img src="{{ asset('assets/img/one.png') }}"
 							alt="Outdoor Advertising" class="img-fluid">
 					</div>
 				</div>
