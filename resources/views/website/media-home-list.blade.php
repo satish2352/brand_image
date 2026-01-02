@@ -29,6 +29,16 @@
                 ₹ {{ number_format($media->price, 2) }}
             </div>
 
+            {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
+            <div class="media-map mt-4">
+                <a href="https://www.google.com/maps"
+                target="_blank"
+                class="text-muted d-inline-flex align-items-center gap-1">
+                    <img src="{{ asset('assets/img/map.png') }}" width="30">
+                    <span>View on Map</span>
+                </a>
+            </div>
+
           @php
     $isBillboard = ($media->category_id == 1); // Hoardings / Billboards
 @endphp
@@ -79,11 +89,11 @@
         </a>
 @auth('website')
                 <a href="{{ route('cart.add', base64_encode($media->id)) }}"
-                   class="card-btn cart">
+                   class="btn card-btn cart">
                     Add to Cart
                 </a>
             @else
-                <button class="card-btn cart"
+                <button class="btn card-btn cart"
                         data-bs-toggle="modal"
                         data-bs-target="#authModal">
                     Add to Cart

@@ -350,10 +350,21 @@ Header
         gap: 10px;
 
         margin-left: auto;
-        margin-right: 3.4rem !important; 
+        /* margin-right: 3.4rem !important;  */
 
         position: relative;
         z-index: 1001;        /* toggle पेक्षा जास्त */
+    }
+
+    
+    /* ✅ ONLY WHEN USER IS LOGGED IN */
+    body.user-logged-in .new-header-icons{
+        margin-right: 3.4rem !important;
+    }
+
+    /* ❌ WHEN USER NOT LOGGED IN → NO MARGIN */
+    body.user-guest .new-header-icons{
+        margin-right: 0 !important;
     }
 
     /* Header row alignment */

@@ -48,7 +48,7 @@
 
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 {{ auth('website')->check() ? 'user-logged-in' : 'user-guest' }}">
 
     {{-- Include Header --}}
     {{-- @include('website.includes.header') --}}

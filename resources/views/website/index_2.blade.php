@@ -539,7 +539,7 @@ $(window).on('scroll', function () {
 													</a>
 
 													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
-													class="card-btn cart">
+													class="btn card-btn cart">
 														Add to Cart
 													</a>
 												@else
@@ -561,7 +561,7 @@ $(window).on('scroll', function () {
 														</a>
 													@else
 														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
-														<button class="card-btn cart"
+														<button class="btn card-btn cart"
 																data-bs-toggle="modal"
 																data-bs-target="#authModal"
 																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
@@ -661,7 +661,7 @@ $(window).on('scroll', function () {
 													</a>
 
 													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
-													class="card-btn cart">
+													class="btn card-btn cart">
 														Add to Cart
 													</a>
 												@else
@@ -683,7 +683,7 @@ $(window).on('scroll', function () {
 														</a>
 													@else
 														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
-														<button class="card-btn cart"
+														<button class="btn card-btn cart"
 																data-bs-toggle="modal"
 																data-bs-target="#authModal"
 																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
@@ -736,7 +736,7 @@ $(window).on('scroll', function () {
 						Get Free Quote <i class="bi bi-arrow-right"></i>
 					</a>
 
-					<a href="tel:+919999999999" class="btn-cta outline">
+					<a href="tel:+9177700 09506" class="btn-cta outline">
 						<i class="bi bi-telephone"></i> Call Us Now
 					</a>
 				</div>
