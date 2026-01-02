@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
             $categories = DB::table('category')
                 ->where('is_active', 1)
                 ->where('is_deleted', 0)
-                ->orderBy('category_name')
+                ->orderBy('id', 'asc')
                 ->get();
 
             $states = DB::table('tbl_location')
