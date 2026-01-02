@@ -211,10 +211,36 @@
     Please select booking dates
 </div>
 
+
+@auth('website')
 <button type="submit" class="add-to-cart-btn mt-4" id="addToCartBtn" disabled>
     <i class="fas fa-shopping-cart me-2"></i>
     Add to Cart
 </button>
+                {{-- <a href="{{ route('cart.add', base64_encode($media->id)) }}"
+                   class="card-btn cart">
+                    Add to Cart
+                </a> --}}
+            @else
+          <button type="button"
+        class="card-btn cart add-to-cart-btn mt-4"
+        data-bs-toggle="modal"
+        data-bs-target="#authModal">
+    <i class="fas fa-shopping-cart me-2"></i>
+    Add to Cart
+</button>
+
+                {{-- <button class="card-btn cart"
+                        data-bs-toggle="modal"
+                        data-bs-target="#authModal">
+                    Add to Cart
+                </button> --}}
+            @endauth
+
+{{-- <button type="submit" class="add-to-cart-btn mt-4" id="addToCartBtn" disabled>
+    <i class="fas fa-shopping-cart me-2"></i>
+    Add to Cart
+</button> --}}
 
 </form>
 
