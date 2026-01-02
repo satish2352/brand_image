@@ -183,12 +183,68 @@
 	<!-- Search Bar Section -->
 	@include('website.search')
 	<!-- end Bar Section -->
+	<div class="container">
+<div class="row" id="media-container">
+    @include('website.media-home-list', ['mediaList' => $mediaList])
+</div>
+	</div>
+<div class="text-center my-4" id="lazy-loader" style="display:none;">
+    <span class="spinner-border text-warning"></span>
+</div>
 
+<script>
+let page = 1;
+let loading = false;
+
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+$(window).on('scroll', function () {
+
+    if (loading) return;
+
+    if ($(window).scrollTop() + $(window).height() >= $('#lazy-loader').offset().top - 200) {
+
+        loading = true;
+        page++;
+
+        $('#lazy-loader').show();
+
+        // ✅ ALWAYS serialize search form
+        let formData = $('#searchForm').serialize();
+
+        $.ajax({
+            url: "{{ route('website.search') }}?page=" + page,
+            type: "POST",
+            data: formData,
+            success: function (html) {
+
+                if ($.trim(html) === '') {
+                    $('#lazy-loader').html('No more media');
+                    $(window).off('scroll');
+                    return;
+                }
+
+                $('#media-container').append(html);
+                loading = false;
+                $('#lazy-loader').hide();
+            },
+            error: function () {
+                loading = false;
+                $('#lazy-loader').hide();
+            }
+        });
+    }
+});
+</script>
 	<!-- SERVICES SECTION -->
-	<section class="services-section">
+	{{-- <section class="services-section">
 		<div class="container">
 
-			<!-- Heading -->
+		
 			<div class="services-header text-center">
 				<span class="services-subtitle">OUR SERVICES</span>
 				<h2 class="services-title">
@@ -200,7 +256,7 @@
 				</p>
 			</div>
 
-			<!-- Cards -->
+			
 			<div class="row g-4">
 
 				<div class="col-lg-3 col-md-6">
@@ -269,13 +325,13 @@
 
 			</div>
 		</div>
-	</section>
+	</section> --}}
 
 	<!-- PROCESS SECTION -->
-	<section class="process-section">
+	{{-- <section class="process-section">
 		<div class="container">
 
-			<!-- Header -->
+			
 			<div class="process-header text-center">
 				<span class="process-subtitle">OUR PROCESS</span>
 				<h2 class="process-title">How We <span>Work</span></h2>
@@ -346,13 +402,13 @@
 
 			</div>
 		</div>
-	</section>
+	</section> --}}
 
-	<section class="about-modern">
+	{{-- <section class="about-modern">
 		<div class="container">
 			<div class="row align-items-center">
 
-				<!-- LEFT CONTENT -->
+				
 				<div class="col-lg-6">
 					<span class="about-subtitle">ABOUT US</span>
 
@@ -377,7 +433,6 @@
 					<a href="{{ route('website.about') }}" class="about-btn">Know More</a>
 				</div>
 
-				<!-- RIGHT STATS -->
 				<div class="col-lg-6">
 					<div class="stats-grid">
 
@@ -410,7 +465,7 @@
 
 			</div>
 		</div>
-	</section>
+	</section> --}}
 
 
 	{{-- <div class="latest-news pt-150 pb-150">
@@ -423,7 +478,7 @@
 						<p>Premium outdoor media options curated for you</p>
 					</div>
 				</div>
-			</div>
+			</div> --}}
 
 			<div class="row">
 
@@ -509,7 +564,7 @@
 
 			</div>
 		</div>
-	</div> --}}
+	</div> 
 
 	<div class="latest-news pt-150">
 		<div class="container">
@@ -661,6 +716,158 @@
 		</div>
 	</div>
 
+    <div class="latest-news pt-150">
+        <div class="container">
+ 
+            {{-- Title --}}
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="section-title">    
+                        <h3><span class="orange-text">Hoardings / Billboards</h3>
+                        <p>Premium outdoor media options curated for you</p>
+                    </div>
+                </div>
+            </div>
+            {{-- ================= HOARDINGS SECTION ================= --}}
+            <div class="row mb-5">
+ <?php
+	// dd($mediaList);
+	// die();
+	?>
+                @foreach($mediaList as $media)
+                    @if($media->category_id === 1)
+ 
+                        <div class="col-lg-4 col-md-6 mb-5">
+                            <div class="single-latest-news">
+ 
+                                <div class="latest-news-bg"
+                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                                </div>
+ 
+                                <div class="news-text-box">
+ 
+                                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
+ 
+                                    <p class="blog-meta">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ $media->area_name }}, {{ $media->city_name }}
+                                    </p>
+ 
+                                    <div class="media-price">
+                                        ₹ {{ number_format($media->price, 2) }}
+                                        <small class="pricepermonth">/Month</small>
+                                    </div>
+ 
+                                    {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
+                                    <div class="media-map mt-4">
+                                        <a href="https://www.google.com/maps"
+                                        target="_blank"
+                                        class="text-muted d-inline-flex align-items-center gap-1">
+                                            <img src="{{ asset('assets/img/map.png') }}" width="30">
+                                            <span>View on Map</span>
+                                        </a>
+                                    </div>
+ 
+                                    <div class="card-actions">
+                                        <a href="{{ route('website.details') }}" class="card-btn read">
+                                            Read More →
+                                        </a>
+ 
+                                        @auth('website')
+                                            <a href="{{ route('cart.add', base64_encode($media->id)) }}"
+                                            class="btn card-btn cart">
+                                                Add to Cart
+                                            </a>
+                                        @else
+                                            <button class="btn card-btn cart"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#authModal"
+                                                    onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+                                                Add to Cart
+                                            </button>
+                                        @endauth
+                                    </div>
+ 
+                                </div>
+                            </div>
+                        </div>
+ 
+                    @endif
+                @endforeach
+            </div>
+ 
+        </div>
+    </div>
+ 
+    <div class="latest-news pb-150">
+        <div class="container">
+ 
+            {{-- Title --}}
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="section-title">    
+                        <h3><span class="orange-text">Other Media</h3>
+                        <p>Premium outdoor media options curated for you</p>
+                    </div>
+                </div>
+            </div>
+            {{-- ================= OTHER MEDIA SECTION ================= --}}
+            <div class="row">
+ 
+                @foreach($mediaList as $media)
+                    @if($media->category_name !== 'Hoardings/Billboards')
+ 
+                        <div class="col-lg-4 col-md-6 mb-5">
+                            <div class="single-latest-news">
+ 
+                                <div class="latest-news-bg"
+                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                                </div>
+ 
+                                <div class="news-text-box">
+ 
+                                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
+ 
+                                    <p class="blog-meta">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ $media->area_name }}, {{ $media->city_name }}
+                                    </p>
+ 
+                                    <div class="media-price">
+                                        ₹ {{ number_format($media->price, 2) }}
+                                        <small class="pricepermonth">/Month</small>
+                                    </div>
+ 
+                                    <div class="media-map mt-4">
+                                        <a href="https://www.google.com/maps"
+                                        target="_blank"
+                                        class="text-muted d-inline-flex align-items-center gap-1">
+                                            <img src="{{ asset('assets/img/map.png') }}" width="30">
+                                            <span>View on Map</span>
+                                        </a>
+                                    </div>
+ 
+                                    <div class="card-actions">
+                                        <a href="{{ route('website.details') }}" class="card-btn read">
+                                            Read More →
+                                        </a>
+ 
+                                        <a href="{{ route('contact.create') }}"
+                                        class="btn card-btn contact">
+                                            Contact Us
+                                        </a>
+                                    </div>
+ 
+                                </div>
+                            </div>
+                        </div>
+ 
+                    @endif
+                @endforeach
+            </div>
+ 
+        </div>
+    </div>
 	<!-- CTA SECTION -->
 	<section class="cta-section">
 		<div class="container">
@@ -691,7 +898,7 @@
 	</section>
 
 	<!-- logo carousel -->
-	<div class="logo-carousel-section">
+	{{-- <div class="logo-carousel-section">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
@@ -715,5 +922,5 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> --}}
 	<!-- end logo carousel -->

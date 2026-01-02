@@ -23,9 +23,17 @@
               action="{{ route('media.update', $encodedId) }}"
               enctype="multipart/form-data">
             @csrf
-<input type="hidden"
+{{-- <input type="hidden"
        id="category_slug"
-       value="{{ $categories->where('id', $media->category_id)->first()->slug }}">
+       value="{{ $categories->where('id', $media->category_id)->first()->slug }}"> --}}
+@php
+    $category = $categories->where('id', $media->category_id)->first();
+    $slug = \Illuminate\Support\Str::slug(
+        $category->slug ?? $category->category_name
+    );
+@endphp
+
+<input type="hidden" id="category_slug" value="{{ $slug }}">
 
             {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
             <input type="hidden" name="state_id" value="{{ $media->state_id }}">
@@ -93,6 +101,42 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+
+                 <div class="col-md-3 mb-3">
+                <label>Area Type <span class="text-danger">*</span></label>
+                <select name="area_type" class="form-control @error('area_type') is-invalid @enderror">
+                    <option value="">Select Area Type</option>
+                   <option value="rural"
+                                    {{ old('area_type', $media->area_type) == 'rural' ? 'selected' : '' }}>
+                                    Rural
+                                </option>
+
+                                <option value="urban"
+                                    {{ old('area_type', $media->area_type) == 'urban' ? 'selected' : '' }}>
+                                    Urban
+                                </option>
+
+                </select>
+
+                @error('area_type')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+                    <div class="col-md-3 mb-3">
+                    <label>Radius <span class="text-danger">*</span></label>
+                    <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
+                        <option value="">Select</option>
+                        @foreach($radius as $radiusdata)
+                          <option value="{{ $radiusdata->id }}"
+                            {{ old('radius_id', $media->radius_id) == $radiusdata->id ? 'selected' : '' }}>
+                            {{ $radiusdata->radius }}
+                        </option>
+                        @endforeach
+                    </select>
+                     @error('radius_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-4 mb-3">
@@ -298,13 +342,12 @@
                 </div>
 
                 {{-- IMAGES --}}
-                <div class="col-md-6 mb-4">
+                {{-- <div class="col-md-6 mb-4">
                     <label>Replace Images</label>
                     <input type="file" name="images[]" id="images"
                            multiple class="form-control">
-                    {{-- <small class="text-muted">Uploading will replace old images</small> --}}
                     <div id="imagePreview" class="d-flex mt-2"></div>
-                </div>
+                </div> --}}
             </div>
             {{-- ================= WALL WRAP ================= --}}
             <div class="row" id="wallWrap">
@@ -325,7 +368,56 @@
     </div>
 </div>
 @section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
+$(document).ready(function () {
+
+    function hideAllSections() {
+        $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap')
+            .hide();
+    }
+
+    function showSection(category) {
+        hideAllSections();
+        if (!category) return;
+
+        if (category.includes('hoardings')) $('#billboardsId').show();
+        if (category.includes('mall')) $('#mallMedia').show();
+        if (category.includes('airport')) $('#airportBranding').show();
+        if (category.includes('transit') || category.includes('transmit')) $('#transmitMedia').show();
+        if (category.includes('office')) $('#officeBranding').show();
+        if (category.includes('wall')) $('#wallWrap').show();
+    }
+
+    let selectedCategory = ($('#category_slug').val() || '').toLowerCase();
+    console.log('Category:', selectedCategory); // debug
+
+    showSection(selectedCategory);
+
+});
+</script>
+
+<script>
+$(document).ready(function () {
+
+    function calculateArea() {
+        let width = parseFloat($('#width').val()) || 0;
+        let height = parseFloat($('#height').val()) || 0;
+
+        if (width > 0 && height > 0) {
+            $('input[name="area_auto"]').val((width * height).toFixed(2));
+        }
+    }
+
+    $('#width, #height').on('input', calculateArea);
+    calculateArea(); // run on load
+
+});
+</script>
+
+
+{{-- <script>
 $(document).ready(function () {
 
     function hideAll() {
@@ -372,7 +464,7 @@ $(document).ready(function () {
     });
 
 });
-</script>
+</script> --}}
 @endsection
 
 

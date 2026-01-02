@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CartItem;
+use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +38,36 @@ class AppServiceProvider extends ServiceProvider
 
             // Share with ALL blade views
             $view->with('cartCount', $cartCount);
+        });
+
+        /**
+         * 🔍 Search dropdown data (ONLY website.search view)
+         */
+
+        View::composer('website.search', function ($view) {
+
+            $categories = DB::table('category')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->orderBy('category_name')
+                ->get();
+
+            $states = DB::table('tbl_location')
+                ->where('location_type', 1)
+                ->where('name', 'Maharashtra')
+                ->where('is_active', 1)
+                ->get();
+
+            $radiusList = DB::table('radius_master')
+                ->where('is_active', 1)
+                ->orderBy('radius')
+                ->get();
+
+            $view->with([
+                'categories' => $categories,
+                'states'     => $states,
+                'radiusList' => $radiusList, // ✅ FIX
+            ]);
         });
     }
 }

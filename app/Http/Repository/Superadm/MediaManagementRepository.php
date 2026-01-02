@@ -98,7 +98,7 @@ class MediaManagementRepository
             ->leftJoin('category as cat', 'cat.id', '=', 'mm.category_id')
             ->leftJoin('facing_direction as fd', 'fd.id', '=', 'mm.facing_id')
             ->leftJoin('illumination as il', 'il.id', '=', 'mm.illumination_id')
-
+            ->leftJoin('radius_master as rm', 'rm.id', '=', 'mm.radius_id')
             /* IMAGES */
             ->leftJoin('media_images as mi', function ($join) {
                 $join->on('mi.media_id', '=', 'mm.id')
@@ -111,6 +111,7 @@ class MediaManagementRepository
 
             ->select(
                 'mm.*',
+                'mm.area_type',
                 'cat.category_name',
                 'cat.slug as category_slug',
                 'st.name as state_name',
@@ -119,6 +120,7 @@ class MediaManagementRepository
                 'ar.common_stdiciar_name as area_name',
                 'fd.facing_name',
                 'il.illumination_name',
+                'rm.radius',
                 'mi.id as image_id',
                 'mi.images as image_name'
             )

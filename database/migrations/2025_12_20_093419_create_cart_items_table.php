@@ -21,6 +21,13 @@ return new class extends Migration
             $table->enum('cart_type', ['NORMAL', 'CAMPAIGN'])->default('NORMAL');
             $table->enum('status', ['ACTIVE', 'ORDERED'])->default('ACTIVE');
             $table->integer('qty')->default(1);
+
+            $table->date('from_date')->nullable();
+            $table->date('to_date')->nullable();
+            $table->decimal('per_day_price', 10, 0)->nullable();
+            $table->decimal('total_price', 10, 0)->nullable();
+            $table->integer('total_days')->nullable();
+
             $table->tinyInteger('is_active')->default(1);
             $table->tinyInteger('is_deleted')->default(0);
             $table->timestamps();

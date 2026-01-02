@@ -33,10 +33,15 @@ class OrderRepository
 
     public function createOrderItems($orderId, $items)
     {
+
+        // dd($items);
+        // die();
         foreach ($items as $item) {
             OrderItem::create([
                 'order_id' => $orderId,
                 'media_id' => $item->media_id,
+                'from_date' => $item->from_date,
+                'to_date' => $item->to_date,
                 // 'price'    => $item->price,
                 'price' => $item->total_price,
                 'qty'      => $item->qty,

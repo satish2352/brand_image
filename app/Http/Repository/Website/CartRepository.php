@@ -118,22 +118,22 @@ class CartRepository
     //         'qty' => 1,
     //     ]);
     // }
-    // public function addItem($mediaId, $price)
-    // {
-    //     CartItem::create([
-    //         'user_id' => Auth::guard('website')->check()
-    //             ? Auth::guard('website')->id()
-    //             : null,
-    //         'session_id' => session()->getId(),
-    //         'media_id' => $mediaId,
-    //         'price' => $price,
-    //         'qty' => 1,
-    //         'cart_type' => 'NORMAL',   // IMPORTANT
-    //         'status' => 'ACTIVE',
-    //         'is_active' => 1,
-    //         'is_deleted' => 0,
-    //     ]);
-    // }
+    public function addItem($mediaId, $price)
+    {
+        CartItem::create([
+            'user_id' => Auth::guard('website')->check()
+                ? Auth::guard('website')->id()
+                : null,
+            'session_id' => session()->getId(),
+            'media_id' => $mediaId,
+            'price' => $price,
+            'qty' => 1,
+            'cart_type' => 'NORMAL',   // IMPORTANT
+            'status' => 'ACTIVE',
+            'is_active' => 1,
+            'is_deleted' => 0,
+        ]);
+    }
 
     // public function addItemWithDate($mediaId, $price, $from, $to)
     // {

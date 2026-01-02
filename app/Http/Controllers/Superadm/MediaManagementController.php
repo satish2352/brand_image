@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Services\Superadm\MediaManagementService;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Models\{
     Category,
@@ -271,129 +272,269 @@ class MediaManagementController extends Controller
     //     }
     // }
 
+    // public function store(Request $request)
+    // {
+    //     // Get category slug
+    //     $category = Category::findOrFail($request->category_id);
+    //     $slug = $category->slug;
+
+    //     /**
+    //      * -------------------------
+    //      * COMMON VALIDATION (ALL)
+    //      * -------------------------
+    //      */
+    //     $rules = [
+    //         // Location
+    //         'area_id'     => 'required|integer',
+
+    //         // Category
+    //         'category_id' => 'required|integer',
+
+    //         // Size
+    //         'width'  => 'required|numeric|min:0',
+    //         'height' => 'required|numeric|min:0',
+
+    //         // Geo
+    //         'latitude'  => 'required|numeric|between:-90,90',
+    //         'longitude' => 'required|numeric|between:-180,180',
+    //         'vendor_name'     => 'required|string|max:255',
+    //         // Price
+    //         'price' => 'required|numeric|min:0',
+    //         // ✅ MULTIPLE IMAGE VALIDATION
+    //         'images'      => 'nullable|array|max:10',
+    //         'images.*'    => 'image|max:1024',
+    //     ];
+
+    //     /**
+    //      * -------------------------
+    //      * CATEGORY-WISE VALIDATION
+    //      * -------------------------
+    //      */
+    //     switch ($slug) {
+
+    //         // ✅ Hoardings / Billboards
+    //         case 'hoardings':
+
+    //             $rules += [
+    //                 'facing_id'       => 'required|string',
+    //                 'illumination_id' => 'required|integer',
+    //                 'radius_id' => 'required|integer',
+    //                 'minimum_booking_days' => 'required|integer|min:1',
+
+
+    //                 // Media
+    //                 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
+
+    //                 'media_title' => 'required|string|max:255',
+    //                 'area_type' => 'required|string|max:255',
+    //                 // Address
+    //                 'address' => 'required|string',
+
+
+    //             ];
+    //             break;
+
+    //         // ✅ Mall Media
+    //         case 'mall-media':
+    //             $rules += [
+    //                 'mall_name'    => 'required|string|max:255',
+    //                 'media_format' => 'required|string',
+    //             ];
+    //             break;
+
+    //         // ✅ Airport Branding
+    //         case 'airport-branding':
+    //             $rules += [
+    //                 'airport_name' => 'required|string|max:255',
+    //                 'zone_type'    => 'required|in:Arrival,Departure',
+    //                 'media_type'   => 'required|string',
+    //             ];
+    //             break;
+
+    //         // ✅ Transit Media
+    //         case 'transmit-media':
+    //             $rules += [
+    //                 'transit_type'  => 'required|string',
+    //                 'branding_type' => 'required|string',
+    //                 'vehicle_count' => 'required|integer|min:1',
+    //             ];
+    //             break;
+
+    //         // ✅ Office Branding
+    //         case 'office-branding':
+    //             $rules += [
+    //                 'building_name' => 'required|string|max:255',
+    //                 'wall_length'   => 'required|string',
+    //             ];
+    //             break;
+
+    //         // ✅ Wall Wrap
+    //         case 'wall-wrap':
+    //             $rules += [
+    //                 'area_auto' => 'required|numeric|min:1',
+    //             ];
+    //             break;
+
+    //         // ✅ Digital Wall (NO extra fields)
+    //         case 'digital-wall':
+    //             // Only common validation
+    //             break;
+    //     }
+
+    //     $messages = [
+    //         'images.max' => 'You can upload maximum 10 images only.',
+    //         // 'images.*.image' => 'Each file must be an image.',
+    //         // 'images.*.mimes' => 'Allowed formats: jpg, jpeg, png.',
+    //         'images.*.max' => 'Each image must be less than 1MB.',
+
+    //         // Common fields (optional but recommended)
+    //         'area_id.required' => 'Please select an area.',
+    //         'category_id.required' => 'Please select a category.',
+    //         'width.required' => 'Width is required.',
+    //         'height.required' => 'Height is required.',
+    //         'price.required' => 'Price is required.',
+    //     ];
+    //     $validated = $request->validate($rules, $messages);
+
+
+    //     try {
+    //         $this->mediaService->store($request);
+
+    //         return redirect()
+    //             ->route('media.list')
+    //             ->with('success', 'Media added successfully');
+    //     } catch (\Exception $e) {
+    //         Log::error($e);
+    //         return back()->withInput()->with('error', $e->getMessage());
+    //     }
+    // }
     public function store(Request $request)
     {
-        // Get category slug
+        /**
+         * -------------------------------------------------
+         * STEP 1: Get category & normalize slug
+         * -------------------------------------------------
+         */
         $category = Category::findOrFail($request->category_id);
-        $slug = $category->slug;
+
+        // Works even if slug column is NULL
+        $slug = Str::slug($category->slug ?? $category->category_name);
 
         /**
-         * -------------------------
-         * COMMON VALIDATION (ALL)
-         * -------------------------
+         * -------------------------------------------------
+         * STEP 2: COMMON VALIDATION (ALL CATEGORIES)
+         * -------------------------------------------------
          */
         $rules = [
-            // Location
             'area_id'     => 'required|integer',
-
-            // Category
             'category_id' => 'required|integer',
 
-            // Size
-            'width'  => 'required|numeric|min:0',
-            'height' => 'required|numeric|min:0',
+            'width'       => 'required|numeric|min:0',
+            'height'      => 'required|numeric|min:0',
 
-            // Geo
-            'latitude'  => 'required|numeric|between:-90,90',
-            'longitude' => 'required|numeric|between:-180,180',
-            'vendor_name'     => 'required|string|max:255',
-            // Price
-            'price' => 'required|numeric|min:0',
-            // ✅ MULTIPLE IMAGE VALIDATION
+            'latitude'    => 'required|numeric|between:-90,90',
+            'longitude'   => 'required|numeric|between:-180,180',
+
+            'price'       => 'required|numeric|min:0',
+            'vendor_name' => 'required|string|max:255',
+
             'images'      => 'nullable|array|max:10',
             'images.*'    => 'image|max:1024',
         ];
 
         /**
-         * -------------------------
-         * CATEGORY-WISE VALIDATION
-         * -------------------------
+         * -------------------------------------------------
+         * STEP 3: CATEGORY-WISE VALIDATION
+         * -------------------------------------------------
+         * Using str_contains() to match UI slug
          */
-        switch ($slug) {
+        switch (true) {
 
             // ✅ Hoardings / Billboards
-            case 'hoardings':
+            case str_contains($slug, 'hoardings'):
                 $rules += [
-                    'facing_id'       => 'required|string',
-                    'illumination_id' => 'required|integer',
-                    'minimum_booking_days' => 'required|integer|min:1',
-
-
-                    // Media
                     'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
-
                     'media_title' => 'required|string|max:255',
-
-                    // Address
-                    'address' => 'required|string',
-
-
+                    'facing_id' => 'required',
+                    'illumination_id' => 'required',
+                    // 'radius_id' => 'required',
+                    'minimum_booking_days' => 'required|integer|min:1',
+                    'area_type' => 'required',
+                    'address' => 'required',
                 ];
                 break;
 
             // ✅ Mall Media
-            case 'mall-media':
+            case str_contains($slug, 'mall'):
                 $rules += [
-                    'mall_name'    => 'required|string|max:255',
+                    'mall_name' => 'required|string|max:255',
                     'media_format' => 'required|string',
                 ];
                 break;
 
             // ✅ Airport Branding
-            case 'airport-branding':
+            case str_contains($slug, 'airport'):
                 $rules += [
                     'airport_name' => 'required|string|max:255',
-                    'zone_type'    => 'required|in:Arrival,Departure',
-                    'media_type'   => 'required|string',
+                    'zone_type' => 'required|in:Arrival,Departure',
+                    'media_type' => 'required|string',
                 ];
                 break;
 
             // ✅ Transit Media
-            case 'transmit-media':
+            case str_contains($slug, 'transit'):
                 $rules += [
-                    'transit_type'  => 'required|string',
+                    'transit_type' => 'required|string',
                     'branding_type' => 'required|string',
                     'vehicle_count' => 'required|integer|min:1',
                 ];
                 break;
 
             // ✅ Office Branding
-            case 'office-branding':
+            case str_contains($slug, 'office'):
                 $rules += [
                     'building_name' => 'required|string|max:255',
-                    'wall_length'   => 'required|string',
+                    'wall_length' => 'required|string',
                 ];
                 break;
 
             // ✅ Wall Wrap
-            case 'wall-wrap':
+            case str_contains($slug, 'wall'):
                 $rules += [
                     'area_auto' => 'required|numeric|min:1',
                 ];
                 break;
-
-            // ✅ Digital Wall (NO extra fields)
-            case 'digital-wall':
-                // Only common validation
-                break;
         }
 
+        /**
+         * -------------------------------------------------
+         * STEP 4: CUSTOM ERROR MESSAGES
+         * -------------------------------------------------
+         */
         $messages = [
-            'images.max' => 'You can upload maximum 10 images only.',
-            // 'images.*.image' => 'Each file must be an image.',
-            // 'images.*.mimes' => 'Allowed formats: jpg, jpeg, png.',
-            'images.*.max' => 'Each image must be less than 1MB.',
-
-            // Common fields (optional but recommended)
             'area_id.required' => 'Please select an area.',
             'category_id.required' => 'Please select a category.',
             'width.required' => 'Width is required.',
             'height.required' => 'Height is required.',
             'price.required' => 'Price is required.',
+            'vendor_name.required' => 'Vendor name is required.',
+            'images.max' => 'You can upload a maximum of 10 images.',
+            'images.*.image' => 'Each file must be an image.',
+            'images.*.max' => 'Each image must be less than 1MB.',
         ];
-        $validated = $request->validate($rules, $messages);
 
+        /**
+         * -------------------------------------------------
+         * STEP 5: VALIDATE REQUEST
+         * -------------------------------------------------
+         */
+        $request->validate($rules, $messages);
 
+        /**
+         * -------------------------------------------------
+         * STEP 6: SAVE DATA
+         * -------------------------------------------------
+         */
         try {
             $this->mediaService->store($request);
 
@@ -402,7 +543,7 @@ class MediaManagementController extends Controller
                 ->with('success', 'Media added successfully');
         } catch (\Exception $e) {
             Log::error($e);
-            return back()->withInput()->with('error', $e->getMessage());
+            return back()->withInput()->with('error', 'Something went wrong');
         }
     }
 
@@ -418,20 +559,25 @@ class MediaManagementController extends Controller
                 return redirect()->route('media.list')->with('error', 'Media not found');
             }
 
-            $categories = Category::where('is_active', 1)->get();
-            $facings = FacingDirection::where('is_active', 1)->get();
-            $illuminations = Illumination::where('is_active', 1)->get();
+            $categories = Category::where('is_active', 1)->where('is_deleted', 0)->get();
+            $facings = FacingDirection::where('is_active', 1)->where('is_deleted', 0)->get();
+            $illuminations = Illumination::where('is_active', 1)->where('is_deleted', 0)->get();
+            $radius = RadiusMaster::where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->get();
             $areas = DB::table('areas')
                 ->where('is_active', 1)
                 ->where('is_deleted', 0)
                 ->get();
+
             return view('superadm.mediamanagement.edit', compact(
                 'media',
                 'categories',
                 'facings',
                 'illuminations',
                 'encodedId',
-                'areas'
+                'areas',
+                'radius'
             ));
         } catch (\Exception $e) {
             return redirect()->route('media.list')->with('error', 'Invalid media ID');
@@ -439,33 +585,146 @@ class MediaManagementController extends Controller
     }
 
 
+    // public function update(Request $request, $encodedId)
+    // {
+    //     $id = base64_decode($encodedId);
+
+    //     $request->validate([
+    //         // 'area_id'     => 'required|integer',
+    //         // 'media_code'  => 'required|string|max:255|unique:media_management,media_code,' . $id,
+    //         // 'media_title' => 'required|string|max:255',
+    //         // 'address'     => 'required|string',
+
+    //         // 'width'  => 'required|numeric|min:0',
+    //         // 'height' => 'required|numeric|min:0',
+
+    //         // 'facing_id'       => 'required|integer',
+    //         // 'illumination_id' => 'required|integer',
+
+    //         // 'latitude'  => 'required|numeric|between:-90,90',
+    //         // 'longitude' => 'required|numeric|between:-180,180',
+
+    //         // 'minimum_booking_days' => 'required|integer|min:1',
+    //         // 'price'       => 'required|numeric|min:0',
+    //         // 'vendor_name' => 'required|string|max:255',
+
+    //         // 'images'   => 'nullable|array|max:10',
+    //         // 'images.*' => 'image|max:1024',
+    //     ]);
+
+    //     try {
+    //         $this->mediaService->update($id, $request);
+
+    //         return redirect()
+    //             ->route('media.list')
+    //             ->with('success', 'Media updated successfully');
+    //     } catch (\Exception $e) {
+    //         Log::error($e);
+    //         return back()->withInput()->with('error', 'Update failed');
+    //     }
+    // }
+
+
     public function update(Request $request, $encodedId)
     {
         $id = base64_decode($encodedId);
 
-        $request->validate([
-            // 'area_id'     => 'required|integer',
-            // 'media_code'  => 'required|string|max:255|unique:media_management,media_code,' . $id,
-            // 'media_title' => 'required|string|max:255',
-            // 'address'     => 'required|string',
+        /**
+         * -------------------------------------------------
+         * STEP 1: Get category & normalize slug
+         * -------------------------------------------------
+         */
+        $category = Category::findOrFail($request->category_id);
+        $slug = Str::slug($category->slug ?? $category->category_name);
 
-            // 'width'  => 'required|numeric|min:0',
-            // 'height' => 'required|numeric|min:0',
+        /**
+         * -------------------------------------------------
+         * STEP 2: COMMON VALIDATION
+         * -------------------------------------------------
+         */
+        $rules = [
+            'area_id'     => 'required|integer',
+            'category_id' => 'required|integer',
 
-            // 'facing_id'       => 'required|integer',
-            // 'illumination_id' => 'required|integer',
+            'width'       => 'required|numeric|min:0',
+            'height'      => 'required|numeric|min:0',
 
-            // 'latitude'  => 'required|numeric|between:-90,90',
-            // 'longitude' => 'required|numeric|between:-180,180',
+            'latitude'    => 'required|numeric|between:-90,90',
+            'longitude'   => 'required|numeric|between:-180,180',
 
-            // 'minimum_booking_days' => 'required|integer|min:1',
-            // 'price'       => 'required|numeric|min:0',
-            // 'vendor_name' => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'vendor_name' => 'required|string|max:255',
+        ];
 
-            // 'images'   => 'nullable|array|max:10',
-            // 'images.*' => 'image|max:1024',
-        ]);
+        /**
+         * -------------------------------------------------
+         * STEP 3: CATEGORY-WISE VALIDATION
+         * -------------------------------------------------
+         */
+        switch (true) {
 
+            case str_contains($slug, 'hoardings'):
+                $rules += [
+                    'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
+                    'media_title' => 'required|string|max:255',
+                    'facing_id' => 'required',
+                    'illumination_id' => 'required',
+                    'radius_id' => 'required',
+                    'minimum_booking_days' => 'required|integer|min:1',
+                    'area_type' => 'required',
+                    'address' => 'required',
+                ];
+                break;
+
+            case str_contains($slug, 'mall'):
+                $rules += [
+                    'mall_name' => 'required|string|max:255',
+                    'media_format' => 'required|string',
+                ];
+                break;
+
+            case str_contains($slug, 'airport'):
+                $rules += [
+                    'airport_name' => 'required|string|max:255',
+                    'zone_type' => 'required|in:Arrival,Departure',
+                    'media_type' => 'required|string',
+                ];
+                break;
+
+            case str_contains($slug, 'transit'):
+                $rules += [
+                    'transit_type' => 'required|string',
+                    'branding_type' => 'required|string',
+                    'vehicle_count' => 'required|integer|min:1',
+                ];
+                break;
+
+            case str_contains($slug, 'office'):
+                $rules += [
+                    'building_name' => 'required|string|max:255',
+                    'wall_length' => 'required|string',
+                ];
+                break;
+
+            case str_contains($slug, 'wall'):
+                $rules += [
+                    'area_auto' => 'required|numeric|min:1',
+                ];
+                break;
+        }
+
+        /**
+         * -------------------------------------------------
+         * STEP 4: VALIDATE
+         * -------------------------------------------------
+         */
+        $request->validate($rules);
+
+        /**
+         * -------------------------------------------------
+         * STEP 5: UPDATE DATA
+         * -------------------------------------------------
+         */
         try {
             $this->mediaService->update($id, $request);
 
@@ -477,8 +736,6 @@ class MediaManagementController extends Controller
             return back()->withInput()->with('error', 'Update failed');
         }
     }
-
-
 
     /* =========================
    UPDATE STATUS

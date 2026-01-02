@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Superadm\LoginController;
@@ -24,6 +25,8 @@ use App\Http\Controllers\Superadm\WebsiteUserController;
 use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Website\LocationController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -253,21 +256,37 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
     ->name('auth.google.callback');
 
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
+
+Route::post('/search', [HomeController::class, 'search'])->name('website.search');
+
 Route::view('/about', 'website.about')->name('website.about');
 Route::view('/details', 'website.details')->name('website.details');
 // Route::view('/dashboard', 'website.dashboard')->name('website.dashboard');
-Route::prefix('dashboard')->group(function () {
+// Route::prefix('dashboard')->group(function () {
 
-    Route::get('/', function () {
-        return view('website.dashboard.index');
-    })->name('dashboard.home');
+//     Route::get('/', function () {
+//         return view('website.dashboard.index');
+//     })->name('dashboard.home');
 
-    Route::get('/profile', function () {
-        return view('website.dashboard.profile');
-    })->name('dashboard.profile');
+//     Route::get('/profile', function () {
+//         return view('website.dashboard.profile');
+//     })->name('dashboard.profile');
+// });
+Route::middleware('auth:website')
+    ->prefix('user/dashboard')
+    ->group(function () {
 
-    // 
-});
+        Route::get('/', function () {
+            return view('website.dashboard.index');
+        })->name('dashboard.home');
+
+        Route::get('/profile', function () {
+            return view('website.dashboard.profile');
+        })->name('dashboard.profile');
+    });
+
+Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])
+    ->name('website.media-details');
 
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');
@@ -363,6 +382,10 @@ Route::middleware(['web'])->group(function () {
     Route::get('/campaign-invoice/{orderId}', [CampaignController::class, 'viewInvoice'])
         ->name('campaign.invoice.view');
 });
+
+Route::post('/locations/districts', [LocationController::class, 'getDistricts'])->name('locations.districts');
+Route::post('/locations/cities', [LocationController::class, 'getCities'])->name('locations.cities');
+Route::post('/locations/areas', [LocationController::class, 'getAreas'])->name('locations.areas');
 
 Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');
