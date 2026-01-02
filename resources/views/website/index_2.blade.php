@@ -519,26 +519,69 @@ $(window).on('scroll', function () {
                                             <span>View on Map</span>
                                         </a>
                                     </div>
- 
-                                    <div class="card-actions">
-                                        <a href="{{ route('website.details') }}" class="card-btn read">
-                                            Read More →
-                                        </a>
- 
-                                        @auth('website')
-                                            <a href="{{ route('cart.add', base64_encode($media->id)) }}"
-                                            class="btn card-btn cart">
-                                                Add to Cart
-                                            </a>
-                                        @else
-                                            <button class="btn card-btn cart"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#authModal"
-                                                    onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-                                                Add to Cart
-                                            </button>
-                                        @endauth
-                                    </div>
+									@php
+										$isBillboard = ((int) $media->category_id === 1);
+										$isBooked    = (int) ($media->is_booked ?? 0);
+									@endphp
+									<div class="card-actions">
+
+										{{-- ================= BILLBOARDS ================= --}}
+										@if($isBillboard)
+
+											{{-- USER LOGGED IN --}}
+											@auth('website')
+
+												{{-- NOT BOOKED --}}
+												@if($isBooked === 0)
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+
+													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
+													class="card-btn cart">
+														Add to Cart
+													</a>
+												@else
+													{{-- BOOKED --}}
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+												@endif
+
+												{{-- USER NOT LOGGED IN --}}
+												@else
+
+													@if($isBooked === 1)
+														{{-- BOOKED → ONLY READ MORE --}}
+														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+														class="card-btn read">
+															Read More →
+														</a>
+													@else
+														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
+														<button class="card-btn cart"
+																data-bs-toggle="modal"
+																data-bs-target="#authModal"
+																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+															Add to Cart
+														</button>
+													@endif
+
+												@endauth
+
+
+										{{-- ================= OTHER MEDIA ================= --}}
+										@else
+											{{-- ONLY CONTACT US (NO READ MORE) --}}
+											<a href="{{ route('contact.create') }}"
+											class="card-btn contact">
+												Contact Us
+											</a>
+										@endif
+
+									</div>
  
                                 </div>
                             </div>
@@ -598,16 +641,68 @@ $(window).on('scroll', function () {
 											<span>View on Map</span>
 										</a>
 									</div>
-
+									@php
+										$isBillboard = ((int) $media->category_id === 1);
+										$isBooked    = (int) ($media->is_booked ?? 0);
+									@endphp
 									<div class="card-actions">
-										<a href="{{ route('website.details') }}" class="card-btn read">
-											Read More →
-										</a>
 
-										<a href="{{ route('contact.create') }}"
-										class="btn card-btn contact">
-											Contact Us
-										</a>
+										{{-- ================= BILLBOARDS ================= --}}
+										@if($isBillboard)
+
+											{{-- USER LOGGED IN --}}
+											@auth('website')
+
+												{{-- NOT BOOKED --}}
+												@if($isBooked === 0)
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+
+													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
+													class="card-btn cart">
+														Add to Cart
+													</a>
+												@else
+													{{-- BOOKED --}}
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+												@endif
+
+												{{-- USER NOT LOGGED IN --}}
+												@else
+
+													@if($isBooked === 1)
+														{{-- BOOKED → ONLY READ MORE --}}
+														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+														class="card-btn read">
+															Read More →
+														</a>
+													@else
+														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
+														<button class="card-btn cart"
+																data-bs-toggle="modal"
+																data-bs-target="#authModal"
+																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+															Add to Cart
+														</button>
+													@endif
+
+												@endauth
+
+
+										{{-- ================= OTHER MEDIA ================= --}}
+										@else
+											{{-- ONLY CONTACT US (NO READ MORE) --}}
+											<a href="{{ route('contact.create') }}"
+											class="card-btn contact">
+												Contact Us
+											</a>
+										@endif
+
 									</div>
 
 								</div>
