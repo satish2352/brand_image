@@ -475,6 +475,12 @@
     color: #fff !important;
 }
 
+.update-date-btn{
+    padding: 4px 12px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    width: 140px;
+}
 
 </style>
 
@@ -563,12 +569,20 @@
                             📍 {{ $item->area_name ?? 'N/A' }}
                         </p>
 
-                        <p>
+                        {{-- <p>
+                            📅
+                            {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
+                            →
+                            {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
+                        </p> --}}
+                        @if($item->from_date && $item->to_date)
+                        <p class="text-muted">
                             📅
                             {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
                             →
                             {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
                         </p>
+                        @endif
 
 <div class="price-box mt-2">
     <div class="text-muted small">Monthly Price</div>
@@ -598,17 +612,29 @@
          id="calendar_{{ $item->id }}"
          data-media-id="{{ $item->media_id }}">
     </div> --}}
-<div class="cart-calendar"
-     id="calendar_{{ $item->id }}"
-     data-media-id="{{ $item->media_id }}"
-     data-from-date="{{ $item->from_date }}"
-     data-to-date="{{ $item->to_date }}">
-</div>
+    <div class="row">
 
-    <button type="button"
-            class="btn btn-warning mt-3 update-date-btn">
+    <div class="cart-calendar"
+         id="calendar_{{ $item->id }}"
+         data-media-id="{{ $item->media_id }}"
+         data-from-date="{{ $item->from_date }}"
+         data-to-date="{{ $item->to_date }}">
+    </div>
+
+    <!-- 🔴 ERROR MESSAGE (ABOVE BUTTON) -->
+    <small class="text-danger cart-date-error d-none mt-2">
+        Please select booking dates
+    </small>
+
+    <!-- 🟡 SMALL UPDATE BUTTON -->
+    <div class="d-flex justify-content-start">
+        <button type="button"
+            class="btn btn-warning btn-sm mt-2 update-date-btn">
         Update Dates
     </button>
+    </div>
+
+</div>
 
     <small class="text-danger cart-date-error d-none"></small>
 </form>
@@ -686,18 +712,33 @@
                     Continue Shopping
                 </a>
 
-                <button class="btn cart-btn cart-btn-dark ms-2"
+                {{-- <button class="btn cart-btn cart-btn-dark ms-2"
                         data-bs-toggle="modal"
                         data-bs-target="#campaignModal">
                     Create Campaign
-                </button>
+                </button> --}}
+                <button class="btn cart-btn cart-btn-dark ms-2"
+        type="button"
+        onclick="openCampaignModal()">
+    Create Campaign
+</button>
 
-                <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
+<form action="{{ route('checkout.create') }}"
+      method="POST"
+      class="d-inline"
+      onsubmit="return validateCartDates();">
+    @csrf
+    <button class="btn cart-btn cart-btn-primary ms-2">
+        Proceed to Checkout
+    </button>
+</form>
+
+                {{-- <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
                     @csrf
                     <button class="btn cart-btn cart-btn-primary ms-2">
                         Proceed to Checkout
                     </button>
-                </form>
+                </form> --}}
 
             </div>
         </div>
@@ -931,5 +972,52 @@ document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
 </script>
 
+
+<script>
+function validateCartDates() {
+    let isValid = true;
+    let firstInvalidForm = null;
+
+    document.querySelectorAll('.cart-date-form').forEach(form => {
+
+        const fromDate = form.querySelector('.from-date').value;
+        const toDate   = form.querySelector('.to-date').value;
+        const errorBox = form.querySelector('.cart-date-error');
+
+        if (!fromDate || !toDate) {
+            isValid = false;
+
+            errorBox.classList.remove('d-none');
+            errorBox.innerText = 'Please select booking dates';
+
+            if (!firstInvalidForm) {
+                firstInvalidForm = form;
+            }
+        } else {
+            errorBox.classList.add('d-none');
+            errorBox.innerText = '';
+        }
+    });
+
+    if (!isValid && firstInvalidForm) {
+        firstInvalidForm.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+
+    return isValid;
+}
+</script>
+<script>
+function openCampaignModal() {
+    if (!validateCartDates()) {
+        return;
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('campaignModal'));
+    modal.show();
+}
+</script>
 
 @endsection
