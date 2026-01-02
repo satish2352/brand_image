@@ -86,6 +86,7 @@ class MediaManagementRepository
     // }
     public function getDetailsById($id)
     {
+
         return DB::table('media_management as mm')
 
             /* LOCATION */
@@ -113,7 +114,7 @@ class MediaManagementRepository
                 'mm.*',
                 'mm.area_type',
                 'cat.category_name',
-                'cat.slug as category_slug',
+                // 'cat.slug as category_slug',
                 'st.name as state_name',
                 'dt.name as district_name',
                 'ct.name as city_name',

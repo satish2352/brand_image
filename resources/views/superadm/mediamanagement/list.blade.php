@@ -65,7 +65,7 @@
                                     </td>
                                     <td class="d-flex">
 
-                                        <a href="{{ route('media.viewdetails', base64_encode($media->category_id)) }}"
+                                        <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
    class="btn btn-info btn-sm mr-1"
    title="View Details">
     <i class="fa fa-eye"></i>
