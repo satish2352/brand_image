@@ -493,7 +493,7 @@ class CampaignController extends Controller
             ->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $title->createTextRun("MEDIA PLAN PRESENTATION\n")
+        $title->createTextRun("Campaing Name\n")
             ->getFont()->setSize(34)->setBold(true);
 
         $title->createTextRun($campaign->campaign_name)
@@ -509,7 +509,7 @@ class CampaignController extends Controller
             ->setOffsetY(120)
             ->setWidth(800);
 
-        $overview->createTextRun("CAMPAIGN OVERVIEW\n\n")
+        $overview->createTextRun("CAMPAIGN DETAILS OF SITE\n\n")
             ->getFont()->setSize(26)->setBold(true);
 
         $overview->createTextRun(
@@ -536,14 +536,52 @@ class CampaignController extends Controller
                 ->getFont()->setSize(22)->setBold(true);
 
             /* ---------- IMAGE ---------- */
+            // $imagePath = null;
+
+            // if (!empty($item->first_image)) {
+            //     $imagePath = public_path(
+            //         config('fileConstants.IMAGE_VIEW') . $item->first_image
+            //     );
+            // }
             $imagePath = null;
 
             if (!empty($item->first_image)) {
-                $imagePath = public_path(
-                    config('fileConstants.IMAGE_VIEW') . $item->first_image
+                $imagePath = storage_path(
+                    'app/public/upload/images/media/' . $item->first_image
                 );
             }
 
+            if ($imagePath && file_exists($imagePath)) {
+
+                $siteImage = $slide->createDrawingShape();
+                $siteImage->setPath($imagePath)
+                    ->setWidth(320)
+                    ->setHeight(220)
+                    ->setOffsetX(40)
+                    ->setOffsetY(120);
+            } else {
+
+                $imageBox = $slide->createRichTextShape()
+                    ->setOffsetX(40)
+                    ->setOffsetY(120)
+                    ->setWidth(320)
+                    ->setHeight(220);
+
+                $imageBox->getFill()
+                    ->setFillType(Fill::FILL_SOLID)
+                    ->setStartColor(new Color('FFEFEFEF'));
+
+                $imageBox->getActiveParagraph()
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                $imageBox->createTextRun("NO IMAGE AVAILABLE")
+                    ->getFont()->setSize(14)->setBold(true);
+            }
+
+
+            // dd($imagePath);
+            // die();
             if ($imagePath && file_exists($imagePath)) {
 
                 $siteImage = $slide->createDrawingShape();
