@@ -1,139 +1,8 @@
-{{-- <div class="container mt-5">
-    <div class="search-box-wrapper my-4">
-        <div class="search-box p-3 p-md-4">
-
-          <form method="POST" id="searchForm" action="{{ route('website.search') }}">
-@csrf
-
-<input type="hidden" name="clear" id="clearFlag">
-
-<div class="row g-2">
-
-   
-    <div class="col-md-3">
-         <label>Category</label>
-        <select name="category_id" class="form-select">
-            <option value="">Category</option>
-            @foreach($categories as $cat)
-                <option value="{{ $cat->id }}"
-                    {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
-                    {{ $cat->category_name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-   
-    <div class="col-md-2">
-        <label>State</label>
-        <select name="state_id" id="state_id" class="form-select">
-            <option value="">State</option>
-            @foreach($states as $state)
-                <option value="{{ $state->location_id }}"
-                    {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
-                    {{ $state->name }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-
-  
-    <div class="col-md-2">
-         <label>District</label>
-        <select name="district_id" id="district_id" class="form-select">
-            <option value="">Select District</option>
-        </select>
-    </div>
-
-  
-    <div class="col-md-2">
-          <label>City</label>
-        <select name="city_id" id="city_id" class="form-select">
-            <option value="">Select City</option>
-        </select>
-    </div>
-
-   
-    <div class="col-md-3">
-         <label>Area</label>
-        <select name="area_id" id="area_id" class="form-select">
-            <option value="">Select Area</option>
-        </select>
-    </div>
-
-    
-    <div class="col-md-3">
-          <label>Radius</label>
-        <select name="radius_id" class="form-select" id="radius_id">
-    <option value="">Radius</option>
-    @foreach($radiusList as $r)
-        <option value="{{ $r->radius }}"
-            {{ (string)($filters['radius_id'] ?? '') === (string)$r->radius ? 'selected' : '' }}>
-            {{ $r->radius }} KM
-        </option>
-    @endforeach
-</select>
-
-    </div>
-<div class="col-md-3 mb-3">
-              <label>Area Type</label>  
-         <select name="area_type" class="form-control" id="area_type">
-    <option value="">Select Area Type</option>
-    <option value="rural" {{ ($filters['area_type'] ?? '') == 'rural' ? 'selected' : '' }}>Rural</option>
-    <option value="urban" {{ ($filters['area_type'] ?? '') == 'urban' ? 'selected' : '' }}>Urban</option>
-</select>
-
-
-             
-            </div>
-   
-    <div class="col-md-2">
-        <label>From Date</label>
-        <input type="date" name="from_date" id="from_date" class="form-control"
-               value="{{ $filters['from_date'] ?? '' }}">
-    </div>
-
-    <div class="col-md-2">
-        <label>To Date</label>
-        <input type="date" name="to_date" id="to_date" class="form-control"
-               value="{{ $filters['to_date'] ?? '' }}">
-    </div>
-
-      
-
- <div class="col-md-2 mb-3">
-                <label>Available Days</label>  
-              <select name="available_days" class="form-control" id="available_days">
-    <option value="">Select Available Days</option>
-    <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>7 Days</option>
-    <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>15 Days</option>
-</select>
-
-             
-            </div>
-    <div class="col-md-2">
-    <button type="button"
-            class="btn btn-dark w-100"
-            onclick="document.getElementById('searchForm').submit();">
-        Search Media
-    </button>
-</div>
-
-
-    <div class="col-md-2">
-        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters" style="padding: 13px;">
-            Clear
-        </button>
-    </div>
-
-</div>
-</form>
-
-
-
-        </div>
-    </div>
-</div> --}}
+<style>
+    .bg-light{
+        background-color: rgb(202, 196, 196) !important;
+    }
+</style>
 <div class="container mt-5 mb-5">
     <h3 class="text-center orange-text">Discover Media Spaces Near You</h3>
     <div class="media-search-card">
@@ -197,7 +66,7 @@
                 </div>
  
                 <!-- Radius -->
-                <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
                     <label class="form-label">Radius</label>
                     <select name="radius_id" class="form-select" id="radius_id">
                         <option value="">Radius</option>
@@ -211,7 +80,7 @@
                 </div>
  
                 <!-- Area Type -->
-                <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6" id="area_type_wrapper">
                     <label class="form-label">Area Type</label>
                     <select name="area_type" class="form-select" id="area_type">
                         <option value="">Select Type</option>
@@ -221,21 +90,21 @@
                 </div>
  
                 <!-- From Date -->
-                <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6" id="date_wrapper">
                     <label class="form-label">From Date</label>
                     <input type="date" name="from_date" id="from_date" class="form-control"
                            value="{{ $filters['from_date'] ?? '' }}">
                 </div>
  
                 <!-- To Date -->
-                <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6" id="to_date_wrapper">
                     <label class="form-label">To Date</label>
                     <input type="date" name="to_date" id="to_date" class="form-control"
                            value="{{ $filters['to_date'] ?? '' }}">
                 </div>
  
                 <!-- Available Days -->
-                <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6"  id="days_wrapper">
                     <label class="form-label">Available Days</label>
                     <select name="available_days" id="available_days" class="form-select">
                         <option value="">Select Days</option>
@@ -462,3 +331,43 @@ $(document).ready(function () {
 });
 </script>
 
+<script>
+$(document).ready(function () {
+
+    function toggleFields(categoryId) {
+
+        // 🔹 Reset all (HIDE + DISABLE)
+        $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
+            .hide()
+            .find('select, input')
+            .prop('disabled', true)
+            .val('');
+
+        // 🔹 Hoardings (ID = 1)
+        if (categoryId == 1) {
+
+            $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
+                .show()
+                .find('select, input')
+                .prop('disabled', false);
+        }
+
+        // 🔹 Digital Wall Painting (ID = 3)
+        if (categoryId == 2) {
+
+            $('#radius_wrapper')
+                .show()
+                .find('select')
+                .prop('disabled', false);
+        }
+    }
+
+    // On category change
+    $('select[name="category_id"]').on('change', function () {
+        toggleFields($(this).val());
+    });
+
+    // On page load
+    toggleFields($('select[name="category_id"]').val());
+});
+</script>
