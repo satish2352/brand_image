@@ -5,7 +5,7 @@
     $isBillboard = ((int) $media->category_id === 1);
     $isBooked = (int) ($media->is_booked ?? 0);
 @endphp
-<div class="col-lg-4 col-md-6 mb-5 mt-5">
+<div class="col-lg-3 col-md-4 mb-5">
     <div class="single-latest-news">
 
         <div class="latest-news-bg"
