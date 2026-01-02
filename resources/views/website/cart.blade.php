@@ -153,7 +153,8 @@
 
 @endsection --}}
 @extends('website.layout')
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 @section('title', 'My Cart')
 
 @section('content')
@@ -458,6 +459,21 @@
     box-shadow: 0 0 0 3px rgba(255,152,0,0.15);
 }
 
+/* Booked dates */
+.flatpickr-day.booked-date {
+    background: #dc3545 !important;
+    color: #fff !important;
+    border-radius: 50%;
+    cursor: not-allowed;
+}
+
+/* Selected range */
+.flatpickr-day.inRange,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: #28a745 !important;
+    color: #fff !important;
+}
 
 
 </style>
@@ -570,6 +586,33 @@
         </span>
     </div>
 </div>
+
+<form class="cart-date-form mt-3">
+    @csrf
+
+    <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
+    <input type="hidden" name="from_date" class="from-date">
+    <input type="hidden" name="to_date" class="to-date">
+
+    {{-- <div class="cart-calendar"
+         id="calendar_{{ $item->id }}"
+         data-media-id="{{ $item->media_id }}">
+    </div> --}}
+<div class="cart-calendar"
+     id="calendar_{{ $item->id }}"
+     data-media-id="{{ $item->media_id }}"
+     data-from-date="{{ $item->from_date }}"
+     data-to-date="{{ $item->to_date }}">
+</div>
+
+    <button type="button"
+            class="btn btn-warning mt-3 update-date-btn">
+        Update Dates
+    </button>
+
+    <small class="text-danger cart-date-error d-none"></small>
+</form>
+
 
                         
                     </div>
@@ -777,5 +820,116 @@ function changeCartImage(el, src) {
     mainImg.src = src;
 }
 </script>
+{{-- ============== --}}
+<script>
+document.querySelectorAll('.update-date-btn').forEach(btn => {
+
+    btn.addEventListener('click', function () {
+
+        const form     = this.closest('.cart-date-form');
+        const fromDate = form.querySelector('.from-date').value;
+        const toDate   = form.querySelector('.to-date').value;
+        const errorBox = form.querySelector('.cart-date-error');
+
+        // 🚫 stop if no dates
+        if (!fromDate || !toDate) {
+            errorBox.classList.remove('d-none');
+            errorBox.innerText = 'Please select booking dates';
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        fetch("{{ route('cart.update.dates') }}", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                errorBox.classList.remove('d-none');
+                errorBox.innerText = data.message;
+            } else {
+                // ✅ CLEAR ERROR BEFORE RELOAD
+                errorBox.classList.add('d-none');
+                errorBox.innerText = '';
+                location.reload();
+            }
+        })
+        .catch(() => {
+            errorBox.classList.remove('d-none');
+            errorBox.innerText = 'Something went wrong';
+        });
+    });
+
+});
+</script>
+
+
+
+<script>
+document.querySelectorAll('.cart-calendar').forEach(calendar => {
+
+    const mediaId = calendar.dataset.mediaId;
+    const fromDate = calendar.dataset.fromDate;
+    const toDate   = calendar.dataset.toDate;
+
+    const form    = calendar.closest('.cart-date-form');
+    const fromInp = form.querySelector('.from-date');
+    const toInp   = form.querySelector('.to-date');
+    const error   = form.querySelector('.cart-date-error');
+
+    fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
+        .then(res => res.json())
+        .then(bookings => {
+
+            flatpickr(calendar, {
+                mode: "range",
+                inline: true,
+                static: true,
+                minDate: "today",
+                dateFormat: "Y-m-d",
+
+                // ✅ SAFE preload (NO Blade vars here)
+                defaultDate: [fromDate, toDate],
+
+                disable: bookings.map(b => ({
+                    from: b.from_date,
+                    to: b.to_date
+                })),
+
+                onReady: function (selectedDates) {
+                    if (selectedDates.length === 2) {
+                        fromInp.value = selectedDates[0].toISOString().split('T')[0];
+                        toInp.value   = selectedDates[1].toISOString().split('T')[0];
+                    }
+                },
+
+                onDayCreate: function (dObj, dStr, fp, dayElem) {
+                    const date = dayElem.dateObj.toISOString().split('T')[0];
+                    bookings.forEach(b => {
+                        if (date >= b.from_date && date <= b.to_date) {
+                            dayElem.classList.add('booked-date');
+                        }
+                    });
+                },
+
+                onChange: function (dates) {
+                    if (dates.length === 2) {
+                        fromInp.value = dates[0].toISOString().split('T')[0];
+                        toInp.value   = dates[1].toISOString().split('T')[0];
+                        error.classList.add('d-none');
+                    }
+                }
+            });
+
+        });
+});
+
+</script>
+
 
 @endsection
