@@ -168,12 +168,12 @@
                                 <button type="submit" class="btn btn-dark w-100 mt-2">Login</button>
 
 								{{-- <a href="{{ route('auth.google.redirect') }}" class="google-btn"> --}}
-								{{-- <div class="social-login mt-4">
-									<a href="#" class="google-btn">
+								<div class="social-login mt-4">
+									<a href="{{ route('auth.google.redirect') }}" class="google-btn">
 										<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
 										Continue with Google
 									</a>
-								</div> --}}
+								</div>
 
                                 <div class="auth-switch">
                                     Don't have an account?

@@ -23,6 +23,7 @@ use App\Http\Controllers\Website\ContactController;
 use App\Http\Controllers\Superadm\WebsiteUserController;
 use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
+use App\Http\Controllers\Website\GoogleAuthController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -244,6 +245,12 @@ Route::group(['middleware' => ['Employee']], function () {
 
 
 // Website Rotes
+
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
+    ->name('auth.google.redirect');
+
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
+    ->name('auth.google.callback');
 
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
 Route::view('/about', 'website.about')->name('website.about');

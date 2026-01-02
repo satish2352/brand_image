@@ -13,8 +13,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('mobile_number')->nullable();
-            $table->string('organisation');
-            $table->string('gst');
+            $table->string('organisation')->nullable();
+            $table->string('gst')->nullable();
             $table->string('password');
             $table->boolean('is_active')->default(1);
             $table->boolean('is_deleted')->default(0);

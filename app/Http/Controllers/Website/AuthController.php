@@ -159,7 +159,7 @@ class AuthController extends Controller
     //         'password' => $req->login_password,
     //     ])) {
 
-    //         // 🔥 REQUIRED
+    //         // REQUIRED
     //         $req->session()->regenerate();
 
     //         return response()->json([
