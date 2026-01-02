@@ -132,6 +132,37 @@ class CartController extends Controller
     //     }
     // }
 
+    public function getBookedDates($mediaId)
+    {
+        return response()->json(
+            $this->service->getBookedDatesByMedia($mediaId)
+        );
+    }
+
+    public function updateDates(Request $request)
+    {
+        try {
+            $request->validate([
+                'cart_item_id' => 'required|exists:cart_items,id',
+                'from_date'    => 'required|date|after_or_equal:today',
+                'to_date'      => 'required|date|after_or_equal:from_date',
+            ]);
+
+            $this->service->updateCartDates(
+                $request->cart_item_id,
+                $request->from_date,
+                $request->to_date
+            );
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 422);
+        }
+    }
+
     public function update(Request $request)
     {
         $this->service->updateQty($request->item_id, $request->qty);
