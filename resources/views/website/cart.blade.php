@@ -694,7 +694,7 @@
         <div class="row align-items-center">
 
             <!-- LEFT : GRAND TOTAL -->
-            <div class="col-md-6">
+            <div class="col-md-4">
                 @php $grandTotal = 0; @endphp
                 @foreach($items as $item)
                     @php $grandTotal += $item->total_price; @endphp
@@ -706,7 +706,7 @@
             </div>
 
             <!-- RIGHT : ACTION BUTTONS -->
-            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <div class="col-md-8 text-md-end mt-3 mt-md-0">
 
                 <a href="{{ url('/') }}" class="btn cart-btn btn-cart-outline">
                     Continue Shopping
