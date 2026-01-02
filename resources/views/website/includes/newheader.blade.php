@@ -39,16 +39,16 @@
 								
 									<div class="header-icons new-header-icons">
 										@auth('website')
-										<a href="{{ route('cart.index') }}" class="btn btn-light new-btn-light position-relative">
+										<a href="{{ route('cart.index') }}" class="btn new-btn-light position-relative">
 											<i class="bi bi-cart3 fs-5"></i>
-											<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+											<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-count">
 												{{ $cartCount }}
 											</span>
 										</a>
 										@else
-										<button class="btn btn-light position-relative" onclick="openLoginForCart()">
+										<button class="btn new-btn-light position-relative" onclick="openLoginForCart()">
 											<i class="bi bi-cart3 fs-5"></i>
-											<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+											<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-count">
 												0
 											</span>
 										</button>

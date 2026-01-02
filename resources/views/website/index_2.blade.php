@@ -76,7 +76,7 @@
 						</div>
 						<div class="content">
 							<h3>Wide Media Reach</h3>
-							<p>Extensive outdoor media coverage across prime locations in India.</p>
+							<p>Extensive outdoor media coverage <br>across prime locations in India.</p>
 						</div>
 					</div>
 				</div>
@@ -89,20 +89,20 @@
 						</div>
 						<div class="content">
 							<h3>Creative Strategy</h3>
-							<p>Innovative campaign planning tailored to your brand objectives.</p>
+							<p>Innovative campaign planning <br>tailored to your brand objectives.</p>
 						</div>
 					</div>
 				</div>
 
 				<!-- Feature 3 -->
-				<div class="col-lg-4 col-md-6">
+				<div class="col-lg-4 col-md-12 banner-below-section">
 					<div class="list-box d-flex align-items-center">
 						<div class="list-icon">
 							<i class="fas fa-chart-line"></i>
 						</div>
 						<div class="content">
 							<h3>Proven Results</h3>
-							<p>Data-driven execution ensuring maximum visibility and ROI.</p>
+							<p>Data-driven execution ensuring <br>maximum visibility and ROI.</p>
 						</div>
 					</div>
 				</div>
@@ -212,6 +212,263 @@
 			</div>
 		</div>
 	</section>
+
+	<div class="latest-news pt-150">
+        <div class="container">
+ 
+            {{-- Title --}}
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="section-title">    
+                        <h3><span class="orange-text">Hoardings / Billboards</h3>
+                        <p>Premium outdoor media options curated for you</p>
+                    </div>
+                </div>
+            </div>
+            {{-- ================= HOARDINGS SECTION ================= --}}
+            {{-- <div class="row mb-4"> --}}
+			<div class="swiper hoarding-slider mb-4">
+    			<div class="swiper-wrapper">
+						<?php
+							// dd($mediaList);
+							// die();
+							?>
+						@foreach($mediaList as $media)
+							@if($media->category_id === 1)
+ 
+                        {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
+						<div class="swiper-slide">
+                            <div class="single-latest-news">
+ 
+                                <div class="latest-news-bg"
+                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                                </div>
+ 
+                                <div class="news-text-box">
+ 
+                                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
+ 
+                                    <p class="blog-meta">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ $media->area_name }}, {{ $media->city_name }}
+                                    </p>
+ 
+                                    <div class="media-price">
+                                        ₹ {{ number_format($media->price, 2) }}
+                                        <small class="pricepermonth">/Month</small>
+                                    </div>
+ 
+                                    {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
+                                    <div class="media-map mt-4">
+                                        <a href="https://www.google.com/maps"
+                                        target="_blank"
+                                        class="text-muted d-inline-flex align-items-center gap-1">
+                                            <img src="{{ asset('assets/img/map.png') }}" width="30">
+                                            <span>View on Map</span>
+                                        </a>
+                                    </div>
+									@php
+										$isBillboard = ((int) $media->category_id === 1);
+										$isBooked    = (int) ($media->is_booked ?? 0);
+									@endphp
+									<div class="card-actions">
+
+										{{-- ================= BILLBOARDS ================= --}}
+										@if($isBillboard)
+
+											{{-- USER LOGGED IN --}}
+											@auth('website')
+
+												{{-- NOT BOOKED --}}
+												@if($isBooked === 0)
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+
+													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
+													class="btn card-btn cart">
+														Add to Cart
+													</a>
+												@else
+													{{-- BOOKED --}}
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+												@endif
+
+												{{-- USER NOT LOGGED IN --}}
+												@else
+
+													@if($isBooked === 1)
+														{{-- BOOKED → ONLY READ MORE --}}
+														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+														class="card-btn read">
+															Read More →
+														</a>
+													@else
+														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
+														<button class="btn card-btn cart"
+																data-bs-toggle="modal"
+																data-bs-target="#authModal"
+																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+															Add to Cart
+														</button>
+													@endif
+
+												@endauth
+
+
+										{{-- ================= OTHER MEDIA ================= --}}
+										@else
+											{{-- ONLY CONTACT US (NO READ MORE) --}}
+											<a href="{{ route('contact.create') }}"
+											class="card-btn contact">
+												Contact Us
+											</a>
+										@endif
+
+									</div>
+ 
+                                </div>
+                            </div>
+                        </div>
+ 
+							@endif
+						@endforeach
+				    </div>
+
+				<!-- Arrows -->
+				<div class="swiper-button-next"></div>
+				<div class="swiper-button-prev"></div>
+			</div>
+            </div>
+ 
+        </div>
+    </div>
+
+	<div class="latest-news pb-150">
+		<div class="container">
+
+			{{-- Title --}}
+			<div class="row">
+				<div class="col-lg-8 offset-lg-2 text-center">
+					<div class="section-title">    
+						<h3><span class="orange-text">Other Media</h3>
+						<p>Premium outdoor media options curated for you</p>
+					</div>
+				</div>
+			</div>
+			{{-- ================= OTHER MEDIA SECTION ================= --}}
+			<div class="row">
+
+				@foreach($mediaList as $media)
+					@if($media->category_name !== 'Hoardings/Billboards')
+
+						<div class="col-lg-4 col-md-6 mb-5">
+							<div class="single-latest-news">
+
+								<div class="latest-news-bg"
+									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+								</div>
+
+								<div class="news-text-box">
+
+									<h3>{{ $media->media_title ?? $media->category_name }}</h3>
+
+									<p class="blog-meta">
+										<i class="fas fa-map-marker-alt"></i>
+										{{ $media->area_name }}, {{ $media->city_name }}
+									</p>
+
+									<div class="media-price">
+										₹ {{ number_format($media->price, 2) }}
+										<small class="pricepermonth">/Month</small>
+									</div>
+
+									<div class="media-map mt-4">
+										<a href="https://www.google.com/maps"
+										target="_blank"
+										class="text-muted d-inline-flex align-items-center gap-1">
+											<img src="{{ asset('assets/img/map.png') }}" width="30">
+											<span>View on Map</span>
+										</a>
+									</div>
+									@php
+										$isBillboard = ((int) $media->category_id === 1);
+										$isBooked    = (int) ($media->is_booked ?? 0);
+									@endphp
+									<div class="card-actions">
+
+										{{-- ================= BILLBOARDS ================= --}}
+										@if($isBillboard)
+
+											{{-- USER LOGGED IN --}}
+											@auth('website')
+
+												{{-- NOT BOOKED --}}
+												@if($isBooked === 0)
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+
+													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
+													class="btn card-btn cart">
+														Add to Cart
+													</a>
+												@else
+													{{-- BOOKED --}}
+													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+													class="card-btn read">
+														Read More →
+													</a>
+												@endif
+
+												{{-- USER NOT LOGGED IN --}}
+												@else
+
+													@if($isBooked === 1)
+														{{-- BOOKED → ONLY READ MORE --}}
+														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+														class="card-btn read">
+															Read More →
+														</a>
+													@else
+														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
+														<button class="btn card-btn cart"
+																data-bs-toggle="modal"
+																data-bs-target="#authModal"
+																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+															Add to Cart
+														</button>
+													@endif
+
+												@endauth
+
+
+										{{-- ================= OTHER MEDIA ================= --}}
+										@else
+											{{-- ONLY CONTACT US (NO READ MORE) --}}
+											<a href="{{ route('contact.create') }}"
+											class="card-btn contact">
+												Contact Us
+											</a>
+										@endif
+
+									</div>
+
+								</div>
+							</div>
+						</div>
+
+					@endif
+				@endforeach
+			</div>
+
+		</div>
+	</div>
 
 	<!-- PROCESS SECTION -->
 	<section class="process-section">
@@ -352,255 +609,6 @@
 			</div>
 		</div>
 	</section>
- 
-
-	<div class="latest-news pt-150">
-        <div class="container">
- 
-            {{-- Title --}}
-            <div class="row">
-                <div class="col-lg-8 offset-lg-2 text-center">
-                    <div class="section-title">    
-                        <h3><span class="orange-text">Hoardings / Billboards</h3>
-                        <p>Premium outdoor media options curated for you</p>
-                    </div>
-                </div>
-            </div>
-            {{-- ================= HOARDINGS SECTION ================= --}}
-            <div class="row mb-5">
-				<?php
-					// dd($mediaList);
-					// die();
-					?>
-                @foreach($mediaList as $media)
-                    @if($media->category_id === 1)
- 
-                        <div class="col-lg-4 col-md-6 mb-5">
-                            <div class="single-latest-news">
- 
-                                <div class="latest-news-bg"
-                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-                                </div>
- 
-                                <div class="news-text-box">
- 
-                                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
- 
-                                    <p class="blog-meta">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        {{ $media->area_name }}, {{ $media->city_name }}
-                                    </p>
- 
-                                    <div class="media-price">
-                                        ₹ {{ number_format($media->price, 2) }}
-                                        <small class="pricepermonth">/Month</small>
-                                    </div>
- 
-                                    {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
-                                    <div class="media-map mt-4">
-                                        <a href="https://www.google.com/maps"
-                                        target="_blank"
-                                        class="text-muted d-inline-flex align-items-center gap-1">
-                                            <img src="{{ asset('assets/img/map.png') }}" width="30">
-                                            <span>View on Map</span>
-                                        </a>
-                                    </div>
-									@php
-										$isBillboard = ((int) $media->category_id === 1);
-										$isBooked    = (int) ($media->is_booked ?? 0);
-									@endphp
-									<div class="card-actions">
-
-										{{-- ================= BILLBOARDS ================= --}}
-										@if($isBillboard)
-
-											{{-- USER LOGGED IN --}}
-											@auth('website')
-
-												{{-- NOT BOOKED --}}
-												@if($isBooked === 0)
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
-
-													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
-													class="btn card-btn cart">
-														Add to Cart
-													</a>
-												@else
-													{{-- BOOKED --}}
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
-												@endif
-
-												{{-- USER NOT LOGGED IN --}}
-												@else
-
-													@if($isBooked === 1)
-														{{-- BOOKED → ONLY READ MORE --}}
-														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-														class="card-btn read">
-															Read More →
-														</a>
-													@else
-														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
-														<button class="btn card-btn cart"
-																data-bs-toggle="modal"
-																data-bs-target="#authModal"
-																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-															Add to Cart
-														</button>
-													@endif
-
-												@endauth
-
-
-										{{-- ================= OTHER MEDIA ================= --}}
-										@else
-											{{-- ONLY CONTACT US (NO READ MORE) --}}
-											<a href="{{ route('contact.create') }}"
-											class="card-btn contact">
-												Contact Us
-											</a>
-										@endif
-
-									</div>
- 
-                                </div>
-                            </div>
-                        </div>
- 
-                    @endif
-                @endforeach
-            </div>
- 
-        </div>
-    </div>
-
-	<div class="latest-news pb-150">
-		<div class="container">
-
-			{{-- Title --}}
-			<div class="row">
-				<div class="col-lg-8 offset-lg-2 text-center">
-					<div class="section-title">    
-						<h3><span class="orange-text">Other Media</h3>
-						<p>Premium outdoor media options curated for you</p>
-					</div>
-				</div>
-			</div>
-			{{-- ================= OTHER MEDIA SECTION ================= --}}
-			<div class="row">
-
-				@foreach($mediaList as $media)
-					@if($media->category_name !== 'Hoardings/Billboards')
-
-						<div class="col-lg-4 col-md-6 mb-5">
-							<div class="single-latest-news">
-
-								<div class="latest-news-bg"
-									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-								</div>
-
-								<div class="news-text-box">
-
-									<h3>{{ $media->media_title ?? $media->category_name }}</h3>
-
-									<p class="blog-meta">
-										<i class="fas fa-map-marker-alt"></i>
-										{{ $media->area_name }}, {{ $media->city_name }}
-									</p>
-
-									<div class="media-price">
-										₹ {{ number_format($media->price, 2) }}
-										<small class="pricepermonth">/Month</small>
-									</div>
-
-									<div class="media-map mt-4">
-										<a href="https://www.google.com/maps"
-										target="_blank"
-										class="text-muted d-inline-flex align-items-center gap-1">
-											<img src="{{ asset('assets/img/map.png') }}" width="30">
-											<span>View on Map</span>
-										</a>
-									</div>
-									@php
-										$isBillboard = ((int) $media->category_id === 1);
-										$isBooked    = (int) ($media->is_booked ?? 0);
-									@endphp
-									<div class="card-actions">
-
-										{{-- ================= BILLBOARDS ================= --}}
-										@if($isBillboard)
-
-											{{-- USER LOGGED IN --}}
-											@auth('website')
-
-												{{-- NOT BOOKED --}}
-												@if($isBooked === 0)
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
-
-													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
-													class="btn card-btn cart">
-														Add to Cart
-													</a>
-												@else
-													{{-- BOOKED --}}
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
-												@endif
-
-												{{-- USER NOT LOGGED IN --}}
-												@else
-
-													@if($isBooked === 1)
-														{{-- BOOKED → ONLY READ MORE --}}
-														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-														class="card-btn read">
-															Read More →
-														</a>
-													@else
-														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
-														<button class="btn card-btn cart"
-																data-bs-toggle="modal"
-																data-bs-target="#authModal"
-																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-															Add to Cart
-														</button>
-													@endif
-
-												@endauth
-
-
-										{{-- ================= OTHER MEDIA ================= --}}
-										@else
-											{{-- ONLY CONTACT US (NO READ MORE) --}}
-											<a href="{{ route('contact.create') }}"
-											class="card-btn contact">
-												Contact Us
-											</a>
-										@endif
-
-									</div>
-
-								</div>
-							</div>
-						</div>
-
-					@endif
-				@endforeach
-			</div>
-
-		</div>
-	</div>
  
 	<!-- CTA SECTION -->
 	<section class="cta-section">

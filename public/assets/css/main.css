@@ -375,7 +375,7 @@ p:last-child {
 
 @media only screen and (max-width: 767.96px) {
   .pt-150 {
-    padding-top: 100px;
+    padding-top: 3rem;
   }
 }
 
@@ -385,7 +385,7 @@ p:last-child {
 
 @media only screen and (max-width: 767.96px) {
   .pb-150 {
-    padding-bottom: 100px;
+    padding-bottom: 2rem;
   }
 }
 
@@ -524,8 +524,10 @@ ul.navbar-nav li.nav-item a.nav-link, ul.navbar-nav li.nav-item.active a.nav-lin
     left: 0;
     width: 100%;
     z-index: 9999;
-    background-color: #ffc107; /* same as sticky */
+    /* background-color: #ffc107; */
+    background-color: #fff; /* new dev  */
     padding: 15px 0;
+    box-shadow: 0 0 20px #aaa8a8;
 }
 
 /* .top-header-area {
@@ -560,7 +562,8 @@ nav.main-menu ul li {
 }
 
 nav.main-menu ul li a {
-  color: #fff;
+  /* color: #fff; */
+  color: #2b64b5; /* new dev  */
   font-weight: 700;
   display: block;
   /* padding: 15px; */
@@ -893,8 +896,17 @@ a.mobile-show {
     color: #fff;
 }
 
-.new-btn-light{
+/* .new-btn-light{
    color: #000 !important;
+} */ /* new dev  */
+
+.new-btn-light{
+  color: #fff;
+  background-color: #F28123;
+  border-color: #f8f9fa;
+}
+.cart-count{
+  background-color: #2b64b5;
 }
 
 .btn-check:focus+.btn, .btn:focus {
@@ -1185,11 +1197,16 @@ a.tof-btn:hover i {
   transition: 0.3s;
 }
 
-.single-latest-news:hover {
+/* .single-latest-news:hover {
   -webkit-box-shadow: 0 0 0;
   box-shadow: 0 0 0;
   -webkit-box-shadow: none;
   box-shadow: none;
+} */
+
+.single-latest-news:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(255, 152, 0, 0.15);
 }
 
 .single-logo-item {
@@ -1677,13 +1694,17 @@ div.owl-controls, .owl-controls div {
 
 .list-box .list-icon i {
   display: block;
-  font-size: 24px;
+  /* font-size: 24px; new dev*/
+  font-size: 30px;
   margin-right: 15px;
   color: #ff9800;
-  width: 65px;
-  height: 65px;
+  /* width: 65px;
+  height: 65px; new dev*/
+  width: 75px;
+  height: 75px;
   text-align: center;
-  line-height: 60px;
+  /* line-height: 60px; */
+  line-height: 71px;
   border: 2px #ff9800 dotted;
   border-radius: 999px;
 }
@@ -2421,6 +2442,10 @@ ul.social-link-team li a {
   margin: 0;
   font-weight: 600;
   padding: 10px 0;
+}
+
+.contact-us-page-detail a{
+  color: #051922;
 }
 
 .find-location p i {

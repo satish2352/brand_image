@@ -13,8 +13,8 @@ Header
 .main-menu ul li a:hover,
 .main-menu ul li.active a {
     /* color: #000; */
-    /* color: #F28123; */
-    color: #2b64b5;
+    color: #F28123;
+    /* color: #2b64b5; */ /* new dev  */
     /* border-bottom: 2px solid #000; */
     /* padding: 1px 5px 1px;
     border: 1px solid #de6500; */
@@ -73,10 +73,13 @@ Header
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: 0.3s ease; */
-    color: #000;
-    background-color: #f8f9fa;
-    border-color: #f8f9fa;
+    transition: 0.3s ease; */ /* new */
+    /* color: #000; */
+    /* background-color: #f8f9fa; */
+    color: #fff;
+    background-color: #F28123;
+    border-color: #F28123;
+    /* border-color: #f8f9fa; */
 }
 
 .login-btn i {
@@ -276,6 +279,10 @@ Header
     .about-banner-img{
     margin-top: 5rem;
 }
+}
+
+.banner-below-section{
+    place-items: anchor-center;
 }
 
 /* =========================
@@ -496,7 +503,8 @@ Header
 /* profile website */
 /* USER DROPDOWN AREA */
 .user-dropdown .user-btn {
-    background: transparent;
+    /* background: transparent;  new dev*/
+    background: #F28123;
     border: none;
     color: white;
     font-weight: 600;
@@ -674,11 +682,13 @@ Header
     width: 54px;
     height: 54px;
     border-radius: 12px;
-    background: rgba(255,165,0,0.15);
+    /* background: rgba(255,165,0,0.15); new dev */
+    background: #ff9800;
+    color: #000;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ffb703;
+    /* color: #ffb703; */
     font-size: 26px;
 }
 
@@ -700,8 +710,10 @@ Header
 }
 
 .service-card:hover .service-icon {
-    background: #ff9800;
-    color: #000;
+    /* background: #ff9800; new dev*/
+    background: rgba(255,165,0,0.15);
+    /* color: #000; */
+    color: #ffb703;
 }
 
 /* Arrow */
@@ -2051,4 +2063,129 @@ Header
 .pricepermonth{
 	color: #a0a0a0;
     font-weight: 400;
+}
+
+
+
+/* ===============================
+   HOARDINGS SLIDER
+================================ */
+
+.hoarding-slider {
+    padding-bottom: 50px;
+}
+
+/* Keep card height perfect */
+.swiper-slide {
+    height: auto;
+    display: flex;
+}
+
+/* Arrows */
+.hoarding-slider .swiper-button-next,
+.hoarding-slider .swiper-button-prev {
+    color: #F28123;
+}
+
+/* Pagination dots */
+.hoarding-slider .swiper-pagination-bullet {
+    background: #ccc;
+    opacity: 1;
+}
+.hoarding-slider .swiper-pagination-bullet-active {
+    background: #F28123;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===============================
+   FOOTER MOBILE – FULL CENTER FIX
+================================ */
+@media (max-width: 767px) {
+
+    /* ALL FOOTER COLUMNS CENTER */
+    .premium-footer .footer-col {
+        text-align: center !important;
+    }
+
+    /* ================= BRAND ================= */
+    .footer-brand,
+    .footer-brand p {
+        text-align: center !important;
+    }
+
+    .footer-social {
+        justify-content: center !important;
+    }
+
+    /* ================= QUICK LINKS ================= */
+    .footer-links-center {
+        align-items: center !important;
+    }
+
+    .footer-links-center li {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    /* ================= SERVICES ================= */
+    .footer-services {
+        grid-template-columns: 1fr !important;
+        justify-items: center !important;
+        text-align: center !important;
+    }
+
+    .footer-services li {
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .footer-services .icon {
+        margin-right: 6px;
+    }
+
+    /* ================= CONTACT ================= */
+    .footer-contact {
+        align-items: center !important;
+    }
+
+    .footer-contact li {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        gap: 6px;
+    }
+
+    .footer-contact a {
+        text-align: center !important;
+    }
+
+    /* ================= FOOTER BOTTOM ================= */
+    .footer-bottom {
+        text-align: center !important;
+    }
+
+    .footer-brand p {
+        margin: 20px 0px 20px 0;
+    }
 }

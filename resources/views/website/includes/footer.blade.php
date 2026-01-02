@@ -104,8 +104,42 @@
 	</footer>
 
 	<!-- end footer -->
-	
 
+	{{-- slider hording --}}
+
+	<script>
+		document.addEventListener("DOMContentLoaded", () => {
+			new Swiper(".hoarding-slider", {
+				slidesPerView: 3,
+				spaceBetween: 30,
+				grabCursor: true,
+				loop: false,
+
+				navigation: {
+					nextEl: ".hoarding-slider .swiper-button-next",
+					prevEl: ".hoarding-slider .swiper-button-prev",
+				},
+
+				breakpoints: {
+					0: {
+						slidesPerView: 1.1,
+						spaceBetween: 14,
+					},
+					576: {
+						slidesPerView: 1.5,
+					},
+					768: {
+						slidesPerView: 2,
+					},
+					992: {
+						slidesPerView: 3,
+					}
+				}
+			});
+		});
+	</script>
+	
+{{--  --}}
 	<script>
 	document.addEventListener("DOMContentLoaded", function () {
 

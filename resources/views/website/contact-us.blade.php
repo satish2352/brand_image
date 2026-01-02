@@ -182,7 +182,11 @@
                 <div class="contact-form-wrap">
                     <div class="contact-form-box">
                         <h4><i class="fas fa-map"></i> Shop Address</h4>
-                        <p>34/8, East Hukupara <br> Gifirtok, Sadan. <br> Country Name</p>
+                        <p>Brand Image Media Pvt Ltd,
+								Office No-4, 1st Floor,
+								Sadashiv Motkari Sankul,
+								Sadashiv Nagar,Opp.Sagar
+								Sweet, Nashik - 422009.</p>
                     </div>
 
                     <div class="contact-form-box">
@@ -192,7 +196,13 @@
 
                     <div class="contact-form-box">
                         <h4><i class="fas fa-address-book"></i> Contact</h4>
-                        <p>Phone: +00 111 222 3333 <br> Email: support@fruitkha.com</p>
+                        <p class="contact-us-page-detail">
+                            Phone: 
+                            <a href="tel:+917770009506">+91 777 000 9506</a>
+                            <br>
+                            Email: 
+                            <a href="mailto:brandimage@gmail.com">brandimage@gmail.com</a>
+                        </p>
                     </div>
                 </div>
             </div>
