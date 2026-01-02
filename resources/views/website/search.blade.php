@@ -11,6 +11,7 @@
 
     {{-- Category --}}
     <div class="col-md-3">
+         <label>Category</label>
         <select name="category_id" class="form-select">
             <option value="">Category</option>
             @foreach($categories as $cat)
@@ -24,6 +25,7 @@
 
     {{-- State --}}
     <div class="col-md-2">
+        <label>State</label>
         <select name="state_id" id="state_id" class="form-select">
             <option value="">State</option>
             @foreach($states as $state)
@@ -37,6 +39,7 @@
 
     {{-- District --}}
     <div class="col-md-2">
+         <label>District</label>
         <select name="district_id" id="district_id" class="form-select">
             <option value="">Select District</option>
         </select>
@@ -44,6 +47,7 @@
 
     {{-- City --}}
     <div class="col-md-2">
+          <label>City</label>
         <select name="city_id" id="city_id" class="form-select">
             <option value="">Select City</option>
         </select>
@@ -51,6 +55,7 @@
 
     {{-- Area --}}
     <div class="col-md-3">
+         <label>Area</label>
         <select name="area_id" id="area_id" class="form-select">
             <option value="">Select Area</option>
         </select>
@@ -67,6 +72,7 @@
                 </option>
             @endforeach
         </select> --}}
+          <label>Radius</label>
         <select name="radius_id" class="form-select">
     <option value="">Radius</option>
     @foreach($radiusList as $r)
@@ -78,20 +84,8 @@
 </select>
 
     </div>
-
-    {{-- Dates --}}
-    <div class="col-md-2">
-        <input type="date" name="from_date" class="form-control"
-               value="{{ $filters['from_date'] ?? '' }}">
-    </div>
-
-    <div class="col-md-2">
-        <input type="date" name="to_date" class="form-control"
-               value="{{ $filters['to_date'] ?? '' }}">
-    </div>
-
-      <div class="col-md-3 mb-3">
-               
+<div class="col-md-3 mb-3">
+              <label>Area Type</label>  
          <select name="area_type" class="form-control">
     <option value="">Select Area Type</option>
     <option value="rural" {{ ($filters['area_type'] ?? '') == 'rural' ? 'selected' : '' }}>Rural</option>
@@ -101,9 +95,23 @@
 
              
             </div>
+    {{-- Dates --}}
+    <div class="col-md-2">
+        <label>From Date</label>
+        <input type="date" name="from_date" class="form-control"
+               value="{{ $filters['from_date'] ?? '' }}">
+    </div>
+
+    <div class="col-md-2">
+        <label>To Date</label>
+        <input type="date" name="to_date" class="form-control"
+               value="{{ $filters['to_date'] ?? '' }}">
+    </div>
+
+      
 
  <div class="col-md-2 mb-3">
-               
+                <label>Available Days</label>  
               <select name="available_days" class="form-control">
     <option value="">Select Available Days</option>
     <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>7 Days</option>
@@ -122,7 +130,7 @@
 
 
     <div class="col-md-2">
-        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters">
+        <button type="button" class="btn btn-outline-secondary w-100" id="clearFilters" style="padding: 13px;">
             Clear
         </button>
     </div>

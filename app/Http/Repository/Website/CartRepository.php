@@ -134,6 +134,55 @@ class CartRepository
             'is_deleted' => 0,
         ]);
     }
+    // =================
+    public function getBookedDatesByMedia($mediaId)
+    {
+        return DB::table('order_items')
+            ->where('media_id', $mediaId)
+            ->select('from_date', 'to_date')
+            ->get();
+    }
+
+    // 🔹 Get single cart item
+    public function getCartItemById($cartItemId)
+    {
+        return CartItem::where('id', $cartItemId)->first();
+    }
+
+    // 🔒 Check already booked dates
+    public function isDateAlreadyBooked($mediaId, $from, $to)
+    {
+        return DB::table('order_items')
+            ->where('media_id', $mediaId)
+            ->where(function ($q) use ($from, $to) {
+                $q->whereBetween('from_date', [$from, $to])
+                    ->orWhereBetween('to_date', [$from, $to])
+                    ->orWhere(function ($q2) use ($from, $to) {
+                        $q2->where('from_date', '<=', $from)
+                            ->where('to_date', '>=', $to);
+                    });
+            })
+            ->exists();
+    }
+
+    // 🔄 Update cart dates + price
+    public function updateCartDates(
+        $cartItemId,
+        $from,
+        $to,
+        $perDayPrice,
+        $totalPrice,
+        $totalDays
+    ) {
+        CartItem::where('id', $cartItemId)->update([
+            'from_date'     => $from,
+            'to_date'       => $to,
+            'per_day_price' => $perDayPrice,
+            'total_price'   => $totalPrice,
+            'total_days'    => $totalDays,
+        ]);
+    }
+    // =============
 
     // public function addItemWithDate($mediaId, $price, $from, $to)
     // {

@@ -180,7 +180,56 @@ class CartService
             $totalDays
         );
     }
+    public function getBookedDatesByMedia($mediaId)
+    {
+        return $this->repo->getBookedDatesByMedia($mediaId);
+    }
 
+    // =================
+    public function updateCartDates($cartItemId, $from, $to)
+    {
+        $item = $this->repo->getCartItemById($cartItemId);
+
+        if (!$item) {
+            throw new \Exception('Cart item not found');
+        }
+
+        // 🔒 Availability check
+        if ($this->repo->isDateAlreadyBooked($item->media_id, $from, $to)) {
+            throw new \Exception('Selected dates are already booked');
+        }
+
+        // 🔢 Price calculation
+        $fromDate = Carbon::parse($from);
+        $toDate   = Carbon::parse($to);
+
+        $totalDays = $fromDate->diffInDays($toDate) + 1;
+        $totalPrice = 0;
+        $current = $fromDate->copy();
+
+        while ($current->lte($toDate)) {
+
+            $daysInMonth = $current->daysInMonth;
+            $monthEnd = $current->copy()->endOfMonth();
+
+            $rangeEnd = $toDate->lessThan($monthEnd) ? $toDate : $monthEnd;
+            $bookedDays = $current->diffInDays($rangeEnd) + 1;
+
+            $totalPrice += ($item->price / $daysInMonth) * $bookedDays;
+            $current = $current->addMonth()->startOfMonth();
+        }
+
+        $this->repo->updateCartDates(
+            $cartItemId,
+            $from,
+            $to,
+            round($totalPrice / $totalDays, 2),
+            round($totalPrice, 2),
+            $totalDays
+        );
+    }
+
+    // =================
     // public function addToCartWithDate($mediaId, $from, $to)
     // {
     //     $fromDate = Carbon::parse($from);

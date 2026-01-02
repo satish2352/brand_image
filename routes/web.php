@@ -300,6 +300,15 @@ Route::middleware('auth:website')->group(function () {
 
     Route::post('cart/add-with-date', [CartController::class, 'addWithDate'])
         ->name('cart.add.with.date');
+
+    Route::post('/cart/update-dates', [CartController::class, 'updateDates'])
+        ->name('cart.update.dates')
+        ->middleware('auth:website');
+
+    Route::get(
+        '/cart/booked-dates/{mediaId}',
+        [CartController::class, 'getBookedDates']
+    )->name('cart.booked.dates');
 });
 
 
