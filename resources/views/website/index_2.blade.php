@@ -479,172 +479,91 @@ $(window).on('scroll', function () {
 					</div>
 				</div>
 			</div> --}}
-
-			<div class="row">
-
-				@forelse($mediaList as $media)
-
-					<div class="col-lg-4 col-md-4 mb-5">
-						<div class="single-latest-news">
-
-								<div class="latest-news-bg"
-									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-								</div>
-
-							<div class="news-text-box">
-
-								<h3>
-									{{ $media->media_title ?? $media->category_name }}
-								</h3>
-
-								<p class="blog-meta">
-									<i class="fas fa-map-marker-alt"></i>
-									{{ $media->area_name }}, {{ $media->city_name }}
-								</p>
-
-								<div class="media-price">
-									₹ {{ number_format($media->price, 2) }}<small class="pricepermonth">/Month</small>
-								</div>
-
-								<div class="media-map mt-4">
-									<a href="https://www.google.com/maps"
-									target="_blank"
-									title="View on Map"
-									class="text-muted d-inline-flex align-items-center gap-1">
-
-										<img src="{{ asset('assets/img/map.png') }}"
-											alt="View on Map"
-											width="30"
-											height="30">
-
-										<span>View on Map</span>
-									</a>
-								</div>
-
-								<div class="card-actions">
-
-									<a href="{{ route('website.details') }}" class="card-btn read">
-										Read More →
-									</a>
-
-									@if($media->category_name === 'Hoardings/Billboards')
-
-										@auth('website')
-											<a href="{{ route('cart.add', base64_encode($media->id)) }}"
-											class="card-btn cart">
-												Add to Cart
-											</a>
-										@else
-											<button class="card-btn cart"
-													data-bs-toggle="modal"
-													data-bs-target="#authModal"
-													onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-												Add to Cart
-											</button>
-										@endauth
-
-									@else
-										<a href="{{ route('contact.create') }}"
-										class="card-btn contact">
-											Contact Us
-										</a>
-									@endif
-
-								</div>
-
-							</div>
-						</div>
-					</div>
-
-				@empty
-					<div class="col-12 text-center">
-						<p class="text-muted">No media available.</p>
-					</div>
-				@endforelse
-
-			</div>
 		</div>
 	</div> 
 
-	<div class="latest-news pt-150">
-		<div class="container">
-
-			{{-- Title --}}
-			<div class="row">
-				<div class="col-lg-8 offset-lg-2 text-center">
-					<div class="section-title">    
-						<h3><span class="orange-text">Hoardings / Billboards</h3>
-						<p>Premium outdoor media options curated for you</p>
-					</div>
-				</div>
-			</div>
-			{{-- ================= HOARDINGS SECTION ================= --}}
-			<div class="row mb-5">
-
-				@foreach($mediaList as $media)
-					@if($media->category_name === 'Hoardings/Billboards')
-
-						<div class="col-lg-4 col-md-6 mb-5">
-							<div class="single-latest-news">
-
-								<div class="latest-news-bg"
-									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-								</div>
-
-								<div class="news-text-box">
-
-									<h3>{{ $media->media_title ?? $media->category_name }}</h3>
-
-									<p class="blog-meta">
-										<i class="fas fa-map-marker-alt"></i>
-										{{ $media->area_name }}, {{ $media->city_name }}
-									</p>
-
-									<div class="media-price">
-										₹ {{ number_format($media->price, 2) }}
-										<small class="pricepermonth">/Month</small>
-									</div>
-
-									{{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
-									<div class="media-map mt-4">
-										<a href="https://www.google.com/maps"
-										target="_blank"
-										class="text-muted d-inline-flex align-items-center gap-1">
-											<img src="{{ asset('assets/img/map.png') }}" width="30">
-											<span>View on Map</span>
-										</a>
-									</div>
-
-									<div class="card-actions">
-										<a href="{{ route('website.details') }}" class="card-btn read">
-											Read More →
-										</a>
-
-										@auth('website')
-											<a href="{{ route('cart.add', base64_encode($media->id)) }}"
-											class="btn card-btn cart">
-												Add to Cart
-											</a>
-										@else
-											<button class="btn card-btn cart"
-													data-bs-toggle="modal"
-													data-bs-target="#authModal"
-													onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-												Add to Cart
-											</button>
-										@endauth
-									</div>
-
-								</div>
-							</div>
-						</div>
-
-					@endif
-				@endforeach
-			</div>
-
-		</div>
-	</div>
+	    <div class="latest-news pt-150">
+        <div class="container">
+ 
+            {{-- Title --}}
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="section-title">    
+                        <h3><span class="orange-text">Hoardings / Billboards</h3>
+                        <p>Premium outdoor media options curated for you</p>
+                    </div>
+                </div>
+            </div>
+            {{-- ================= HOARDINGS SECTION ================= --}}
+            <div class="row mb-5">
+				<?php
+					// dd($mediaList);
+					// die();
+					?>
+                @foreach($mediaList as $media)
+                    @if($media->category_id === 1)
+ 
+                        <div class="col-lg-4 col-md-6 mb-5">
+                            <div class="single-latest-news">
+ 
+                                <div class="latest-news-bg"
+                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                                </div>
+ 
+                                <div class="news-text-box">
+ 
+                                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
+ 
+                                    <p class="blog-meta">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ $media->area_name }}, {{ $media->city_name }}
+                                    </p>
+ 
+                                    <div class="media-price">
+                                        ₹ {{ number_format($media->price, 2) }}
+                                        <small class="pricepermonth">/Month</small>
+                                    </div>
+ 
+                                    {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
+                                    <div class="media-map mt-4">
+                                        <a href="https://www.google.com/maps"
+                                        target="_blank"
+                                        class="text-muted d-inline-flex align-items-center gap-1">
+                                            <img src="{{ asset('assets/img/map.png') }}" width="30">
+                                            <span>View on Map</span>
+                                        </a>
+                                    </div>
+ 
+                                    <div class="card-actions">
+                                        <a href="{{ route('website.details') }}" class="card-btn read">
+                                            Read More →
+                                        </a>
+ 
+                                        @auth('website')
+                                            <a href="{{ route('cart.add', base64_encode($media->id)) }}"
+                                            class="btn card-btn cart">
+                                                Add to Cart
+                                            </a>
+                                        @else
+                                            <button class="btn card-btn cart"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#authModal"
+                                                    onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+                                                Add to Cart
+                                            </button>
+                                        @endauth
+                                    </div>
+ 
+                                </div>
+                            </div>
+                        </div>
+ 
+                    @endif
+                @endforeach
+            </div>
+ 
+        </div>
+    </div>
 
 	<div class="latest-news pb-150">
 		<div class="container">
@@ -715,159 +634,7 @@ $(window).on('scroll', function () {
 
 		</div>
 	</div>
-
-    <div class="latest-news pt-150">
-        <div class="container">
  
-            {{-- Title --}}
-            <div class="row">
-                <div class="col-lg-8 offset-lg-2 text-center">
-                    <div class="section-title">    
-                        <h3><span class="orange-text">Hoardings / Billboards</h3>
-                        <p>Premium outdoor media options curated for you</p>
-                    </div>
-                </div>
-            </div>
-            {{-- ================= HOARDINGS SECTION ================= --}}
-            <div class="row mb-5">
- <?php
-	// dd($mediaList);
-	// die();
-	?>
-                @foreach($mediaList as $media)
-                    @if($media->category_id === 1)
- 
-                        <div class="col-lg-4 col-md-6 mb-5">
-                            <div class="single-latest-news">
- 
-                                <div class="latest-news-bg"
-                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-                                </div>
- 
-                                <div class="news-text-box">
- 
-                                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
- 
-                                    <p class="blog-meta">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        {{ $media->area_name }}, {{ $media->city_name }}
-                                    </p>
- 
-                                    <div class="media-price">
-                                        ₹ {{ number_format($media->price, 2) }}
-                                        <small class="pricepermonth">/Month</small>
-                                    </div>
- 
-                                    {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
-                                    <div class="media-map mt-4">
-                                        <a href="https://www.google.com/maps"
-                                        target="_blank"
-                                        class="text-muted d-inline-flex align-items-center gap-1">
-                                            <img src="{{ asset('assets/img/map.png') }}" width="30">
-                                            <span>View on Map</span>
-                                        </a>
-                                    </div>
- 
-                                    <div class="card-actions">
-                                        <a href="{{ route('website.details') }}" class="card-btn read">
-                                            Read More →
-                                        </a>
- 
-                                        @auth('website')
-                                            <a href="{{ route('cart.add', base64_encode($media->id)) }}"
-                                            class="btn card-btn cart">
-                                                Add to Cart
-                                            </a>
-                                        @else
-                                            <button class="btn card-btn cart"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#authModal"
-                                                    onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-                                                Add to Cart
-                                            </button>
-                                        @endauth
-                                    </div>
- 
-                                </div>
-                            </div>
-                        </div>
- 
-                    @endif
-                @endforeach
-            </div>
- 
-        </div>
-    </div>
- 
-    <div class="latest-news pb-150">
-        <div class="container">
- 
-            {{-- Title --}}
-            <div class="row">
-                <div class="col-lg-8 offset-lg-2 text-center">
-                    <div class="section-title">    
-                        <h3><span class="orange-text">Other Media</h3>
-                        <p>Premium outdoor media options curated for you</p>
-                    </div>
-                </div>
-            </div>
-            {{-- ================= OTHER MEDIA SECTION ================= --}}
-            <div class="row">
- 
-                @foreach($mediaList as $media)
-                    @if($media->category_name !== 'Hoardings/Billboards')
- 
-                        <div class="col-lg-4 col-md-6 mb-5">
-                            <div class="single-latest-news">
- 
-                                <div class="latest-news-bg"
-                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-                                </div>
- 
-                                <div class="news-text-box">
- 
-                                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
- 
-                                    <p class="blog-meta">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        {{ $media->area_name }}, {{ $media->city_name }}
-                                    </p>
- 
-                                    <div class="media-price">
-                                        ₹ {{ number_format($media->price, 2) }}
-                                        <small class="pricepermonth">/Month</small>
-                                    </div>
- 
-                                    <div class="media-map mt-4">
-                                        <a href="https://www.google.com/maps"
-                                        target="_blank"
-                                        class="text-muted d-inline-flex align-items-center gap-1">
-                                            <img src="{{ asset('assets/img/map.png') }}" width="30">
-                                            <span>View on Map</span>
-                                        </a>
-                                    </div>
- 
-                                    <div class="card-actions">
-                                        <a href="{{ route('website.details') }}" class="card-btn read">
-                                            Read More →
-                                        </a>
- 
-                                        <a href="{{ route('contact.create') }}"
-                                        class="btn card-btn contact">
-                                            Contact Us
-                                        </a>
-                                    </div>
- 
-                                </div>
-                            </div>
-                        </div>
- 
-                    @endif
-                @endforeach
-            </div>
- 
-        </div>
-    </div>
 	<!-- CTA SECTION -->
 	<section class="cta-section">
 		<div class="container">
