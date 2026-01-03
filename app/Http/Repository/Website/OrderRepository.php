@@ -41,9 +41,17 @@ class OrderRepository
         }
     }
 
+    // public function findById($id)
+    // {
+    //     return Order::findOrFail($id);
+    // }
     public function findById($id)
     {
-        return Order::findOrFail($id);
+        if (!$id) {
+            return null;
+        }
+
+        return Order::find($id);
     }
 
     public function markAsPaid($orderId, $paymentId)

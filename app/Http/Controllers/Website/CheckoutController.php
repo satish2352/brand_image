@@ -32,23 +32,48 @@ class CheckoutController extends Controller
 
     //     return view('website.checkout', compact('items', 'total'));
     // }
+    // public function index()
+    // {
+    //     $orderId = session('order_id');
+
+    //     if (!$orderId) {
+    //         return redirect('/')->with('error', 'Order not found');
+    //     }
+
+    //     $order = $this->orderRepo->findById($orderId);
+
+    //     $items = \App\Models\OrderItem::where('order_id', $orderId)
+    //         ->join('media_management as m', 'm.id', '=', 'order_items.media_id')
+    //         ->select(
+    //             'order_items.price',
+    //             'order_items.qty',
+    //             'm.media_title'
+    //         )
+    //         ->get();
+
+    //     return view('website.checkout', [
+    //         'items' => $items,
+    //         'total' => $order->total_amount
+    //     ]);
+    // }
     public function index()
     {
         $orderId = session('order_id');
 
         if (!$orderId) {
-            return redirect('/')->with('error', 'Order not found');
+            return redirect('/')->with('error', 'Order session expired');
         }
 
         $order = $this->orderRepo->findById($orderId);
 
+        if (!$order) {
+            session()->forget('order_id');
+            return redirect('/')->with('error', 'Order not found');
+        }
+
         $items = \App\Models\OrderItem::where('order_id', $orderId)
             ->join('media_management as m', 'm.id', '=', 'order_items.media_id')
-            ->select(
-                'order_items.price',
-                'order_items.qty',
-                'm.media_title'
-            )
+            ->select('order_items.price', 'order_items.qty', 'm.media_title')
             ->get();
 
         return view('website.checkout', [
