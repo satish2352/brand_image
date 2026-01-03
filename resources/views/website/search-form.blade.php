@@ -304,7 +304,7 @@ $(document).ready(function () {
     // ✅ Allowed categories for Radius
     const radiusEnabledCategories = [1, 2]; 
     // 1 = Hoardings/Billboards
-    // 3 = Digital Wall Painting
+    // 2 = Digital Wall Painting
 
     function toggleRadiusField(categoryId) {
 
