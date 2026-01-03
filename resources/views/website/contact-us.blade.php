@@ -40,10 +40,10 @@
 
                         <!-- ROW 1 : NAME + EMAIL -->
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <input type="text"
                                        class="form-control"
-                                       placeholder="Name"
+                                       placeholder="Full Name"
                                        name="full_name"
                                        value="{{ old('full_name') }}">
                                 @error('full_name')
@@ -61,34 +61,44 @@
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
-                        </div>
 
-                        <!-- ROW 2 : MOBILE + ADDRESS -->
-                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <input type="tel"
-                                       class="form-control"
-                                       placeholder="Mobile"
-                                       name="mobile_no"
-                                       value="{{ old('mobile_no') }}">
+                                    class="form-control"
+                                    placeholder="Mobile"
+                                    name="mobile_no"
+                                    value="{{ old('mobile_no') }}">
                                 @error('mobile_no')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
+                        </div>
+
+                        <!-- ROW 2 : MOBILE + ADDRESS -->
+                        <div class="row">
 
                             <div class="col-md-6 mb-3">
                                 <textarea name="address"
                                           class="form-control"
-                                          rows="3"
+                                          rows="5"
                                           placeholder="Address">{{ old('address') }}</textarea>
                                 @error('address')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-6 mb-3">
+                                <textarea name="remark"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Requirements/Specifications">{{ old('remark') }}</textarea>
+                                @error('remark')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
                         </div>
 
                         <!-- MESSAGE -->
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-12 mb-3">
                                 <textarea name="remark"
                                           class="form-control"
@@ -98,7 +108,7 @@
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- SUBMIT -->
                         <div class="row">
