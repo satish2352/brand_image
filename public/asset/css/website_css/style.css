@@ -751,6 +751,11 @@ Header
     padding: 75px 0;
 }
 
+.work-process-section{
+    background: #fff;
+    padding: 0 0 75px;
+}
+
 /* Header */
 .process-header{
     max-width: 750px;
@@ -1047,6 +1052,7 @@ Header
 .cta-section{
     background: #ffffff; 
     margin-bottom: 4rem;
+    margin-top: 4rem;
 }
 
 /* CTA Box */
@@ -1394,16 +1400,23 @@ Header
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: rgba(255,255,255,0.08);
+    /* background: rgba(255,255,255,0.08); */
+    background: #ffa000;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    /* color: #fff; */
+    color: #000;
     transition: 0.3s;
 }
 .footer-social a:hover{
-    background: #ffa000;
-    color: #000;
+    /* background: #ffa000; */
+    background: rgba(255,255,255,0.08);
+    /* color: #000; */
+    color: #fff;
+}
+.footer-bottom-line{
+    color: #fff;
 }
 
 /* Bottom Bar */
@@ -2162,6 +2175,7 @@ Header
     }
 
     /* ================= CONTACT ================= */
+
     .footer-contact {
         align-items: center !important;
     }

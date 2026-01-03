@@ -380,7 +380,7 @@ p:last-child {
 }
 
 .pb-150 {
-  padding-bottom: 4rem;
+  padding-bottom: 3rem;
 }
 
 @media only screen and (max-width: 767.96px) {
@@ -2373,6 +2373,13 @@ ul.social-link-team li a {
 # Contact Page Styles
 
 ----------------------------------------------------------------------------- */
+.conatact-top {
+    margin-top: 5rem !important;
+}
+.conatact-bottom {
+    margin-bottom: 6rem !important;
+}
+
 .form-title {
   margin-bottom: 25px;
 }
@@ -2438,10 +2445,10 @@ ul.social-link-team li a {
 
 .find-location p {
   color: #fff;
-  font-size: 40px;
+  font-size: 35px;
   margin: 0;
   font-weight: 600;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .contact-us-page-detail a{
