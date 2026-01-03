@@ -630,7 +630,7 @@
     <div class="d-flex justify-content-start">
         <button type="button"
             class="btn btn-warning btn-sm mt-2 update-date-btn">
-        Update Dates
+        Add Dates
     </button>
     </div>
 
