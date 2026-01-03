@@ -35,7 +35,7 @@ Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
 
-    return "<h3>✅ All Laravel caches cleared successfully!</h3>";
+    return "<h3>✅ All caches cleared successfully!</h3>";
 })->name('clear.cache');
 
 

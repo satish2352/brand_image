@@ -10,9 +10,18 @@ use Illuminate\Support\Str;
 
 class GoogleAuthController extends Controller
 {
+    // public function redirect()
+    // {
+    //     return Socialite::driver('google')->redirect();
+    // }
+
     public function redirect()
     {
-        return Socialite::driver('google')->redirect();
+        // dd(config('services.google.redirect'));
+        return Socialite::driver('google')
+            ->redirectUrl(config('services.google.redirect'))
+            ->stateless()
+            ->redirect();
     }
 
     // public function callback()
@@ -51,40 +60,28 @@ class GoogleAuthController extends Controller
 public function callback()
 {
     try {
-        $googleUser = Socialite::driver('google')->user();
+        $googleUser = Socialite::driver('google')
+            ->stateless()
+            ->user();
     } catch (\Exception $e) {
         return redirect('/')
-            ->with('error', 'Google login failed. Please try again.');
+            ->with('error', 'Google login failed.');
     }
 
-    if (!$googleUser->email) {
-        return redirect('/')
-            ->with('error', 'Google account has no email.');
-    }
-
-    $user = WebsiteUser::where('email', $googleUser->email)->first();
-
-    if (!$user) {
-        $user = WebsiteUser::create([
-            'name'          => $googleUser->name,
-            'email'         => $googleUser->email,
-            'mobile_number' => null,
-            'organisation'  => null,
-            'gst'           => null,
-            'password'      => bcrypt(Str::random(32)),
-            'is_active'     => 1,
-        ]);
-    }
-
-    if ((int) $user->is_active === 0) {
-        return redirect('/')
-            ->with('error', 'Your account is inactive.');
-    }
+    $user = WebsiteUser::firstOrCreate(
+        ['email' => $googleUser->email],
+        [
+            'name' => $googleUser->name,
+            'password' => bcrypt(Str::random(32)),
+            'is_active' => 1,
+        ]
+    );
 
     Auth::guard('website')->login($user);
     request()->session()->regenerate();
 
     return redirect()->route('dashboard.home');
 }
+
 
 }
