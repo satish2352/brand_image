@@ -22,7 +22,7 @@
 
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fa fa-upload"></i> Add Images
+                        <i class="fa fa-upload"></i> Submit
                     </button>
                 </div>
             </div>

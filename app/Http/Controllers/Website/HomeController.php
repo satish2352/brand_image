@@ -18,37 +18,11 @@ class HomeController extends Controller
     // Initial page load (NO FILTERS)
     public function index()
     {
-        $filters = []; // 🔥 IMPORTANT
+        $filters = []; //  IMPORTANT
         $mediaList = $this->homeService->searchMedia($filters);
 
         return view('website.home', compact('mediaList', 'filters'));
     }
-
-    // POST search
-    // public function search(Request $request)
-    // {
-    //     if ($request->filled('clear')) {
-    //         return redirect()->route('website.home');
-    //     }
-
-    //     $filters = $request->only([
-    //         'category_id',
-    //         'state_id',
-    //         'district_id',
-    //         'city_id',
-    //         'area_id',
-    //         'radius_id',
-    //         'from_date',
-    //         'to_date',
-    //         'area_type',
-    //         'available_days',
-    //     ]);
-
-    //     $mediaList = $this->homeService->searchMedia($filters);
-
-    //     return view('website.home', compact('mediaList', 'filters'));
-    // }
-
     public function search(Request $request)
     {
         if ($request->filled('clear')) {
@@ -70,50 +44,16 @@ class HomeController extends Controller
 
         $mediaList = $this->homeService->searchMedia($filters);
 
-        // 🔥 Lazy load AJAX
+        //  Lazy load AJAX
         if ($request->ajax()) {
             return view('website.media-home-list', compact('mediaList'))->render();
         }
 
-        // ✅ IMPORTANT: load SEARCH page, not HOME
+        //  IMPORTANT: load SEARCH page, not HOME
         return view('website.search', compact('mediaList', 'filters'));
     }
 
-    // public function search(Request $request)
-    // {
-    //     if ($request->filled('clear')) {
-    //         return redirect()->route('website.home');
-    //     }
 
-    //     $filters = $request->only([
-    //         'category_id',
-    //         'state_id',
-    //         'district_id',
-    //         'city_id',
-    //         'area_id',
-    //         'radius_id',
-    //         'from_date',
-    //         'to_date',
-    //         'area_type',
-    //         'available_days',
-    //     ]);
-
-    //     $mediaList = $this->homeService->searchMedia($filters);
-
-    //     // 🔥 AJAX REQUEST (LAZY LOAD)
-    //     // if ($request->ajax()) {
-    //     //     return view('website.media-home-list', compact('mediaList'))->render();
-    //     // }
-
-    //     // ⚡ AJAX (Lazy Load)
-    //     if ($request->ajax()) {
-    //         return view('website.media-home-list', [
-    //             'mediaList' => $mediaList,
-    //             'filters'   => $filters
-    //         ])->render();
-    //     }
-    //     return view('website.home', compact('mediaList', 'filters'));
-    // }
 
     public function getMediaDetails($mediaId)
     {
@@ -130,7 +70,7 @@ class HomeController extends Controller
                 abort(404);
             }
 
-            // 🔥 Get booked date ranges from order_items
+            //  Get booked date ranges from order_items
             $bookedRanges = DB::table('order_items')
                 ->where('media_id', $mediaId)
                 ->select('from_date', 'to_date')

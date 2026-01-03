@@ -32,59 +32,6 @@ class CartController extends Controller
             ->with('success', 'Item added to cart');
     }
 
-    // public function add()
-    // {
-    //     return redirect('/')
-    //         ->with('error', 'Please select dates before adding to cart');
-    // }
-    // public function addWithDate(Request $request)
-    // {
-    //     try {
-
-    //         // ✅ Basic validation (NO today comparison here)
-    //         $request->validate([
-    //             'media_id'  => 'required',
-    //             'from_date' => 'required|date',
-    //             'to_date'   => 'required|date|after_or_equal:from_date',
-    //         ]);
-
-    //         // ✅ Decode media ID
-    //         $mediaId = base64_decode($request->media_id);
-
-    //         if (!$mediaId) {
-    //             return redirect()
-    //                 ->back()
-    //                 ->with('error', 'Invalid media selected');
-    //         }
-
-    //         // ✅ Timezone-safe date validation
-    //         $fromDate = Carbon::parse($request->from_date);
-    //         $today    = Carbon::today();
-
-    //         if ($fromDate->lt($today)) {
-    //             return redirect()
-    //                 ->back()
-    //                 ->with('error', 'From date must be today or a future date');
-    //         }
-
-    //         // ✅ Add to cart
-    //         $this->service->addToCartWithDate(
-    //             $mediaId,
-    //             $request->from_date,
-    //             $request->to_date
-    //         );
-
-    //         // ✅ IMPORTANT: Redirect instead of JSON
-    //         return redirect()
-    //             ->route('cart.index')
-    //             ->with('success', 'Media added to cart successfully');
-    //     } catch (\Throwable $e) {
-
-    //         return redirect()
-    //             ->back()
-    //             ->with('error', $e->getMessage());
-    //     }
-    // }
     public function addWithDate(Request $request)
     {
         $request->validate([

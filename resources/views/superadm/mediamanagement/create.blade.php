@@ -6,9 +6,13 @@
     #airportBranding,
     #transmitMedia,
     #officeBranding,
-    #wallWrap {
+    /* #wallWrap {
         display: none;
-    }
+    } */
+     #wallWrapSection,
+#radiusSection {
+    display: none;
+}
 </style>
 @endsection
 @section('content')
@@ -84,7 +88,7 @@
                 {{-- ================= DIMENSIONS ================= --}}
             </div>
             <div class="row" id="billboardsId">
-                <div class="col-md-3 mb-3">
+                <div class="col-md-4 mb-3">
                     <label>Media Code <span class="text-danger">*</span></label>
                     <input type="text" name="media_code"
                            value="{{ old('media_code') }}"
@@ -93,7 +97,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-4 mb-3">
                     <label>Media Title <span class="text-danger">*</span></label>
                     <input type="text" name="media_title"
                            value="{{ old('media_title') }}"
@@ -102,7 +106,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-4 mb-3">
                     <label>Facing <span class="text-danger">*</span></label>
                     <select name="facing_id" class="form-control @error('facing_id') is-invalid @enderror">
                         <option value="">Select Facing</option>
@@ -131,7 +135,7 @@
             </div>
 
 
-                    <div class="col-md-3 mb-3">
+                    {{-- <div class="col-md-3 mb-3">
                     <label>Radius <span class="text-danger">*</span></label>
                     <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
                         <option value="">Select</option>
@@ -145,7 +149,9 @@
                      @error('radius_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                </div>
+                </div> --}}
+       
+
                 <div class="col-md-3 mb-3">
                     <label>Illumination <span class="text-danger">*</span></label>
                     <select name="illumination_id" class="form-control @error('illumination_id') is-invalid @enderror">
@@ -161,7 +167,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-3 mb-3">
+                {{-- <div class="col-md-3 mb-3">
                     <label>Minimum Booking Days <span class="text-danger">*</span></label>
                     <input type="number" name="minimum_booking_days"
                            value="{{ old('minimum_booking_days',1) }}"
@@ -169,8 +175,8 @@
                             @error('minimum_booking_days')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                </div>
-                <div class="col-md-3 mb-3">
+                </div> --}}
+                <div class="col-md-6 mb-3">
                     <label>Address <span class="text-danger">*</span></label>
                     <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="2">{{ old('address') }}</textarea>
                      @error('address')
@@ -319,6 +325,7 @@
                         @enderror
                     </div>
             </div>
+                        
             <div class="row">
                    <div class="col-md-3 mb-3">
                     <label>Width (ft) <span class="text-danger">*</span></label>
@@ -375,7 +382,23 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-              <div class="col-md-6 mb-4">
+                 <div class="col-md-3 mb-3" id="radiusSection">
+    <label>Radius <span class="text-danger">*</span></label>
+    <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
+        <option value="">Select</option>
+        @foreach($radius as $radiusdata)
+            <option value="{{ $radiusdata->id }}"
+                {{ old('radius_id') == $radiusdata->id ? 'selected' : '' }}>
+                {{ $radiusdata->radius }}
+            </option>
+        @endforeach
+    </select>
+
+    @error('radius_id')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+              <div class="col-md-3 mb-4">
     <label>Images</label>
 
     <input type="file"
@@ -403,9 +426,11 @@
     <div id="imagePreview" class="d-flex flex-wrap mt-2"></div>
 </div>
 
+
+
             </div>
              <div class="row" id="wallWrapSection">
-                 <div class="col-md-3 mb-3">
+                 {{-- <div class="col-md-3 mb-3">
                     <label>Radius <span class="text-danger">*</span></label>
                     <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
                         <option value="">Select</option>
@@ -419,7 +444,7 @@
                      @error('radius_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                </div>
+                </div> --}}
                 <div class="col-md-3 mb-3">
                     <label>Area (sq.ft)</label>
                     <input type="text"
@@ -524,60 +549,9 @@ $(document).ready(function () {
 });
 </script>
 
-{{-- <script>
-$(document).ready(function () {
-
-    function hideAllSections() {
-        $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrapSection')
-            .hide();
-    }
-
-    function showSection(category) {
-
-        hideAllSections();
-        console.log('Selected category:', category);
-
-        if (!category) return;
-
-        if (category.includes('hoardings')) {
-            $('#billboardsId').show();
-        }
-
-        if (category.includes('mall')) {
-            $('#mallMedia').show();
-        }
-
-        if (category.includes('airport')) {
-            $('#airportBranding').show();
-        }
-
-        if (category.includes('transit') || category.includes('transmit')) {
-            $('#transmitMedia').show();
-        }
-
-        if (category.includes('office')) {
-            $('#officeBranding').show();
-        }
-
-        if (category.includes('wall')) {
-            $('#wallWrapSection').show();
-        }
-    }
-
-    $('#category_id').on('change', function () {
-        showSection($(this).find(':selected').data('category'));
-    });
-
-    // On page load
-    showSection($('#category_id').find(':selected').data('category'));
-});
-</script> --}}
-
-
 <script>
     $(document).ready(function () {
 
-        
     function hideAllSections() {
         $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrapSection')
             .hide();
@@ -585,10 +559,21 @@ $(document).ready(function () {
 
     function showSection(category) {
         hideAllSections();
-
+    $('#radiusSection').hide(); // default hidden
         if (!category) return;
 
-        if (category.includes('hoardings')) $('#billboardsId').show();
+        // if (category.includes('hoardings')) $('#billboardsId').show();
+         // ✅ HOARDINGS
+    if (category.includes('hoardings')) {
+        $('#billboardsId').show();
+        $('#radiusSection').show();
+    }
+
+    // ✅ DIGITAL WALL / WALL PAINTING
+    if (category.includes('wall')) {
+        $('#wallWrapSection').show();
+        $('#radiusSection').show();
+    }
         if (category.includes('mall')) $('#mallMedia').show();
         if (category.includes('airport')) $('#airportBranding').show();
         if (category.includes('transit') || category.includes('transmit')) $('#transmitMedia').show();
@@ -611,91 +596,6 @@ $(document).ready(function () {
 });
 
 </script>
-
-{{-- <script>
-$(document).ready(function () {
-
-    function hideAllSections() {
-        $('#billboardsId').hide();
-        $('#mallMedia').hide();
-        $('#airportBranding').hide();
-        $('#transmitMedia').hide();
-        $('#officeBranding').hide();
-        $('#wallWrap').hide();
-    }
-
-    function showSectionByCategory(category) {
-
-        // Always hide everything first
-        hideAllSections();
-
-        // No category selected
-        if (!category) return;
-
-        // ✅ ONLY Billboard
-        if (category === 'hoardings') {
-            $('#billboardsId').show();
-            return;
-        }
-
-        // ✅ Digital Wall Painting → ONLY COMMON FIELDS
-        if (category === 'digital-wall') {
-            return; // 👈 DO NOTHING
-        }
-
-        // ✅ Mall Media
-        if (category === 'mall-media') {
-            $('#mallMedia').show();
-            return;
-        }
-
-        // ✅ Airport Branding
-        if (category === 'airport-branding') {
-            $('#airportBranding').show();
-            return;
-        }
-
-        // ✅ Transit Media
-        if (category === 'transmit-media') {
-            $('#transmitMedia').show();
-            return;
-        }
-
-        // ✅ Office Branding
-        if (category === 'transit-media') {
-    $('#transmitMedia').show();
-}
-
-        // ✅ Wall Wrap
-        if (category === 'wall-wrap') {
-            $('#wallWrap').show();
-            return;
-        }
-    }
-
-    // Change event
-    $('#category_id').on('change', function () {
-        const category = $(this).find(':selected').data('category');
-        showSectionByCategory(category);
-    });
-
-    // Page load
-   // Page load
-let defaultCategory = $('#category_id').find(':selected').data('category');
-
-// 👉 If nothing selected, open Billboards by default
-if (!defaultCategory) {
-    $('#category_id option[data-category="hoardings"]').prop('selected', true);
-    defaultCategory = 'hoardings';
-}
-
-showSectionByCategory(defaultCategory);
-
-
-});
-</script> --}}
-
-
 
 <script>
 $(document).ready(function () {

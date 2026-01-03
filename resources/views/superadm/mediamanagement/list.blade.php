@@ -33,6 +33,7 @@
                                 <th>City</th>
                                 <th>Area</th>
                                 <th>Price</th>
+                                 <th>Vendor Name</th>
                                 <th>Status</th>
                                     <th>Action</th>
                             </tr>
@@ -49,11 +50,10 @@
                                     <td>{{ $media->district_name ?? '-' }}</td>
                                     <td>{{ $media->city_name ?? '-' }}</td>
                                     <td>{{ $media->area_name ?? '-' }}</td>
-
                                     <td>
                                         ₹ {{ $media->price !== null ? number_format($media->price, 2) : '-' }}
                                     </td>
-
+                                    <td>{{ $media->vendor_name ?? '-' }}</td>
                                     <td>
                                         <label class="switch">
                                             <input type="checkbox"
