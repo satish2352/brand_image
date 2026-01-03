@@ -27,6 +27,7 @@ use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Website\LocationController;
+use App\Http\Controllers\Superadm\CampaingController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -186,6 +187,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
             ->name('user-payment.details');
     });
 
+    Route::prefix('admin-campaing')->group(function () {
+        Route::get('list', [CampaingController::class, 'index'])->name('admin-campaing.list');
+        Route::post('delete', [CampaingController::class, 'delete'])->name('admin-campaing.delete');
+    });
     // Radius Master
     Route::get('radius/list', [RadiusController::class, 'index'])->name('radius.list');
     Route::get('radius/create', [RadiusController::class, 'create'])->name('radius.create');
