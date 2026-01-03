@@ -577,6 +577,7 @@ $(document).ready(function () {
 <script>
     $(document).ready(function () {
 
+        
     function hideAllSections() {
         $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrapSection')
             .hide();

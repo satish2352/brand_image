@@ -62,27 +62,30 @@ class CategoryController extends Controller
 		return view('superadm.master.category.edit', compact('category', 'encodedId'));
 	}
 
-	public function update(Request $request)
+	public function update(Request $request, $encodedId)
 	{
+		$id = base64_decode($encodedId);
+
 		$request->validate([
-			'id' => 'required',
 			'category_name' => [
 				'required',
 				'max:255',
-				Rule::unique('categories', 'category_name')
+				Rule::unique('category', 'category_name')
 					->where(fn($q) => $q->where('is_deleted', 0))
-					->ignore($request->id),
+					->ignore($id),
 			],
-			'is_active' => 'required|in:0,1',
 		]);
 
 		try {
-			$this->service->update($request);
-			return redirect()->route('category.list')->with('success', 'Category updated successfully');
+			$this->service->update($id, $request);
+			return redirect()
+				->route('category.list')
+				->with('success', 'Category updated successfully');
 		} catch (Exception $e) {
 			return back()->withInput()->with('error', $e->getMessage());
 		}
 	}
+
 
 	public function delete(Request $request)
 	{
