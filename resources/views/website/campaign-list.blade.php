@@ -145,6 +145,9 @@
                                             <th>Media</th>
                                             <th>Size</th>
                                             <th>Price</th>
+                                            <th>From Date</th>
+                                            <th>To Date</th>
+                                            <th>Total Days</th>
                                             {{-- <th>Qty</th> --}}
                                             {{-- <th>Total</th> --}}
                                             <th>Date</th>
@@ -156,10 +159,13 @@
                                     @foreach($items as $index => $row)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
-                                               <td>{{ $row->common_stdiciar_name ?? '-' }}</td>
+                                            <td>{{ $row->common_stdiciar_name ?? '-' }}</td>
                                             <td>{{ $row->media_title ?? '-' }}</td>
                                             <td>{{ $row->width }} × {{ $row->height }}</td>
                                             <td>₹ {{ number_format($row->total_price, 2) }}</td>
+                                            <td>{{ $row->from_date ?? '-' }}</td>
+                                            <td>{{ $row->to_date ?? '-' }}</td>
+                                             <td>{{ $row->total_days ?? '-' }}</td>
                                             {{-- <td>{{ $row->qty }}</td> --}}
                                             {{-- <td>₹ {{ number_format($row->price * $row->qty, 2) }}</td> --}}
                                             <td>{{ \Carbon\Carbon::parse($row->campaign_date)->format('d M Y') }}</td>
