@@ -26,7 +26,7 @@
 						<nav class="main-menu">
 							<ul>
 								<li class="{{ request()->is('/') ? 'active' : '' }}"><a href="{{ url('/') }}">Home</a></li>
-								<li class="{{ request()->routeIs('website.about') ? 'active' : '' }}"><a href="{{ route('website.about') }}">About</a></li>
+								<li class="{{ request()->routeIs('website.about') ? 'active' : '' }}"><a href="{{ route('website.about') }}">About Us</a></li>
 								<li class="{{ request()->is('contact-us') ? 'active' : '' }}"><a href="{{ url('/contact-us') }}">Contact Us</a></li>
 								{{-- <li><a href="{{ url('/media-search') }}">Search Media</a></li> --}}
 								{{-- <li>
