@@ -8,12 +8,12 @@
             </a>
         </li>
 
-        <li class="nav-item {{ request()->is('roles/list') || request()->is('roles/add') || request()->is('roles/edit/*') ? 'active' : '' }}">
+        {{-- <li class="nav-item {{ request()->is('roles/list') || request()->is('roles/add') || request()->is('roles/edit/*') ? 'active' : '' }}">
             <a href="{{ route('roles.list') }}">
                 <i class="mdi mdi-account-key"></i>
                 <span>Role</span>
             </a>
-        </li>
+        </li> --}}
 
       
          <li class="nav-item {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active' : '' }}">
