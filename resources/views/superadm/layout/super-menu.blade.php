@@ -60,12 +60,12 @@
                 <span>Radius</span>
             </a>
         </li>
-               <li class="nav-item {{ request()->is('employees/list') || request()->is('employees/add') || request()->is('employees/edit/*') ? 'active' : '' }}">
+               {{-- <li class="nav-item {{ request()->is('employees/list') || request()->is('employees/add') || request()->is('employees/edit/*') ? 'active' : '' }}">
             <a href="{{ route('employees.list') }}">
                 <i class="mdi mdi-account-group"></i>
                 <span>Employees</span>
             </a>
-        </li>
+        </li> --}}
 
         <li class="nav-item">
             @if(session('role') == 'admin')
