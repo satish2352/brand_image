@@ -6,9 +6,9 @@
             <div class="card">
                 <div class="card-body">
 
-                    <div class="mb-3 d-flex justify-content-end">
+                    {{-- <div class="mb-3 d-flex justify-content-end">
                         <a href="{{ route('category.create') }}" class="btn btn-warning btn-add">Add Category</a>
-                    </div>
+                    </div> --}}
 
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show" id="success-alert">{{ session('success') }}</div>
@@ -58,7 +58,7 @@
                                             title="Edit">
                                             <i class="mdi mdi-square-edit-outline icon-medium"></i>
                                             </a>
-                                            <form action="{{ route('category.delete') }}" method="POST" class="d-inline-block delete-form">
+                                            {{-- <form action="{{ route('category.delete') }}" method="POST" class="d-inline-block delete-form">
                                                 @csrf
                                                 <input type="hidden" name="id" value="{{ base64_encode($data->id) }}">
                                                 <button type="button" class="btn btn-sm btn-danger delete-btn" 
@@ -67,7 +67,7 @@
                                                         title="Delete">
                                                     <i class="mdi mdi-trash-can-outline icon-medium"></i>
                                                 </button>
-                                            </form>
+                                            </form> --}}
                                         </td>
                                     </tr>
                                 @endforeach

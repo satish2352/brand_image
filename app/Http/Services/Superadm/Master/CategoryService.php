@@ -39,18 +39,18 @@ class CategoryService
         return $this->repo->findById($id);
     }
 
-    public function update($request)
+    public function update($id, $request)
     {
         try {
-            return $this->repo->updateById($request->id, [
+            return $this->repo->updateById($id, [
                 'category_name' => $request->category_name,
-                'is_active' => $request->is_active,
             ]);
         } catch (Exception $e) {
             Log::error("Category update error: " . $e->getMessage());
             throw $e;
         }
     }
+
 
     public function delete($encodedId)
     {
