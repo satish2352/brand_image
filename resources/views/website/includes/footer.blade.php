@@ -114,11 +114,17 @@
 				slidesPerView: 3,
 				spaceBetween: 30,
 				grabCursor: true,
-				loop: false,
+				loop: true,
+
+				autoplay: {
+					delay: 3000,              // 3 sec
+					disableOnInteraction: false, // hover नंतर पुन्हा start
+					pauseOnMouseEnter: true,  // hover → pause
+				},
 
 				navigation: {
-					nextEl: ".hoarding-slider .swiper-button-next",
-					prevEl: ".hoarding-slider .swiper-button-prev",
+					nextEl: ".hoarding-slider .swiper-button-prev",
+					prevEl: ".hoarding-slider .swiper-button-next",
 				},
 
 				breakpoints: {

@@ -233,7 +233,13 @@
 							// dd($mediaList);
 							// die();
 							?>
-						@foreach($mediaList as $media)
+							@php
+							$latestFive = $mediaList
+								->where('category_id', 1)
+								->sortByDesc('created_at')
+								->take(5);
+							@endphp
+						@foreach($latestFive as $media)
 							@if($media->category_id === 1)
  
                         {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
@@ -271,58 +277,45 @@
 										$isBillboard = ((int) $media->category_id === 1);
 										$isBooked    = (int) ($media->is_booked ?? 0);
 									@endphp
+
 									<div class="card-actions">
 
 										{{-- ================= BILLBOARDS ================= --}}
 										@if($isBillboard)
 
-											{{-- USER LOGGED IN --}}
-											@auth('website')
+											@if($isBooked === 0)
 
-												{{-- NOT BOOKED --}}
-												@if($isBooked === 0)
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
+												{{-- READ MORE --}}
+												<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+												class="card-btn read">
+													Read More →
+												</a>
 
+												{{-- ADD TO CART --}}
+												@auth('website')
 													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
 													class="btn card-btn cart">
 														Add to Cart
 													</a>
 												@else
-													{{-- BOOKED --}}
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
-												@endif
-
-												{{-- USER NOT LOGGED IN --}}
-												@else
-
-													@if($isBooked === 1)
-														{{-- BOOKED → ONLY READ MORE --}}
-														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-														class="card-btn read">
-															Read More →
-														</a>
-													@else
-														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
-														<button class="btn card-btn cart"
-																data-bs-toggle="modal"
-																data-bs-target="#authModal"
-																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-															Add to Cart
-														</button>
-													@endif
-
+													<button class="btn card-btn cart"
+															data-bs-toggle="modal"
+															data-bs-target="#authModal"
+															onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+														Add to Cart
+													</button>
 												@endauth
 
+											@else
+												{{-- BOOKED → ONLY READ MORE --}}
+												<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+												class="card-btn read">
+													Read More →
+												</a>
+											@endif
 
 										{{-- ================= OTHER MEDIA ================= --}}
 										@else
-											{{-- ONLY CONTACT US (NO READ MORE) --}}
 											<a href="{{ route('contact.create') }}"
 											class="card-btn contact">
 												Contact Us
@@ -340,8 +333,8 @@
 				    </div>
 
 				<!-- Arrows -->
-				<div class="swiper-button-next"></div>
-				<div class="swiper-button-prev"></div>
+				{{-- <div class="swiper-button-next"></div>
+				<div class="swiper-button-prev"></div> --}}
 			</div>
             </div>
  
@@ -399,58 +392,45 @@
 										$isBillboard = ((int) $media->category_id === 1);
 										$isBooked    = (int) ($media->is_booked ?? 0);
 									@endphp
+
 									<div class="card-actions">
 
 										{{-- ================= BILLBOARDS ================= --}}
 										@if($isBillboard)
 
-											{{-- USER LOGGED IN --}}
-											@auth('website')
+											@if($isBooked === 0)
 
-												{{-- NOT BOOKED --}}
-												@if($isBooked === 0)
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
+												{{-- READ MORE --}}
+												<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+												class="card-btn read">
+													Read More →
+												</a>
 
+												{{-- ADD TO CART --}}
+												@auth('website')
 													<a href="{{ route('cart.add', base64_encode($media->id)) }}"
 													class="btn card-btn cart">
 														Add to Cart
 													</a>
 												@else
-													{{-- BOOKED --}}
-													<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-													class="card-btn read">
-														Read More →
-													</a>
-												@endif
-
-												{{-- USER NOT LOGGED IN --}}
-												@else
-
-													@if($isBooked === 1)
-														{{-- BOOKED → ONLY READ MORE --}}
-														<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-														class="card-btn read">
-															Read More →
-														</a>
-													@else
-														{{-- NOT BOOKED → ADD TO CART (LOGIN MODAL) --}}
-														<button class="btn card-btn cart"
-																data-bs-toggle="modal"
-																data-bs-target="#authModal"
-																onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-															Add to Cart
-														</button>
-													@endif
-
+													<button class="btn card-btn cart"
+															data-bs-toggle="modal"
+															data-bs-target="#authModal"
+															onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+														Add to Cart
+													</button>
 												@endauth
 
+											@else
+												{{-- BOOKED → ONLY READ MORE --}}
+												<a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+												class="card-btn read">
+													Read More →
+												</a>
+											@endif
 
 										{{-- ================= OTHER MEDIA ================= --}}
 										@else
-											{{-- ONLY CONTACT US (NO READ MORE) --}}
 											<a href="{{ route('contact.create') }}"
 											class="card-btn contact">
 												Contact Us
