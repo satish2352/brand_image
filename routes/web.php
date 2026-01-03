@@ -261,7 +261,7 @@ Route::get('/', [HomeController::class, 'index'])->name('website.home');
 Route::post('/search', [HomeController::class, 'search'])->name('website.search');
 
 Route::view('/about', 'website.about')->name('website.about');
-Route::view('/details', 'website.details')->name('website.details');
+// Route::view('/details', 'website.details')->name('website.details');
 // Route::view('/dashboard', 'website.dashboard')->name('website.dashboard');
 // Route::prefix('dashboard')->group(function () {
 

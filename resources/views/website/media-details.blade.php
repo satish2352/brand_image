@@ -343,7 +343,7 @@
 <div class="col-lg-5">
     <div class="card shadow-sm border-0 p-4">
 
-        <h3 class="fw-bold mb-2">{{ $media->media_title }}</h3>
+        <h3 class="fw-bold mb-2 detail-title">{{ $media->media_title }}</h3>
 
         <p class="text-muted mb-2">
             <i class="fas fa-map-marker-alt text-danger"></i>
