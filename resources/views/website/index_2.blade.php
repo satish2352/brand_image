@@ -221,7 +221,7 @@
                 <div class="col-lg-8 offset-lg-2 text-center">
                     <div class="section-title">    
                         <h3><span class="orange-text">Hoardings / Billboards</h3>
-                        <p>Premium outdoor media options curated for you</p>
+                        <p>Turn busy roads into powerful brand touchpoints with premium hoardings and billboard solutions.</p>
                     </div>
                 </div>
             </div>
@@ -356,7 +356,7 @@
 				<div class="col-lg-8 offset-lg-2 text-center">
 					<div class="section-title">    
 						<h3><span class="orange-text">Other Media</h3>
-						<p>Premium outdoor media options curated for you</p>
+						<p>Extend your brand reach with strategic non-traditional media that captures attention in everyday environments.</p>
 					</div>
 				</div>
 			</div>
@@ -471,7 +471,7 @@
 	</div>
 
 	<!-- PROCESS SECTION -->
-	<section class="process-section">
+	<section class="work-process-section">
 		<div class="container">
 
 			

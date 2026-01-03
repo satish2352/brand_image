@@ -54,6 +54,7 @@
 						<li><span class="icon">›</span> Transit Media</li>
 						<li><span class="icon">›</span> Airport Branding</li>
 						<li><span class="icon">›</span> Wall Painting</li>
+						<li><span class="icon">›</span> Billboard & Hoarding Media</li>
 					</ul>
 				</div>
 
@@ -96,7 +97,7 @@
 			<div class="container">
 				<div class="row align-items-center">
 					<div class="col-md-12 text-center">
-						<p>© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.</p>
+						<p class="footer-bottom-line">© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.</p>
 					</div>
 				</div>
 			</div>

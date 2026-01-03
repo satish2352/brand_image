@@ -85,7 +85,7 @@
 	<!-- end breadcrumb section -->
 
 <!-- contact form -->
-<div class="contact-from-section mt-150 mb-150">
+<div class="contact-from-section conatact-top conatact-bottom">
     <div class="container">
         <div class="row">
 
