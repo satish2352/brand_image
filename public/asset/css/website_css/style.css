@@ -2085,7 +2085,11 @@ Header
 ================================ */
 
 .hoarding-slider {
-    padding-bottom: 50px;
+    position: relative;
+    padding: 0 40px; /* cards la space */
+}
+.hoarding-slider {
+    pointer-events: auto;
 }
 
 /* Keep card height perfect */
@@ -2095,9 +2099,37 @@ Header
 }
 
 /* Arrows */
-.hoarding-slider .swiper-button-next,
-.hoarding-slider .swiper-button-prev {
+/* Common arrow */
+.hoarding-slider .swiper-button-prev,
+.hoarding-slider .swiper-button-next {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+
     color: #F28123;
+    z-index: 20;          /* 🔥 card var yenar nahi */
+}
+
+/* LEFT */
+.hoarding-slider .swiper-button-prev {
+    left: -22px;          /* 🔥 container baher */
+}
+
+/* RIGHT */
+.hoarding-slider .swiper-button-next {
+    right: -22px;         /* 🔥 container baher */
+}
+
+/* Arrow icon */
+.hoarding-slider .swiper-button-prev::after,
+.hoarding-slider .swiper-button-next::after {
+    font-size: 18px;
+    font-weight: bold;
 }
 
 /* Pagination dots */
@@ -2108,8 +2140,16 @@ Header
 .hoarding-slider .swiper-pagination-bullet-active {
     background: #F28123;
 }
-
-
+/* 🔥 MOST IMPORTANT FIX */
+/* .hoarding-slider {
+    overflow: visible !important;
+} */
+@media (max-width: 768px) {
+    .hoarding-slider .swiper-button-prev,
+    .hoarding-slider .swiper-button-next {
+        display: none;
+    }
+}
 
 
 
@@ -2174,6 +2214,7 @@ Header
         margin-right: 6px;
     }
 
+    
     /* ================= CONTACT ================= */
 
     .footer-contact {

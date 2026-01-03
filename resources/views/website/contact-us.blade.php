@@ -4,73 +4,6 @@
 
 @section('content')
 
-<style>
-    /* CONTACT FORM MODERN LOOK */
-/* .contact-form {
-    background: #ffffff;
-    padding: 35px;
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
-} */
-
-.contact-form .form-control {
-    height: 52px;
-    padding: 12px 16px;
-    font-size: 15px;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    background-color: #fafafa;
-    transition: all 0.3s ease;
-}
-
-.contact-form textarea.form-control {
-    height: auto;
-    resize: none;
-}
-
-/* Focus Effect */
-.contact-form .form-control:focus {
-    background-color: #fff;
-    border-color: #f28123;
-    box-shadow: 0 0 0 4px rgba(242, 129, 35, 0.15);
-}
-
-/* Error Text */
-.contact-form small.text-danger {
-    display: block;
-    margin-top: 6px;
-    font-size: 13px;
-}
-
-/* Submit Button */
-.contact-form .boxed-btn {
-    background: linear-gradient(135deg, #f28123, #ff9f45);
-    border: none;
-    color: #fff;
-    padding: 14px 36px;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 50px;
-    transition: all 0.3s ease;
-}
-
-.contact-form .boxed-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(242, 129, 35, 0.35);
-}
-
-/* Title polish */
-.form-title h2 {
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.form-title p {
-    color: #6b7280;
-    font-size: 15px;
-}
-
-</style>
 
 	<!-- breadcrumb-section -->
 	<div class="container-fluid about-banner-img g-0">
@@ -87,12 +20,13 @@
 <!-- contact form -->
 <div class="contact-from-section conatact-top conatact-bottom">
     <div class="container">
-        <div class="row">
+        <div class="row contact-modern-wrapper">
 
             <div class="col-lg-8 mb-5 mb-lg-0">
+                <div class="contact-card light-card">
                 <div class="form-title">
-                    <h2>Have you any question?</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+                    <h2>Send us a message</h2>
+                    <p>Do you have a question, a concern, or need help choosing the right media option? Feel free to reach out — our team is always happy to help.</p>
                 </div>
 
                 {{-- Success Message --}}
@@ -175,10 +109,12 @@
 
                     </form>
                 </div>
+                </div>
             </div>
 
             <!-- RIGHT SIDE (UNCHANGED) -->
             <div class="col-lg-4">
+                <div class="contact-card dark-card">
                 <div class="contact-form-wrap">
                     <div class="contact-form-box">
                         <h4><i class="fas fa-map"></i> Shop Address</h4>
@@ -204,6 +140,7 @@
                             <a href="mailto:brandimage@gmail.com">brandimage@gmail.com</a>
                         </p>
                     </div>
+                </div>
                 </div>
             </div>
 
