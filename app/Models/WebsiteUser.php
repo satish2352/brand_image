@@ -8,7 +8,7 @@ class WebsiteUser extends Authenticatable
     protected $table = 'website_users';
 
     protected $fillable = [
-        'name', 'email', 'mobile_number', 'organisation', 'gst', 'password',
+        'name', 'email', 'mobile_number', 'organisation', 'gst', 'password', 'is_active',
     ];
 
     protected $hidden = ['password'];

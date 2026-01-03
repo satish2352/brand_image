@@ -48,7 +48,7 @@ class GoogleAuthController extends Controller
     //     return redirect('/');
     // }
 
-    public function callback()
+public function callback()
 {
     try {
         $googleUser = Socialite::driver('google')->user();
@@ -57,21 +57,26 @@ class GoogleAuthController extends Controller
             ->with('error', 'Google login failed. Please try again.');
     }
 
+    if (!$googleUser->email) {
+        return redirect('/')
+            ->with('error', 'Google account has no email.');
+    }
+
     $user = WebsiteUser::where('email', $googleUser->email)->first();
 
     if (!$user) {
         $user = WebsiteUser::create([
-            'name'      => $googleUser->name,
-            'email'     => $googleUser->email,
+            'name'          => $googleUser->name,
+            'email'         => $googleUser->email,
             'mobile_number' => null,
             'organisation'  => null,
             'gst'           => null,
-            'password'  => bcrypt(Str::random(32)),
-            'is_active' => 1,
+            'password'      => bcrypt(Str::random(32)),
+            'is_active'     => 1,
         ]);
     }
 
-    if ($user->is_active == 0) {
+    if ((int) $user->is_active === 0) {
         return redirect('/')
             ->with('error', 'Your account is inactive.');
     }
