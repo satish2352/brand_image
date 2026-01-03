@@ -7,7 +7,11 @@
     #airportBranding,
     #transmitMedia,
     #officeBranding,
-    #wallWrap {
+    /* #wallWrap {
+        display: none;
+    } */
+       #wallWrap,
+    #radiusSection {
         display: none;
     }
 </style>
@@ -103,7 +107,7 @@
                     </select>
                 </div>
 
-                 <div class="col-md-3 mb-3">
+                 <div class="col-md-4 mb-3">
                 <label>Area Type <span class="text-danger">*</span></label>
                 <select name="area_type" class="form-control @error('area_type') is-invalid @enderror">
                     <option value="">Select Area Type</option>
@@ -123,21 +127,7 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-                    <div class="col-md-3 mb-3">
-                    <label>Radius <span class="text-danger">*</span></label>
-                    <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
-                        <option value="">Select</option>
-                        @foreach($radius as $radiusdata)
-                          <option value="{{ $radiusdata->id }}"
-                            {{ old('radius_id', $media->radius_id) == $radiusdata->id ? 'selected' : '' }}>
-                            {{ $radiusdata->radius }}
-                        </option>
-                        @endforeach
-                    </select>
-                     @error('radius_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                   
 
                 <div class="col-md-4 mb-3">
                     <label>Illumination *</label>
@@ -152,12 +142,12 @@
                     </select>
                 </div>
 
-                <div class="col-md-4 mb-3">
+                {{-- <div class="col-md-4 mb-3">
                     <label>Min Booking Days *</label>
                     <input type="number" name="minimum_booking_days"
                         value="{{ old('minimum_booking_days', $media->minimum_booking_days) }}"
                         class="form-control">
-                </div>
+                </div> --}}
 
                 <div class="col-md-4 mb-3">
                     <label>Address *</label>
@@ -327,18 +317,34 @@
                         class="form-control">
                 </div>
 
-                <div class="col-md-3 mb-3">
+                <div class="col-md-4 mb-3">
                     <label>Price <span class="text-danger">*</span></label>
                     <input type="number" step="0.01" name="price"
                         value="{{ old('price', $media->price) }}"
                         class="form-control">
                 </div>
 
-                <div class="col-md-3 mb-3">
+                <div class="col-md-4 mb-3">
                     <label>Vendor <span class="text-danger">*</span></label>
                     <input type="text" name="vendor_name"
                         value="{{ old('vendor_name', $media->vendor_name) }}"
                         class="form-control">
+                </div>
+                <div class="col-md-4 mb-3" id="radiusSection">
+                    <label>Radius <span class="text-danger">*</span></label>
+                    <select name="radius_id"
+                        class="form-control @error('radius_id') is-invalid @enderror">
+                        <option value="">Select</option>
+                        @foreach($radius as $r)
+                            <option value="{{ $r->id }}"
+                                {{ old('radius_id', $media->radius_id) == $r->id ? 'selected' : '' }}>
+                                {{ $r->radius }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('radius_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 {{-- IMAGES --}}
@@ -382,12 +388,24 @@ $(document).ready(function () {
         hideAllSections();
         if (!category) return;
 
-        if (category.includes('hoardings')) $('#billboardsId').show();
+         // ✅ HOARDINGS
+        if (category.includes('hoardings')) {
+            $('#billboardsId').show();
+            $('#radiusSection').show();
+        }
+
+        // ✅ DIGITAL WALL / WALL PAINTING
+        if (category.includes('wall')) {
+            $('#wallWrap').show();
+            $('#radiusSection').show();
+        }
+
+        // if (category.includes('hoardings')) $('#billboardsId').show();
         if (category.includes('mall')) $('#mallMedia').show();
         if (category.includes('airport')) $('#airportBranding').show();
         if (category.includes('transit') || category.includes('transmit')) $('#transmitMedia').show();
         if (category.includes('office')) $('#officeBranding').show();
-        if (category.includes('wall')) $('#wallWrap').show();
+        // if (category.includes('wall')) $('#wallWrap').show();
     }
 
     let selectedCategory = ($('#category_slug').val() || '').toLowerCase();
@@ -415,57 +433,5 @@ $(document).ready(function () {
 
 });
 </script>
-
-
-{{-- <script>
-$(document).ready(function () {
-
-    function hideAll() {
-        $('#billboardsId,#mallMedia,#airportBranding,#transmitMedia,#officeBranding,#wallWrap').hide();
-    }
-
-    hideAll();
-
-    // ✅ get category safely
-    let category = $('#category_slug').val();
-
-    console.log('Edit category:', category); // DEBUG
-
-    if (category === 'hoardings') {
-        $('#billboardsId').show();
-    }
-    else if (category === 'mall-media') {
-        $('#mallMedia').show();
-    }
-    else if (category === 'airport-branding') {
-        $('#airportBranding').show();
-    }
-    else if (category === 'transmit-media') {
-        $('#transmitMedia').show();
-    }
-    else if (category === 'office-branding') {
-        $('#officeBranding').show();
-    }
-    else if (category === 'wall-wrap') {
-        $('#wallWrap').show();
-    }
-
-    // Image preview
-    $('#images').on('change', function () {
-        $('#imagePreview').empty();
-        [...this.files].forEach(file => {
-            let reader = new FileReader();
-            reader.onload = e =>
-                $('#imagePreview').append(
-                    `<img src="${e.target.result}" width="80" class="me-2 mb-2">`
-                );
-            reader.readAsDataURL(file);
-        });
-    });
-
-});
-</script> --}}
 @endsection
-
-
 @endsection

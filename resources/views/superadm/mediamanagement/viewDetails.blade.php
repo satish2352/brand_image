@@ -38,7 +38,7 @@
                 <td>₹ {{ $media->price ? number_format($media->price,2) : '-' }}</td>
 
                 <th>Minimum Booking Days</th>
-                <td>{{ $media->minimum_booking_days ?? '-' }}</td>
+                {{-- <td>{{ $media->minimum_booking_days ?? '-' }}</td> --}}
             </tr>
         </table>
 

@@ -24,12 +24,12 @@ return new class extends Migration
             $table->decimal('width', 8, 2);
             $table->decimal('height', 8, 2);
             $table->unsignedBigInteger('illumination_id')->nullable();
-            $table->string('facing_id')->nullable();
-            $table->string('radius_id')->nullable();
+            $table->unsignedBigInteger('facing_id')->nullable();
+            $table->unsignedBigInteger('radius_id')->nullable();
             $table->string('area_type')->nullable();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
-            $table->integer('minimum_booking_days')->nullable();
+            // $table->integer('minimum_booking_days')->nullable();
             $table->float('price', 10, 2);
             $table->string('vendor_name');
             $table->string('mall_name')->nullable();

@@ -57,48 +57,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    // public function placeOrder()
-    // {
-    //     $items = $this->cartRepo->getCartItems();
-
-    //     if ($items->isEmpty()) {
-    //         return response()->json(['error' => 'Cart is empty'], 400);
-    //     }
-
-    //     $total = $items->sum(fn($i) => $i->price * $i->qty);
-
-    //     $order = $this->orderRepo->createOrder($total);
-    //     $this->orderRepo->createOrderItems($order->id, $items);
-
-    //     session(['order_id' => $order->id]);
-
-    //     return response()->json(['success' => true]);
-    // }
-    //previous work
-    // public function placeOrder()
-    // {
-    //     return DB::transaction(function () {
-
-    //         if (!Auth::guard('website')->check()) {
-    //             throw new \Exception('User not logged in');
-    //         }
-
-    //         $items = $this->cartRepo->getCartItems();
-
-    //         if ($items->count() === 0) {
-    //             throw new \Exception('Cart is empty');
-    //         }
-
-    //         // ✅ CORRECT TOTAL (date-based)
-    //         $total = $items->sum(fn($i) => $i->total_price);
-
-    //         $order = $this->orderRepo->createOrder($total);
-
-    //         $this->orderRepo->createOrderItems($order->id, $items);
-
-    //         return $order;
-    //     });
-    // }
     public function placeOrder()
     {
         try {
@@ -113,7 +71,7 @@ class CheckoutController extends Controller
                 return redirect('/')->with('error', 'Cart is empty');
             }
 
-            // ✅ Correct date-based total
+            //  Correct date-based total
             $total = $items->sum(fn($i) => $i->total_price);
 
             $order = DB::transaction(function () use ($items, $total) {
@@ -125,12 +83,12 @@ class CheckoutController extends Controller
                 return $order;
             });
 
-            // ✅ STORE ORDER ID IN SESSION
+            //  STORE ORDER ID IN SESSION
             session([
                 'order_id' => $order->id
             ]);
 
-            // ✅ REDIRECT TO CHECKOUT PAGE (NO JSON)
+            //  REDIRECT TO CHECKOUT PAGE (NO JSON)
             return redirect()->route('checkout.index');
         } catch (\Throwable $e) {
 
@@ -139,25 +97,6 @@ class CheckoutController extends Controller
                 ->with('error', $e->getMessage());
         }
     }
-
-    // public function placeOrder()
-    // {
-    //     $items = $this->cartRepo->getCartItems();
-
-    //     if ($items->isEmpty()) {
-    //         return redirect()->back()->with('error', 'Cart is empty');
-    //     }
-
-    //     // $total = $items->sum(fn($i) => $i->price * $i->qty);
-    //     $total = $items->sum(fn($i) => $i->total_price);
-
-    //     $order = $this->orderRepo->createOrder($total);
-    //     $this->orderRepo->createOrderItems($order->id, $items);
-
-    //     session(['order_id' => $order->id]);
-
-    //     return redirect()->route('checkout.index');
-    // }
 
     public function pay()
     {
@@ -231,13 +170,13 @@ class CheckoutController extends Controller
         $campaignId = session('campaign_id');
         $userId     = auth()->guard('website')->id();
 
-        // ✅ Mark order paid
+        //  Mark order paid
         \App\Models\Order::where('id', $orderId)->update([
             'payment_status' => 'PAID',
             'payment_id'     => $request->razorpay_payment_id,
         ]);
 
-        // ✅ 1️⃣ Clear NORMAL cart items (VERY IMPORTANT)
+        //  Clear NORMAL cart items (VERY IMPORTANT)
         \App\Models\CartItem::where('user_id', $userId)
             ->where('cart_type', 'NORMAL')
             ->where('status', 'ACTIVE')
@@ -247,7 +186,7 @@ class CheckoutController extends Controller
                 'is_deleted' => 1,
             ]);
 
-        // ✅ Load order with items
+        //  Load order with items
         $order = Order::with('items')->findOrFail($orderId);
 
         /*
@@ -260,12 +199,12 @@ class CheckoutController extends Controller
             $existing = MediaBookedDate::where('media_id', $item->media_id)->first();
 
             if ($existing) {
-                // ✅ ONLY update to_date
+                //  ONLY update to_date
                 $existing->update([
                     'to_date' => $item->to_date,
                 ]);
             } else {
-                // ✅ Insert new record
+                //  Insert new record
                 MediaBookedDate::create([
                     'media_id'  => $item->media_id,
                     'from_date' => $item->from_date,
@@ -275,7 +214,7 @@ class CheckoutController extends Controller
         }
 
 
-        // ✅ 2️⃣ Clear CAMPAIGN items if campaign order
+        //  2️⃣ Clear CAMPAIGN items if campaign order
         if ($campaignId) {
             \App\Models\CartItem::where('campaign_id', $campaignId)
                 ->where('cart_type', 'CAMPAIGN')

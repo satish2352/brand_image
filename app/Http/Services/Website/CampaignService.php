@@ -11,15 +11,7 @@ class CampaignService
         protected CampaignRepository $repo
     ) {}
 
-    // public function saveCampaign($userId, $campaignName)
-    // {
-    //     return DB::transaction(function () use ($userId, $campaignName) {
-    //         return $this->repo->createCampaignByCopyingCart(
-    //             $userId,
-    //             $campaignName
-    //         );
-    //     });
-    // }
+
     public function saveCampaign($userId, $campaignName)
     {
         return $this->repo->createCampaignAndMoveCart(

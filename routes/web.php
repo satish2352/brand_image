@@ -166,7 +166,8 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::post('/media/update-status', [MediaManagementController::class, 'getDistricts'])->name('media.updatestatus');
     Route::post('/media/update-status', [MediaManagementController::class, 'getAreas'])->name('media.updatestatus');
 
-
+    // Route::post('status', [MediaManagementController::class, 'updateStatus'])
+    //     ->name('media.status');
 
 
     Route::prefix('website-user')->group(function () {

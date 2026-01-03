@@ -17,27 +17,6 @@ class CartRepository
                 ->where('session_id', session()->getId());
         }
     }
-
-    // public function getCartItems()
-    // {
-    //     $query = CartItem::query();
-    //     $this->ownerCondition($query);
-
-    //     return $query
-    //         ->join('media_management as m', 'm.id', '=', 'cart_items.media_id')
-    //         ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
-    //         ->select(
-    //             'cart_items.id',
-    //             'cart_items.media_id',
-    //             'cart_items.price',
-    //             'cart_items.qty',
-    //             'm.media_title',
-    //             'c.category_name'
-    //         )
-    //         ->where('cart_items.status', 'ACTIVE')
-    //         ->whereIn('cart_items.cart_type', ['NORMAL', 'CAMPAIGN'])
-    //         ->get();
-    // }
     public function getCartItems()
     {
         $query = CartItem::query();
@@ -61,17 +40,7 @@ class CartRepository
                 'a.area_name',
                 'c.category_name'
             )
-            // ->select(
-            //     'cart_items.id',
-            //     'cart_items.media_id',
-            //     'cart_items.price',
-            //     'cart_items.qty',
-            //     'cart_items.from_date',
-            //     'cart_items.to_date',
-            //     'm.media_title',
-            //     'a.area_name',
-            //     'c.category_name'
-            // )
+
             ->where('cart_items.status', 'ACTIVE')
             ->where('cart_items.cart_type', 'NORMAL')
             ->orderBy('cart_items.id', 'DESC')
@@ -96,28 +65,7 @@ class CartRepository
         return $items;
     }
 
-    // public function addItem($mediaId, $price)
-    // {
-    //     $query = CartItem::where('media_id', $mediaId);
-    //     $this->ownerCondition($query);
 
-    //     $item = $query->first();
-
-    //     if ($item) {
-    //         $item->increment('qty');
-    //         return;
-    //     }
-
-    //     CartItem::create([
-    //         'user_id' => Auth::guard('website')->check()
-    //             ? Auth::guard('website')->id()
-    //             : null,
-    //         'session_id' => session()->getId(),
-    //         'media_id' => $mediaId,
-    //         'price' => $price,
-    //         'qty' => 1,
-    //     ]);
-    // }
     public function addItem($mediaId, $price)
     {
         CartItem::create([
@@ -227,22 +175,7 @@ class CartRepository
         ]);
     }
 
-    // public function addItem($mediaId, $price)
-    // {
-    //     CartItem::create([
-    //         'user_id' => Auth::guard('website')->check()
-    //             ? Auth::guard('website')->id()
-    //             : null,
-    //         'session_id' => session()->getId(),
-    //         'media_id' => $mediaId,
-    //         'price' => $price,
-    //         'qty' => 1,
-    //         'cart_type' => 'NORMAL',   // always NORMAL for cart
-    //         'status' => 'ACTIVE',
-    //         'is_active' => 1,
-    //         'is_deleted' => 0,
-    //     ]);
-    // }
+
     public function updateQty($itemId, $qty)
     {
         CartItem::where('id', $itemId)->update([

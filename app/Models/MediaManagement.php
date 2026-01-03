@@ -28,7 +28,7 @@ class MediaManagement extends Model
         'address',
         'illumination_id',
         'facing_id',
-        'minimum_booking_days',
+        // 'minimum_booking_days',
         'mall_name',
         'media_format',
         'airport_name',

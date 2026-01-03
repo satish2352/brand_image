@@ -21,6 +21,7 @@ class MediaManagementRepository
                 'm.media_code',
                 'm.media_title',
                 'm.price',
+                'm.vendor_name',
                 'm.is_active',
                 'm.category_id',
                 'm.created_at',

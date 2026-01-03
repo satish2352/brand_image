@@ -142,11 +142,25 @@ class MediaManagementController extends Controller
     }
     public function uploadImage(Request $request)
     {
-        $request->validate([
-            'media_id'   => 'required|integer',
-            'images'     => 'required|array|max:10',
-            'images.*'   => 'image|max:1024',
-        ]);
+        $request->validate(
+            [
+                'media_id'   => 'required|integer',
+                'images'     => 'required|array|max:10',
+                'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024',
+            ],
+            [
+                'media_id.required' => 'Media ID is required.',
+                'media_id.exists'   => 'Invalid media ID.',
+
+                'images.required' => 'Please upload at least one image.',
+                'images.array'    => 'Images must be an array.',
+                'images.max'      => 'You can upload a maximum of 10 images only.',
+
+                'images.*.image'  => 'Each file must be an image.',
+                'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
+                'images.*.max'    => 'Each image must be less than 1MB.',
+            ]
+        );
 
         try {
 
@@ -458,7 +472,7 @@ class MediaManagementController extends Controller
             'vendor_name' => 'required|string|max:255',
 
             'images'      => 'nullable|array|max:10',
-            'images.*'    => 'image|max:1024',
+            'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024',
         ];
 
         /**
@@ -476,8 +490,8 @@ class MediaManagementController extends Controller
                     'media_title' => 'required|string|max:255',
                     'facing_id' => 'required',
                     'illumination_id' => 'required',
-                    // 'radius_id' => 'required',
-                    'minimum_booking_days' => 'required|integer|min:1',
+                    'radius_id' => 'required',
+                    // 'minimum_booking_days' => 'required|integer|min:1',
                     'area_type' => 'required',
                     'address' => 'required',
                 ];
@@ -520,7 +534,8 @@ class MediaManagementController extends Controller
             // ✅ Wall Wrap
             case str_contains($slug, 'wall'):
                 $rules += [
-                    'area_auto' => 'required|numeric|min:1',
+                    'radius_id' => 'required',
+                    // 'area_auto' => 'required|numeric|min:1',
                 ];
                 break;
         }
@@ -538,6 +553,7 @@ class MediaManagementController extends Controller
             'price.required' => 'Price is required.',
             'vendor_name.required' => 'Vendor name is required.',
             'images.max' => 'You can upload a maximum of 10 images.',
+            'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
             'images.*.image' => 'Each file must be an image.',
             'images.*.max' => 'Each image must be less than 1MB.',
         ];
@@ -689,7 +705,7 @@ class MediaManagementController extends Controller
                     'facing_id' => 'required',
                     'illumination_id' => 'required',
                     'radius_id' => 'required',
-                    'minimum_booking_days' => 'required|integer|min:1',
+                    // 'minimum_booking_days' => 'required|integer|min:1',
                     'area_type' => 'required',
                     'address' => 'required',
                 ];
