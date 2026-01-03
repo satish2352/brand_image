@@ -246,9 +246,23 @@
 						<div class="swiper-slide">
                             <div class="single-latest-news">
  
-                                <div class="latest-news-bg"
+                                {{-- <div class="latest-news-bg"
                                     style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-                                </div>
+                                </div> --}}
+								@php
+									$isBillboard = ((int) $media->category_id === 1);
+									$isBooked    = (int) ($media->is_booked ?? 0);
+								@endphp
+								<div class="latest-news-bg"
+									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+
+									@if($isBooked === 1)
+										<span class="media-badge booked">Booked</span>
+									@else
+										<span class="media-badge available">Available</span>
+									@endif
+
+								</div>
  
                                 <div class="news-text-box">
  
@@ -362,8 +376,18 @@
 						<div class="col-lg-4 col-md-6 mb-5">
 							<div class="single-latest-news">
 
+								{{-- <div class="latest-news-bg"
+									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+								</div> --}}
 								<div class="latest-news-bg"
 									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+
+									@if($isBooked === 1)
+										<span class="media-badge booked">Booked</span>
+									@else
+										<span class="media-badge available">Available</span>
+									@endif
+
 								</div>
 
 								<div class="news-text-box">

@@ -3086,3 +3086,42 @@ table.order-details tbody td {
         font-size: 24px;
     }
 }
+
+/* =========================
+   MEDIA STATUS BADGE
+========================= */
+
+/* parent must be relative */
+.latest-news-bg{
+    position: relative;
+    overflow: hidden;
+}
+
+/* COMMON RIBBON */
+.media-badge{
+    position: absolute;
+    top: 18px;
+    left: -45px;              /* 🔥 left cross */
+    width: 180px;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    transform: rotate(-45deg);
+    z-index: 10;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+/* BOOKED */
+.media-badge.booked{
+    background: #dc3545;      /* red */
+}
+
+/* AVAILABLE */
+.media-badge.available{
+    background: #28a745;      /* green */
+}
+
+
