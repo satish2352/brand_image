@@ -12,12 +12,21 @@
              style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
         </div> --}}
         <div class="latest-news-bg"
-            style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+            {{-- style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
 
             @if($isBooked === 1)
                 <span class="media-badge booked">Booked</span>
             @else
                 <span class="media-badge available">Available</span>
+            @endif --}}
+            style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+
+            @if($isBillboard)
+                @if($isBooked === 1)
+                    <span class="media-badge booked">Booked</span>
+                @else
+                    <span class="media-badge available">Available</span>
+                @endif
             @endif
 
         </div>

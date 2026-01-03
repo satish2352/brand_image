@@ -2436,7 +2436,7 @@ ul.social-link-team li a {
 
 .contact-form-box p {
   line-height: 1.8;
-  opacity: 0.8;
+  /* opacity: 0.8; */
 }
 
 .contact-form-wrap .contact-form-box:last-child {
@@ -2970,7 +2970,8 @@ table.order-details tbody td {
 .contact-card{
     height: 100%;
     border-radius: 22px;
-    padding: 40px;
+    /* padding: 40px; */
+    padding: 40px 40px 18px;
 }
 
 /* LEFT – FORM CARD */
@@ -3001,9 +3002,12 @@ table.order-details tbody td {
 }
 
 .contact-form .form-control:focus{
-    background: #fff;
+    /* background: #fff;
     border-color: #f28123;
-    box-shadow: 0 0 0 4px rgba(242,129,35,0.15);
+    box-shadow: 0 0 0 4px rgba(242,129,35,0.15); */
+    background: #fff;
+    border-color: #2b64b5;
+    box-shadow: 0 0 0 4px rgb(44 35 242 / 15%);
 }
 
 .contact-form textarea.form-control{
@@ -3032,7 +3036,8 @@ table.order-details tbody td {
 ========================= */
 
 .dark-card{
-    background: linear-gradient(135deg, #0a2540e0, #2b64b5);
+    /* background: linear-gradient(135deg, #0a2540e0, #2b64b5); */
+    background: linear-gradient(135deg, #2b64b5, #2b64b5d1);
     color: #fff;
     box-shadow: 0 25px 60px rgb(10 37 64 / 22%);
 }
@@ -3063,7 +3068,7 @@ table.order-details tbody td {
 .contact-form-box p,
 .contact-form-box a{
     font-size: 14px;
-    color: #e5e7eb;
+    color: #fff;
     line-height: 1.6;
 }
 
