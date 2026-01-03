@@ -109,10 +109,12 @@
     border: 2px solid #f28123;
 }
 
+/* ===== IMAGE GALLERY ===== */
+
 .media-main {
-    flex: 1;
     position: relative;
     overflow: hidden;
+    border-radius: 10px;
     cursor: zoom-in;
 }
 
@@ -120,12 +122,58 @@
     width: 100%;
     height: 420px;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.35s ease;
 }
 
 .media-main.zoom-active img {
     transform: scale(2);
 }
+
+/* Thumbnails row */
+.media-thumbs-bottom {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+}
+
+.media-thumbs-bottom::-webkit-scrollbar {
+    height: 5px;
+}
+.media-thumbs-bottom::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.thumb-img {
+    height: 80px;
+    min-width: 110px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.25s ease;
+}
+
+.thumb-img:hover {
+    transform: scale(1.03);
+}
+
+.thumb-img.active {
+    border-color: #f28123;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .media-main img {
+        height: 260px;
+    }
+    .thumb-img {
+        height: 65px;
+        min-width: 90px;
+    }
+}
+
 
 /* INFO */
 .media-info h4 {
@@ -162,12 +210,15 @@
 
 
 {{-- ================= BREADCRUMB ================= --}}
-<div class="breadcrumb-section breadcrumb-bg">
-    <div class="container text-center">
-        <p>Read the Details</p>
-        <h1>{{ $media->media_title }}</h1>
-    </div>
-</div>
+	<div class="container-fluid about-banner-img g-0">
+		<div class="row">
+			<div class="col-md-12">
+				<img src="{{ asset('assets/img/about.png') }}"
+					alt="About Banner"
+					class="img-fluid">
+			</div>
+		</div>
+	</div>
 
 {{-- ================= MEDIA DETAILS ================= --}}
 <div class="mt-150 mb-150">
@@ -195,26 +246,28 @@
 </div> --}}
 <div class="col-lg-7">
     <div class="card shadow-sm border-0 p-3">
-        <div class="media-gallery">
 
-            <div class="media-thumbs">
-                @foreach($media->images as $k => $img)
-                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
-                         class="{{ $k==0?'active':'' }}"
-                         onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
-                @endforeach
-            </div>
-
-            <div class="media-main"
-                 onmousemove="zoomMedia(event,this)"
-                 onmouseleave="resetZoom(this)">
-                <img class="main-media-image"
-                     src="{{ config('fileConstants.IMAGE_VIEW') . $media->images[0]->images }}">
-            </div>
-
+        {{-- MAIN IMAGE --}}
+        <div class="media-main mb-3"
+             onmousemove="zoomMedia(event,this)"
+             onmouseleave="resetZoom(this)">
+            <img class="main-media-image"
+                 id="mainMediaImage"
+                 src="{{ config('fileConstants.IMAGE_VIEW') . $media->images[0]->images }}">
         </div>
+
+        {{-- THUMBNAILS --}}
+        <div class="media-thumbs-bottom">
+            @foreach($media->images as $k => $img)
+                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
+                     class="thumb-img {{ $k==0 ? 'active' : '' }}"
+                     onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
+            @endforeach
+        </div>
+
     </div>
 </div>
+
 
 {{-- RIGHT : DETAILS --}}
 {{-- <div class="col-lg-5">
@@ -290,7 +343,7 @@
 <div class="col-lg-5">
     <div class="card shadow-sm border-0 p-4">
 
-        <h4 class="fw-bold mb-1">{{ $media->media_title }}</h4>
+        <h3 class="fw-bold mb-2">{{ $media->media_title }}</h3>
 
         <p class="text-muted mb-2">
             <i class="fas fa-map-marker-alt text-danger"></i>
@@ -428,6 +481,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script> --}}
+
+<script>
+function changeMediaImage(el, src) {
+    document.getElementById('mainMediaImage').src = src;
+
+    document.querySelectorAll('.thumb-img').forEach(img => {
+        img.classList.remove('active');
+    });
+
+    el.classList.add('active');
+}
+
+/* Zoom logic */
+function zoomMedia(e, container) {
+    container.classList.add('zoom-active');
+
+    const img = container.querySelector('img');
+    const rect = container.getBoundingClientRect();
+
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    img.style.transformOrigin = `${x}% ${y}%`;
+}
+
+function resetZoom(container) {
+    container.classList.remove('zoom-active');
+    const img = container.querySelector('img');
+    img.style.transformOrigin = 'center center';
+}
+</script>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
