@@ -243,7 +243,7 @@ Route::group(['middleware' => ['Employee']], function () {
     Route::get('/employee/change-password', [ChangePasswordController::class, 'index'])->name('employee.change-password');
     Route::post('/employee/update-password', [ChangePasswordController::class, 'updatePassword'])->name('employee.update-password');
     // Route::get('logout', [LoginController::class, 'logout'])->name('logout');
-    Route::get('emp/logout', [EmployeeLoginController::class, 'logOut'])->name('emp.logout');
+    // Route::get('emp/logout', [EmployeeLoginController::class, 'logOut'])->name('emp.logout');
 });
 
 
