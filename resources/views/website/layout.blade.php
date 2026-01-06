@@ -46,6 +46,16 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content')
+        }
+    });
+</script>
+
 </head>
 
 <body class="d-flex flex-column min-vh-100 {{ auth('website')->check() ? 'user-logged-in' : 'user-guest' }}">

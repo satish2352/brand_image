@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Http\Repository\Website;
+namespace App\Http\Repository\Superadm;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use App\Models\WebsiteUser;
 
-class HomeRepository
+class HordingBookRepository
 {
     public function searchMedia(array $filters)
     {
@@ -15,14 +18,14 @@ class HomeRepository
             ->leftJoin('tbl_location as city', 'city.location_id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
-            ->leftJoin('radius_master as rd', 'rd.id', '=', 'm.radius_id')
+            // ->leftJoin('radius_master as rd', 'rd.id', '=', 'm.radius_id')
             ->leftJoin(DB::raw('
-            (SELECT media_id, MIN(images) AS first_image
-             FROM media_images
-             WHERE is_deleted = 0 AND is_active = 1
-             GROUP BY media_id
-            ) mi
-        '), 'mi.media_id', '=', 'm.id')
+             (SELECT media_id, MIN(images) AS first_image
+              FROM media_images
+              WHERE is_deleted = 0 AND is_active = 1
+              GROUP BY media_id
+             ) mi
+         '), 'mi.media_id', '=', 'm.id')
 
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
@@ -62,7 +65,7 @@ class HomeRepository
         }
 
 
-        /* FILTERS */
+        //     /* FILTERS */
         if (!empty($filters['category_id'])) {
             $query->where('m.category_id', $filters['category_id']);
         }
@@ -153,20 +156,20 @@ class HomeRepository
         }
 
 
-        // if (!empty($filters['available_days'])) {
-        //     $query->where(
-        //         'm.updated_at',
-        //         '>=',
-        //         now()->subDays((int)$filters['available_days'])
-        //     );
-        // }
+        if (!empty($filters['available_days'])) {
+            $query->where(
+                'm.updated_at',
+                '>=',
+                now()->subDays((int)$filters['available_days'])
+            );
+        }
 
-        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
-        //     $query->whereBetween(
-        //         DB::raw('DATE(m.updated_at)'),
-        //         [$filters['from_date'], $filters['to_date']]
-        //     );
-        // }
+        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+            $query->whereBetween(
+                DB::raw('DATE(m.updated_at)'),
+                [$filters['from_date'], $filters['to_date']]
+            );
+        }
         /* ✅ BOOKING STATUS LOGIC */
         if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
 
@@ -208,10 +211,7 @@ class HomeRepository
         return $query->orderBy('m.id', 'DESC')->paginate(10);
     }
 
-
-
-
-    public function getMediaDetails($mediaId)
+    public function getMediaDetailsAdmin($mediaId)
     {
         $media = DB::table('media_management as m')
             ->leftJoin('tbl_location as state', 'state.location_id', '=', 'm.state_id')
@@ -247,5 +247,147 @@ class HomeRepository
         }
 
         return $media;
+    }
+
+    /* ================= USER ================= */
+    /* ================= USER ================= */
+    public function createOrGetUser($name, $email, $mobile)
+    {
+        return WebsiteUser::updateOrCreate(
+            ['email' => $email],   // 🔍 find by email
+            [
+                'name'          => $name,
+                'mobile_number' => $mobile,
+                'is_active'     => 1,
+                'is_deleted'    => 0,
+                'updated_at'    => now(),
+            ]
+        );
+    }
+
+
+    /* ================= ORDER ================= */
+    public function createOrder($userId)
+    {
+        $orderNo = 'ORD-' . time();
+
+        return DB::table('orders')->insertGetId([
+            'user_id'        => $userId,
+            'order_no'       => $orderNo,
+            'total_amount'   => 0,
+            'gst_amount'     => 0,
+            'grand_total'    => 0,
+            'payment_status' => 'ADMIN_BOOKED',
+            'created_at'     => now(),
+        ]);
+    }
+
+
+    /* ================= ORDER ITEM ================= */
+    public function createOrderItem($orderId, $mediaId, $from, $to)
+    {
+        DB::table('order_items')->insert([
+            'order_id'  => $orderId,
+            'media_id'  => $mediaId,
+            'from_date' => $from,
+            'to_date'   => $to,
+            'price'     => 0,
+            'qty'     => 0,
+
+            'created_at' => now(),
+        ]);
+    }
+
+
+    /* ================= MEDIA BLOCK ================= */
+    public function blockMediaDates($mediaId, $from, $to)
+    {
+        $existing = DB::table('media_booked_date')
+            ->where('media_id', $mediaId)
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->where(function ($q) use ($from, $to) {
+                $q->whereBetween('from_date', [$from, $to])
+                    ->orWhereBetween('to_date', [$from, $to])
+                    ->orWhere(function ($q2) use ($from, $to) {
+                        $q2->where('from_date', '<=', $from)
+                            ->where('to_date', '>=', $to);
+                    });
+            })
+            ->first();
+
+        if ($existing) {
+            // ✅ UPDATE ONLY to_date
+            DB::table('media_booked_date')
+                ->where('id', $existing->id)
+                ->update([
+                    'to_date'    => $to,
+                    'updated_at' => now(),
+                ]);
+        } else {
+            // ✅ INSERT NEW
+            DB::table('media_booked_date')->insert([
+                'media_id'   => $mediaId,
+                'from_date'  => $from,
+                'to_date'    => $to,
+                'is_active'  => 1,
+                'is_deleted' => 0,
+                'created_at' => now(),
+            ]);
+        }
+    }
+
+    public function bookingList()
+    {
+        return DB::table('orders as o')
+            ->join('website_users as u', 'u.id', '=', 'o.user_id')
+            ->select(
+                'o.id',
+                'o.order_no',
+                'o.total_amount',
+                'o.payment_status',
+                'o.payment_id',
+                'o.created_at',
+                'u.name',
+                'u.email',
+                'u.mobile_number'
+            )
+            ->orderBy('o.id', 'desc')
+            ->get();
+    }
+
+    public function bookingDetailsList($orderId)
+    {
+        $order = DB::table('orders as o')
+            ->join('website_users as u', 'u.id', '=', 'o.user_id')
+            ->where('o.id', $orderId)
+            ->select(
+                'o.*',
+                'u.name',
+                'u.email',
+                'u.mobile_number'
+            )
+            ->first();
+
+        $items = DB::table('order_items as oi')
+            ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
+            ->where('oi.order_id', $orderId)
+            ->select(
+                'oi.id',
+                'oi.price',
+                'oi.qty',
+                'oi.from_date',
+                'oi.to_date',
+                'mm.media_title',
+                'mm.width',
+                'mm.height',
+                'mm.address',
+                DB::raw('(oi.price * oi.qty) as total')
+            )
+            ->get();
+
+        $order->items = $items;
+
+        return $order;
     }
 }

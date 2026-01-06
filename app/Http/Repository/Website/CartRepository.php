@@ -75,6 +75,11 @@ class CartRepository
             'session_id' => session()->getId(),
             'media_id' => $mediaId,
             'price' => $price,
+
+            'per_day_price' => 0,
+            'total_price'   => 0,
+            'total_days'    => 0,
+
             'qty' => 1,
             'cart_type' => 'NORMAL',   // IMPORTANT
             'status' => 'ACTIVE',

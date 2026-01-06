@@ -68,6 +68,26 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="row">
+                          <div class="col-md-6 mb-3">
+                            <label>Latitude <span class="text-danger">*</span></label>
+                            <input type="text" name="latitude"
+                                value="{{ old('latitude') }}"
+                                class="form-control @error('latitude') is-invalid @enderror">
+                                    @error('latitude')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Longitude <span class="text-danger">*</span></label>
+                            <input type="text" name="longitude"
+                                value="{{ old('longitude') }}"
+                                class="form-control @error('longitude') is-invalid @enderror">
+                                    @error('longitude')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        </div>
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('area.list') }}" class="btn btn-secondary mr-3">Cancel</a>
                             <button type="submit" class="btn btn-success">Save Area</button>

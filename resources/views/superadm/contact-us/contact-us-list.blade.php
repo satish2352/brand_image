@@ -19,6 +19,7 @@
                         <thead>
                             <tr>
                                 <th>Sr.No.</th>
+                                  <th>Category Name</th>
                                 <th>Full Name</th>
                                 <th>Mobile</th>
                                 <th>Email</th>
@@ -32,6 +33,7 @@
                             @foreach($contacts as $key => $row)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
+                                  <td>{{ $row->category_name }}</td>
                                 <td>{{ $row->full_name }}</td>
                                 <td>{{ $row->mobile_no }}</td>
                                 <td>{{ $row->email }}</td>

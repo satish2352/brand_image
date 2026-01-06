@@ -115,9 +115,13 @@ $(window).on('scroll', function () {
         );
 
         $.ajax({
-            url: "{{ route('website.search') }}?page=" + page,
+            // url: "{{ route('website.search') }}?page=" + page,
+            // type: "POST",
+            // data: $('#searchForm').serialize(),
+            url: "{{ route('website.search') }}",
             type: "POST",
-            data: $('#searchForm').serialize(),
+            data: $('#searchForm').serialize() + '&page=' + page,
+
             success: function (html) {
 
                 if ($.trim(html) === '') {

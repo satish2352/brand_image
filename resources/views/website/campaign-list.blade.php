@@ -1,155 +1,108 @@
 @extends('website.dashboard.layout')
-@section('title', 'Dashboard')
+
+@section('title', 'Campaign List')
+
 @section('dashboard-content')
 
-<style>
-    .nav-tabs {
-    border-bottom:none !important;
-     font-size: 26px !important;
-}
-.nav-tabs .nav-link {
-    color: #000;
-}
-    .nav-tabs .nav-link.active {
-        border: none !important;
-        border-color:none !important;
-        color: #28a745;
-        font-weight: 600;
-        
-       
-    }
-</style>
+<div class="container-fluid">
 
-<div class="container my-5">
+    {{-- PAGE TITLE --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Campaign List</h4>
+    </div>
 
-   
+    {{-- SEARCH --}}
+    <form method="GET" action="{{ route('campaign.list') }}" class="row g-2 mb-4">
+        <div class="col-lg-4 col-md-6">
+            <input type="text"
+                   name="campaign_name"
+                   class="form-control"
+                   placeholder="Search Campaign Name"
+                   value="{{ request('campaign_name') }}">
+        </div>
+        <div class="col-lg-2 col-md-3">
+            <button class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
 
-    {{-- ================= TAB HEADERS ================= --}}
-    <ul class="nav nav-tabs mb-4" id="campaignTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active"
-                    id="campaigns-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#campaigns"
-                    type="button"
-                    role="tab">
-                Campaigns
-            </button>
-        </li>
+    @if($campaigns->count() === 0)
+        <div class="alert alert-info text-center">
+            No campaigns found.
+        </div>
+    @else
 
-        <li class="nav-item" role="presentation">
-            <button class="nav-link"
-                    id="payments-tab"
-                    data-bs-toggle="tab"
-                    data-bs-target="#payments"
-                    type="button"
-                    role="tab">
-                Invoice & Payments
-            </button>
-        </li>
-    </ul>
+        {{-- CAMPAIGN ACCORDION --}}
+        <div class="accordion" id="campaignAccordion">
 
-    {{-- ================= TAB CONTENT ================= --}}
-    <div class="tab-content" id="campaignTabsContent">
+            @foreach($campaigns as $campaignId => $items)
+                @php
+                    $campaignName = $items->first()->campaign_name;
+                    $totalAmount = $items->sum(fn($i) => $i->total_price);
+                @endphp
 
-        {{-- =================================================
-            ================ CAMPAIGNS TAB ==================
-        ================================================= --}}
-        <div class="tab-pane fade show active"
-             id="campaigns"
-             role="tabpanel">
+                <div class="accordion-item mb-3 shadow-sm">
 
-            {{-- SEARCH --}}
-            <form method="GET" action="{{ route('campaign.list') }}" class="row g-2 mb-4">
-                <div class="col-md-4">
-                    <input type="text"
-                           name="campaign_name"
-                           class="form-control"
-                           placeholder="Search Campaign Name"
-                           value="{{ request('campaign_name') }}">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100">Search</button>
-                </div>
-            </form>
+                    {{-- HEADER --}}
+                    <h2 class="accordion-header" id="heading{{ $campaignId }}">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#collapse{{ $campaignId }}">
 
-            @if($campaigns->count() === 0)
-                <div class="alert alert-info">No campaigns found.</div>
-            @else
+                            <div class="d-flex justify-content-between w-100 align-items-center">
+                                <strong class="text-primary">
+                                    {{ $campaignName }}
+                                </strong>
 
-            <div class="accordion" id="campaignAccordion">
+                                <span class="badge bg-dark">
+                                    ₹ {{ number_format($totalAmount, 2) }}
+                                </span>
+                            </div>
 
-                @foreach($campaigns as $campaignId => $items)
-                    @php
-                        $campaignName = $items->first()->campaign_name;
-                        // $totalAmount = $items->sum(fn($i) => $i->price * $i->qty);
-                        $totalAmount = $items->sum(fn($i) => $i->total_price);
-                    @endphp
+                        </button>
+                    </h2>
 
-                    <div class="accordion-item mb-3 shadow-sm">
-                        <h2 class="accordion-header" id="heading{{ $campaignId }}">
-                            <button class="accordion-button collapsed d-flex align-items-center"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#collapse{{ $campaignId }}">
+                    {{-- BODY --}}
+                    <div id="collapse{{ $campaignId }}"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#campaignAccordion">
 
-                                {{-- LEFT --}}
-                                <div class="col-lg-6">
-                                    <strong class="text-primary">
-                                        {{ $campaignName }}
-                                    </strong>
+                        <div class="accordion-body p-0">
 
-                                    <span class="badge bg-dark ms-2">
-                                        ₹ {{ number_format($totalAmount, 2) }}
-                                    </span>
-                                </div>
+                            {{-- ACTION BUTTONS --}}
+                            <div class="d-flex justify-content-end gap-2 p-3 border-bottom">
+                                <a href="{{ route('campaign.export.excel', base64_encode($campaignId)) }}"
+                                   class="btn btn-success btn-sm">
+                                    Export Excel
+                                </a>
 
-                            </button>
-                        </h2>
+                                <a href="{{ route('campaign.export.ppt', base64_encode($campaignId)) }}"
+                                   class="btn btn-warning btn-sm">
+                                    Export PPT
+                                </a>
 
-                        <div id="collapse{{ $campaignId }}"
-                             class="accordion-collapse collapse"
-                             data-bs-parent="#campaignAccordion">
+                                <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
+                                      method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        Place Order
+                                    </button>
+                                </form>
+                            </div>
 
-                            <div class="accordion-body p-0">
-
-                                {{-- ACTION BUTTONS --}}
-                                <div class="d-flex justify-content-end p-3 gap-2">
-                                    <a href="{{ route('campaign.export.excel', base64_encode($campaignId)) }}"
-                                       class="btn btn-success btn-sm"
-                                       onclick="event.stopPropagation();">
-                                        Export Excel
-                                    </a>
- <a href="{{ route('campaign.export.ppt', base64_encode($campaignId)) }}"
-   class="btn btn-warning btn-sm"
-   onclick="event.stopPropagation();">
-    Export PPT
-</a>
-
-
-                                    <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
-                                          method="POST">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">
-                                            Place Order
-                                        </button>
-                                    </form>
-                                </div>
-
-                                {{-- ITEMS TABLE --}}
-                                <table class="table table-bordered text-center align-middle mb-0">
+                            {{-- ITEMS TABLE --}}
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover text-center align-middle mb-0">
                                     <thead class="table-dark">
                                         <tr>
-                                            <th>#</th> 
+                                            <th>#</th>
                                             <th>Location</th>
                                             <th>Media</th>
                                             <th>Size</th>
-                                            <th>Price</th>
-                                            <th>From Date</th>
-                                            <th>To Date</th>
-                                            <th>Total Days</th>
-                                            {{-- <th>Qty</th> --}}
-                                            {{-- <th>Total</th> --}}
+                                            <th>Total Price</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Days</th>
                                             <th>Date</th>
                                             <th>Details</th>
                                         </tr>
@@ -165,103 +118,28 @@
                                             <td>₹ {{ number_format($row->total_price, 2) }}</td>
                                             <td>{{ $row->from_date ?? '-' }}</td>
                                             <td>{{ $row->to_date ?? '-' }}</td>
-                                             <td>{{ $row->total_days ?? '-' }}</td>
-                                            {{-- <td>{{ $row->qty }}</td> --}}
-                                            {{-- <td>₹ {{ number_format($row->price * $row->qty, 2) }}</td> --}}
+                                            <td>{{ $row->total_days ?? '-' }}</td>
                                             <td>{{ \Carbon\Carbon::parse($row->campaign_date)->format('d M Y') }}</td>
                                             <td>
-                                              <a href="{{ route('campaign.details',  base64_encode($row->cart_item_id)) }}"
-   class="btn btn-primary btn-sm">
-    View Details
-</a>
-
+                                                <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    View
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
                                     </tbody>
                                 </table>
-
                             </div>
+
                         </div>
                     </div>
-                @endforeach
+                </div>
+            @endforeach
 
-            </div>
-            @endif
         </div>
-
-        {{-- =================================================
-            ============ INVOICE & PAYMENTS TAB =============
-        ================================================= --}}
-        <div class="tab-pane fade"
-     id="payments"
-     role="tabpanel">
-
-    @if($payments->isEmpty())
-        <div class="alert alert-info mt-3">
-            Nothing to show.
-        </div>
-    @else
-        <table class="table table-bordered mt-3 text-center align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Sr. No.</th>
-                     <th>Campaign Name</th>
-                      <th>Location</th>
-                      {{-- <th>Category Name</th>
-                       --}}
-                    <th>Order No</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    {{-- <th>Payment ID</th> --}}
-                    <th>Date</th>
-                    <th>Active</th>
-                </tr>
-            </thead>
-         <tbody>
-@foreach($payments as $index => $pay)
-    <tr>
-        <td>{{ $index + 1 }}</td>
-
-        <td>
-            {{ $pay->campaign_name ?? '-' }}
-        </td>
-<td>{{ $pay->common_stdiciar_name ?? '-' }}</td>
-        {{-- Optional --}}
-        {{--  --}}
-        {{-- <td>{{ $pay->area_name ?? '-' }}</td> --}}
-
-        <td>{{ $pay->order_no }}</td>
-
-        <td>₹ {{ number_format($pay->total_amount, 2) }}</td>
-
-        <td>
-            <span class="badge bg-success">
-                {{ strtoupper($pay->payment_status) }}
-            </span>
-        </td>
-
-        <td>
-            {{ \Carbon\Carbon::parse($pay->created_at)->format('d M Y') }}
-        </td>
-
-         <td>
-    <button class="btn btn-primary btn-sm"
-        onclick="window.location.href='{{ route('campaign.invoice.view', base64_encode($pay->order_id)) }}'">
-        View
-    </button>
-</td>
-
-    </tr>
-@endforeach
-</tbody>
-
-        </table>
     @endif
 
 </div>
 
-
-    </div> {{-- tab-content --}}
-</div>
 @endsection

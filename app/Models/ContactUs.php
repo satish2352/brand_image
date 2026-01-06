@@ -17,6 +17,7 @@ class ContactUs extends Model
         'email',
         'address',
         'remark',
+        'media_id',
         'is_active',
         'is_delete'
     ];

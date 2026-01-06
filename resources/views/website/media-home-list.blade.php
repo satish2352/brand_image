@@ -128,10 +128,15 @@
         @endif
 
     @else
-        <a href="{{ route('contact.create') }}"
+    <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}"
+   class="card-btn contact">
+    Contact Us
+</a>
+
+        {{-- <a href="{{ route('contact.create') }}"
            class="card-btn contact">
             Contact Us
-        </a>
+        </a> --}}
     @endif
 </div>
         </div>

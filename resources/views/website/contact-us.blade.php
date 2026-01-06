@@ -37,7 +37,8 @@
                 <div class="contact-form">
                     <form method="POST" action="{{ route('contact.store') }}">
                         @csrf
-
+{{-- MEDIA ID --}}
+    <input type="hidden" name="media_id" value="{{ $mediaId ?? '' }}">
                         <!-- ROW 1 : NAME + EMAIL -->
                         <div class="row">
                             <div class="col-md-12 mb-3">

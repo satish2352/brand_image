@@ -37,6 +37,8 @@
                                 <th>District</th>
                                 <th>City</th>
                                 <th>Area Name</th>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -49,6 +51,8 @@
                                     <td>{{ $area->district_name }}</td>
                                     <td>{{ $area->city_name }}</td>
                                     <td>{{ $area->area_name }}</td>
+                                     <td>{{ $area->latitude }}</td>
+                                      <td>{{ $area->longitude }}</td>
                                      <td>
                                             <form action="{{ route('area.updatestatus') }}" method="POST"
                                                 class="d-inline-block delete-form">

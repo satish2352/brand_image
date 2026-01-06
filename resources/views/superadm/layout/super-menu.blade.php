@@ -1,3 +1,41 @@
+<style>
+    /* Make POST form button behave like sidebar <a> */
+.sidebar-form {
+    width: 100%;
+}
+
+.sidebar-link {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 12px 20px;
+    text-align: left;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Hover effect */
+.sidebar-link:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Active state */
+.nav-item.active .sidebar-link {
+    background-color: #b0302a; /* same as active menu */
+    color: #fff;
+}
+
+/* Remove button outline */
+.sidebar-link:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+</style>
 <nav class="sidebar-nav">
     <ul id="sidebarnav">
 
@@ -35,12 +73,41 @@
                 <span>Media Management</span>
             </a>
         </li>
+      <li class="nav-item {{ request()->routeIs('admin-booking.index') ? 'active' : '' }}">
+    <a href="{{ route('admin-booking.index') }}">
+        <i class="mdi mdi-calendar-check"></i>
+        <span>Admin Booking</span>
+    </a>
+</li>
+
+<li class="nav-item {{ request()->routeIs('admin.booking.list-booking') ? 'active' : '' }}">
+    <form action="{{ route('admin.booking.list-booking') }}"
+          method="POST"
+          class="sidebar-form">
+        @csrf
+        <button type="submit" class="sidebar-link">
+            <i class="mdi mdi-calendar-check"></i>
+            <span> Booking List</span>
+        </button>
+    </form>
+</li>
+
+
+
+
+          <li class="nav-item {{ request()->is('admin-campaing/list') ? 'active' : '' }}">
+            <a href="{{ route('admin-campaing.list') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>Camping List</span>
+            </a>
+        </li>
          <li class="nav-item {{ request()->is('website-user/list') || request()->is('website-user/add') || request()->is('website-user/edit/*') ? 'active' : '' }}">
             <a href="{{ route('website-user.list') }}">
                 <i class="mdi mdi-account-key"></i>
                 <span>Website User</span>
             </a>
         </li>
+
                  <li class="nav-item {{ request()->is('contact-us/list')}}">
             <a href="{{ route('contact-us.list') }}">
                 <i class="mdi mdi-account-key"></i>

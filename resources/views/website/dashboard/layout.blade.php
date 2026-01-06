@@ -39,6 +39,11 @@
                             <i class="bi bi-megaphone"></i> Campaign List
                         </a>
                     </li>
+               <li class="{{ request()->routeIs('campaign.payment.history') ? 'active' : '' }}">
+                        <a href="{{ route('campaign.payment.history') }}">
+                            <i class="bi bi-megaphone"></i> Payment History
+                        </a>
+                    </li>
 
                     <li class="{{ request()->routeIs('dashboard.profile') ? 'active' : '' }}">
                         <a href="{{ route('dashboard.profile') }}">

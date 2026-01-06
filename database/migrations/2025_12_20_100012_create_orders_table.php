@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('order_no')->unique();
             $table->decimal('total_amount', 10, 2);
             $table->string('payment_status')->default('PENDING');
+            $table->decimal('gst_amount ', 8, 2);
+            $table->decimal('grand_total', 8, 2);
+            $table->tinyInteger('is_active')->default(1);
+            $table->tinyInteger('is_deleted')->default(0);
             $table->timestamps();
         });
     }

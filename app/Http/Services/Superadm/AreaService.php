@@ -24,6 +24,7 @@ class AreaService
 
     public function storeArea(array $data)
     {
+
         DB::beginTransaction();
 
         try {
@@ -33,7 +34,9 @@ class AreaService
                 $data['state_id'],
                 $data['district_id'],
                 $data['city_id'],
-                $data['area_name']
+                $data['area_name'],
+
+
             )) {
                 throw new Exception('Area already exists for selected city');
             }

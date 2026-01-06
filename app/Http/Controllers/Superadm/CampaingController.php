@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\Superadm;
 
 use App\Http\Controllers\Controller;
-use App\Http\Services\Superadm\WebsiteUserService;
+use App\Http\Services\Superadm\CampaingService;
 use Illuminate\Http\Request;
 
 class CampaingController extends Controller
 {
 	protected $service;
 
-	public function __construct(WebsiteUserService $service)
+	public function __construct(CampaingService $service)
 	{
 		$this->service = $service;
 	}
 
 	public function index()
 	{
-		$users = $this->service->list();
-		return view('superadm.website-user.website-user-list', compact('users'));
+		$campaigns = $this->service->list();
+		return view('superadm.campaing.campaing-list', compact('campaigns'));
 	}
 
 	public function delete(Request $request)

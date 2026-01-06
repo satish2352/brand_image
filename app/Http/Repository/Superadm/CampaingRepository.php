@@ -8,11 +8,33 @@ class CampaingRepository
 {
     public function list()
     {
-        return DB::table('website_users')
-            ->where('is_deleted', 0)
-            ->orderBy('id', 'desc')
+        return DB::table('campaign as c')
+            ->leftJoin('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
+            ->leftJoin('media_management as m', 'm.id', '=', 'ci.media_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->where('ci.cart_type', 'CAMPAIGN')
+            ->where('ci.status', 'ACTIVE')
+            ->select(
+                'ci.id as cart_item_id',
+                'c.id as campaign_id',
+                'c.campaign_name',
+                'ci.media_id',
+                'ci.price',
+                'ci.qty',
+                'ci.per_day_price',
+                'ci.total_price',
+                'ci.total_days',
+                'ci.from_date',
+                'ci.to_date',
+                'ci.created_at as campaign_date',
+                'm.media_title',
+                'm.width',
+                'm.height',
+                'a.common_stdiciar_name'
+            )
             ->get();
     }
+
 
     public function delete($id)
     {

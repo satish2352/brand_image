@@ -15,23 +15,41 @@ class ContactController extends Controller
         $this->contactService = $contactService;
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('website.contact-us');
+        $encodedMediaId = $request->query('media');
+
+        if ($encodedMediaId && base64_encode(base64_decode($encodedMediaId, true)) === $encodedMediaId) {
+            $mediaId = base64_decode($encodedMediaId); // decoded ONCE
+        } else {
+            $mediaId = null;
+        }
+
+        return view('website.contact-us', compact('mediaId'));
     }
+
+
 
     public function store(Request $request)
     {
+
         $request->validate([
-            'full_name'  => 'required|string|max:255',
-            'mobile_no'  => 'required|digits_between:10,15',
-            'email'      => 'required|email|max:255',
-            'address'    => 'required|string',
-            'remark'     => 'required|string',
+            'media_id'  => 'nullable',
+            'full_name' => 'required|string|max:255',
+            'mobile_no' => 'required|digits_between:10,15',
+            'email'     => 'required|email|max:255',
+            'address'   => 'required|string',
+            'remark'    => 'required|string',
         ]);
 
         try {
+            $mediaId = $request->filled('media_id')
+                ? (int) $request->media_id
+                : null;
+
+
             $this->contactService->save([
+                'media_id'  => $mediaId,
                 'full_name' => $request->full_name,
                 'mobile_no' => $request->mobile_no,
                 'email'     => $request->email,

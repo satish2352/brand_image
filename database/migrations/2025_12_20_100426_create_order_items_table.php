@@ -17,6 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('media_id');
             $table->decimal('price', 10, 2);
             $table->integer('qty');
+            $table->tinyInteger('is_active')->default(1);
+            $table->tinyInteger('is_deleted')->default(0);
             $table->timestamps();
 
             $table->foreign('order_id')

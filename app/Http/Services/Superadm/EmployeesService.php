@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Services\Superadm;
 
 use Illuminate\Http\Request;
@@ -18,35 +19,34 @@ class EmployeesService
         $this->repo = new EmployeesRepository();
     }
 
-public function list($search = null)
-{
-    try {
-        $query = Employees::where('is_deleted', 0)
-            ->where('id', '!=', 1)  // ID 1 do not show
-            ->with(['plant', 'department', 'designation', 'role'])
-            ->orderBy('id', 'desc');
+    public function list($search = null)
+    {
+        try {
+            $query = Employees::where('is_deleted', 0)
+                ->where('id', '!=', 1)  // ID 1 do not show
+                ->with(['plant', 'department', 'designation', 'role'])
+                ->orderBy('id', 'desc');
 
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('employee_name', 'like', "%{$search}%")
-                  ->orWhere('employee_code', 'like', "%{$search}%")
-                  ->orWhere('employee_email', 'like', "%{$search}%")
-                  ->orWhere('employee_user_name', 'like', "%{$search}%");
-            });
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('employee_name', 'like', "%{$search}%")
+                        ->orWhere('employee_code', 'like', "%{$search}%")
+                        ->orWhere('employee_email', 'like', "%{$search}%")
+                        ->orWhere('employee_user_name', 'like', "%{$search}%");
+                });
+            }
+
+            return $query->paginate(10);
+        } catch (Exception $e) {
+            Log::error("Employees Service list error: " . $e->getMessage());
+
+            // Return an empty paginator to avoid errors in the view
+            return new LengthAwarePaginator([], 0, 10, 1, [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]);
         }
-
-        return $query->paginate(10);
-
-    } catch (Exception $e) {
-        Log::error("Employees Service list error: " . $e->getMessage());
-
-        // Return an empty paginator to avoid errors in the view
-        return new LengthAwarePaginator([], 0, 10, 1, [
-            'path' => request()->url(),
-            'query' => request()->query(),
-        ]);
     }
-}
 
 
     public function save($req)
@@ -69,7 +69,7 @@ public function list($search = null)
                 'plain_password'      => encrypt($plainPassword), // store encrypted plain password
                 'reporting_to' => $req->input('reporting_to'),
 
-                
+
             ];
             // dd($data);
             // die();
@@ -90,7 +90,7 @@ public function list($search = null)
         }
     }
 
-   
+
 
     public function update($req, $id)
     {
@@ -119,7 +119,6 @@ public function list($search = null)
             }
 
             return $this->repo->update($id, $data);
-
         } catch (Exception $e) {
             Log::error("Employees Service update error: " . $e->getMessage());
             return false;
@@ -152,43 +151,40 @@ public function list($search = null)
     //         return false;
     //     }
     // }
-// EmployeesService.php
-public function updateStatus($req)
-{
-    try {
-        $id = base64_decode($req->id);
-        $data = ['is_active' => $req->is_active];
+    // EmployeesService.php
+    public function updateStatus($req)
+    {
+        try {
+            $id = base64_decode($req->id);
+            $data = ['is_active' => $req->is_active];
 
-        return $this->repo->updateStatus($id, $data);
-    } catch (\Exception $e) {
-        \Log::error("Service updateStatus error: " . $e->getMessage());
-        return false;
+            return $this->repo->updateStatus($id, $data);
+        } catch (\Exception $e) {
+            \Log::error("Service updateStatus error: " . $e->getMessage());
+            return false;
+        }
     }
-}
 
-public function delete($req)
-{
-    try {
-        $id = base64_decode($req->id);
-        $data = ['is_deleted' => 1]; // soft delete
+    public function delete($req)
+    {
+        try {
+            $id = base64_decode($req->id);
+            $data = ['is_deleted' => 1]; // soft delete
 
-        return $this->repo->delete($id, $data);
-    } catch (\Exception $e) {
-        \Log::error("Service delete error: " . $e->getMessage());
-        return false;
+            return $this->repo->delete($id, $data);
+        } catch (\Exception $e) {
+            \Log::error("Service delete error: " . $e->getMessage());
+            return false;
+        }
     }
-}
 
     public function listajaxlist($req)
-	{  
-		 try {
+    {
+        try {
             return $this->repo->listajaxlist($req['plant_id']);
         } catch (Exception $e) {
             Log::error("Employees Service list error: " . $e->getMessage());
             return false;
         }
-	}
-
-    
-
+    }
 }

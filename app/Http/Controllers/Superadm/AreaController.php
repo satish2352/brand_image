@@ -65,6 +65,8 @@ class AreaController extends Controller
             'city_id'               => 'required|integer|exists:tbl_location,location_id',
             'area_name'             => 'required|string|max:255',
             'common_stdiciar_name'  => 'required|string|max:255',
+            'latitude'             => 'required|numeric',
+            'longitude'            => 'required|numeric',
         ];
 
         // ✅ Custom validation messages
@@ -88,6 +90,10 @@ class AreaController extends Controller
             'common_stdiciar_name.required' => 'Please enter the common standard name.',
             'common_stdiciar_name.string'   => 'Common standard name must be valid text.',
             'common_stdiciar_name.max'      => 'Common standard name must not exceed 255 characters.',
+            'latitude.required'  => 'Latitude is required.',
+            'latitude.numeric'   => 'Latitude must be numeric.',
+            'longitude.required' => 'Longitude is required.',
+            'longitude.numeric'  => 'Longitude must be numeric.',
         ];
 
         // ✅ Validate request
@@ -140,6 +146,8 @@ class AreaController extends Controller
             'city_id'              => 'required|integer|exists:tbl_location,location_id',
             'area_name'            => 'required|string|max:255',
             'common_stdiciar_name' => 'required|string|max:255',
+            'latitude'             => 'required|numeric',
+            'longitude'            => 'required|numeric',
         ]);
 
         try {

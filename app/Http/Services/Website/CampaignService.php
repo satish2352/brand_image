@@ -30,20 +30,6 @@ class CampaignService
     public function getCampaignDetailsByCartItem($userId, $cartItemId)
     {
         $data_output = $this->repo->getCampaignDetailsByCartItem($userId, $cartItemId);
-        // dd($data_output);
-        return $data_output;
-    }
-
-    public function getInvoicePayments($userId)
-    {
-        $data_output = $this->repo->getPaidCampaignInvoices($userId);
-        // dd($data_output);
-        // die();
-        return $data_output;
-    }
-    public function getInvoiceDetails($orderId)
-    {
-        $data_output = $this->repo->getInvoiceDetails($orderId);
 
         return $data_output;
     }

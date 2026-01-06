@@ -19,6 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('city_id');
             $table->string('area_name', 255);
             $table->string('common_stdiciar_name', 255);
+            $table->decimal('latitude', 10, 7);
+            $table->decimal('longitude', 10, 7);
             $table->tinyInteger('is_active')->default(1);
             $table->tinyInteger('is_deleted')->default(0);
 

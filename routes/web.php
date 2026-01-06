@@ -27,7 +27,9 @@ use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Website\LocationController;
+use App\Http\Controllers\Website\PaymentHistoryController;
 use App\Http\Controllers\Superadm\CampaingController;
+use App\Http\Controllers\Superadm\HordingBookController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -154,6 +156,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     });
 
 
+
     /* MEDIA AJAX (LOCATION HELPERS) */
     Route::get('get-states', [MediaManagementController::class, 'getStates']);
     Route::get('get-districts/{stateId}', [MediaManagementController::class, 'getDistricts']);
@@ -200,14 +203,31 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::post('radius/delete', [RadiusController::class, 'delete'])->name('radius.delete');
     Route::post('radius/update-status', [RadiusController::class, 'updateStatus'])->name('radius.updatestatus');
 
+    Route::prefix('admin-booking')->group(function () {
+
+        Route::get('/', [HordingBookController::class, 'index'])
+            ->name('admin-booking.index');
+
+        Route::post('/search', [HordingBookController::class, 'search'])
+            ->name('admin-booking.search');
+
+        Route::get('/admin-media-details/{mediaId}', [HordingBookController::class, 'getMediaDetailsAdmin'])
+            ->name('admin-booking.admin-media-details');
+
+        Route::post(
+            '/admin-booking/book-media',
+            [HordingBookController::class, 'bookMedia']
+        )->name('admin.booking.store');
 
 
+        Route::post(
+            '/admin-booking/list-booking',
+            [HordingBookController::class, 'bookingList']
+        )->name('admin.booking.list-booking');
 
-
-
-
-
-
+        Route::get('booking-details/{orderId}', [HordingBookController::class, 'bookingDetailsList'])
+            ->name('admin-booking.booking-details');
+    });
 
     // employees management routes
     Route::get('/employees/list', [EmployeesController::class, 'index'])->name('employees.list');
@@ -340,8 +360,8 @@ Route::middleware('auth:website')->group(function () {
 Route::get('/checkout', [CheckoutController::class, 'index'])
     ->name('checkout.index');
 
-Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder'])
-    ->name('checkout.create');
+// Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder'])
+//     ->name('checkout.create');
 
 
 Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])
@@ -386,16 +406,20 @@ Route::middleware(['web'])->group(function () {
         [CheckoutController::class, 'placeCampaignOrder']
     )->name('checkout.campaign');
 
-    Route::get('/campaign-invoice-payments', [CampaignController::class, 'invoicePayments'])
-        ->name('campaign.invoice.payments')
-        ->middleware('auth:website');
 
     Route::get(
         '/campaign/details/{cart_item_id}',
         [CampaignController::class, 'viewDetails']
     )->name('campaign.details');
 
-    Route::get('/campaign-invoice/{orderId}', [CampaignController::class, 'viewInvoice'])
+    Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])
+        ->name('campaign.payment.history');
+
+    Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])
+        ->name('campaign.invoice.payments')
+        ->middleware('auth:website');
+
+    Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])
         ->name('campaign.invoice.view');
 });
 

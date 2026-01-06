@@ -46,37 +46,18 @@ class CampaignController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
-
     public function getCampaignList(Request $request)
     {
-        try {
-            $userId = Auth::guard('website')->id();
+        $userId = Auth::guard('website')->id();
 
-            if (!$userId) {
-                return redirect()->route('website.login');
-            }
+        $campaigns = $this->campaignService->getCampaignList(
+            $userId,
+            $request
+        );
 
-            $campaigns = $this->campaignService->getCampaignList(
-                $userId,
-                $request
-            );
-
-            $payments = $this->campaignService->getInvoicePayments($userId);
-
-            return view('website.campaign-list', [
-                'campaigns' => $campaigns,
-                'payments'  => $payments
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Campaign List Error', [
-                'message' => $e->getMessage(),
-                'line'    => $e->getLine(),
-                'file'    => $e->getFile()
-            ]);
-
-            abort(500, 'Campaign page failed');
-        }
+        return view('website.campaign-list', compact('campaigns'));
     }
+
     public function viewDetails($cartItemId)
     {
         try {
@@ -336,22 +317,5 @@ class CampaignController extends Controller
         return response()->streamDownload(function () use ($writer) {
             $writer->save('php://output');
         }, $fileName);
-    }
-
-    public function viewInvoice($orderId)
-    {
-        try {
-            $orderId = base64_decode($orderId);
-
-            $items = $this->campaignService->getInvoiceDetails($orderId);
-
-            return view('website.campaign-invoice-details', compact('items'));
-        } catch (\Throwable $e) {
-            Log::error('Invoice View Error', [
-                'message' => $e->getMessage()
-            ]);
-
-            return redirect()->back()->with('error', 'Unable to load invoice');
-        }
     }
 }

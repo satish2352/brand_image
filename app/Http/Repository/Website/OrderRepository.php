@@ -12,13 +12,27 @@ use Illuminate\Support\Facades\Auth;
 class OrderRepository
 {
 
-    public function createOrder($total)
+    // public function createOrder($total)
+    // {
+    //     return Order::create([
+    //         // 'user_id'        => Auth::id(), // ✅ FIX
+    //         'user_id' => Auth::guard('website')->id(),
+    //         'order_no'       => 'ORD-' . time(),
+    //         'total_amount'   => $total,
+    //         'payment_status' => 'PENDING',
+    //     ]);
+    // }
+    public function createOrder($subTotal)
     {
+        $gstAmount   = round(($subTotal * 18) / 100, 2);
+        $grandTotal  = $subTotal + $gstAmount;
+
         return Order::create([
-            // 'user_id'        => Auth::id(), // ✅ FIX
-            'user_id' => Auth::guard('website')->id(),
-            'order_no'       => 'ORD-' . time(),
-            'total_amount'   => $total,
+            'user_id'       => Auth::guard('website')->id(),
+            'order_no'      => 'ORD-' . time(),
+            'total_amount'  => $subTotal,
+            'gst_amount'    => $gstAmount,
+            'grand_total'   => $grandTotal,
             'payment_status' => 'PENDING',
         ]);
     }

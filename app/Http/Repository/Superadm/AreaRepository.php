@@ -20,7 +20,9 @@ class AreaRepository
                 'a.is_active',
                 's.name as state_name',
                 'd.name as district_name',
-                'c.name as city_name'
+                'c.name as city_name',
+                'a.longitude',
+                'a.latitude',
             )
             ->orderBy('a.id', 'desc')
             ->get();
@@ -52,6 +54,8 @@ class AreaRepository
             'city_id'     => $data['city_id'],
             'area_name'   => $data['area_name'],
             'common_stdiciar_name'   => $data['common_stdiciar_name'],
+            'latitude'   => $data['latitude'],
+            'longitude'   => $data['longitude'],
 
         ]);
     }
@@ -86,6 +90,8 @@ class AreaRepository
             'city_id'                => $data['city_id'],
             'area_name'              => $data['area_name'],
             'common_stdiciar_name'   => $data['common_stdiciar_name'],
+            'latitude'   => $data['latitude'],
+            'longitude'   => $data['longitude'],
         ]);
     }
     /* ===== TOGGLE STATUS ===== */
