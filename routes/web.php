@@ -8,6 +8,8 @@ use App\Http\Controllers\Superadm\DashboardController;
 use App\Http\Controllers\EmpDashboardController;
 use App\Http\Controllers\Superadm\RoleController;
 use App\Http\Controllers\Superadm\RadiusController;
+use App\Http\Controllers\Superadm\MediaUtilisationReportController;
+use App\Http\Controllers\Superadm\RevenueReportController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
 use App\Http\Controllers\Superadm\AreaController;
 use App\Http\Controllers\Superadm\MediaManagementController;
@@ -201,8 +203,32 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::post('radius/update-status', [RadiusController::class, 'updateStatus'])->name('radius.updatestatus');
 
 
+    Route::get('reports/media-utilisation', [MediaUtilisationReportController::class, 'index'])->name('reports.media.utilisation');
+    Route::get('reports/media-utilisation/export/excel', [MediaUtilisationReportController::class, 'exportExcel'])->name('reports.media.utilisation.export.excel');
 
+    Route::get('reports/media-utilisation/export/pdf', [MediaUtilisationReportController::class, 'exportPdf'])->name('reports.media.utilisation.export.pdf');
+    Route::get(
+        'reports/media-utilisation/check-export',
+        [MediaUtilisationReportController::class, 'checkExportData']
+    )->name('reports.media.utilisation.check-export');
 
+    // revnue
+
+    Route::prefix('reports/revenue')->name('reports.revenue.')->group(function () {
+    Route::get('/', [RevenueReportController::class, 'index'])->name('index');
+    Route::get('/export-excel', [RevenueReportController::class, 'exportExcel'])->name('export.excel');
+    Route::get('/export-pdf', [RevenueReportController::class, 'exportPdf'])->name('export.pdf');
+    });
+
+    Route::get('reports/revenue/export/excel', [RevenueReportController::class, 'exportExcel'])
+    ->name('reports.revenue.export.excel');
+
+    Route::get('reports/revenue/export/pdf', [RevenueReportController::class, 'exportPdf'])
+    ->name('reports.revenue.export.pdf');
+    Route::get(
+        'reports/revenue/check-export',
+        [RevenueReportController::class, 'checkExportData']
+    )->name('reports.revenue.check-export');
 
 
 
