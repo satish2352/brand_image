@@ -73,13 +73,18 @@ class MediaManagementService
                 'height',
                 'illumination_id',
                 'facing_id',
+                'facing',
                 'latitude',
                 'longitude',
                 'minimum_booking_days',
                 'price',
-                'vendor_name',
+                // 'vendor_name',
+                'vendor_id'
 
             ]);
+
+            // AUTO GENERATE MEDIA CODE
+            // $mediaData['media_code'] = $this->generateMediaCode($request->vendor_id);
 
             /** -------------------------
              * OPTIONAL FIELDS
@@ -166,16 +171,21 @@ class MediaManagementService
 
                 'illumination_id',
                 'facing_id',
+                'facing',
 
                 'latitude',
                 'longitude',
 
                 'minimum_booking_days',
                 'price',
-                'vendor_name',
+                // 'vendor_name',
+                'vendor_id'
 
 
             ]);
+
+            // AUTO GENERATE MEDIA CODE
+            // $mediaData['media_code'] = $this->generateMediaCode($request->vendor_id);
 
             // Optional category fields
             $optionalFields = [
@@ -292,4 +302,29 @@ class MediaManagementService
             throw $e;
         }
     }
+
+    private function generateMediaCode(int $vendorId): string
+    {
+        // Get vendor code
+        $vendor = DB::table('vendors')->where('id', $vendorId)->first();
+
+        if (!$vendor) {
+            throw new \Exception('Vendor not found');
+        }
+
+        $vendorCode = $vendor->vendor_code;
+
+        // Count existing media for this vendor
+        $count = DB::table('media_management')
+            ->where('vendor_id', $vendorId)
+            ->where('is_deleted', 0)
+            ->count();
+
+        // Next sequence
+        $next = str_pad($count + 1, 2, '0', STR_PAD_LEFT);
+
+        return $vendorCode . '_' . $next;
+    }
+
+
 }

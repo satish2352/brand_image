@@ -22,12 +22,14 @@ class MediaManagement extends Model
         'latitude',
         'longitude',
         'price',
-        'vendor_name',
+        // 'vendor_name',
+        'vendor_id',
         'media_code',
         'media_title',
         'address',
         'illumination_id',
         'facing_id',
+        'facing',
         // 'minimum_booking_days',
         'mall_name',
         'media_format',
@@ -50,4 +52,10 @@ class MediaManagement extends Model
     {
         return $this->hasMany(MediaImage::class, 'media_id');
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
 }

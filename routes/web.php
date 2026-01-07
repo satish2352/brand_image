@@ -8,6 +8,10 @@ use App\Http\Controllers\Superadm\DashboardController;
 use App\Http\Controllers\EmpDashboardController;
 use App\Http\Controllers\Superadm\RoleController;
 use App\Http\Controllers\Superadm\RadiusController;
+use App\Http\Controllers\Superadm\MediaUtilisationReportController;
+use App\Http\Controllers\Superadm\RevenueReportController;
+use App\Http\Controllers\Superadm\VendorController;
+use App\Http\Controllers\Superadm\IlluminationController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
 use App\Http\Controllers\Superadm\AreaController;
 use App\Http\Controllers\Superadm\MediaManagementController;
@@ -37,7 +41,7 @@ Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
 
-    return "<h3>✅ All Laravel caches cleared successfully!</h3>";
+    return "<h3>✅ All caches cleared successfully!</h3>";
 })->name('clear.cache');
 
 
@@ -219,6 +223,32 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
             [HordingBookController::class, 'bookMedia']
         )->name('admin.booking.store');
 
+        Route::get('reports/media-utilisation', [MediaUtilisationReportController::class, 'index'])->name('reports.media.utilisation');
+        Route::get('reports/media-utilisation/export/excel', [MediaUtilisationReportController::class, 'exportExcel'])->name('reports.media.utilisation.export.excel');
+
+        Route::get('reports/media-utilisation/export/pdf', [MediaUtilisationReportController::class, 'exportPdf'])->name('reports.media.utilisation.export.pdf');
+        Route::get(
+            'reports/media-utilisation/check-export',
+            [MediaUtilisationReportController::class, 'checkExportData']
+        )->name('reports.media.utilisation.check-export');
+
+        // revnue
+
+        Route::prefix('reports/revenue')->name('reports.revenue.')->group(function () {
+            Route::get('/', [RevenueReportController::class, 'index'])->name('index');
+            Route::get('/export-excel', [RevenueReportController::class, 'exportExcel'])->name('export.excel');
+            Route::get('/export-pdf', [RevenueReportController::class, 'exportPdf'])->name('export.pdf');
+        });
+
+        Route::get('reports/revenue/export/excel', [RevenueReportController::class, 'exportExcel'])
+            ->name('reports.revenue.export.excel');
+
+        Route::get('reports/revenue/export/pdf', [RevenueReportController::class, 'exportPdf'])
+            ->name('reports.revenue.export.pdf');
+        Route::get(
+            'reports/revenue/check-export',
+            [RevenueReportController::class, 'checkExportData']
+        )->name('reports.revenue.check-export');
 
         Route::post(
             '/admin-booking/list-booking',
@@ -228,6 +258,36 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::get('booking-details/{orderId}', [HordingBookController::class, 'bookingDetailsList'])
             ->name('admin-booking.booking-details');
     });
+
+
+    Route::prefix('vendor')->group(function () {
+        Route::get('list', [VendorController::class, 'index'])->name('vendor.list');
+        Route::get('add', [VendorController::class, 'create'])->name('vendor.create');
+        Route::post('add', [VendorController::class, 'store'])->name('vendor.store');
+        Route::get('edit/{encodedId}', [VendorController::class, 'edit'])->name('vendor.edit');
+        Route::post('update/{encodedId}', [VendorController::class, 'update'])->name('vendor.update');
+        Route::post('delete', [VendorController::class, 'delete'])->name('vendor.delete');
+        Route::post('update-status', [VendorController::class, 'updateStatus'])->name('vendor.updatestatus');
+    });
+    Route::get('vendor/export-excel', [VendorController::class, 'exportExcel'])
+        ->name('vendor.export.excel');
+
+
+    Route::prefix('illumination')->group(function () {
+        Route::get('list', [IlluminationController::class, 'index'])->name('illumination.list');
+        Route::get('add', [IlluminationController::class, 'create'])->name('illumination.create');
+        Route::post('add', [IlluminationController::class, 'store'])->name('illumination.store');
+        Route::get('edit/{encodedId}', [IlluminationController::class, 'edit'])->name('illumination.edit');
+        Route::post('update/{encodedId}', [IlluminationController::class, 'update'])->name('illumination.update');
+        Route::post('delete', [IlluminationController::class, 'delete'])->name('illumination.delete');
+        Route::post('update-status', [IlluminationController::class, 'updateStatus'])->name('illumination.updatestatus');
+    });
+
+    Route::get(
+        'media/next-code/{vendorId}',
+        [MediaManagementController::class, 'getNextMediaCode']
+    )->name('media.next.code');
+
 
     // employees management routes
     Route::get('/employees/list', [EmployeesController::class, 'index'])->name('employees.list');
@@ -286,7 +346,7 @@ Route::get('/', [HomeController::class, 'index'])->name('website.home');
 Route::post('/search', [HomeController::class, 'search'])->name('website.search');
 
 Route::view('/about', 'website.about')->name('website.about');
-Route::view('/details', 'website.details')->name('website.details');
+// Route::view('/details', 'website.details')->name('website.details');
 // Route::view('/dashboard', 'website.dashboard')->name('website.dashboard');
 // Route::prefix('dashboard')->group(function () {
 

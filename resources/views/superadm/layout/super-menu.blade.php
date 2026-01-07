@@ -61,6 +61,20 @@
             </a>
         </li>
 
+        <li class="nav-item {{ request()->is('vendor/list') || request()->is('vendor/add') || request()->is('vendor/edit/*') ? 'active' : '' }}">
+            <a href="{{ route('vendor.list') }}">
+                <i class="mdi mdi-store"></i>
+                <span>Vendor</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->is('illumination/list') || request()->is('illumination/add') || request()->is('illumination/edit/*') ? 'active' : '' }}">
+            <a href="{{ route('illumination.list') }}">
+                <i class="mdi mdi-store"></i>
+                <span>Illumination</span>
+            </a>
+        </li>
+
              <li class="nav-item {{ request()->is('category/list') || request()->is('category/add') || request()->is('category/edit/*') ? 'active' : '' }}">
             <a href="{{ route('category.list') }}">
                 <i class="mdi mdi-domain"></i>
@@ -114,11 +128,40 @@
                 <span>Contact Us</span>
             </a>
         </li>
-                  <li class="nav-item {{ request()->is('user-payment/list')}}">
+        <li class="nav-item {{ request()->is('user-payment/list')}}">
             <a href="{{ route('user-payment.list') }}">
                 <i class="mdi mdi-account-key"></i>
                 <span>User Payment</span>
             </a>
+        </li>
+        {{-- <li class="nav-item {{ request()->routeIs('reports.media.utilisation') ? 'active' : '' }}">
+            <a href="{{ route('reports.media.utilisation') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>Media Utilisation</span>
+            </a>
+        </li> --}}
+        <li class="nav-item has-sub
+            {{ request()->is('reports/revenue*') || request()->is('reports/media*') ? 'active open' : '' }}">
+
+            <a href="#">
+                <i class="mdi mdi-file-chart"></i>
+                <span>Reports</span>
+                <i class="mdi mdi-chevron-down float-end"></i>
+            </a>
+
+            <ul class="submenu">
+                <li class="{{ request()->is('reports/media*') ? 'active' : '' }}">
+                    <a href="{{ route('reports.media.utilisation') }}">
+                        Media Utilisation
+                    </a>
+                </li>
+
+                <li class="{{ request()->is('reports/revenue*') ? 'active' : '' }}">
+                    <a href="{{ route('reports.revenue.index') }}">
+                        Revenue Report
+                    </a>
+                </li>
+            </ul>
         </li>
         
         <li class="nav-item {{ request()->is('radius/list') || request()->is('radius/add') || request()->is('radius/edit/*') ? 'active' : '' }}">
