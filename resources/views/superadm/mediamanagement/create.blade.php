@@ -22,6 +22,16 @@
     <div class="card-body">
         <h4 class="mb-4">Add Media</h4>
 
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST"
               action="{{ route('media.store') }}"
               enctype="multipart/form-data">
@@ -88,7 +98,7 @@
                 {{-- ================= DIMENSIONS ================= --}}
             </div>
             <div class="row" id="billboardsId">
-                <div class="col-md-4 mb-3">
+                {{-- <div class="col-md-4 mb-3">
                     <label>Media Code <span class="text-danger">*</span></label>
                     <input type="text" name="media_code"
                            value="{{ old('media_code') }}"
@@ -96,7 +106,20 @@
                     @error('media_code')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                </div> --}}
+
+                <div class="col-md-4 mb-3">
+                    <label>Media Code</label>
+                    <input type="text"
+                        id="media_code"
+                        class="form-control"
+                        value="{{ old('media_code', $media->media_code ?? '') }}"
+                        disabled>
+
+                    {{-- hidden field (ACTUAL value submit होईल) --}}
+                    <input type="hidden" name="media_code" id="media_code_hidden">
                 </div>
+
                 <div class="col-md-4 mb-3">
                     <label>Media Title <span class="text-danger">*</span></label>
                     <input type="text" name="media_title"
@@ -106,7 +129,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="col-md-4 mb-3">
+                {{-- <div class="col-md-4 mb-3">
                     <label>Facing <span class="text-danger">*</span></label>
                     <select name="facing_id" class="form-control @error('facing_id') is-invalid @enderror">
                         <option value="">Select Facing</option>
@@ -118,6 +141,20 @@
                         @endforeach
                     </select>
                      @error('facing_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div> --}}
+                <div class="col-md-4 mb-3">
+                    <label>Facing <span class="text-danger">*</span></label>
+                    <input 
+                        type="text"
+                        name="facing"
+                        class="form-control @error('facing') is-invalid @enderror"
+                        value="{{ old('facing') }}"
+                        placeholder="Enter facing"
+                    >
+
+                    @error('facing')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -373,7 +410,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                 <div class="col-md-3 mb-3">
+                 {{-- <div class="col-md-3 mb-3">
                     <label>Vendor Name <span class="text-danger">*</span></label>
                     <input type="text" name="vendor_name"
                            value="{{ old('vendor_name') }}"
@@ -381,7 +418,43 @@
                            @error('vendor_name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                </div> --}}
+                <div class="col-md-3 mb-3">
+                    <label>Vendor <span class="text-danger">*</span></label>
+
+                    {{-- <select name="vendor_id"
+                        class="form-control @error('vendor_id') is-invalid @enderror">
+
+                        <option value="">Select Vendor</option>
+
+                        @foreach($vendors as $vendor)
+                            <option value="{{ $vendor->id }}"
+                                {{ old('vendor_id') == $vendor->id ? 'selected' : '' }}>
+                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
+                            </option>
+                        @endforeach
+
+                    </select> --}}
+                    <select name="vendor_id"
+                            id="vendor_id"
+                            class="form-control @error('vendor_id') is-invalid @enderror">
+
+                        <option value="">Select Vendor</option>
+
+                        @foreach($vendors as $vendor)
+                            <option value="{{ $vendor->id }}"
+                                data-vendor-code="{{ $vendor->vendor_code }}"
+                                {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
+                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('vendor_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
+
                  <div class="col-md-3 mb-3" id="radiusSection">
     <label>Radius <span class="text-danger">*</span></label>
     <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
@@ -613,6 +686,27 @@ $(document).ready(function () {
 
     $('#width, #height').on('input', calculateArea);
     calculateArea();
+
+    // 
+
+    $('#vendor_id').on('change', function () {
+
+        let vendorId = $(this).val();
+
+        if (!vendorId) {
+            $('#media_code').val('');
+            $('#media_code_hidden').val('');
+            return;
+        }
+
+        $.get("{{ url('media/next-code') }}/" + vendorId, function (res) {
+
+            $('#media_code').val(res.media_code);
+            $('#media_code_hidden').val(res.media_code);
+
+        });
+    });
+
 
 });
 </script>

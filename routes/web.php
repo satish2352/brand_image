@@ -10,6 +10,8 @@ use App\Http\Controllers\Superadm\RoleController;
 use App\Http\Controllers\Superadm\RadiusController;
 use App\Http\Controllers\Superadm\MediaUtilisationReportController;
 use App\Http\Controllers\Superadm\RevenueReportController;
+use App\Http\Controllers\Superadm\VendorController;
+use App\Http\Controllers\Superadm\IlluminationController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
 use App\Http\Controllers\Superadm\AreaController;
 use App\Http\Controllers\Superadm\MediaManagementController;
@@ -233,6 +235,32 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
 
 
+    Route::prefix('vendor')->group(function () {
+    Route::get('list', [VendorController::class, 'index'])->name('vendor.list');
+    Route::get('add', [VendorController::class, 'create'])->name('vendor.create');
+    Route::post('add', [VendorController::class, 'store'])->name('vendor.store');
+    Route::get('edit/{encodedId}', [VendorController::class, 'edit'])->name('vendor.edit');
+    Route::post('update/{encodedId}', [VendorController::class, 'update'])->name('vendor.update');
+    Route::post('delete', [VendorController::class, 'delete'])->name('vendor.delete');
+    Route::post('update-status', [VendorController::class, 'updateStatus'])->name('vendor.updatestatus');
+    });
+    Route::get('vendor/export-excel', [VendorController::class, 'exportExcel'])
+    ->name('vendor.export.excel');
+
+
+    Route::prefix('illumination')->group(function () {
+    Route::get('list', [IlluminationController::class, 'index'])->name('illumination.list');
+    Route::get('add', [IlluminationController::class, 'create'])->name('illumination.create');
+    Route::post('add', [IlluminationController::class, 'store'])->name('illumination.store');
+    Route::get('edit/{encodedId}', [IlluminationController::class, 'edit'])->name('illumination.edit');
+    Route::post('update/{encodedId}', [IlluminationController::class, 'update'])->name('illumination.update');
+    Route::post('delete', [IlluminationController::class, 'delete'])->name('illumination.delete');
+    Route::post('update-status', [IlluminationController::class, 'updateStatus'])->name('illumination.updatestatus');
+    });
+
+    Route::get(
+    'media/next-code/{vendorId}',
+    [MediaManagementController::class, 'getNextMediaCode'])->name('media.next.code');
 
 
     // employees management routes

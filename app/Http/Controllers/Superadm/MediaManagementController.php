@@ -16,7 +16,8 @@ use App\Models\{
     Illumination,
     MediaManagement,
     MediaImage,
-    RadiusMaster
+    RadiusMaster,
+    Vendor
 };
 
 class MediaManagementController extends Controller
@@ -240,11 +241,18 @@ class MediaManagementController extends Controller
             ->where('is_deleted', 0)
             ->get();
 
+        // FETCH VENDORS
+        $vendors = Vendor::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('vendor_name')
+            ->get();
+
         return view('superadm.mediamanagement.create', compact(
             'categories',
             'facings',
             'illuminations',
-            'radius'
+            'radius',
+            'vendors'
         ));
     }
 
@@ -469,7 +477,8 @@ class MediaManagementController extends Controller
             'longitude'   => 'required|numeric|between:-180,180',
 
             'price'       => 'required|numeric|min:0',
-            'vendor_name' => 'required|string|max:255',
+            // 'vendor_name' => 'required|string|max:255',
+            'vendor_id' => 'required|integer|exists:vendors,id',
 
             'images'      => 'nullable|array|max:10',
             'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024',
@@ -488,7 +497,8 @@ class MediaManagementController extends Controller
                 $rules += [
                     'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
                     'media_title' => 'required|string|max:255',
-                    'facing_id' => 'required',
+                    // 'facing_id' => 'required',
+                    'facing' => 'required',
                     'illumination_id' => 'required',
                     'radius_id' => 'required',
                     // 'minimum_booking_days' => 'required|integer|min:1',
@@ -551,7 +561,9 @@ class MediaManagementController extends Controller
             'width.required' => 'Width is required.',
             'height.required' => 'Height is required.',
             'price.required' => 'Price is required.',
-            'vendor_name.required' => 'Vendor name is required.',
+            // 'vendor_name.required' => 'Vendor name is required.',
+            'vendor_id.required' => 'Please select a vendor',
+            // 'vendor_id.exists'   => 'Invalid vendor selected',
             'images.max' => 'You can upload a maximum of 10 images.',
             'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
             'images.*.image' => 'Each file must be an image.',
@@ -605,6 +617,11 @@ class MediaManagementController extends Controller
                 ->where('is_deleted', 0)
                 ->get();
 
+            $vendors = Vendor::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('vendor_name')
+            ->get();
+
             return view('superadm.mediamanagement.edit', compact(
                 'media',
                 'categories',
@@ -612,7 +629,8 @@ class MediaManagementController extends Controller
                 'illuminations',
                 'encodedId',
                 'areas',
-                'radius'
+                'radius',
+                'vendors'
             ));
         } catch (\Exception $e) {
             return redirect()->route('media.list')->with('error', 'Invalid media ID');
@@ -688,7 +706,8 @@ class MediaManagementController extends Controller
             'longitude'   => 'required|numeric|between:-180,180',
 
             'price'       => 'required|numeric|min:0',
-            'vendor_name' => 'required|string|max:255',
+            // 'vendor_name' => 'required|string|max:255',
+            'vendor_id' => 'required|integer|exists:vendors,id',
         ];
 
         /**
@@ -702,7 +721,8 @@ class MediaManagementController extends Controller
                 $rules += [
                     'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
                     'media_title' => 'required|string|max:255',
-                    'facing_id' => 'required',
+                    // 'facing_id' => 'required',
+                    'facing' => 'required',
                     'illumination_id' => 'required',
                     'radius_id' => 'required',
                     // 'minimum_booking_days' => 'required|integer|min:1',
@@ -876,4 +896,38 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
+
+    public function getNextMediaCode($vendorId)
+    {
+        $vendor = Vendor::where('id', $vendorId)
+            ->where('is_deleted', 0)
+            ->firstOrFail();
+
+        $vendorCode = $vendor->vendor_code;
+
+        // Get LAST sequence number safely
+        $lastMedia = MediaManagement::where('vendor_id', $vendorId)
+            ->where('is_deleted', 0)
+            ->where('media_code', 'LIKE', $vendorCode . '\_%')
+            ->orderByRaw("
+                CAST(
+                    SUBSTRING_INDEX(media_code, '_', -1
+                ) AS UNSIGNED
+            ) DESC
+            ")
+            ->first();
+
+        if ($lastMedia) {
+            $lastNumber = (int) substr(strrchr($lastMedia->media_code, '_'), 1);
+            $next = $lastNumber + 1;
+        } else {
+            $next = 1;
+        }
+
+        return response()->json([
+            'media_code' => $vendorCode . '_' . str_pad($next, 2, '0', STR_PAD_LEFT)
+        ]);
+    }
+
+
 }

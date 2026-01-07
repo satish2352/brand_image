@@ -23,6 +23,20 @@
             </a>
         </li>
 
+        <li class="nav-item {{ request()->is('vendor/list') || request()->is('vendor/add') || request()->is('vendor/edit/*') ? 'active' : '' }}">
+            <a href="{{ route('vendor.list') }}">
+                <i class="mdi mdi-store"></i>
+                <span>Vendor</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->is('illumination/list') || request()->is('illumination/add') || request()->is('illumination/edit/*') ? 'active' : '' }}">
+            <a href="{{ route('illumination.list') }}">
+                <i class="mdi mdi-store"></i>
+                <span>Illumination</span>
+            </a>
+        </li>
+
              <li class="nav-item {{ request()->is('category/list') || request()->is('category/add') || request()->is('category/edit/*') ? 'active' : '' }}">
             <a href="{{ route('category.list') }}">
                 <i class="mdi mdi-domain"></i>
@@ -82,7 +96,6 @@
                 </li>
             </ul>
         </li>
-
         
         <li class="nav-item {{ request()->is('radius/list') || request()->is('radius/add') || request()->is('radius/edit/*') ? 'active' : '' }}">
             <a href="{{ route('radius.list') }}">

@@ -80,11 +80,28 @@
 
             {{-- ================= BILLBOARD ================= --}}
             <div class="row" id="billboardsId">
-                <div class="col-md-4 mb-3">
+                {{-- <div class="col-md-4 mb-3">
                     <label>Media Code *</label>
                     <input type="text" name="media_code"
                         value="{{ old('media_code', $media->media_code) }}"
                         class="form-control @error('media_code') is-invalid @enderror">
+                </div> --}}
+
+                <div class="col-md-4 mb-3">
+                    <label>Media Code</label>
+
+                    {{-- Display only --}}
+                    <input type="text"
+                        id="media_code"
+                        class="form-control"
+                        value="{{ old('media_code', $media->media_code) }}"
+                        disabled>
+
+                    {{-- Actual value that will be submitted --}}
+                    <input type="hidden"
+                        name="media_code"
+                        id="media_code_hidden"
+                        value="{{ old('media_code', $media->media_code) }}">
                 </div>
 
                 <div class="col-md-4 mb-3">
@@ -94,7 +111,7 @@
                         class="form-control @error('media_title') is-invalid @enderror">
                 </div>
 
-                <div class="col-md-4 mb-3">
+                {{-- <div class="col-md-4 mb-3">
                     <label>Facing *</label>
                     <select name="facing_id"
                         class="form-control @error('facing_id') is-invalid @enderror">
@@ -105,6 +122,21 @@
                             </option>
                         @endforeach
                     </select>
+                </div> --}}
+
+                <div class="col-md-4 mb-3">
+                    <label>Facing <span class="text-danger">*</span></label>
+                    <input 
+                        type="text"
+                        name="facing"
+                        class="form-control @error('facing') is-invalid @enderror"
+                        value="{{ old('facing', $media->facing) }}"
+                        placeholder="Enter facing"
+                    >
+
+                    @error('facing')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                  <div class="col-md-4 mb-3">
@@ -324,12 +356,48 @@
                         class="form-control">
                 </div>
 
-                <div class="col-md-4 mb-3">
-                    <label>Vendor <span class="text-danger">*</span></label>
+                {{-- <div class="col-md-4 mb-3">
+                    <label>Vendor Name<span class="text-danger">*</span></label>
                     <input type="text" name="vendor_name"
                         value="{{ old('vendor_name', $media->vendor_name) }}"
                         class="form-control">
+                </div> --}}
+                <div class="col-md-3 mb-3">
+                    <label>Vendor <span class="text-danger">*</span></label>
+
+                    {{-- <select name="vendor_id"
+                        class="form-control @error('vendor_id') is-invalid @enderror">
+
+                        <option value="">Select Vendor</option>
+
+                        @foreach($vendors as $vendor)
+                            <option value="{{ $vendor->id }}"
+                                {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
+                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
+                            </option>
+                        @endforeach
+
+                    </select> --}}
+                    <select name="vendor_id"
+                            id="vendor_id"
+                            class="form-control @error('vendor_id') is-invalid @enderror">
+
+                        <option value="">Select Vendor</option>
+
+                        @foreach($vendors as $vendor)
+                            <option value="{{ $vendor->id }}"
+                                data-vendor-code="{{ $vendor->vendor_code }}"
+                                {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
+                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('vendor_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
+
                 <div class="col-md-4 mb-3" id="radiusSection">
                     <label>Radius <span class="text-danger">*</span></label>
                     <select name="radius_id"
@@ -375,6 +443,12 @@
 </div>
 @section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // ORIGINAL VALUES (EDIT PAGE LOAD TIME)
+    let originalVendorId  = "{{ $media->vendor_id }}";
+    let originalMediaCode = "{{ $media->media_code }}";
+</script>
 
 <script>
 $(document).ready(function () {
@@ -430,6 +504,38 @@ $(document).ready(function () {
 
     $('#width, #height').on('input', calculateArea);
     calculateArea(); // run on load
+
+        /* =========================
+       MEDIA CODE LOGIC (EDIT)
+    ========================= */
+
+    // safety sync on load
+    $('#media_code_hidden').val($('#media_code').val());
+
+    $('#vendor_id').on('change', function () {
+
+        let selectedVendorId = $(this).val();
+
+        // ❌ vendor cleared
+        if (!selectedVendorId) {
+            $('#media_code').val('');
+            $('#media_code_hidden').val('');
+            return;
+        }
+
+        // ✅ SAME vendor → restore original code (NO increment)
+        if (selectedVendorId == originalVendorId) {
+            $('#media_code').val(originalMediaCode);
+            $('#media_code_hidden').val(originalMediaCode);
+            return;
+        }
+
+        // ✅ DIFFERENT vendor → generate NEW code
+        $.get("{{ url('media/next-code') }}/" + selectedVendorId, function (res) {
+            $('#media_code').val(res.media_code);
+            $('#media_code_hidden').val(res.media_code);
+        });
+    });
 
 });
 </script>
