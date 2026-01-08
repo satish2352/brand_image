@@ -192,7 +192,7 @@ class HordingBookRepository
                 [$filters['from_date'], $filters['to_date']]
             );
         }
-        /* ✅ BOOKING STATUS LOGIC */
+        /*  BOOKING STATUS LOGIC */
         if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
 
             $fromDate = $filters['from_date'];
@@ -340,7 +340,7 @@ class HordingBookRepository
             ->first();
 
         if ($existing) {
-            // ✅ UPDATE ONLY to_date
+            //  UPDATE ONLY to_date
             DB::table('media_booked_date')
                 ->where('id', $existing->id)
                 ->update([
@@ -348,7 +348,7 @@ class HordingBookRepository
                     'updated_at' => now(),
                 ]);
         } else {
-            // ✅ INSERT NEW
+            //  INSERT NEW
             DB::table('media_booked_date')->insert([
                 'media_id'   => $mediaId,
                 'from_date'  => $from,

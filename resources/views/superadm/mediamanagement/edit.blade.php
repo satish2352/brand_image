@@ -462,13 +462,13 @@ $(document).ready(function () {
         hideAllSections();
         if (!category) return;
 
-         // ✅ HOARDINGS
+         //  HOARDINGS
         if (category.includes('hoardings')) {
             $('#billboardsId').show();
             $('#radiusSection').show();
         }
 
-        // ✅ DIGITAL WALL / WALL PAINTING
+        //  DIGITAL WALL / WALL PAINTING
         if (category.includes('wall')) {
             $('#wallWrap').show();
             $('#radiusSection').show();
@@ -523,14 +523,14 @@ $(document).ready(function () {
             return;
         }
 
-        // ✅ SAME vendor → restore original code (NO increment)
+        //  SAME vendor → restore original code (NO increment)
         if (selectedVendorId == originalVendorId) {
             $('#media_code').val(originalMediaCode);
             $('#media_code_hidden').val(originalMediaCode);
             return;
         }
 
-        // ✅ DIFFERENT vendor → generate NEW code
+        //  DIFFERENT vendor → generate NEW code
         $.get("{{ url('media/next-code') }}/" + selectedVendorId, function (res) {
             $('#media_code').val(res.media_code);
             $('#media_code_hidden').val(res.media_code);

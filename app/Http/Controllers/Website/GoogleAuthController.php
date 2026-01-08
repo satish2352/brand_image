@@ -57,31 +57,29 @@ class GoogleAuthController extends Controller
     //     return redirect('/');
     // }
 
-public function callback()
-{
-    try {
-        $googleUser = Socialite::driver('google')
-            ->stateless()
-            ->user();
-    } catch (\Exception $e) {
-        return redirect('/')
-            ->with('error', 'Google login failed.');
+    public function callback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')
+                ->stateless()
+                ->user();
+        } catch (\Exception $e) {
+            return redirect('/')
+                ->with('error', 'Google login failed.');
+        }
+
+        $user = WebsiteUser::firstOrCreate(
+            ['email' => $googleUser->email],
+            [
+                'name' => $googleUser->name,
+                'password' => bcrypt(Str::random(32)),
+                'is_active' => 1,
+            ]
+        );
+
+        Auth::guard('website')->login($user);
+        request()->session()->regenerate();
+
+        return redirect()->route('dashboard.home');
     }
-
-    $user = WebsiteUser::firstOrCreate(
-        ['email' => $googleUser->email],
-        [
-            'name' => $googleUser->name,
-            'password' => bcrypt(Str::random(32)),
-            'is_active' => 1,
-        ]
-    );
-
-    Auth::guard('website')->login($user);
-    request()->session()->regenerate();
-
-    return redirect()->route('dashboard.home');
-}
-
-
 }

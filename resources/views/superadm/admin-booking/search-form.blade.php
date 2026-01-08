@@ -306,7 +306,7 @@ $(document).ready(function () {
 
     function toggleDateFields(categoryId) {
 
-        // ✅ Only category ID = 1 allows date selection
+        //  Only category ID = 1 allows date selection
         if (categoryId == 1) {
             $('#from_date, #to_date, #available_days, #area_type')
                 .prop('disabled', false)
@@ -332,7 +332,7 @@ $(document).ready(function () {
 <script>
 $(document).ready(function () {
 
-    // ✅ Allowed categories for Radius
+    //  Allowed categories for Radius
     const radiusEnabledCategories = [1, 2]; 
     // 1 = Hoardings/Billboards
     // 2 = Digital Wall Painting

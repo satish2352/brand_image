@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Exports\CampaignExport;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\CampaignExcelExport;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpPresentation\IOFactory;
 use PhpOffice\PhpPresentation\PhpPresentation;
@@ -46,58 +45,48 @@ class CampaignController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
-    // public function getCampaignList(Request $request)
-    // {
-    //     $userId = Auth::guard('website')->id();
 
-    //     $campaigns = $this->campaignService->getCampaignList(
-    //         $userId,
-    //         $request
-    //     );
 
-    //     return view('website.campaign-list', compact('campaigns'));
-    // }
+    public function getCampaignList(Request $request)
+    {
+        $userId = Auth::guard('website')->id();
+        $type   = $request->get('type', 'active');
 
-public function getCampaignList(Request $request)
-{
-    $userId = Auth::guard('website')->id();
-    $type   = $request->get('type', 'active');
+        $campaigns = $this->campaignService->getCampaignList(
+            $userId,
+            $request
+        );
 
-    $campaigns = $this->campaignService->getCampaignList(
-        $userId,
-        $request
-    );
+        $today = now()->startOfDay();
 
-    $today = now()->startOfDay();
+        $filteredCampaigns = [];
 
-    $filteredCampaigns = [];
+        foreach ($campaigns as $campaignId => $items) {
 
-    foreach ($campaigns as $campaignId => $items) {
+            // campaign cha last to_date
+            $lastToDate = collect($items)->max('to_date');
 
-        // campaign cha last to_date
-        $lastToDate = collect($items)->max('to_date');
+            if (!$lastToDate) {
+                continue;
+            }
 
-        if (!$lastToDate) {
-            continue;
+            $lastToDate = \Carbon\Carbon::parse($lastToDate);
+
+            //  FILTER HERE
+            if ($type === 'active' && $lastToDate->gte($today)) {
+                $filteredCampaigns[$campaignId] = $items;
+            }
+
+            if ($type === 'past' && $lastToDate->lt($today)) {
+                $filteredCampaigns[$campaignId] = $items;
+            }
         }
 
-        $lastToDate = \Carbon\Carbon::parse($lastToDate);
-
-        // ✅ FILTER HERE
-        if ($type === 'active' && $lastToDate->gte($today)) {
-            $filteredCampaigns[$campaignId] = $items;
-        }
-
-        if ($type === 'past' && $lastToDate->lt($today)) {
-            $filteredCampaigns[$campaignId] = $items;
-        }
+        return view('website.campaign-list', [
+            'campaigns' => collect($filteredCampaigns),
+            'type'      => $type,
+        ]);
     }
-
-    return view('website.campaign-list', [
-        'campaigns' => collect($filteredCampaigns),
-        'type'      => $type,
-    ]);
-}
 
     public function viewDetails($cartItemId)
     {
@@ -142,33 +131,6 @@ public function getCampaignList(Request $request)
             abort(404, 'Campaign not found');
         }
 
-        /* ================= ITEMS + FIRST IMAGE ================= */
-        //     $items = DB::table('cart_items as ci')
-        //         ->join('media_management as m', 'm.id', '=', 'ci.media_id')
-        //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-        //         ->leftJoin(DB::raw('
-        //     (
-        //         SELECT mi1.media_id, mi1.images
-        //         FROM media_images mi1
-        //         INNER JOIN (
-        //             SELECT media_id, MIN(id) AS min_id
-        //             FROM media_images
-        //             WHERE is_deleted = 0
-        //             GROUP BY media_id
-        //         ) mi2 ON mi2.min_id = mi1.id
-        //     ) mi
-        // '), 'mi.media_id', '=', 'm.id')
-        //         ->select(
-        //             'm.media_title',
-        //             'm.width',
-        //             'm.height',
-        //             'm.price',
-        //             'a.common_stdiciar_name',
-        //             'mi.images as first_image'
-        //         )
-        //         ->where('ci.campaign_id', $campaignId)
-        //         ->where('ci.cart_type', 'CAMPAIGN')
-        //         ->get();
         $items = DB::table('cart_items as ci')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
@@ -243,16 +205,6 @@ public function getCampaignList(Request $request)
         $title->createTextRun($campaign->campaign_name)
             ->getFont()->setSize(22);
 
-
-        /* =====================================================
- SLIDE 3+ : SITE DETAILS
-===================================================== */
-        /* =====================================================
- SLIDE 3+ : SITE DETAILS
-===================================================== */
-        /* =====================================================
- SLIDE 3+ : SITE DETAILS
-===================================================== */
         foreach ($items as $item) {
 
             $slide = $ppt->createSlide();

@@ -587,13 +587,13 @@ document.addEventListener('DOMContentLoaded', function () {
         inline: true,
         static: true,
 
-        // ✅ Disable booked dates
+        //  Disable booked dates
         disable: bookedRanges.map(r => ({
             from: r.from_date,
             to: r.to_date
         })),
 
-        // ✅ Mark booked dates RED
+        //  Mark booked dates RED
         onDayCreate: function (dObj, dStr, fp, dayElem) {
             const date = dayElem.dateObj.toISOString().split('T')[0];
 

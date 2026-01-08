@@ -137,22 +137,6 @@ class CartRepository
     }
     // =============
 
-    // public function addItemWithDate($mediaId, $price, $from, $to)
-    // {
-    //     CartItem::create([
-    //         'user_id'    => Auth::guard('website')->id(),
-    //         'session_id' => session()->getId(),
-    //         'media_id'   => $mediaId,
-    //         'price'      => $price,
-    //         'qty'        => 1,
-    //         'from_date'  => $from,
-    //         'to_date'    => $to,
-    //         'cart_type'  => 'NORMAL',
-    //         'status'     => 'HOLD', // 🔥 TEMP HOLD
-    //         'is_active'  => 1,
-    //         'is_deleted' => 0,
-    //     ]);
-    // }
     public function addItemWithDate(
         $mediaId,
         $price,
@@ -211,7 +195,7 @@ class CartRepository
             ->update([
                 'is_deleted' => 1,
                 'is_active'  => 0,
-                'status'     => 'ORDERED', // ✅ VALID ENUM
+                'status'     => 'ORDERED', //  VALID ENUM
             ]);
     }
 }

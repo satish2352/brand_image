@@ -12,16 +12,6 @@ use Illuminate\Support\Facades\Auth;
 class OrderRepository
 {
 
-    // public function createOrder($total)
-    // {
-    //     return Order::create([
-    //         // 'user_id'        => Auth::id(), // ✅ FIX
-    //         'user_id' => Auth::guard('website')->id(),
-    //         'order_no'       => 'ORD-' . time(),
-    //         'total_amount'   => $total,
-    //         'payment_status' => 'PENDING',
-    //     ]);
-    // }
     public function createOrder($subTotal)
     {
         $gstAmount   = round(($subTotal * 18) / 100, 2);
@@ -55,10 +45,6 @@ class OrderRepository
         }
     }
 
-    // public function findById($id)
-    // {
-    //     return Order::findOrFail($id);
-    // }
     public function findById($id)
     {
         if (!$id) {

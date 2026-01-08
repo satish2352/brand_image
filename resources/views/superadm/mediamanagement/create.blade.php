@@ -636,13 +636,13 @@ $(document).ready(function () {
         if (!category) return;
 
         // if (category.includes('hoardings')) $('#billboardsId').show();
-         // ✅ HOARDINGS
+         //  HOARDINGS
     if (category.includes('hoardings')) {
         $('#billboardsId').show();
         $('#radiusSection').show();
     }
 
-    // ✅ DIGITAL WALL / WALL PAINTING
+    //  DIGITAL WALL / WALL PAINTING
     if (category.includes('wall')) {
         $('#wallWrapSection').show();
         $('#radiusSection').show();
@@ -656,7 +656,7 @@ $(document).ready(function () {
 
     let selectedCategory = $('#category_id').find(':selected').data('category');
 
-    // ✅ FORCE OPEN SECTION IF VALIDATION ERROR EXISTS
+    //  FORCE OPEN SECTION IF VALIDATION ERROR EXISTS
     @if ($errors->any())
         showSection(selectedCategory);
     @else

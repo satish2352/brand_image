@@ -121,7 +121,7 @@ document.getElementById('addToCartForm').addEventListener('submit', function(e) 
 
     fetch("{{ route('cart.add.with.date') }}", {
         method: 'POST',
-        credentials: 'same-origin',   // ✅ IMPORTANT FIX
+        credentials: 'same-origin',   //  IMPORTANT FIX
         headers: {
             'X-CSRF-TOKEN': form.querySelector('[name=_token]').value,
             'Accept': 'application/json'

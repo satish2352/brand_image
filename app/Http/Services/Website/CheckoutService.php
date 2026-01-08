@@ -35,10 +35,10 @@ class CheckoutService
                 throw new \Exception('Cart is empty');
             }
 
-            // ✅ Calculate total correctly
+            //  Calculate total correctly
             // $total = $items->sum(fn($i) => $i->price * $i->qty);
             $total = $items->sum(fn($i) => $i->total_price);
-            // ✅ DO NOT pass user_id
+            //  DO NOT pass user_id
             $order = $this->orderRepo->createOrder($total);
 
             $this->orderRepo->createOrderItems($order->id, $items);

@@ -9,7 +9,6 @@ use App\Http\Services\Superadm\MediaManagementService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use App\Models\{
     Category,
     FacingDirection,
@@ -255,200 +254,6 @@ class MediaManagementController extends Controller
             'vendors'
         ));
     }
-
-
-    /* =========================
-       STORE
-    ========================== */
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         // Location
-    //         'state_id'    => 'required|integer',
-    //         'district_id' => 'required|integer',
-    //         'city_id'     => 'required|integer',
-    //         'area_id'     => 'required|integer',
-
-    //         // Media basic
-    //         'category_id' => 'required|integer',
-    //         'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
-
-    //         'media_title' => 'required|string|max:255',
-
-    //         // Address
-    //         'address' => 'required|string',
-
-    //         // Dimensions
-    //         'width'  => 'required|numeric|min:0',
-    //         'height' => 'required|numeric|min:0',
-
-    //         // Facing & illumination
-    //         'facing_id'       => 'required|string',
-    //         'illumination_id' => 'required|integer',
-
-    //         // Geo
-    //         'latitude'  => 'required|numeric|between:-90,90',
-    //         'longitude' => 'required|numeric|between:-180,180',
-
-    //         // Booking & price
-    //         'minimum_booking_days' => 'required|integer|min:2',
-    //         'price' => 'required|numeric|min:0',
-
-    //         // Vendor
-    //         'vendor_name' => 'required|string|max:255',
-
-    //         // Images
-    //         // 'images'   => 'required|array|min:1',
-    //         // 'images.*' => 'image|mimes:jpg,jpeg,png|max:2048',
-    //     ]);
-
-    //     try {
-    //         $this->mediaService->store($request);
-    //         return redirect()
-    //             ->route('media.list')
-    //             ->with('success', 'Media added successfully');
-    //     } catch (\Exception $e) {
-    //         Log::error($e);
-    //         return back()->withInput()->with('error', $e->getMessage());
-    //     }
-    // }
-
-    // public function store(Request $request)
-    // {
-    //     // Get category slug
-    //     $category = Category::findOrFail($request->category_id);
-    //     $slug = $category->slug;
-
-    //     /**
-    //      * -------------------------
-    //      * COMMON VALIDATION (ALL)
-    //      * -------------------------
-    //      */
-    //     $rules = [
-    //         // Location
-    //         'area_id'     => 'required|integer',
-
-    //         // Category
-    //         'category_id' => 'required|integer',
-
-    //         // Size
-    //         'width'  => 'required|numeric|min:0',
-    //         'height' => 'required|numeric|min:0',
-
-    //         // Geo
-    //         'latitude'  => 'required|numeric|between:-90,90',
-    //         'longitude' => 'required|numeric|between:-180,180',
-    //         'vendor_name'     => 'required|string|max:255',
-    //         // Price
-    //         'price' => 'required|numeric|min:0',
-    //         // ✅ MULTIPLE IMAGE VALIDATION
-    //         'images'      => 'nullable|array|max:10',
-    //         'images.*'    => 'image|max:1024',
-    //     ];
-
-    //     /**
-    //      * -------------------------
-    //      * CATEGORY-WISE VALIDATION
-    //      * -------------------------
-    //      */
-    //     switch ($slug) {
-
-    //         // ✅ Hoardings / Billboards
-    //         case 'hoardings':
-
-    //             $rules += [
-    //                 'facing_id'       => 'required|string',
-    //                 'illumination_id' => 'required|integer',
-    //                 'radius_id' => 'required|integer',
-    //                 'minimum_booking_days' => 'required|integer|min:1',
-
-
-    //                 // Media
-    //                 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
-
-    //                 'media_title' => 'required|string|max:255',
-    //                 'area_type' => 'required|string|max:255',
-    //                 // Address
-    //                 'address' => 'required|string',
-
-
-    //             ];
-    //             break;
-
-    //         // ✅ Mall Media
-    //         case 'mall-media':
-    //             $rules += [
-    //                 'mall_name'    => 'required|string|max:255',
-    //                 'media_format' => 'required|string',
-    //             ];
-    //             break;
-
-    //         // ✅ Airport Branding
-    //         case 'airport-branding':
-    //             $rules += [
-    //                 'airport_name' => 'required|string|max:255',
-    //                 'zone_type'    => 'required|in:Arrival,Departure',
-    //                 'media_type'   => 'required|string',
-    //             ];
-    //             break;
-
-    //         // ✅ Transit Media
-    //         case 'transmit-media':
-    //             $rules += [
-    //                 'transit_type'  => 'required|string',
-    //                 'branding_type' => 'required|string',
-    //                 'vehicle_count' => 'required|integer|min:1',
-    //             ];
-    //             break;
-
-    //         // ✅ Office Branding
-    //         case 'office-branding':
-    //             $rules += [
-    //                 'building_name' => 'required|string|max:255',
-    //                 'wall_length'   => 'required|string',
-    //             ];
-    //             break;
-
-    //         // ✅ Wall Wrap
-    //         case 'wall-wrap':
-    //             $rules += [
-    //                 'area_auto' => 'required|numeric|min:1',
-    //             ];
-    //             break;
-
-    //         // ✅ Digital Wall (NO extra fields)
-    //         case 'digital-wall':
-    //             // Only common validation
-    //             break;
-    //     }
-
-    //     $messages = [
-    //         'images.max' => 'You can upload maximum 10 images only.',
-    //         // 'images.*.image' => 'Each file must be an image.',
-    //         // 'images.*.mimes' => 'Allowed formats: jpg, jpeg, png.',
-    //         'images.*.max' => 'Each image must be less than 1MB.',
-
-    //         // Common fields (optional but recommended)
-    //         'area_id.required' => 'Please select an area.',
-    //         'category_id.required' => 'Please select a category.',
-    //         'width.required' => 'Width is required.',
-    //         'height.required' => 'Height is required.',
-    //         'price.required' => 'Price is required.',
-    //     ];
-    //     $validated = $request->validate($rules, $messages);
-
-
-    //     try {
-    //         $this->mediaService->store($request);
-
-    //         return redirect()
-    //             ->route('media.list')
-    //             ->with('success', 'Media added successfully');
-    //     } catch (\Exception $e) {
-    //         Log::error($e);
-    //         return back()->withInput()->with('error', $e->getMessage());
-    //     }
-    // }
     public function store(Request $request)
     {
         /**
@@ -492,7 +297,7 @@ class MediaManagementController extends Controller
          */
         switch (true) {
 
-            // ✅ Hoardings / Billboards
+            //  Hoardings / Billboards
             case str_contains($slug, 'hoardings'):
                 $rules += [
                     'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
@@ -507,7 +312,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
 
-            // ✅ Mall Media
+            //  Mall Media
             case str_contains($slug, 'mall'):
                 $rules += [
                     'mall_name' => 'required|string|max:255',
@@ -515,7 +320,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
 
-            // ✅ Airport Branding
+            //  Airport Branding
             case str_contains($slug, 'airport'):
                 $rules += [
                     'airport_name' => 'required|string|max:255',
@@ -524,7 +329,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
 
-            // ✅ Transit Media
+            //  Transit Media
             case str_contains($slug, 'transit'):
                 $rules += [
                     'transit_type' => 'required|string',
@@ -533,7 +338,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
 
-            // ✅ Office Branding
+            //  Office Branding
             case str_contains($slug, 'office'):
                 $rules += [
                     'building_name' => 'required|string|max:255',
@@ -541,7 +346,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
 
-            // ✅ Wall Wrap
+            //  Wall Wrap
             case str_contains($slug, 'wall'):
                 $rules += [
                     'radius_id' => 'required',
@@ -618,9 +423,9 @@ class MediaManagementController extends Controller
                 ->get();
 
             $vendors = Vendor::where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->orderBy('vendor_name')
-            ->get();
+                ->where('is_deleted', 0)
+                ->orderBy('vendor_name')
+                ->get();
 
             return view('superadm.mediamanagement.edit', compact(
                 'media',
@@ -636,48 +441,6 @@ class MediaManagementController extends Controller
             return redirect()->route('media.list')->with('error', 'Invalid media ID');
         }
     }
-
-
-    // public function update(Request $request, $encodedId)
-    // {
-    //     $id = base64_decode($encodedId);
-
-    //     $request->validate([
-    //         // 'area_id'     => 'required|integer',
-    //         // 'media_code'  => 'required|string|max:255|unique:media_management,media_code,' . $id,
-    //         // 'media_title' => 'required|string|max:255',
-    //         // 'address'     => 'required|string',
-
-    //         // 'width'  => 'required|numeric|min:0',
-    //         // 'height' => 'required|numeric|min:0',
-
-    //         // 'facing_id'       => 'required|integer',
-    //         // 'illumination_id' => 'required|integer',
-
-    //         // 'latitude'  => 'required|numeric|between:-90,90',
-    //         // 'longitude' => 'required|numeric|between:-180,180',
-
-    //         // 'minimum_booking_days' => 'required|integer|min:1',
-    //         // 'price'       => 'required|numeric|min:0',
-    //         // 'vendor_name' => 'required|string|max:255',
-
-    //         // 'images'   => 'nullable|array|max:10',
-    //         // 'images.*' => 'image|max:1024',
-    //     ]);
-
-    //     try {
-    //         $this->mediaService->update($id, $request);
-
-    //         return redirect()
-    //             ->route('media.list')
-    //             ->with('success', 'Media updated successfully');
-    //     } catch (\Exception $e) {
-    //         Log::error($e);
-    //         return back()->withInput()->with('error', 'Update failed');
-    //     }
-    // }
-
-
     public function update(Request $request, $encodedId)
     {
         $id = base64_decode($encodedId);
@@ -928,6 +691,4 @@ class MediaManagementController extends Controller
             'media_code' => $vendorCode . '_' . str_pad($next, 2, '0', STR_PAD_LEFT)
         ]);
     }
-
-
 }

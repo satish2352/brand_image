@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const fromInput = document.getElementById('from_date');
     const toInput   = document.getElementById('to_date');
     const errorBox  = document.getElementById('dateError');
-    const addBtn    = document.getElementById('addToCartBtn'); // ✅ FIX
+    const addBtn    = document.getElementById('addToCartBtn'); //  FIX
 
     flatpickr("#booking_range", {
         mode: "range",
@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 toInput.value   = selectedDates[1].toISOString().split('T')[0];
 
                 errorBox.classList.add('d-none');
-                addBtn.disabled = false; // ✅ NOW WORKS
+                addBtn.disabled = false; //  NOW WORKS
             }
         }
     });

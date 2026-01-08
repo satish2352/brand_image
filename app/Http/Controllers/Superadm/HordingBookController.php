@@ -56,7 +56,7 @@ class HordingBookController extends Controller
     }
     public function getMediaDetailsAdmin($mediaId)
     {
-        // ✅ Decode ID ONCE
+        //  Decode ID ONCE
         $decodedId = base64_decode($mediaId, true);
 
         if ($decodedId === false || !is_numeric($decodedId)) {
@@ -69,7 +69,7 @@ class HordingBookController extends Controller
             abort(404);
         }
 
-        // ✅ USE DECODED ID HERE
+        //  USE DECODED ID HERE
         $bookedRanges = DB::table('order_items')
             ->where('media_id', $decodedId)
             ->select('from_date', 'to_date')

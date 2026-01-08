@@ -19,33 +19,6 @@ class CheckoutController extends Controller
         private CartRepository $cartRepo,
         private OrderRepository $orderRepo
     ) {}
-
-
-    // public function index()
-    // {
-    //     $orderId = session('order_id');
-
-    //     if (!$orderId) {
-    //         return redirect('/')->with('error', 'Order session expired');
-    //     }
-
-    //     $order = $this->orderRepo->findById($orderId);
-
-    //     if (!$order) {
-    //         session()->forget('order_id');
-    //         return redirect('/')->with('error', 'Order not found');
-    //     }
-
-    //     $items = \App\Models\OrderItem::where('order_id', $orderId)
-    //         ->join('media_management as m', 'm.id', '=', 'order_items.media_id')
-    //         ->select('order_items.price', 'order_items.qty', 'm.media_title')
-    //         ->get();
-
-    //     return view('website.checkout', [
-    //         'items' => $items,
-    //         'total' => $order->total_amount
-    //     ]);
-    // }
     public function index()
     {
         $orderId = session('order_id');
@@ -70,7 +43,7 @@ class CheckoutController extends Controller
             )
             ->get();
 
-        // ✅ GST CALCULATION
+        //  GST CALCULATION
         $subTotal = $order->total_amount;
         $gstRate  = 18;
         $gstAmount = round(($subTotal * $gstRate) / 100, 2);
@@ -84,47 +57,6 @@ class CheckoutController extends Controller
             'grandTotal'
         ));
     }
-
-    // public function placeOrder()
-    // {
-    //     try {
-
-    //         if (!Auth::guard('website')->check()) {
-    //             return redirect('/')->with('error', 'Please login to continue');
-    //         }
-
-    //         $items = $this->cartRepo->getCartItems();
-
-    //         if ($items->count() === 0) {
-    //             return redirect('/')->with('error', 'Cart is empty');
-    //         }
-
-    //         //  Correct date-based total
-    //         $total = $items->sum(fn($i) => $i->total_price);
-
-    //         $order = DB::transaction(function () use ($items, $total) {
-
-    //             $order = $this->orderRepo->createOrder($total);
-
-    //             $this->orderRepo->createOrderItems($order->id, $items);
-
-    //             return $order;
-    //         });
-
-    //         //  STORE ORDER ID IN SESSION
-    //         session([
-    //             'order_id' => $order->id
-    //         ]);
-
-    //         //  REDIRECT TO CHECKOUT PAGE (NO JSON)
-    //         return redirect()->route('checkout.index');
-    //     } catch (\Throwable $e) {
-
-    //         return redirect()
-    //             ->back()
-    //             ->with('error', $e->getMessage());
-    //     }
-    // }
     public function placeOrder()
     {
         if (!Auth::guard('website')->check()) {
@@ -147,33 +79,9 @@ class CheckoutController extends Controller
 
         session(['order_id' => $order->id]);
 
-        return redirect()->route('checkout.index'); // ✅ IMPORTANT
+        return redirect()->route('checkout.index'); //  IMPORTANT
     }
 
-    // public function pay()
-    // {
-    //     $orderId = session('order_id');
-    //     $order = $this->orderRepo->findById($orderId);
-
-    //     $api = new Api(
-    //         config('services.razorpay.key'),
-    //         config('services.razorpay.secret')
-    //     );
-
-    //     $razorpayOrder = $api->order->create([
-    //         'receipt' => $order->order_no,
-    //         'amount' => $order->total_amount * 100,
-    //         'currency' => 'INR',
-    //     ]);
-
-    //     session(['razorpay_order_id' => $razorpayOrder['id']]);
-
-    //     return response()->json([
-    //         'order_id' => $razorpayOrder['id'],
-    //         'amount' => $order->total_amount * 100,
-    //         'key' => config('services.razorpay.key'),
-    //     ]);
-    // }
     public function pay()
     {
         $orderId = session('order_id');
@@ -190,7 +98,7 @@ class CheckoutController extends Controller
 
         $razorpayOrder = $api->order->create([
             'receipt'  => $order->order_no,
-            'amount'   => $grandTotal * 100, // ✅ GST INCLUDED
+            'amount'   => $grandTotal * 100, //  GST INCLUDED
             'currency' => 'INR',
         ]);
 

@@ -10,53 +10,13 @@ class CartService
 {
     public function __construct(private CartRepository $repo) {}
 
-    // public function getCartItems()
-    // {
-    //     $items = $this->repo->getCartItems();
-
-    //     foreach ($items as $item) {
-
-    //         $start = Carbon::parse($item->from_date);
-    //         $end   = Carbon::parse($item->to_date);
-
-    //         $totalPrice = 0;
-    //         $current = $start->copy();
-
-    //         while ($current->lte($end)) {
-
-    //             $monthStart = $current->copy()->startOfMonth();
-    //             $monthEnd   = $current->copy()->endOfMonth();
-
-    //             // Booking range inside this month
-    //             $rangeStart = $current->greaterThan($monthStart) ? $current : $monthStart;
-    //             $rangeEnd   = $end->lessThan($monthEnd) ? $end : $monthEnd;
-
-    //             $daysInThisMonth = $current->daysInMonth;
-    //             $bookedDays = $rangeStart->diffInDays($rangeEnd) + 1;
-
-    //             $perDayPrice = $item->price / $daysInThisMonth;
-    //             $totalPrice += $perDayPrice * $bookedDays;
-
-    //             // Move to next month
-    //             $current = $current->addMonth()->startOfMonth();
-    //         }
-
-    //         $item->total_days = Carbon::parse($item->from_date)
-    //             ->diffInDays(Carbon::parse($item->to_date)) + 1;
-
-    //         $item->per_day_price = round($totalPrice / $item->total_days, 2);
-    //         $item->total_price   = round($totalPrice, 2);
-    //     }
-
-    //     return $items;
-    // }
     public function getCartItems()
     {
         $items = $this->repo->getCartItems();
 
         foreach ($items as $item) {
 
-            // 🚫 NO DATES → NO CALCULATION
+            //  NO DATES → NO CALCULATION
             if (!$item->from_date || !$item->to_date) {
                 $item->total_days   = 0;
                 $item->per_day_price = 0;
@@ -64,7 +24,7 @@ class CartService
                 continue;
             }
 
-            // ✅ ONLY calculate AFTER dates are selected
+            //  ONLY calculate AFTER dates are selected
             $start = Carbon::parse($item->from_date);
             $end   = Carbon::parse($item->to_date);
 
@@ -179,12 +139,12 @@ class CartService
             throw new \Exception('Cart item not found');
         }
 
-        // 🔒 Availability check
+        //  Availability check
         if ($this->repo->isDateAlreadyBooked($item->media_id, $from, $to)) {
             throw new \Exception('Selected dates are already booked');
         }
 
-        // 🔢 Price calculation
+        //  Price calculation
         $fromDate = Carbon::parse($from);
         $toDate   = Carbon::parse($to);
 

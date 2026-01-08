@@ -898,7 +898,7 @@ function changeCartImage(el, src) {
 //                 errorBox.classList.remove('d-none');
 //                 errorBox.innerText = data.message;
 //             } else {
-//                 // ✅ CLEAR ERROR BEFORE RELOAD
+//                 //  CLEAR ERROR BEFORE RELOAD
 //                 errorBox.classList.add('d-none');
 //                 errorBox.innerText = '';
 //                 location.reload();
