@@ -46,17 +46,58 @@ class CampaignController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
-    public function getCampaignList(Request $request)
-    {
-        $userId = Auth::guard('website')->id();
+    // public function getCampaignList(Request $request)
+    // {
+    //     $userId = Auth::guard('website')->id();
 
-        $campaigns = $this->campaignService->getCampaignList(
-            $userId,
-            $request
-        );
+    //     $campaigns = $this->campaignService->getCampaignList(
+    //         $userId,
+    //         $request
+    //     );
 
-        return view('website.campaign-list', compact('campaigns'));
+    //     return view('website.campaign-list', compact('campaigns'));
+    // }
+
+public function getCampaignList(Request $request)
+{
+    $userId = Auth::guard('website')->id();
+    $type   = $request->get('type', 'active');
+
+    $campaigns = $this->campaignService->getCampaignList(
+        $userId,
+        $request
+    );
+
+    $today = now()->startOfDay();
+
+    $filteredCampaigns = [];
+
+    foreach ($campaigns as $campaignId => $items) {
+
+        // campaign cha last to_date
+        $lastToDate = collect($items)->max('to_date');
+
+        if (!$lastToDate) {
+            continue;
+        }
+
+        $lastToDate = \Carbon\Carbon::parse($lastToDate);
+
+        // ✅ FILTER HERE
+        if ($type === 'active' && $lastToDate->gte($today)) {
+            $filteredCampaigns[$campaignId] = $items;
+        }
+
+        if ($type === 'past' && $lastToDate->lt($today)) {
+            $filteredCampaigns[$campaignId] = $items;
+        }
     }
+
+    return view('website.campaign-list', [
+        'campaigns' => collect($filteredCampaigns),
+        'type'      => $type,
+    ]);
+}
 
     public function viewDetails($cartItemId)
     {

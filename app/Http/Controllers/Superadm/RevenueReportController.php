@@ -233,6 +233,54 @@ private function exportQuery(Request $request)
 }
 
 
+public function monthDetails(Request $request)
+{
+    [$month, $year] = explode(' ', $request->period);
+
+    $monthNum = date('m', strtotime($month));
+
+    $data = DB::table('order_items as oi')
+        ->join('orders as o', 'o.id', '=', 'oi.order_id')
+        ->join('media_management as m','m.id','=','oi.media_id')
+        ->join('category as c','c.id','=','m.category_id')
+        ->where('o.payment_status', 'paid')
+        ->whereYear('oi.from_date', $year)
+        ->whereMonth('oi.from_date', $monthNum)
+        ->select(
+            'm.media_code',
+            'm.media_title',
+            'c.category_name',
+            DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
+            'oi.price'
+        )
+        ->get();
+
+    return response()->json($data);
+}
+
+public function userDetails(Request $request)
+{
+    $rows = DB::table('order_items as oi')
+        ->join('orders as o','o.id','=','oi.order_id')
+        ->join('media_management as m','m.id','=','oi.media_id')
+        ->join('category as cat','cat.id','=','m.category_id')
+        ->where('o.user_id', $request->user_id)
+        ->where('o.payment_status','paid')
+        ->select(
+            'm.media_code',
+            'm.media_title',
+            'cat.category_name',
+            'oi.from_date',
+            'oi.to_date',
+            DB::raw('DATEDIFF(oi.to_date, oi.from_date)+1 as booked_days'),
+            'oi.price'
+        )
+        ->orderBy('oi.from_date','desc')
+        ->get();
+
+    return response()->json($rows);
+}
+
 
     /* ======================
        EXPORTS

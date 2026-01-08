@@ -10,6 +10,7 @@ use App\Http\Controllers\Superadm\RoleController;
 use App\Http\Controllers\Superadm\RadiusController;
 use App\Http\Controllers\Superadm\MediaUtilisationReportController;
 use App\Http\Controllers\Superadm\RevenueReportController;
+use App\Http\Controllers\Superadm\RevenueGraphController;
 use App\Http\Controllers\Superadm\VendorController;
 use App\Http\Controllers\Superadm\IlluminationController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
@@ -250,6 +251,12 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
             [RevenueReportController::class, 'checkExportData']
         )->name('reports.revenue.check-export');
 
+        Route::get('reports/revenue/month-details', [RevenueReportController::class, 'monthDetails'])->name('reports.revenue.month.details');
+        Route::get('reports/revenue/user-details', [RevenueReportController::class, 'userDetails'])->name('reports.revenue.user.details');
+
+        Route::get('reports/revenue-graph', [RevenueGraphController::class, 'index'])->name('reports.revenue.graph');
+
+
         Route::post(
             '/admin-booking/list-booking',
             [HordingBookController::class, 'bookingList']
@@ -377,6 +384,11 @@ Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');
 Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.logout');
+
+// otp base
+Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp');
+Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp');
+
 
 Route::middleware('auth:website')->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
