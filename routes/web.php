@@ -170,6 +170,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
+Route::get('/search', [HomeController::class, 'searchView'])->name('website.search.view');
 Route::post('/search', [HomeController::class, 'search'])->name('website.search');
 Route::view('/about', 'website.about')->name('website.about');
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])->name('website.media-details');

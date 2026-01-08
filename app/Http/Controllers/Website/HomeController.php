@@ -18,12 +18,13 @@ class HomeController extends Controller
     // Initial page load (NO FILTERS)
     public function index()
     {
-        $filters = []; //  IMPORTANT
+        $filters = [];
         $mediaList = $this->homeService->searchMedia($filters);
 
 
         return view('website.home', compact('mediaList', 'filters'));
     }
+    /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
     {
         if ($request->filled('clear')) {
@@ -45,14 +46,51 @@ class HomeController extends Controller
 
         $mediaList = $this->homeService->searchMedia($filters);
 
-        //  Lazy load AJAX
+        // Lazy load POST
         if ($request->ajax()) {
             return view('website.media-home-list', compact('mediaList'))->render();
         }
 
-        //  IMPORTANT: load SEARCH page, not HOME
+        // IMPORTANT — return the view (NO redirect)
         return view('website.search', compact('mediaList', 'filters'));
     }
+
+    /** GET /search — do not show filters — redirect home */
+    public function searchView()
+    {
+        return redirect()->route('website.home');
+    }
+
+
+    // public function search(Request $request)
+    // {
+    //     if ($request->filled('clear')) {
+    //         return redirect()->route('website.home');
+    //     }
+
+    //     $filters = $request->only([
+    //         'category_id',
+    //         'state_id',
+    //         'district_id',
+    //         'city_id',
+    //         'area_id',
+    //         'radius_id',
+    //         'from_date',
+    //         'to_date',
+    //         'area_type',
+    //         'available_days',
+    //     ]);
+
+    //     $mediaList = $this->homeService->searchMedia($filters);
+
+    //     //  Lazy load AJAX
+    //     if ($request->ajax()) {
+    //         return view('website.media-home-list', compact('mediaList'))->render();
+    //     }
+
+    //     //  IMPORTANT: load SEARCH page, not HOME
+    //     return view('website.search', compact('mediaList', 'filters'));
+    // }
 
 
 

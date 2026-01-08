@@ -148,14 +148,21 @@
                 </div>
  
                 <!-- Buttons -->
-                <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+                {{-- <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
                     <button type="button"
                             class="btn btn-search"
                             onclick="document.getElementById('searchForm').submit();">
                         Search Media
                     </button>
-                </div>
- 
+                </div> --}}
+ <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+    <button type="button"
+            class="btn btn-search"
+            onclick="document.getElementById('searchForm').submit();">
+        Search Media
+    </button>
+</div>
+
                 <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
                     <button type="button" class="btn btn-clear" id="clearFilters">
                         Clear Filters
