@@ -14,11 +14,14 @@ class HordingBookRepository
 {
     public function searchMedia(array $filters)
     {
+        $perPage = config('fileConstants.PAGINATION', 10);
+
         $query = DB::table('media_management as m')
             ->leftJoin('tbl_location as city', 'city.location_id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            // ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
             // ->leftJoin('radius_master as rd', 'rd.id', '=', 'm.radius_id')
+            ->leftJoin(DB::raw('(SELECT * FROM category WHERE is_active = 1 AND is_deleted = 0 ORDER BY id LIMIT 1) as c'), 'c.id', '=', 'm.category_id')
             ->leftJoin(DB::raw('
              (SELECT media_id, MIN(images) AS first_image
               FROM media_images
@@ -40,10 +43,24 @@ class HordingBookRepository
                 'city.name as city_name',
                 'a.common_stdiciar_name as area_name',
                 'mi.first_image',
-                DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price')
+                DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
+                DB::raw('(SELECT from_date FROM media_booked_date mbd 
+              WHERE mbd.media_id = m.id 
+              AND mbd.is_active = 1 
+              AND mbd.is_deleted = 0 
+              ORDER BY mbd.id DESC LIMIT 1) as from_date'),
 
-
+                DB::raw('(SELECT to_date FROM media_booked_date mbd 
+              WHERE mbd.media_id = m.id 
+              AND mbd.is_active = 1 
+              AND mbd.is_deleted = 0 
+              ORDER BY mbd.id DESC LIMIT 1) as to_date')
             ]);
+        $firstCategory = DB::table('category')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('id')
+            ->value('id');
 
 
         $centerLat = null;
@@ -66,8 +83,13 @@ class HordingBookRepository
 
 
         //     /* FILTERS */
+        // if (!empty($filters['category_id'])) {
+        //     $query->where('m.category_id', $filters['category_id']);
+        // }
         if (!empty($filters['category_id'])) {
             $query->where('m.category_id', $filters['category_id']);
+        } else {
+            $query->where('m.category_id', $firstCategory);
         }
 
         // if (!empty($filters['radius_id'])) {
@@ -208,7 +230,7 @@ class HordingBookRepository
 
 
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
-        return $query->orderBy('m.id', 'DESC')->paginate(10);
+        return $query->orderBy('m.id', 'DESC')->paginate($perPage);
     }
 
     public function getMediaDetailsAdmin($mediaId)
@@ -218,9 +240,10 @@ class HordingBookRepository
             ->leftJoin('tbl_location as district', 'district.location_id', '=', 'm.district_id')
             ->leftJoin('tbl_location as city', 'city.location_id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            // ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin(DB::raw('(SELECT * FROM category WHERE is_active = 1 AND is_deleted = 0 ORDER BY id LIMIT 1) as c'), 'c.id', '=', 'm.category_id')
             ->leftJoin('facing_direction as fd', 'fd.id', '=', 'm.facing_id')
-            ->leftJoin('illumination as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
             // ->leftJoin('radius_master as rm', 'rm.id', '=', 'm.radius_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)

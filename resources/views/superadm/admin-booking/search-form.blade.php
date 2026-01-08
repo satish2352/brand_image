@@ -28,18 +28,27 @@
             {{-- ================= ROW 1 ================= --}}
             <div class="row g-3">
 
+               {{-- <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label class="form-label">Category</label>
+                    <select name="category_id" class="form-select form-control">
+                        <option value="">Select Category</option>
+                        @if($category)
+                            <option value="{{ $category->id }}"
+                                {{ ($filters['category_id'] ?? '') == $category->id ? 'selected' : '' }}>
+                                {{ $category->category_name }}
+                            </option>
+                        @endif
+                    </select>
+                </div> --}}
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <label class="form-label">Category</label>
-                    <select name="category_id" class="form-select form-control ">
-                        <option value="">Select Category</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}"
-                                {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->category_name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <input type="text"
+                        value="{{ $firstCategoryName }}"
+                        class="form-control"
+                        style="background-color: #ffe6e6; color: red; font-weight:bold;"
+                        readonly>
                 </div>
+
 
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <label class="form-label">State</label>
@@ -158,6 +167,34 @@
     const selectedDistrict = "{{ $filters['district_id'] ?? '' }}";
     const selectedCity     = "{{ $filters['city_id'] ?? '' }}";
     const selectedArea     = "{{ $filters['area_id'] ?? '' }}";
+</script>
+<script>
+$(document).ready(function () {
+    const today = new Date().toISOString().split('T')[0];
+
+    let $from = $('input[name="from_date"]');
+    let $to   = $('input[name="to_date"]');
+
+    // Block past dates
+    $from.attr('min', today);
+    $to.attr('min', today);
+
+    // If past date already filled (like from search reload)
+    if ($from.val() < today) $from.val('');
+    if ($to.val() < today)   $to.val('');
+
+    // When selecting From Date → update To Date min
+    $from.on('change', function () {
+        let fromDate = $(this).val();
+
+        $to.attr('min', fromDate);
+
+        // If To Date < From Date → clear To Date
+        if ($to.val() < fromDate) {
+            $to.val('');
+        }
+    });
+});
 </script>
 
 <script>

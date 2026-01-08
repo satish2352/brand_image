@@ -46,8 +46,11 @@ class HordingBookController extends Controller
 
         // 🔥 Lazy load AJAX
         if ($request->ajax()) {
-            return view('superadm.admin-booking.admin-media-home-list', compact('mediaList'))->render();
+            return view('superadm.admin-booking.admin-media-home-list', [
+                'mediaList' => $mediaList
+            ])->render();
         }
+
 
         return view('superadm.admin-booking.search', compact('mediaList', 'filters'));
     }

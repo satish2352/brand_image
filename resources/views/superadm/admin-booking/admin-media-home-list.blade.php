@@ -18,6 +18,17 @@
 
             <p class="fw-bold">₹ {{ number_format($media->price, 2) }}</p>
 
+              @if($media->from_date && $media->to_date)
+                <h6 class="fw-bold text-danger">
+                    {{ \Carbon\Carbon::parse($media->from_date)->format('d M Y') }}
+                    -
+                    {{ \Carbon\Carbon::parse($media->to_date)->format('d M Y') }}
+                </h6>
+            @else
+                <h6 class="fw-bold text-primary">Available</h6>
+            @endif
+
+
             <div class="d-flex justify-content-between">
                
                    {{-- ==================== --}}
@@ -39,7 +50,7 @@
 
 
 
-            <span class="badge bg-danger">Booked</span>
+            <span class="badge bg-danger text-white px-2 py-2 rounded">Booked</span>
         @endif
 
     @else

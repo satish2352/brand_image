@@ -6,6 +6,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CartItem;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Paginator::useBootstrap();
         /* ================= CART COUNT (ALL VIEWS) ================= */
         view()->composer('*', function ($view) {
 
@@ -59,11 +61,11 @@ class AppServiceProvider extends ServiceProvider
         /* ================= ADMIN BOOKING SEARCH FORM ================= */
         view()->composer('superadm.admin-booking.search-form', function ($view) {
 
-            $categories = DB::table('category')
+            $firstCategoryName = DB::table('category')
                 ->where('is_active', 1)
                 ->where('is_deleted', 0)
                 ->orderBy('id')
-                ->get();
+                ->value('category_name');
 
             $states = DB::table('tbl_location')
                 ->where('location_type', 1)
@@ -75,7 +77,7 @@ class AppServiceProvider extends ServiceProvider
                 ->orderBy('radius')
                 ->get();
 
-            $view->with(compact('categories', 'states', 'radiusList'));
+            $view->with(compact('firstCategoryName', 'states', 'radiusList'));
         });
     }
 }

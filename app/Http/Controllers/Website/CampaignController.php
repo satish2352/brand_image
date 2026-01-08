@@ -102,32 +102,66 @@ class CampaignController extends Controller
         }
 
         /* ================= ITEMS + FIRST IMAGE ================= */
+        //     $items = DB::table('cart_items as ci')
+        //         ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+        //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+        //         ->leftJoin(DB::raw('
+        //     (
+        //         SELECT mi1.media_id, mi1.images
+        //         FROM media_images mi1
+        //         INNER JOIN (
+        //             SELECT media_id, MIN(id) AS min_id
+        //             FROM media_images
+        //             WHERE is_deleted = 0
+        //             GROUP BY media_id
+        //         ) mi2 ON mi2.min_id = mi1.id
+        //     ) mi
+        // '), 'mi.media_id', '=', 'm.id')
+        //         ->select(
+        //             'm.media_title',
+        //             'm.width',
+        //             'm.height',
+        //             'm.price',
+        //             'a.common_stdiciar_name',
+        //             'mi.images as first_image'
+        //         )
+        //         ->where('ci.campaign_id', $campaignId)
+        //         ->where('ci.cart_type', 'CAMPAIGN')
+        //         ->get();
         $items = DB::table('cart_items as ci')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->leftJoin(DB::raw('
+            ->leftJoin('tbl_location as c', 'c.location_id', '=', 'm.city_id')
+            ->leftJoin('illuminations as i', 'i.id', '=', 'm.illumination_id')
+            ->leftJoin('category as cat', 'cat.id', '=', 'm.category_id') // ⭐ NEW JOIN
+            ->leftJoin(DB::raw("
         (
-            SELECT mi1.media_id, mi1.images
-            FROM media_images mi1
-            INNER JOIN (
-                SELECT media_id, MIN(id) AS min_id
-                FROM media_images
-                WHERE is_deleted = 1
-                GROUP BY media_id
-            ) mi2 ON mi2.min_id = mi1.id
+            SELECT media_id, GROUP_CONCAT(images) AS all_images
+            FROM media_images
+            WHERE is_deleted = 0
+            GROUP BY media_id
         ) mi
-    '), 'mi.media_id', '=', 'm.id')
+    "), 'mi.media_id', '=', 'm.id')
             ->select(
+                'm.id as media_id',
                 'm.media_title',
                 'm.width',
                 'm.height',
                 'm.price',
+                'a.area_name',
                 'a.common_stdiciar_name',
-                'mi.images as first_image'
+                'c.name as city_name',
+                'i.illumination_name',
+                'cat.category_name as media_type', // ⭐ GET CATEGORY NAME
+                'mi.all_images'
             )
             ->where('ci.campaign_id', $campaignId)
             ->where('ci.cart_type', 'CAMPAIGN')
             ->get();
+
+
+
+
 
         /* ================= INIT PPT ================= */
         $ppt = new PhpPresentation();
@@ -168,29 +202,16 @@ class CampaignController extends Controller
         $title->createTextRun($campaign->campaign_name)
             ->getFont()->setSize(22);
 
-        /* =====================================================
-       SLIDE 2 : OVERVIEW
-    ===================================================== */
-        $slide2 = $ppt->createSlide();
-
-        $overview = $slide2->createRichTextShape()
-            ->setOffsetX(80)
-            ->setOffsetY(120)
-            ->setWidth(800);
-
-        $overview->createTextRun("CAMPAIGN DETAILS OF SITE\n\n")
-            ->getFont()->setSize(26)->setBold(true);
-
-        $overview->createTextRun(
-            "Campaign Name : {$campaign->campaign_name}\n" .
-                "City          : Nashik\n" .
-                "Total Sites   : {$items->count()}\n" .
-                "Date          : " . now()->format('d M Y')
-        )->getFont()->setSize(18);
 
         /* =====================================================
-       SLIDE 3+ : SITE DETAILS
-    ===================================================== */
+ SLIDE 3+ : SITE DETAILS
+===================================================== */
+        /* =====================================================
+ SLIDE 3+ : SITE DETAILS
+===================================================== */
+        /* =====================================================
+ SLIDE 3+ : SITE DETAILS
+===================================================== */
         foreach ($items as $item) {
 
             $slide = $ppt->createSlide();
@@ -198,104 +219,81 @@ class CampaignController extends Controller
             /* ---------- TITLE ---------- */
             $siteTitle = $slide->createRichTextShape()
                 ->setOffsetX(40)
-                ->setOffsetY(30)
+                ->setOffsetY(20)
                 ->setWidth(850);
 
+            $siteTitle->getActiveParagraph()->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
             $siteTitle->createTextRun($item->media_title)
-                ->getFont()->setSize(22)->setBold(true);
+                ->getFont()->setSize(26)->setBold(true);
 
-            /* ---------- IMAGE ---------- */
-            // $imagePath = null;
+            /* ---------- IMAGES LEFT COLUMN ---------- */
+            $images = !empty($item->all_images) ? explode(',', $item->all_images) : [];
 
-            // if (!empty($item->first_image)) {
-            //     $imagePath = public_path(
-            //         config('fileConstants.IMAGE_VIEW') . $item->first_image
-            //     );
-            // }
-            $imagePath = null;
+            $x = 40;   // Left padding
+            $y = 90;   // Top padding
+            $w = 200;  // Image width
+            $h = 140;  // Image height
+            $gap = 10; // Space between images
+            $maxWidth = 420; // Keep images IN left column
 
-            if (!empty($item->first_image)) {
-                $imagePath = storage_path(
-                    'app/public/upload/images/media/' . $item->first_image
-                );
-            }
+            if (!empty($images)) {
+                foreach ($images as $img) {
+                    $path = public_path('storage/upload/images/media/' . trim($img));
 
-            if ($imagePath && file_exists($imagePath)) {
+                    if (file_exists($path)) {
+                        $slide->createDrawingShape()
+                            ->setPath($path)
+                            ->setWidth($w)
+                            ->setHeight($h)
+                            ->setOffsetX($x)
+                            ->setOffsetY($y);
 
-                $siteImage = $slide->createDrawingShape();
-                $siteImage->setPath($imagePath)
-                    ->setWidth(320)
-                    ->setHeight(220)
-                    ->setOffsetX(40)
-                    ->setOffsetY(120);
+                        $x += $w + $gap;
+
+                        // Wrap row
+                        if ($x > $maxWidth) {
+                            $x = 40;
+                            $y += $h + $gap;
+                        }
+                    }
+                }
             } else {
+                // If no images
+                $placeholder = $slide->createRichTextShape()
+                    ->setOffsetX(40)->setOffsetY(90)
+                    ->setWidth(360)->setHeight(240);
 
-                $imageBox = $slide->createRichTextShape()
-                    ->setOffsetX(40)
-                    ->setOffsetY(120)
-                    ->setWidth(320)
-                    ->setHeight(220);
-
-                $imageBox->getFill()
-                    ->setFillType(Fill::FILL_SOLID)
+                $placeholder->getFill()->setFillType(Fill::FILL_SOLID)
                     ->setStartColor(new Color('FFEFEFEF'));
 
-                $imageBox->getActiveParagraph()
-                    ->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-                $imageBox->createTextRun("NO IMAGE AVAILABLE")
-                    ->getFont()->setSize(14)->setBold(true);
+                $placeholder->createTextRun("NO IMAGES AVAILABLE")
+                    ->getFont()->setSize(18)->setBold(true);
             }
 
-
-            // dd($imagePath);
-            // die();
-            if ($imagePath && file_exists($imagePath)) {
-
-                $siteImage = $slide->createDrawingShape();
-                $siteImage->setPath($imagePath)
-                    ->setWidth(320)
-                    ->setHeight(220)
-                    ->setOffsetX(40)
-                    ->setOffsetY(120);
-            } else {
-
-                $imageBox = $slide->createRichTextShape()
-                    ->setOffsetX(40)
-                    ->setOffsetY(120)
-                    ->setWidth(320)
-                    ->setHeight(220);
-
-                $imageBox->getFill()
-                    ->setFillType(Fill::FILL_SOLID)
-                    ->setStartColor(new Color('FFEFEFEF'));
-
-                $imageBox->getActiveParagraph()
-                    ->getAlignment()
-                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-                $imageBox->createTextRun("NO IMAGE AVAILABLE")
-                    ->getFont()->setSize(14)->setBold(true);
-            }
-
-            /* ---------- DETAILS ---------- */
+            /* ---------- SITE DETAILS RIGHT COLUMN ---------- */
             $details = $slide->createRichTextShape()
-                ->setOffsetX(400)
-                ->setOffsetY(120)
-                ->setWidth(450);
+                ->setOffsetX(520)   // right column start
+                ->setOffsetY(90)
+                ->setWidth(420);
 
             $details->createTextRun("SITE DETAILS\n\n")
-                ->getFont()->setSize(18)->setBold(true);
+                ->getFont()->setSize(22)->setBold(true);
 
             $details->createTextRun(
                 "Location : {$item->common_stdiciar_name}\n" .
+                    "Area     : {$item->area_name}\n" .
+                    "City     : {$item->city_name}\n" .
                     "Size     : {$item->width} × {$item->height}\n" .
-                    "Media    : Billboard\n" .
-                    "Price    : ₹ " . number_format($item->price, 2) . "\n" .
-                    "Lighting : Non-Lit"
-            )->getFont()->setSize(14);
+                    "Media type    : {$item->media_type}\n" .
+                    "Price    : ₹ " . number_format($item->price) . "\n" .
+                    "Lighting : {$item->illumination_name}\n" .
+                    "Date     : " . now()->format('d M Y')
+            )->getFont()->setSize(18);
         }
+
+
 
         /* =====================================================
        LAST SLIDE : THANK YOU

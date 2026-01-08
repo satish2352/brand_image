@@ -18,12 +18,15 @@ class HordingBookService
 
     public function searchMedia(array $filters)
     {
-        return $this->repo->searchMedia($filters);
+        $data_output = $this->repo->searchMedia($filters);
+        return $data_output;
     }
     public function getMediaDetailsAdmin($mediaId)
     {
         try {
-            return $this->repo->getMediaDetailsAdmin($mediaId);
+            $data_output = $this->repo->getMediaDetailsAdmin($mediaId);
+
+            return $data_output;
         } catch (Exception $e) {
 
             Log::error('HomeService getMediaDetailsAdmin Error', [
