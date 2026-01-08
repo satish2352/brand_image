@@ -123,7 +123,7 @@ $(document).ready(function() {
         }
     });
 
-    //  Adjust header widths on resize / zoom
+    // ✅ Adjust header widths on resize / zoom
     function adjustTable() {
         table.columns.adjust().draw(false);
     }
@@ -134,10 +134,10 @@ $(document).ready(function() {
         resizeTimer = setTimeout(adjustTable, 300);
     });
 
-    //  Fix header disappearing issue (wait until DOM is ready)
+    // ✅ Fix header disappearing issue (wait until DOM is ready)
     setTimeout(adjustTable, 500);
 
-    //  Detect zoom changes
+    // ✅ Detect zoom changes
     let oldZoom = window.devicePixelRatio;
     setInterval(function() {
         if (window.devicePixelRatio !== oldZoom) {

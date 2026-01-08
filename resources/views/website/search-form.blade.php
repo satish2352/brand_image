@@ -2,6 +2,40 @@
     .bg-light{
         background-color: rgb(202, 196, 196) !important;
     }
+    .result-badge {
+    background: #fff9d9;
+    border-left: 5px solid #ffb100;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+}
+
+.result-badge .icon {
+    font-size: 18px;
+}
+
+.result-badge .count {
+    color: #007bff;
+    font-weight: 700;
+}
+
+.result-badge .label {
+    color: #333;
+}
+
+.result-badge.no-result {
+    border-left-color: #dc3545;
+    background: #ffe6e8;
+}
+
+.result-badge.no-result .count {
+    color: #dc3545;
+}
+
 </style>
 <div class="container mt-5 mb-5">
     <h3 class="text-center orange-text">Discover Media Spaces Near You</h3>
@@ -127,7 +161,28 @@
                         Clear Filters
                     </button>
                 </div>
- 
+               
+                {{-- BEAUTIFUL COUNT DISPLAY --}}
+                @if(($filters['category_id'] ?? '') != '')
+                    @php $catName = $mediaList->first()->category_name ?? ''; @endphp
+
+                    <div class="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mt-2">
+                        @if($mediaList->total() > 0)
+                            <div class="result-badge" style="margin-top: 32px">
+                                <span class="icon">📍</span>
+                                <span class="count">{{ $mediaList->total() }} Results</span>
+                                <span class="label">for {{ $catName }}</span>
+                            </div>
+                        @else
+                            <div class="result-badge no-result">
+                                <span class="icon">❌</span>
+                                <span class="count">No Results</span>
+                                <span class="label">for {{ $catName }}</span>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+                
             </div>
         </form>
  
@@ -315,7 +370,7 @@ $(document).ready(function () {
 
     function toggleDateFields(categoryId) {
 
-        //  Only category ID = 1 allows date selection
+        // ✅ Only category ID = 1 allows date selection
         if (categoryId == 1) {
             $('#from_date, #to_date, #available_days, #area_type')
                 .prop('disabled', false)
@@ -341,7 +396,7 @@ $(document).ready(function () {
 <script>
 $(document).ready(function () {
 
-    //  Allowed categories for Radius
+    // ✅ Allowed categories for Radius
     const radiusEnabledCategories = [1, 2]; 
     // 1 = Hoardings/Billboards
     // 2 = Digital Wall Painting

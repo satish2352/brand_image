@@ -21,6 +21,7 @@ class HomeController extends Controller
         $filters = []; //  IMPORTANT
         $mediaList = $this->homeService->searchMedia($filters);
 
+
         return view('website.home', compact('mediaList', 'filters'));
     }
     public function search(Request $request)
