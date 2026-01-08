@@ -870,8 +870,7 @@ a.mobile-show {
 .header-icons a,
 .header-icons button {
     margin: 0;
-    /* padding: 6px 10px; */
-    padding: 10px 10px;
+    padding: 6px 10px;
 }
 
 /* ===== User Dropdown Fix ===== */
