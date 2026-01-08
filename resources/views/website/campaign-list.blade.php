@@ -8,7 +8,10 @@
 
     {{-- PAGE TITLE --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">Campaign List</h4>
+        {{-- <h4 class="mb-0">Campaign List</h4> --}}
+        <h4 class="mb-0">
+            {{ $type === 'past' ? 'Past Campaign List' : 'Active Campaign List' }}
+        </h4>
     </div>
 
     {{-- SEARCH --}}
@@ -25,9 +28,16 @@
         </div>
     </form>
 
-    @if($campaigns->count() === 0)
+    {{-- @if($campaigns->count() === 0)
         <div class="alert alert-info text-center">
             No campaigns found.
+        </div>
+    @else --}}
+    @if($campaigns->isEmpty())
+        <div class="alert alert-info text-center">
+            {{ $type === 'past'
+                ? 'No past campaigns found.'
+                : 'No active campaigns found.' }}
         </div>
     @else
 
@@ -36,12 +46,16 @@
 
             @foreach($campaigns as $campaignId => $items)
                 @php
+                    $items = $items->sortBy('to_date');
                     $campaignName = $items->first()->campaign_name;
                     $totalAmount = $items->sum(fn($i) => $i->total_price);
                 @endphp
 
                 <div class="accordion-item mb-3 shadow-sm">
 
+                    <span class="badge {{ $type === 'past' ? 'bg-secondary' : 'bg-success' }}">
+                        {{ $type === 'past' ? 'Completed' : 'Running' }}
+                    </span>
                     {{-- HEADER --}}
                     <h2 class="accordion-header" id="heading{{ $campaignId }}">
                         <button class="accordion-button collapsed"
@@ -84,9 +98,16 @@
                                 <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
                                       method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-primary btn-sm">
+                                    {{-- <button type="submit" class="btn btn-primary btn-sm">
                                         Place Order
-                                    </button>
+                                    </button> --}}
+                                    @if($type === 'active')
+                                        <button class="btn btn-primary btn-sm">Place Order</button>
+                                    @else
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            Campaign Closed
+                                        </button>
+                                    @endif
                                 </form>
                             </div>
 

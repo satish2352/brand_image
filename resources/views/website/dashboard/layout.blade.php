@@ -4,6 +4,30 @@
 
 @section('content')
 
+<style>
+    /* Parent active style */
+.dashboard-sidebar > ul > li.active > a {
+    background: linear-gradient(90deg, #ffb300, #ff9800);
+    color: #000;
+}
+
+/* ONLY child active highlight */
+.dashboard-sidebar ul ul a.active {
+    background: linear-gradient(90deg, #ffb300, #ff9800);
+    color: #000;
+}
+.sidebar-menu li.active a{
+    background: transparent;
+}
+</style>
+
+@php
+    $isCampaignPage = request()->routeIs('campaign.list');
+    $campaignType  = $isCampaignPage
+        ? request()->get('type', 'active')
+        : null;
+@endphp
+
 	<!-- breadcrumb-section -->
 	<div class="breadcrumb-section breadcrumb-bg">
 		<div class="container">
@@ -34,10 +58,34 @@
                         </a>
                     </li>
 
-                    <li class="{{ request()->routeIs('campaign.list') ? 'active' : '' }}">
+                    {{-- <li class="{{ request()->routeIs('campaign.list') ? 'active' : '' }}">
                         <a href="{{ route('campaign.list') }}">
                             <i class="bi bi-megaphone"></i> Campaign List
                         </a>
+                    </li> --}}
+                    <li class="{{ request()->routeIs('campaign.*') ? 'active' : '' }}">
+                        <a data-bs-toggle="collapse" href="#campaignMenu" role="button">
+                            <i class="bi bi-megaphone"></i> Campaign List
+                        </a>
+
+                        <ul class="collapse ps-3 mt-3 {{ request()->routeIs('campaign.list') ? 'show' : '' }}"
+                            id="campaignMenu">
+
+                            <li>
+                                <a href="{{ route('campaign.list', ['type' => 'active']) }}"
+                                    class="{{ $isCampaignPage && $campaignType === 'active' ? 'active' : '' }}">
+                                        Active Campaign List
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('campaign.list', ['type' => 'past']) }}"
+                                    class="{{ $isCampaignPage && $campaignType === 'past' ? 'active' : '' }}">
+                                        Past Campaign List
+                                </a>
+                            </li>
+
+                        </ul>
                     </li>
                <li class="{{ request()->routeIs('campaign.payment.history') ? 'active' : '' }}">
                         <a href="{{ route('campaign.payment.history') }}">

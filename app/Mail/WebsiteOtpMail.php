@@ -21,6 +21,6 @@ class WebsiteOtpMail extends Mailable
     public function build()
     {
         return $this->subject('Your OTP Verification Code')
-            ->view('emails.website_otp'); // ✅ underscore
+            ->view('emails.website_otp'); 
     }
 }
