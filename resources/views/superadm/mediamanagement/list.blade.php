@@ -35,7 +35,7 @@
                                 <th>Price</th>
                                  <th>Vendor Name</th>
                                 <th>Status</th>
-                                    <th>Action</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
 
@@ -66,16 +66,16 @@
                                     <td class="d-flex">
 
                                         <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
-   class="btn btn-info btn-sm mr-1"
-   title="View Details">
-    <i class="fa fa-eye"></i>
-</a>
+                                        class="btn btn-info btn-sm mr-1"
+                                        title="View Details">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
 
                                         <a href="{{ route('media.view', base64_encode($media->id)) }}"
-   class="btn btn-info btn-sm mr-1"
-   title="View Images">
-    <i class="fa fa-eye"></i>
-</a>
+                                        class="btn btn-info btn-sm mr-1"
+                                        title="View Images">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
 
 
                                         <a href="{{ route('media.edit', base64_encode($media->id)) }}"
