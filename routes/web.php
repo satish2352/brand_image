@@ -47,10 +47,10 @@ Route::get('/clear-cache', function () {
 
 Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
 
-Route::middleware('guest')->group(function () {
-    Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
-    Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
-});
+// Route::middleware('guest')->group(function () {
+//     Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
+//     Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
+// });
 
 Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
 Route::group(['middleware' => ['SuperAdmin']], function () {
@@ -173,10 +173,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::get('admin/logout', [LoginController::class, 'logOut'])->name('admin.logout');
 });
 
-Route::group(['middleware' => ['Employee']], function () {
-    Route::get('/employee/change-password', [ChangePasswordController::class, 'index'])->name('employee.change-password');
-    Route::post('/employee/update-password', [ChangePasswordController::class, 'updatePassword'])->name('employee.update-password');
-});
+// Route::group(['middleware' => ['Employee']], function () {
+//     Route::get('/employee/change-password', [ChangePasswordController::class, 'index'])->name('employee.change-password');
+//     Route::post('/employee/update-password', [ChangePasswordController::class, 'updatePassword'])->name('employee.update-password');
+// });
 // Website Rotes
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
@@ -219,6 +219,7 @@ Route::post('/payment/success', [CheckoutController::class, 'success'])->name('p
 //     return view('website.payment-success');
 // })->name('payment.thankyou');
 Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+
 Route::middleware(['web'])->group(function () {
     Route::post('/campaign/store', [CampaignController::class, 'store'])
         ->name('campaign.store');
