@@ -32,6 +32,8 @@ class HomeRepository
                 'm.media_title',
                 'm.price',
                 'm.category_id',
+                'm.latitude',
+                'm.longitude',
                 'c.category_name',
                 'm.area_type',
                 'city.name as city_name',

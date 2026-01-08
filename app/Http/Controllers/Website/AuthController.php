@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\WebsiteUser;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WebsiteOtpMail;
 
 class AuthController extends Controller
 {
@@ -70,27 +73,90 @@ class AuthController extends Controller
     public function signup(Request $req)
     {
         $req->validate([
-            'signup_name' => 'required|string|max:255',
-            'signup_email' => 'required|email|unique:website_users,email',
+            'signup_name' => 'required',
+            'signup_email' => 'required|email',
             'signup_mobile_number' => 'required|digits:10',
-            'signup_organisation' => 'required|string|max:255',
-            'signup_gst' => 'nullable|regex:/^([0-9A-Z]{15})$/',
+            // 'signup_organisation' => 'required',
             'signup_password' => 'required|min:6',
         ]);
 
-        WebsiteUser::create([
-            'name'          => $req->signup_name,
-            'email'         => $req->signup_email,
+        // delete old unverified user (important)
+        WebsiteUser::where('email', $req->signup_email)
+            ->where('is_email_verified', 0)
+            ->delete();
+
+        $otp = rand(100000, 999999);
+
+        $user = WebsiteUser::create([
+            'name' => $req->signup_name,
+            'email' => $req->signup_email,
             'mobile_number' => $req->signup_mobile_number,
-            'organisation'  => $req->signup_organisation,
-            'gst'           => $req->signup_gst,
-            'password'      => Hash::make($req->signup_password),
+            // 'organisation' => $req->signup_organisation,
+            'password' => Hash::make($req->signup_password),
+            'otp' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinute(2),
+            'is_email_verified' => 0,
         ]);
+
+        Mail::to($user->email)->send(new WebsiteOtpMail($otp));
 
         return response()->json([
             'status' => true,
-            'message' => 'Registration successful! You can now login.'
+            'email' => $user->email,
+            'message' => 'OTP sent to your email'
         ]);
+    }
+
+    public function verifyOtp(Request $req)
+    {
+        $req->validate([
+            'email' => 'required|email',
+            'otp' => 'required'
+        ]);
+
+        $user = WebsiteUser::where('email', $req->email)->first();
+
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'User not found']);
+        }
+
+        if (Carbon::now()->gt($user->otp_expires_at)) {
+            return response()->json(['status' => false, 'message' => 'OTP expired']);
+        }
+
+        if ($user->otp !== $req->otp) {
+            return response()->json(['status' => false, 'message' => 'Invalid OTP, please check and enter correct OTP']);
+        }
+
+        $user->update([
+            'otp' => null,
+            'otp_expires_at' => null,
+            'is_email_verified' => 1,
+            'is_active' => 1,
+        ]);
+
+        Auth::guard('website')->login($user);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Account verified successfully'
+        ]);
+    }
+
+    public function resendOtp(Request $req)
+    {
+        $req->validate(['email' => 'required|email']);
+
+        $otp = rand(100000, 999999);
+
+        WebsiteUser::where('email', $req->email)->update([
+            'otp' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinute(2),
+        ]);
+
+        Mail::to($req->email)->send(new WebsiteOtpMail($otp));
+
+        return response()->json(['status' => true, 'message' => 'OTP resent']);
     }
 
 

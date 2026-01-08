@@ -161,6 +161,12 @@
                         Revenue Report
                     </a>
                 </li>
+
+                <li class="{{ request()->is('reports/revenue-graph') ? 'active' : '' }}">
+                    <a href="{{ route('reports.revenue.graph') }}">
+                        📊 Revenue Graph
+                    </a>
+                </li>
             </ul>
         </li>
         

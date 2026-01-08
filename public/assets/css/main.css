@@ -719,7 +719,8 @@ nav.main-menu li a {
 }
 
 .top-header-area .header-icons a:hover {
-  color: #F28123;
+  /* color: #F28123; */
+  color: #2b64b5;
 }
 
 .sticky-wrapper {
@@ -869,7 +870,8 @@ a.mobile-show {
 .header-icons a,
 .header-icons button {
     margin: 0;
-    padding: 6px 10px;
+    /* padding: 6px 10px; */
+    padding: 10px 10px;
 }
 
 /* ===== User Dropdown Fix ===== */

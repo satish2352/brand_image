@@ -1,4 +1,22 @@
+{{-- <style>
+    .loader{
+    position: fixed;
+    inset: 0;
 
+    background: transparent !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+
+    z-index: 9999;
+
+    display: none;              /* IMPORTANT */
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: all;
+}
+
+</style> --}}
 	
 	<!--PreLoader-->
     <div class="loader">
@@ -41,16 +59,20 @@
 										@auth('website')
 										<a href="{{ route('cart.index') }}" class="btn new-btn-light position-relative">
 											<i class="bi bi-cart3 fs-5"></i>
+                                            @if($cartCount > 0)
 											<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-count">
 												{{ $cartCount }}
 											</span>
+                                            @endif
 										</a>
 										@else
 										<button class="btn new-btn-light position-relative" onclick="openLoginForCart()">
 											<i class="bi bi-cart3 fs-5"></i>
+                                            @unless($cartCount == 0)
 											<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-count">
 												0
 											</span>
+                                            @endunless
 										</button>
 										@endauth
 										{{-- <a class="shopping-cart" href="cart.html"><i class="fas fa-shopping-cart"></i></a> --}}
@@ -145,99 +167,114 @@
                         <div id="loginArea">
 
                             <h4 class="auth-title">Login to Continue</h4>
-                            {{-- action="{{ route('website.login') }}" --}}
-                            <form method="POST" id="loginForm" action="{{ route('website.login') }}">
+
+                            <form method="POST" id="loginForm">
                                 @csrf
 
                                 <div class="mb-3">
-                                    <label>Email Address <span class="text-danger">*</span></label>
-                                    <input type="email" name="login_email" class="form-control" value="{{ old('email') }}">
-                                    @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <label>Email Address *</label>
+                                    <input type="email" name="login_email" class="form-control">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label>Password <span class="text-danger">*</span></label>
-                                    {{-- <input type="password" name="login_password" class="form-control"> --}}
+                                    <label>Password *</label>
                                     <div class="password-wrapper">
                                         <input type="password" name="login_password" class="form-control password-field">
                                         <i class="bi bi-eye-slash password-toggle"></i>
                                     </div>
-                                    @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-dark w-100 mt-2">Login</button>
+                                <button type="submit" class="btn btn-dark w-100">Login</button>
 
-								{{-- <a href="{{ route('auth.google.redirect') }}" class="google-btn"> --}}
-								<div class="social-login mt-4">
-									<a href="{{ route('auth.google.redirect') }}" class="google-btn">
-										<img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
-										Continue with Google
-									</a>
-								</div>
-
-                                <div class="auth-switch">
+                                <div class="auth-switch mt-3">
                                     Don't have an account?
                                     <a onclick="showSignup()">Sign Up</a>
                                 </div>
                             </form>
                         </div>
 
-
-                        <!-- SIGN-UP FORM (Initially Hidden) -->
+                        <!-- SIGNUP FORM -->
                         <div id="signupArea" style="display:none;">
 
                             <h4 class="auth-title">Create Your Account</h4>
-                            {{-- action="{{ route('website.signup') }}" --}}
-                            <form method="POST" id="signupForm" action="{{ route('website.signup') }}">
+
+                            <form id="signupForm">
                                 @csrf
 
                                 <div class="mb-3">
                                     <label>Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="signup_name" class="form-control" value="{{ old('name') }}">
-                                    @error('name') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <input type="text" name="signup_name" class="form-control">
                                 </div>
 
                                 <div class="mb-3">
                                     <label>Email Id <span class="text-danger">*</span></label>
-                                    <input type="email" name="signup_email" class="form-control" value="{{ old('email') }}">
-                                    @error('email') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <input type="email" name="signup_email" id="signupEmail" class="form-control">
                                 </div>
 
                                 <div class="mb-3">
                                     <label>Mobile Number <span class="text-danger">*</span></label>
-                                    <input type="text" name="signup_mobile_number" class="form-control" value="{{ old('mobile_number') }}">
-                                    @error('mobile_number') <span class="text-danger">{{ $message }}</span> @enderror
+                                    <input type="text" name="signup_mobile_number" class="form-control">
                                 </div>
 
                                 <div class="mb-3">
-                                    <label>Organisation <span class="text-danger">*</span></label>
+                                    <label>Organisation (optional)</label>
                                     <input type="text" name="signup_organisation" class="form-control">
-                                    @error('organisation') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <label>GST <small>(optional)</small></label>
+                                    <label>GST (optional)</label>
                                     <input type="text" name="signup_gst" class="form-control">
-                                    @error('gst') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <label>Password <span class="text-danger">*</span></label>
-                                    {{-- <input type="password" name="signup_password" class="form-control"> --}}
+                                    <label>Password *</label>
                                     <div class="password-wrapper">
                                         <input type="password" name="signup_password" class="form-control password-field">
                                         <i class="bi bi-eye-slash password-toggle"></i>
                                     </div>
-                                    @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-dark w-100 mt-2">Sign Up</button>
+                                <!-- VERIFY ACCOUNT BUTTON -->
+                                <button type="button" class="btn btn-dark w-100" id="sendOtpBtn">
+                                    Verify Account
+                                </button>
 
-                                <div class="auth-switch">
+                                <div class="auth-switch mt-3">
                                     Already have an account?
                                     <a onclick="showLogin()">Login</a>
                                 </div>
                             </form>
+                        </div>
+
+                        <!-- OTP AREA -->
+                        <div id="otpArea" style="display:none;">
+
+                            <h4 class="auth-title">Verify Email</h4>
+
+                            <div class="mb-3">
+                                <label>Email</label>
+                                <input type="email" id="otpEmail" class="form-control" readonly>
+                            </div>
+
+                            <div class="mb-2">
+                                <label>Enter OTP</label>
+                                <input type="text" id="otpInput" class="form-control">
+                            </div>
+
+                            <small class="text-muted">
+                                OTP expires in <span id="otpTimer">01:00</span>
+                            </small>
+
+                            <div class="text-danger mt-2" id="otpError"></div>
+
+                            <button class="btn btn-dark w-100 mt-3" id="verifyOtpBtn">
+                                Verify OTP
+                            </button>
+
+                            <button class="btn btn-link w-100 mt-2 d-none" id="resendOtpBtn">
+                                Resend OTP
+                            </button>
+
                         </div>
 
                     </div>
@@ -338,7 +375,10 @@ $(document).ready(function () {
                     }
 
                 else {
-                    Swal.fire("Error!", res.message, "error");
+                    // Swal.fire("Error!", res.message, "error");
+                      $("#loginForm").prepend(
+                            `<div class="text-danger mb-2">${res.message}</div>`
+                        );
                 }
             },
 
@@ -381,58 +421,153 @@ $(document).ready(function () {
 
 
     /* ---------------- SIGNUP ---------------- */
-    $("#signupForm").on("submit", function(e) {
-        e.preventDefault();
-        $(".text-danger").remove();
-        showLoader();
+let otpTime = 120; // ⏱ 2 minutes
+let otpInterval = null;
+let resendLocked = false;
 
-        $.ajax({
-            url: "{{ route('website.signup') }}",
-            method: "POST",
-            data: $(this).serialize(),
+/* ================= LOADER ================= */
+// function showLoader() {
+//     $(".loader").fadeIn();
+// }
 
-            success: function(res){
-                hideLoader();
+// function hideLoader() {
+//     $(".loader").fadeOut();
+// }
 
-                Swal.fire("Registered!", res.message, "success")
-                .then(() => showLogin());
-            },
+/* ================= OTP TIMER ================= */
+function startOtpTimer() {
 
-            error: function(xhr){
-                hideLoader();
+    clearInterval(otpInterval); // safety
+    otpTime = 120;
 
-                // If validation error (422)
-                if (xhr.status === 422) {
-                    $("#authModal").modal("show");
-                    showSignup();
+    $("#otpTimer").text("02:00");
+    $("#verifyOtpBtn").show();
+    $("#resendOtpBtn").addClass("d-none").prop("disabled", true);
+    resendLocked = true;
 
-                    let errors = xhr.responseJSON.errors;
-                    $.each(errors, function(field, msg){
-                        $(`#signupForm [name="${field}"]`).after(`<span class="text-danger">${msg[0]}</span>`);
-                    });
+    otpInterval = setInterval(() => {
+        otpTime--;
 
-                } else {
-                    // Any other server/API/database error
-                    Swal.fire(
-                        "Oops!",
-                        "Something went wrong. Please try again!",
-                        "error"
-                    );
-                }
+        let min = Math.floor(otpTime / 60);
+        let sec = otpTime % 60;
+
+        $("#otpTimer").text(
+            `${min < 10 ? '0' + min : min}:${sec < 10 ? '0' + sec : sec}`
+        );
+
+        if (otpTime <= 0) {
+            clearInterval(otpInterval);
+            $("#otpTimer").text("00:00");
+
+            $("#verifyOtpBtn").hide();
+            $("#resendOtpBtn")
+                .removeClass("d-none")
+                .prop("disabled", false);
+
+            resendLocked = false; // 🔓 allow resend
+        }
+    }, 1000);
+}
+
+/* ================= VERIFY ACCOUNT (SEND OTP) ================= */
+$("#sendOtpBtn").click(function () {
+
+    if ($(this).prop("disabled")) return;
+
+    // $(".text-danger").remove();
+    $("#signupForm .text-danger").remove();
+    $("#loginForm .text-danger").remove();
+    showLoader();
+
+    $.ajax({
+        url: "{{ route('website.signup') }}",
+        method: "POST",
+        data: $("#signupForm").serialize(),
+
+        success: function (res) {
+            hideLoader();
+
+            if (res.status) {
+                $("#signupArea").hide();
+                $("#otpArea").fadeIn();
+
+                $("#otpEmail").val($("#signupEmail").val());
+
+                startOtpTimer();
             }
-            // error: function(xhr){
-            //     hideLoader();
+        },
 
-            //     $("#authModal").modal("show");
-            //     showSignup();
+        error: function (xhr) {
+            hideLoader();
 
-            //     let errors = xhr.responseJSON.errors;
-            //     $.each(errors, function(field, msg){
-            //         $(`#signupForm [name="${field}"]`).after(`<span class="text-danger">${msg[0]}</span>`);
-            //     });
-            // }
-        });
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                $.each(errors, function (field, msg) {
+                    $(`[name="${field}"]`)
+                        .after(`<span class="text-danger">${msg[0]}</span>`);
+                });
+            }
+        }
     });
+});
+
+/* ================= VERIFY OTP ================= */
+$("#verifyOtpBtn").click(function () {
+
+    $("#otpError").text(""); // clear previous error
+    showLoader();
+
+    $.ajax({
+        url: "{{ route('website.verify.otp') }}",
+        method: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            email: $("#otpEmail").val(),
+            otp: $("#otpInput").val()
+        },
+
+        success: function (res) {
+            hideLoader();
+
+            if (res.status) {
+                Swal.fire(
+                    "Success",
+                    "Registration successful!",
+                    "success"
+                ).then(() => location.reload());
+            } else {
+                hideLoader();
+                // ✅ THIS WILL SHOW BELOW OTP INPUT
+                $("#otpError").text(res.message);
+            }
+        }
+    });
+});
+
+/* ================= RESEND OTP ================= */
+$("#resendOtpBtn").click(function () {
+
+    if (resendLocked) return; // ❌ block multiple clicks
+
+    resendLocked = true;
+    $(this).prop("disabled", true);
+    showLoader();
+
+    $.ajax({
+        url: "{{ route('website.resend.otp') }}",
+        method: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            email: $("#otpEmail").val() // editable email
+        },
+
+        success: function () {
+            hideLoader();
+            startOtpTimer(); // 🔁 restart 2 min
+        }
+    });
+});
+
 
 });
 

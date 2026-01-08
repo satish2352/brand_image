@@ -280,7 +280,8 @@
  
                                     {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
                                     <div class="media-map mt-4">
-                                        <a href="https://www.google.com/maps"
+                                        {{-- <a href="https://www.google.com/maps" --}}
+										<a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
                                         target="_blank"
                                         class="text-muted d-inline-flex align-items-center gap-1">
                                             <img src="{{ asset('assets/img/map.png') }}" width="30">
@@ -405,7 +406,8 @@
 									</div>
 
 									<div class="media-map mt-4">
-										<a href="https://www.google.com/maps"
+										{{-- <a href="https://www.google.com/maps" --}}
+										<a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
 										target="_blank"
 										class="text-muted d-inline-flex align-items-center gap-1">
 											<img src="{{ asset('assets/img/map.png') }}" width="30">

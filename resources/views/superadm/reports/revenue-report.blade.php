@@ -158,7 +158,13 @@
 
                         @if($type === 'date')
                             <td>{{ $row->period }}</td>
-                            <td>{{ $row->total_bookings }}</td>
+                            {{-- <td>{{ $row->total_bookings }}</td> --}}
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary"
+                                    onclick="openBookingModal('{{ $row->period }}')">
+                                    <i class="mdi mdi-eye"></i> {{ $row->total_bookings }}
+                                </button>
+                            </td>
                             <td>₹ {{ number_format($row->total_revenue, 2) }}</td>
 
                         @elseif($type === 'media')
@@ -176,7 +182,13 @@
 
                         @elseif($type === 'user')
                             <td>{{ $row->user_name }}</td>
-                            <td>{{ $row->total_bookings }}</td>
+                            {{-- <td>{{ $row->total_bookings }}</td> --}}
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary"
+                                    onclick="openUserBookingModal({{ $row->id }}, '{{ $row->user_name }}')">
+                                    View ({{ $row->total_bookings }})
+                                </button>
+                            </td>
                             <td>{{ $row->booked_days }}</td>
                             <td>₹ {{ number_format($row->total_revenue, 2) }}</td>
                         @endif
@@ -218,6 +230,143 @@
 
     </div>
 </div>
+
+<div class="modal fade" id="bookingModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="bookingModalTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body" style="max-height:60vh; overflow-y:auto;">
+        <div id="bookingModalBody" class="text-center text-muted">
+            Loading...
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+function openBookingModal(period) {
+
+    // $('#bookingModalTitle').text('Revenue Breakdown – ' + period);
+    $('#bookingModalTitle').html(
+  `Revenue Breakdown – ${period} <small class="text-muted">(Paid bookings)</small>`
+);
+    $('#bookingModalBody').html('<div class="text-center">Loading...</div>');
+
+    // Bootstrap 4 open
+    $('#bookingModal').modal('show');
+
+    fetch("{{ route('reports.revenue.month.details') }}?period=" + period)
+        .then(res => res.json())
+        .then(rows => {
+
+            if (!rows.length) {
+                $('#bookingModalBody').html(
+                    '<p class="text-center text-muted">No records found</p>'
+                );
+                return;
+            }
+
+            let html = `
+            <table class="table table-bordered table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>Media Code</th>
+                        <th>Media Title</th>
+                        <th>Category</th>
+                        <th>Booked Days</th>
+                        <th>Revenue (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            rows.forEach(r => {
+                html += `
+                <tr>
+                    <td>${r.media_code}</td>
+                    <td>${r.media_title}</td>
+                    <td>${r.category_name}</td>
+                    <td>${r.booked_days}</td>
+                    <td>₹ ${parseFloat(r.price).toFixed(2)}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+
+            $('#bookingModalBody').html(html);
+        });
+}
+</script>
+
+<script>
+function openUserBookingModal(userId, userName) {
+
+    // $('#bookingModalTitle').text('User Revenue Breakdown – ' + userName);
+        $('#bookingModalTitle').html(
+  `User Revenue Breakdown – ${userName} <small class="text-muted">(Paid bookings)</small>`
+);
+    $('#bookingModalBody').html('Loading...');
+
+    $('#bookingModal').modal('show');
+
+    fetch("{{ route('reports.revenue.user.details') }}?user_id=" + userId)
+        .then(res => res.json())
+        .then(rows => {
+
+            if (!rows.length) {
+                $('#bookingModalBody').html(
+                    '<p class="text-center text-muted">No records found</p>'
+                );
+                return;
+            }
+
+            let html = `
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Media Code</th>
+                        <th>Media Title</th>
+                        <th>Category</th>
+                        <th>From - To</th>
+                        <th>Booked Days</th>
+                        <th>Revenue (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            rows.forEach(r => {
+                html += `
+                <tr>
+                    <td>${r.media_code}</td>
+                    <td>${r.media_title}</td>
+                    <td>${r.category_name}</td>
+                    <td>${r.from_date} → ${r.to_date}</td>
+                    <td>${r.booked_days}</td>
+                    <td>₹ ${parseFloat(r.price).toFixed(2)}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+
+            $('#bookingModalBody').html(html);
+        });
+}
+</script>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
