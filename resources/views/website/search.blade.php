@@ -75,6 +75,14 @@
 <div class="mt-3">
 @include('website.search-form')
 </div>
+@if(session('info'))
+    <div class="alert alert-warning mt-2">{{ session('info') }}</div>
+@endif
+
+@if(session('success'))
+    <div class="alert alert-success mt-2">{{ session('success') }}</div>
+@endif
+
 {{-- SEARCH RESULTS --}}
 @if($mediaList->count())
 

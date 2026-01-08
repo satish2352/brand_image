@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Website;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Services\Website\CartService;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -22,15 +21,34 @@ class CartController extends Controller
         $items = $this->service->getCartItems();
         return view('website.cart', compact('items'));
     }
+    // public function add($mediaId)
+    // {
+    //     $mediaId = base64_decode($mediaId);
+    //     $this->service->addToCart($mediaId);
+
+    //     return redirect()
+    //         ->route('cart.index')
+    //         ->with('success', 'Item added to cart');
+    // }
     public function add($mediaId)
     {
         $mediaId = base64_decode($mediaId);
-        $this->service->addToCart($mediaId);
 
-        return redirect()
-            ->route('cart.index')
-            ->with('success', 'Item added to cart');
+        try {
+            $this->service->addToCart($mediaId);
+
+            return redirect()
+                ->route('cart.index')
+                ->with('success', 'Media added to cart successfully!');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('cart.index')
+                ->with('info', $e->getMessage());
+        }
     }
+
+
+
 
     public function addWithDate(Request $request)
     {

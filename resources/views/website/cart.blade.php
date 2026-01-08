@@ -1,157 +1,4 @@
-{{-- @extends('website.layout')
 
-@section('title', 'My Cart')
-
-@section('content')
-
-
-<div class="container my-5">
-
-  <div class="d-flex justify-content-end">
-  
-  </div>
-
-
-    <h3 class="mb-4">My Cart</h3>
-
-    
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-   
-    @if($items->count() === 0)
-        <p>Your cart is empty.</p>
-        <a href="{{ url('/') }}" class="btn btn-primary">Go Back</a>
-    @else
-
-    <table class="table table-bordered text-center align-middle">
-        <thead>
-            <tr>
-                <th>Media</th>
-                <th>Price</th>
-             
-                <th>Total</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-
-        <tbody>
-        @php $grandTotal = 0; @endphp
-
-        @foreach($items as $item)
-            @php
-                $total = $item->price * $item->qty;
-                $grandTotal += $total;
-            @endphp
-
-            <tr>
-                <td>
-                    {{ $item->media_title ?? $item->category_name }}
-                </td>
-
-                <td>
-                    ₹ {{ number_format($item->price, 2) }}
-                </td>
-
-               
-
-                <td>
-                    ₹ {{ number_format($total, 2) }}
-                </td>
-
-                <td>
-                    <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
-                       class="btn btn-sm btn-danger">
-                        Remove
-                    </a>
-                </td>
-            </tr>
-        @endforeach
-        </tbody>
-
-        <tfoot>
-            <tr>
-                <th colspan="3">Grand Total</th>
-                <th colspan="2">
-                    ₹ {{ number_format($grandTotal, 2) }}
-                </th>
-            </tr>
-        </tfoot>
-    </table>
-
-    <div class="text-end mt-3">
-        <a href="{{ url('/') }}" class="btn btn-outline-secondary">
-            Continue Shopping
-        </a>
-
-<form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
-    @csrf
-    <button type="submit" class="btn btn-success">
-        Proceed to Checkout
-    </button>
-</form>
-@if($items->count() > 0)
-<button type="button"
-    class="btn btn-success"
-    data-bs-toggle="modal"
-    data-bs-target="#campaignModal">
-    Campaign
-</button>
-@endif
-
-     
-    </div>
-
-    @endif
-</div>
-
-
-
-<div class="modal fade" id="campaignModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-
-            <form method="POST" action="{{ route('campaign.store') }}">
-  
-                @csrf
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Create Campaign</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Campaign Name</label>
-                        <input type="text"
-                               name="campaign_name"
-                               class="form-control"
-                               placeholder="Enter campaign name"
-                               required>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-
-                    <button type="submit"
-                            class="btn btn-success">
-                        Save
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-</div>
-
-@endsection --}}
 @extends('website.layout')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -708,7 +555,7 @@
             <!-- RIGHT : ACTION BUTTONS -->
             <div class="col-md-8 text-md-end mt-3 mt-md-0">
 
-                <a href="{{ url('/') }}" class="btn cart-btn btn-cart-outline">
+                <a href="{{ route('website.search') }}" class="btn cart-btn btn-cart-outline">
                     Continue Shopping
                 </a>
 
@@ -867,50 +714,6 @@ function changeCartImage(el, src) {
 </script>
 {{-- ============== --}}
 <script>
-// document.querySelectorAll('.update-date-btn').forEach(btn => {
-
-//     btn.addEventListener('click', function () {
-
-//         const form     = this.closest('.cart-date-form');
-//         const fromDate = form.querySelector('.from-date').value;
-//         const toDate   = form.querySelector('.to-date').value;
-//         const errorBox = form.querySelector('.cart-date-error');
-
-//         // 🚫 stop if no dates
-//         if (!fromDate || !toDate) {
-//             errorBox.classList.remove('d-none');
-//             errorBox.innerText = 'Please select booking dates';
-//             return;
-//         }
-
-//         const formData = new FormData(form);
-
-//         fetch("{{ route('cart.update.dates') }}", {
-//             method: "POST",
-//             headers: {
-//                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
-//             },
-//             body: formData
-//         })
-//         .then(res => res.json())
-//         .then(data => {
-//             if (!data.success) {
-//                 errorBox.classList.remove('d-none');
-//                 errorBox.innerText = data.message;
-//             } else {
-//                 //  CLEAR ERROR BEFORE RELOAD
-//                 errorBox.classList.add('d-none');
-//                 errorBox.innerText = '';
-//                 location.reload();
-//             }
-//         })
-//         .catch(() => {
-//             errorBox.classList.remove('d-none');
-//             errorBox.innerText = 'Something went wrong';
-//         });
-//     });
-
-// });
 document.querySelectorAll('.update-date-btn').forEach(btn => {
 
     btn.addEventListener('click', function () {
@@ -1044,40 +847,6 @@ document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
 
 <script>
-// function validateCartDates() {
-//     let isValid = true;
-//     let firstInvalidForm = null;
-
-//     document.querySelectorAll('.cart-date-form').forEach(form => {
-
-//         const fromDate = form.querySelector('.from-date').value;
-//         const toDate   = form.querySelector('.to-date').value;
-//         const errorBox = form.querySelector('.cart-date-error');
-
-//         if (!fromDate || !toDate) {
-//             isValid = false;
-
-//             errorBox.classList.remove('d-none');
-//             errorBox.innerText = 'Please select booking dates';
-
-//             if (!firstInvalidForm) {
-//                 firstInvalidForm = form;
-//             }
-//         } else {
-//             errorBox.classList.add('d-none');
-//             errorBox.innerText = '';
-//         }
-//     });
-
-//     if (!isValid && firstInvalidForm) {
-//         firstInvalidForm.scrollIntoView({
-//             behavior: 'smooth',
-//             block: 'center'
-//         });
-//     }
-
-//     return isValid;
-// }
 function validateCartDates() {
     let isValid = true;
     let firstInvalidForm = null;

@@ -56,17 +56,44 @@ class CartService
         return $items;
     }
 
+    // public function addToCart($mediaId)
+    // {
+    //     $media = DB::table('media_management')
+    //         ->where('id', $mediaId)
+    //         ->select('id', 'price')
+    //         ->first();
+
+    //     if (!$media) {
+    //         throw new \Exception('Media not found');
+    //     }
+
+    //     $this->repo->addItem($media->id, $media->price);
+    // }
     public function addToCart($mediaId)
     {
+        $userId = auth('website')->id();
+
+        // Duplicate check
+        $exists = DB::table('cart_items')
+            ->where('user_id', $userId)
+            ->where('media_id', $mediaId)
+            ->exists();
+
+        if ($exists) {
+            throw new \Exception('Media already added to cart.');
+        }
+
+        // Get media price
         $media = DB::table('media_management')
             ->where('id', $mediaId)
             ->select('id', 'price')
             ->first();
 
         if (!$media) {
-            throw new \Exception('Media not found');
+            throw new \Exception('Media not found.');
         }
 
+        // Insert using repository
         $this->repo->addItem($media->id, $media->price);
     }
 
