@@ -120,7 +120,7 @@ class MediaManagementService
             $media = $this->repo->store($mediaData);
 
 
-            /** ✅ SAVE IMAGES */
+            /**  SAVE IMAGES */
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
 
@@ -325,6 +325,4 @@ class MediaManagementService
 
         return $vendorCode . '_' . $next;
     }
-
-
 }

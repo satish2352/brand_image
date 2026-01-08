@@ -366,7 +366,7 @@ $(document).ready(function () {
 
                             if (redirectUrl) {
                                 sessionStorage.removeItem('redirect_after_login');
-                                window.location.href = redirectUrl; // ✅ ADD TO CART
+                                window.location.href = redirectUrl; //  ADD TO CART
                             } else {
                                 window.location.reload(); // normal login
                             }
@@ -537,7 +537,7 @@ $("#verifyOtpBtn").click(function () {
                 ).then(() => location.reload());
             } else {
                 hideLoader();
-                // ✅ THIS WILL SHOW BELOW OTP INPUT
+                //  THIS WILL SHOW BELOW OTP INPUT
                 $("#otpError").text(res.message);
             }
         }

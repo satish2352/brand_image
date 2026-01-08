@@ -328,7 +328,7 @@ $(document).ready(function () {
 
                             if (redirectUrl) {
                                 sessionStorage.removeItem('redirect_after_login');
-                                window.location.href = redirectUrl; // ✅ ADD TO CART
+                                window.location.href = redirectUrl; //  ADD TO CART
                             } else {
                                 window.location.reload(); // normal login
                             }

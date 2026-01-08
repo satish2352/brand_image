@@ -13,7 +13,7 @@ class Employee
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // ✅ Check if employee session exists
+        //  Check if employee session exists
         if (!$request->session()->has('emp_user_id')) {
             // Redirect to employee login page
             return redirect()->route('emp.login');

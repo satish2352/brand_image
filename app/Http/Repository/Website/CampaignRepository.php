@@ -37,34 +37,6 @@ class CampaignRepository
             return true;
         });
     }
-
-
-    /**
-     * Campaign list
-     */
-    // public function getCampaignList($userId, $request)
-    // {
-    //     return DB::table('campaign as c')
-    //         ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
-    //         ->join('media_management as m', 'm.id', '=', 'ci.media_id')
-    //         ->select(
-    //             'c.id as campaign_id',
-    //             'c.campaign_name',
-    //             'ci.price',
-    //             'ci.qty',
-    //             'ci.created_at as campaign_date',
-    //             'm.media_title',
-    //             'm.width',
-    //             'm.height'
-    //         )
-    //         ->where('c.user_id', $userId)
-    //         ->where('ci.cart_type', 'CAMPAIGN')
-    //         ->where('ci.status', 'ACTIVE')
-    //         ->where('c.is_active', 1)
-    //         ->where('c.is_deleted', 0)
-    //         ->orderBy('c.id', 'DESC')
-    //         ->paginate(10);
-    // }
     public function getCampaignList($userId, $request)
     {
         $query = DB::table('campaign as c')

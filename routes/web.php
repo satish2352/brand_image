@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Superadm\LoginController;
 use App\Http\Controllers\Superadm\DashboardController;
-use App\Http\Controllers\EmpDashboardController;
+
 use App\Http\Controllers\Superadm\RoleController;
 use App\Http\Controllers\Superadm\RadiusController;
 use App\Http\Controllers\Superadm\MediaUtilisationReportController;
@@ -18,7 +18,6 @@ use App\Http\Controllers\Superadm\AreaController;
 use App\Http\Controllers\Superadm\MediaManagementController;
 use App\Http\Controllers\Superadm\EmployeesController;
 use App\Http\Controllers\Superadm\ChangePasswordController;
-use App\Http\Controllers\Superadm\EmployeeLoginController;
 use App\Http\Controllers\Website\CartController;
 use App\Http\Controllers\Website\CheckoutController;
 // website
@@ -42,35 +41,18 @@ Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
 
-    return "<h3>✅ All caches cleared successfully!</h3>";
+    return "<h3> All caches cleared successfully!</h3>";
 })->name('clear.cache');
 
 
 Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
-
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
     Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
-
-    Route::get('emp-login', [EmployeeLoginController::class, 'loginEmployee'])->name('emp.login');
-    Route::post('emp-login', [EmployeeLoginController::class, 'validateEmpLogin'])->name('emp.login.submit');
 });
-
 Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
-
-Route::get('emp-login', [EmployeeLoginController::class, 'loginEmployee'])->name('emp.login');
-Route::post('emp-login', [EmployeeLoginController::class, 'validateEmpLogin'])->name('emp.login.submit');
-Route::get('emp-logout', [EmployeeLoginController::class, 'logOut'])->name('emp.logout');
-
-
-
 Route::group(['middleware' => ['SuperAdmin']], function () {
-
-
-
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-
     // Route::get('/change-password', [ChangePasswordController::class, 'index'])->name('change-password');
     // Route::post('/update-password', [ChangePasswordController::class, 'updatePassword'])->name('update-password');
     Route::get('/admin/change-password', [ChangePasswordController::class, 'index'])->name('admin.change-password');
@@ -83,29 +65,16 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::post('/roles/update/{encodedId}', [RoleController::class, 'update'])->name('roles.update');
     Route::post('/roles/delete', [RoleController::class, 'delete'])->name('roles.delete');
     Route::post('/roles/update-status', [RoleController::class, 'updateStatus'])->name('roles.updatestatus');
-
-
-
     /* AREA MANAGEMENT */
     Route::prefix('area')->group(function () {
-
         Route::get('list', [AreaController::class, 'index'])->name('area.list');
-
         Route::get('add', [AreaController::class, 'create'])->name('area.create');
-
-        // ✅ THIS IS IMPORTANT
         Route::post('add', [AreaController::class, 'store'])->name('area.store');
-
         Route::get('edit/{encodedId}', [AreaController::class, 'edit'])->name('area.edit');
-
         Route::post('update/{encodedId}', [AreaController::class, 'update'])->name('area.update');
-
         Route::post('delete', [AreaController::class, 'delete'])->name('area.delete');
-
         Route::post('update-status', [AreaController::class, 'updateStatus'])->name('area.updatestatus');
     });
-
-
     /* CATEGORY MANAGEMENT */
     Route::prefix('category')->group(function () {
         Route::get('list', [CategoryController::class, 'index'])->name('category.list');
@@ -116,52 +85,30 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('delete', [CategoryController::class, 'delete'])->name('category.delete');
         Route::post('update-status', [CategoryController::class, 'updateStatus'])->name('category.updatestatus');
     });
-
     Route::prefix('media')->group(function () {
-
         Route::get('list', [MediaManagementController::class, 'index'])
             ->name('media.list');
-
         Route::get('add', [MediaManagementController::class, 'create'])
             ->name('media.create');
-
         Route::post('add', [MediaManagementController::class, 'store'])
             ->name('media.store');
-
         Route::get('edit/{encodedId}', [MediaManagementController::class, 'edit'])
             ->name('media.edit');
-
         Route::post('update/{encodedId}', [MediaManagementController::class, 'update'])
             ->name('media.update');
-
         Route::post('delete', [MediaManagementController::class, 'delete'])
             ->name('media.delete');
-
-        // ✅ THIS FIXES YOUR ERROR
         Route::post('status', [MediaManagementController::class, 'updateStatus'])
             ->name('media.status');
-
-        /* =========================
-       👁 VIEW MEDIA IMAGES
-    ========================== */
         Route::get('view/{encodedId}', [MediaManagementController::class, 'view'])
             ->name('media.view');
-
-        /* =========================
-       🗑 DELETE SINGLE IMAGE
-    ========================== */
         Route::post('image/delete', [MediaManagementController::class, 'deleteImage'])
             ->name('media.image.delete');
-
         Route::post('image/upload', [MediaManagementController::class, 'uploadImage'])
             ->name('media.image.upload');
-
         Route::get('view-details/{encodedId}', [MediaManagementController::class, 'viewDetails'])
             ->name('media.viewdetails');
     });
-
-
-
     /* MEDIA AJAX (LOCATION HELPERS) */
     Route::get('get-states', [MediaManagementController::class, 'getStates']);
     Route::get('get-districts/{stateId}', [MediaManagementController::class, 'getDistricts']);
@@ -174,11 +121,8 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::post('/media/update-status', [MediaManagementController::class, 'getAreaParents'])->name('media.updatestatus');
     Route::post('/media/update-status', [MediaManagementController::class, 'getDistricts'])->name('media.updatestatus');
     Route::post('/media/update-status', [MediaManagementController::class, 'getAreas'])->name('media.updatestatus');
-
     // Route::post('status', [MediaManagementController::class, 'updateStatus'])
     //     ->name('media.status');
-
-
     Route::prefix('website-user')->group(function () {
         Route::get('list', [WebsiteUserController::class, 'index'])->name('website-user.list');
         Route::post('delete', [WebsiteUserController::class, 'delete'])->name('website-user.delete');
@@ -194,7 +138,6 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::get('details/{orderId}', [UserPaymentController::class, 'details'])
             ->name('user-payment.details');
     });
-
     Route::prefix('admin-campaing')->group(function () {
         Route::get('list', [CampaingController::class, 'index'])->name('admin-campaing.list');
         Route::post('delete', [CampaingController::class, 'delete'])->name('admin-campaing.delete');
@@ -209,64 +152,46 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::post('radius/update-status', [RadiusController::class, 'updateStatus'])->name('radius.updatestatus');
 
     Route::prefix('admin-booking')->group(function () {
-
         Route::get('/', [HordingBookController::class, 'index'])
             ->name('admin-booking.index');
-
         Route::post('/search', [HordingBookController::class, 'search'])
             ->name('admin-booking.search');
-
         Route::get('/admin-media-details/{mediaId}', [HordingBookController::class, 'getMediaDetailsAdmin'])
             ->name('admin-booking.admin-media-details');
-
         Route::post(
             '/admin-booking/book-media',
             [HordingBookController::class, 'bookMedia']
         )->name('admin.booking.store');
-
         Route::get('reports/media-utilisation', [MediaUtilisationReportController::class, 'index'])->name('reports.media.utilisation');
         Route::get('reports/media-utilisation/export/excel', [MediaUtilisationReportController::class, 'exportExcel'])->name('reports.media.utilisation.export.excel');
-
         Route::get('reports/media-utilisation/export/pdf', [MediaUtilisationReportController::class, 'exportPdf'])->name('reports.media.utilisation.export.pdf');
         Route::get(
             'reports/media-utilisation/check-export',
             [MediaUtilisationReportController::class, 'checkExportData']
         )->name('reports.media.utilisation.check-export');
-
-        // revnue
-
         Route::prefix('reports/revenue')->name('reports.revenue.')->group(function () {
             Route::get('/', [RevenueReportController::class, 'index'])->name('index');
             Route::get('/export-excel', [RevenueReportController::class, 'exportExcel'])->name('export.excel');
             Route::get('/export-pdf', [RevenueReportController::class, 'exportPdf'])->name('export.pdf');
         });
-
         Route::get('reports/revenue/export/excel', [RevenueReportController::class, 'exportExcel'])
             ->name('reports.revenue.export.excel');
-
         Route::get('reports/revenue/export/pdf', [RevenueReportController::class, 'exportPdf'])
             ->name('reports.revenue.export.pdf');
         Route::get(
             'reports/revenue/check-export',
             [RevenueReportController::class, 'checkExportData']
         )->name('reports.revenue.check-export');
-
         Route::get('reports/revenue/month-details', [RevenueReportController::class, 'monthDetails'])->name('reports.revenue.month.details');
         Route::get('reports/revenue/user-details', [RevenueReportController::class, 'userDetails'])->name('reports.revenue.user.details');
-
         Route::get('reports/revenue-graph', [RevenueGraphController::class, 'index'])->name('reports.revenue.graph');
-
-
         Route::post(
             '/admin-booking/list-booking',
             [HordingBookController::class, 'bookingList']
         )->name('admin.booking.list-booking');
-
         Route::get('booking-details/{orderId}', [HordingBookController::class, 'bookingDetailsList'])
             ->name('admin-booking.booking-details');
     });
-
-
     Route::prefix('vendor')->group(function () {
         Route::get('list', [VendorController::class, 'index'])->name('vendor.list');
         Route::get('add', [VendorController::class, 'create'])->name('vendor.create');
@@ -278,8 +203,6 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     });
     Route::get('vendor/export-excel', [VendorController::class, 'exportExcel'])
         ->name('vendor.export.excel');
-
-
     Route::prefix('illumination')->group(function () {
         Route::get('list', [IlluminationController::class, 'index'])->name('illumination.list');
         Route::get('add', [IlluminationController::class, 'create'])->name('illumination.create');
@@ -289,215 +212,110 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('delete', [IlluminationController::class, 'delete'])->name('illumination.delete');
         Route::post('update-status', [IlluminationController::class, 'updateStatus'])->name('illumination.updatestatus');
     });
-
     Route::get(
         'media/next-code/{vendorId}',
         [MediaManagementController::class, 'getNextMediaCode']
     )->name('media.next.code');
-
-
-    // employees management routes
-    Route::get('/employees/list', [EmployeesController::class, 'index'])->name('employees.list');
-    Route::get('/employees/ajax-list', [EmployeesController::class, 'ajaxList'])->name('employees.ajax');
-    Route::get('/employees/add', [EmployeesController::class, 'create'])->name('employees.create');
-    Route::post('/employees/add', [EmployeesController::class, 'save'])->name('employees.save');
-    Route::get('/employees/edit/{encodedId}', [EmployeesController::class, 'edit'])->name('employees.edit');
-    Route::PUT('/employees/update/{encodedId}', [EmployeesController::class, 'update'])->name('employees.update');
-    Route::post('/employees/delete', [EmployeesController::class, 'delete'])->name('employees.delete');
-    Route::post('/employees/update-status', [EmployeesController::class, 'updateStatus'])->name('employees.updatestatus');
-    Route::post('/employees/list-ajax', [EmployeesController::class, 'listajaxlist'])->name('employees.list-ajax');
-    Route::post('/employees/update-status', [EmployeesController::class, 'updateStatus'])->name('employees.updatestatus');
-
-
-    Route::get('employees/export', [EmployeesController::class, 'export'])->name('employees.export');
-
-
-
-
-
     // Route::get('logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('admin/logout', [LoginController::class, 'logOut'])->name('admin.logout');
 });
 
-
-// Route::group(['middleware' => ['Employee']], function () {
-
-//     Route::get('dashboard-emp', [EmpDashboardController::class, 'index'])->name('dashboard-emp');
-//     Route::get('/change-password', [ChangePasswordController::class, 'index'])->name('change-password');
-//     Route::post('/update-password', [ChangePasswordController::class, 'updatePassword'])->name('update-password');
-//     Route::get('logout', [LoginController::class, 'logout'])->name('logout');
-
-// });
-
 Route::group(['middleware' => ['Employee']], function () {
-    Route::get('dashboard-emp', [EmpDashboardController::class, 'index'])->name('dashboard-emp');
-    // Route::get('/change-password', [ChangePasswordController::class, 'index'])->name('change-password');
-    // Route::post('/update-password', [ChangePasswordController::class, 'updatePassword'])->name('update-password');
     Route::get('/employee/change-password', [ChangePasswordController::class, 'index'])->name('employee.change-password');
     Route::post('/employee/update-password', [ChangePasswordController::class, 'updatePassword'])->name('employee.update-password');
     // Route::get('logout', [LoginController::class, 'logout'])->name('logout');
-    // Route::get('emp/logout', [EmployeeLoginController::class, 'logOut'])->name('emp.logout');
+
 });
-
-
 // Website Rotes
-
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])
     ->name('auth.google.redirect');
-
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])
     ->name('auth.google.callback');
-
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
-
 Route::post('/search', [HomeController::class, 'search'])->name('website.search');
-
 Route::view('/about', 'website.about')->name('website.about');
-// Route::view('/details', 'website.details')->name('website.details');
-// Route::view('/dashboard', 'website.dashboard')->name('website.dashboard');
-// Route::prefix('dashboard')->group(function () {
-
-//     Route::get('/', function () {
-//         return view('website.dashboard.index');
-//     })->name('dashboard.home');
-
-//     Route::get('/profile', function () {
-//         return view('website.dashboard.profile');
-//     })->name('dashboard.profile');
-// });
 Route::middleware('auth:website')
     ->prefix('user/dashboard')
     ->group(function () {
-
         Route::get('/', function () {
             return view('website.dashboard.index');
         })->name('dashboard.home');
-
         Route::get('/profile', function () {
             return view('website.dashboard.profile');
         })->name('dashboard.profile');
     });
-
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])
     ->name('website.media-details');
-
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');
 Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.logout');
-
 // otp base
 Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp');
 Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp');
-
-
 Route::middleware('auth:website')->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::get('/cart/add/{mediaId}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
     Route::get('/cart/remove/{mediaId}', [CartController::class, 'remove'])->name('cart.remove');
-
     Route::post('cart/add-with-date', [CartController::class, 'addWithDate'])
         ->name('cart.add.with.date')->middleware('auth:website');
-
-
     Route::post('/cart/update-dates', [CartController::class, 'updateDates'])
         ->name('cart.update.dates')
         ->middleware('auth:website');
-
     Route::get(
         '/cart/booked-dates/{mediaId}',
         [CartController::class, 'getBookedDates']
     )->name('cart.booked.dates');
 });
-
-
-
-// Route::get('/checkout', [CheckoutController::class, 'index'])
-//     ->name('checkout.index');
-// Route::post(
-//     '/checkout/place-order',
-//     [CheckoutController::class, 'placeOrder']
-// )->name('checkout.place')
-//     ->middleware('auth:website');
-
-// Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
-//     ->name('checkout.pay');
-
-// Route::post('/payment/success', [CheckoutController::class, 'success'])
-//     ->name('payment.success');
-// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
-
-
-
 Route::get('/checkout', [CheckoutController::class, 'index'])
     ->name('checkout.index');
-
 // Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder'])
 //     ->name('checkout.create');
-
-
 Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])
     ->name('checkout.create');
 // ->middleware('auth:website');
-
 Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
     ->name('checkout.pay');
-
 Route::post('/payment/success', [CheckoutController::class, 'success'])
     ->name('payment.success');
 // Route::get('/payment/thank-you', function () {
 //     return view('website.payment-success');
 // })->name('payment.thankyou');
-
 Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
-
-
-
 Route::middleware(['web'])->group(function () {
     Route::post('/campaign/store', [CampaignController::class, 'store'])
         ->name('campaign.store');
-
     // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
     //     ->name('campaign.list');
     Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])
         ->name('campaign.list');
-
     Route::get(
         '/campaign-export-excel/{campaignId}',
         [CampaignController::class, 'exportExcel']
     )->name('campaign.export.excel');
-
     Route::get(
         '/campaign-export-ppt/{campaignId}',
         [CampaignController::class, 'exportPpt']
     )->name('campaign.export.ppt');
-
-
     Route::post(
         '/checkout/campaign/{campaignId}',
         [CheckoutController::class, 'placeCampaignOrder']
     )->name('checkout.campaign');
 
-
     Route::get(
         '/campaign/details/{cart_item_id}',
         [CampaignController::class, 'viewDetails']
     )->name('campaign.details');
-
     Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])
         ->name('campaign.payment.history');
-
     Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])
         ->name('campaign.invoice.payments')
         ->middleware('auth:website');
-
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])
         ->name('campaign.invoice.view');
 });
-
 Route::post('/locations/districts', [LocationController::class, 'getDistricts'])->name('locations.districts');
 Route::post('/locations/cities', [LocationController::class, 'getCities'])->name('locations.cities');
 Route::post('/locations/areas', [LocationController::class, 'getAreas'])->name('locations.areas');
-
 Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');

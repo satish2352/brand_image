@@ -20,22 +20,6 @@ class AreaController extends Controller
         $this->areaService = new AreaService();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOCATION TYPE MAP (as per your DB)
-    |--------------------------------------------------------------------------
-    | 0 = Country
-    | 1 = State
-    | 2 = District
-    | 3 = Taluka
-    | 4 = City / Village
-    | 5 = Area
-    |--------------------------------------------------------------------------
-    */
-
-    /* =========================
-       LIST PAGE
-    ========================== */
     public function index()
     {
         try {
@@ -45,20 +29,15 @@ class AreaController extends Controller
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
-    /* =========================
-       CREATE PAGE
-    ========================== */
     public function create()
     {
         return view('superadm.area.create');
     }
 
-    /* =========================
-       STORE AREA
-    ========================== */
+
     public function store(Request $request)
     {
-        // ✅ Validation rules
+        //  Validation rules
         $rules = [
             'state_id'              => 'required|integer|exists:tbl_location,location_id',
             'district_id'           => 'required|integer|exists:tbl_location,location_id',
@@ -69,7 +48,7 @@ class AreaController extends Controller
             'longitude'            => 'required|numeric',
         ];
 
-        // ✅ Custom validation messages
+        //  Custom validation messages
         $messages = [
             'state_id.required'     => 'Please select a state.',
             'state_id.integer'      => 'Invalid state selected.',
@@ -96,11 +75,11 @@ class AreaController extends Controller
             'longitude.numeric'  => 'Longitude must be numeric.',
         ];
 
-        // ✅ Validate request
+        //  Validate request
         $validated = $request->validate($rules, $messages);
 
         try {
-            // ✅ Service call
+            //  Service call
             $this->areaService->storeArea($validated);
 
             return redirect()

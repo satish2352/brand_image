@@ -154,22 +154,7 @@ class HomeRepository
     "));
         }
 
-
-        // if (!empty($filters['available_days'])) {
-        //     $query->where(
-        //         'm.updated_at',
-        //         '>=',
-        //         now()->subDays((int)$filters['available_days'])
-        //     );
-        // }
-
-        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
-        //     $query->whereBetween(
-        //         DB::raw('DATE(m.updated_at)'),
-        //         [$filters['from_date'], $filters['to_date']]
-        //     );
-        // }
-        /* ✅ BOOKING STATUS LOGIC */
+        /*  BOOKING STATUS LOGIC */
         if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
 
             $fromDate = $filters['from_date'];
