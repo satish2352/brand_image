@@ -351,7 +351,17 @@
             Continue Shopping
         </a> --}}
     </div>
+@if(session('error'))
+    <div class="alert alert-danger text-center fw-bold py-2 mb-3">
+        {{ session('error') }}
+    </div>
+@endif
 
+@if(session('success'))
+    <div class="alert alert-success text-center fw-bold py-2 mb-3">
+        {{ session('success') }}
+    </div>
+@endif
     @if($items->isEmpty())
         <div class="text-center py-5">
             <h5>Your cart is empty</h5>
@@ -369,6 +379,7 @@
                 $grandTotal += $total;
                 $firstImage = $item->images->first();
             @endphp
+            
 
             <div class="col-lg-12 mb-4">
                 <div class="cart-card ">

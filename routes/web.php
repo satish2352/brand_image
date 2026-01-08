@@ -218,7 +218,7 @@ Route::post('/payment/success', [CheckoutController::class, 'success'])->name('p
 // Route::get('/payment/thank-you', function () {
 //     return view('website.payment-success');
 // })->name('payment.thankyou');
-Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 Route::post('/locations/districts', [LocationController::class, 'getDistricts'])->name('locations.districts');
 Route::post('/locations/cities', [LocationController::class, 'getCities'])->name('locations.cities');
 Route::post('/locations/areas', [LocationController::class, 'getAreas'])->name('locations.areas');

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\MediaBookedDate;
 
+
 class CheckoutController extends Controller
 {
     public function __construct(
@@ -69,6 +70,16 @@ class CheckoutController extends Controller
             return back()->with('error', 'Cart is empty');
         }
 
+        // 🚫 Prevent empty date items
+        foreach ($items as $item) {
+            if (!$item->from_date || !$item->to_date) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'Please select date and click "Add Dates" before checkout.');
+            }
+        }
+
+        // 💰 Calculate total AFTER validation
         $total = $items->sum(fn($i) => $i->total_price);
 
         $order = DB::transaction(function () use ($items, $total) {
@@ -79,8 +90,66 @@ class CheckoutController extends Controller
 
         session(['order_id' => $order->id]);
 
-        return redirect()->route('checkout.index'); //  IMPORTANT
+        return redirect()->route('checkout.index');
     }
+
+    // public function placeOrder()
+    // {
+    //     if (!Auth::guard('website')->check()) {
+    //         return redirect('/')->with('error', 'Please login');
+    //     }
+
+    //     $items = $this->cartRepo->getCartItems();
+
+    //     if ($items->isEmpty()) {
+    //         return back()->with('error', 'Cart is empty');
+    //     }
+
+    //     $total = $items->sum(fn($i) => $i->total_price);
+
+    //     $order = DB::transaction(function () use ($items, $total) {
+    //         $order = $this->orderRepo->createOrder($total);
+    //         $this->orderRepo->createOrderItems($order->id, $items);
+    //         return $order;
+    //     });
+
+    //     session(['order_id' => $order->id]);
+
+    //     return redirect()->route('checkout.index'); //  IMPORTANT
+    // }
+    public function razorpayWebhook(Request $request)
+    {
+        $payload   = $request->getContent();
+        $signature = $request->header('X-Razorpay-Signature');
+        $secret    = config('services.razorpay.webhook_secret');
+
+        try {
+            // ⭐ VERIFY WEBHOOK SIGNATURE
+            $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            $api->utility->verifyWebhookSignature($payload, $signature, $secret);
+
+            $data = json_decode($payload, true);
+
+            $razorpayOrderId = $data['payload']['payment']['entity']['order_id'];
+            $paymentId       = $data['payload']['payment']['entity']['id'];
+
+            $order = \App\Models\Order::where('payment_gateway_order_id', $razorpayOrderId)->first();
+
+            if (!$order) {
+                return response()->json(['status' => 'order_not_found'], 404);
+            }
+
+            $order->update([
+                'payment_status' => 'PAID',
+                'payment_id' => $paymentId
+            ]);
+
+            return response()->json(['status' => 'success'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
 
     public function pay()
     {
@@ -101,7 +170,10 @@ class CheckoutController extends Controller
             'amount'   => $grandTotal * 100, //  GST INCLUDED
             'currency' => 'INR',
         ]);
-
+        // ⭐⭐⭐ IMPORTANT: SAVE RAZORPAY ORDER ID IN DB
+        $order->update([
+            'payment_gateway_order_id' => $razorpayOrder['id'],
+        ]);
         session([
             'razorpay_order_id' => $razorpayOrder['id'],
             'gst_amount'        => $gstAmount,
