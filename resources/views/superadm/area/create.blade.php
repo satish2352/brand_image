@@ -88,6 +88,9 @@
                             @enderror
                         </div>
                         </div>
+
+
+                        <div id="2EZX1xSI6"><script type="text/javascript" async data-short="2EZX1xSI6" data-path="tours" data-is-self-hosted="undefined" width="100%" height="500px" src="https://view.sivaraa360studio.com/public/shareScript.js"></script></div>
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('area.list') }}" class="btn btn-secondary mr-3">Cancel</a>
                             <button type="submit" class="btn btn-success">Save Area</button>

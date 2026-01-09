@@ -44,7 +44,6 @@ class HomeRepository
 
             ]);
 
-
         $centerLat = null;
         $centerLng = null;
 

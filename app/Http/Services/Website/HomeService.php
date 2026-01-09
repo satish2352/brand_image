@@ -18,7 +18,10 @@ class HomeService
 
     public function searchMedia(array $filters)
     {
-        return $this->repo->searchMedia($filters);
+        // dd($filters);
+        $data_output =  $this->repo->searchMedia($filters);
+        // dd($data_output);
+        return  $data_output;
     }
     public function getMediaDetails($mediaId)
     {
