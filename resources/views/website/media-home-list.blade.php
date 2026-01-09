@@ -106,19 +106,20 @@
             </p>
 
             <div class="media-map mt-4 d-flex align-items-center gap-3">
-                <a href="https://www.google.com/maps?q=18.5204,73.8567"
-                target="_blank"
-                class="text-muted d-inline-flex align-items-center gap-1">
-                    <img src="{{ asset('assets/img/map.png') }}" width="30">
-                    <span>View on Map</span>
-                </a>
+    <a href="https://www.google.com/maps/search/?api=1&query=Pune+Bus+Stand"
+       target="_blank"
+       class="text-muted d-inline-flex align-items-center gap-1">
+        <img src="{{ asset('assets/img/map.png') }}" width="30">
+        <span>View on Map</span>
+    </a>
 
-                <a href="https://view.sivaraa360studio.com/tours/2EZX1xSI6"
-                target="_blank"
-                class="text-muted d-inline-flex align-items-center gap-1">
-                    🔁 <span>360° View</span>
-                </a>
-            </div>
+    <a href="https://view.sivaraa360studio.com/tours/2EZX1xSI6"
+       target="_blank"
+       class="text-muted d-inline-flex align-items-center gap-1">
+        🔁 <span>360° View</span>
+    </a>
+</div>
+
 
             <div class="card-actions">
                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
@@ -149,14 +150,15 @@
                 MG Road, Nashik
             </p>
 
-            <div class="media-map mt-4 d-flex align-items-center gap-3">
-                <a href="https://www.google.com/maps?q=19.9975,73.7898"
-                target="_blank"
-                class="text-muted d-inline-flex align-items-center gap-1">
-                    <img src="{{ asset('assets/img/map.png') }}" width="30">
-                    <span>View on Map</span>
-                </a>
-            </div>
+           <div class="media-map mt-4 d-flex align-items-center gap-3">
+    <a href="https://www.google.com/maps/search/?api=1&query=CBS+Bus+Stand+Nashik"
+       target="_blank"
+       class="text-muted d-inline-flex align-items-center gap-1">
+        <img src="{{ asset('assets/img/map.png') }}" width="30">
+        <span>View on Map</span>
+    </a>
+</div>
+
 
              <div class="card-actions">
                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
