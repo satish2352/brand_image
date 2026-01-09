@@ -10,7 +10,22 @@ class UserPaymentRepository
     {
         return DB::table('orders as o')
             ->join('website_users as u', 'u.id', '=', 'o.user_id')
+            ->leftJoin('order_items as oi', 'oi.order_id', '=', 'o.id')
             ->select(
+                'o.id',
+                'o.order_no',
+                'o.total_amount',
+                'o.payment_status',
+                'o.payment_id',
+                'o.created_at',
+                'u.name',
+                'u.email',
+                'u.mobile_number',
+
+                DB::raw('MIN(oi.from_date) as from_date'),
+                DB::raw('MAX(oi.to_date) as to_date')
+            )
+            ->groupBy(
                 'o.id',
                 'o.order_no',
                 'o.total_amount',
@@ -45,6 +60,8 @@ class UserPaymentRepository
                 'oi.id',
                 'oi.price',
                 'oi.qty',
+                'oi.from_date',
+                'oi.to_date',
                 'mm.media_title',
                 'mm.width',
                 'mm.height',

@@ -74,6 +74,8 @@ th td{
                         <th>Media Title</th>
                         <th>Size</th>
                         <th>Location</th>
+                        <th>From Date</th>
+                        <th>To Date</th>
                         <th class="text-end">Price (₹)</th>
                         <th class="text-center">Qty</th>
                         <th class="text-end">Total (₹)</th>
@@ -92,6 +94,12 @@ th td{
                             </td>
                             <td>{{ $item->width }} × {{ $item->height }}</td>
                             <td>{{ $item->address ?? '-' }}</td>
+                            <td>
+                                {{ $item->from_date ? date('d-m-Y', strtotime($item->from_date)) : '-' }}
+                            </td>
+                            <td>
+                                {{ $item->to_date ? date('d-m-Y', strtotime($item->to_date)) : '-' }}
+                            </td>
                             <td class="text-end">{{ number_format($item->price, 2) }}</td>
                             <td class="text-center">{{ $item->qty }}</td>
                             <td class="text-end fw-semibold">
@@ -109,7 +117,7 @@ th td{
 
                 <tfoot class="table-secondary">
                     <tr>
-                        <th colspan="6" class="text-end">Grand Total</th>
+                        <th colspan="8" class="text-end">Grand Total</th>
                         <th class="text-end text-success fs-6">
                             ₹{{ number_format($grandTotal, 2) }}
                         </th>

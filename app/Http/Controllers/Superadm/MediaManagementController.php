@@ -140,8 +140,60 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
+    // public function uploadImage(Request $request)
+    // {
+    //     $request->validate(
+    //         [
+    //             'media_id'   => 'required|integer',
+    //             'images'     => 'required|array|max:10',
+    //             'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024',
+    //         ],
+    //         [
+    //             'media_id.required' => 'Media ID is required.',
+    //             'media_id.exists'   => 'Invalid media ID.',
+
+    //             'images.required' => 'Please upload at least one image.',
+    //             'images.array'    => 'Images must be an array.',
+    //             'images.max'      => 'You can upload a maximum of 10 images only.',
+
+    //             'images.*.image'  => 'Each file must be an image.',
+    //             'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
+    //             'images.*.max'    => 'Each image must be less than 1MB.',
+    //         ]
+    //     );
+
+    //     try {
+
+    //         foreach ($request->file('images') as $image) {
+
+    //             $fileName = uploadImage(
+    //                 $image,
+    //                 config('fileConstants.IMAGE_ADD')
+    //             );
+
+    //             MediaImage::create([
+    //                 'media_id'   => $request->media_id,
+    //                 'images'     => $fileName,
+    //                 'is_active'  => 1,
+    //                 'is_deleted' => 0,
+    //             ]);
+    //         }
+
+    //         return response()->json([
+    //             'status'  => true,
+    //             'message' => 'Images uploaded successfully'
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status'  => false,
+    //             'message' => 'Upload failed'
+    //         ], 500);
+    //     }
+    // }
+
     public function uploadImage(Request $request)
     {
+        // EXISTING VALIDATION
         $request->validate(
             [
                 'media_id'   => 'required|integer',
@@ -162,8 +214,21 @@ class MediaManagementController extends Controller
             ]
         );
 
-        try {
+        // NEW VALIDATION : TOTAL IMAGE LIMIT PER MEDIA
+        $existingCount = MediaImage::where('media_id', $request->media_id)
+            ->where('is_deleted', 0)
+            ->count();
 
+        $newCount = count($request->file('images'));
+
+        if (($existingCount + $newCount) > 10) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You can upload maximum 10 images per media.'
+            ], 422);
+        }
+
+        try {
             foreach ($request->file('images') as $image) {
 
                 $fileName = uploadImage(
@@ -190,6 +255,7 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
+
     public function getAllAreas()
     {
         return response()->json(

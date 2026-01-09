@@ -1,6 +1,53 @@
 @extends('superadm.layout.master')
 
 @section('content')
+<div class="card">
+    <div class="card-body">
+
+        <h4 class="mb-3">Campaign List</h4>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>User Name</th>
+                    <th>Total Campaigns</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach($campaigns as $key => $row)
+                <tr>
+                    <td>{{ $key + 1 }}</td>
+                    <td>{{ $row->user_name }}</td>
+                    <td>
+                        <span class="badge badge-primary">
+                            {{ $row->total_campaigns }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ route('admin.campaign.details', base64_encode($row->user_id)) }}"
+                        class="btn btn-sm btn-info">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+    </div>
+</div>
+@endsection
+
+
+
+
+
+{{-- @extends('superadm.layout.master')
+
+@section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -30,12 +77,12 @@
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
-                        </thead>
+                        </thead> --}}
 <?php 
 // dd($campaigns);
 // die();
 ?>
-                        <tbody>
+                        {{-- <tbody>
                             @foreach($campaigns as $key => $campaign)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
@@ -56,7 +103,7 @@
 
                                 <td>
                                     <strong>₹ {{ number_format($campaign->total_price, 2) }}</strong>
-                                </td>
+                                </td> --}}
                                  {{-- <td>
                                  <a href="{{ route('campaign.export.excel', base64_encode($campaign->$campaign_id)) }}"
                                    class="btn btn-success btn-sm">
@@ -95,7 +142,7 @@
                                         </button>
                                     </form>
                                 </td> --}}
-                            </tr>
+                            {{-- </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -104,7 +151,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 {{-- DELETE CONFIRMATION (REUSED) --}}
 {{-- <script>
@@ -155,4 +202,4 @@ $(document).on('change', '.toggle-status', function () {
     });
 });
 </script> --}}
-@endsection
+{{-- @endsection --}}
