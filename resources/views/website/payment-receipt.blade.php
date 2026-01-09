@@ -166,6 +166,8 @@
     <th>Sr. No.</th>
     <th>Location</th>
     <th>Media / Size</th>
+    <th>From Date</th>
+    <th>To Date</th>
     <th>Unit Price</th>
     <th>Total</th>
 </tr>
@@ -182,6 +184,13 @@
     <td>
         {{ $item->media_title }}<br>
         <small>{{ $item->width }} × {{ $item->height }}</small>
+    </td>
+    <td>
+        {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
+    </td>
+
+    <td>
+        {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
     </td>
     <td>₹ {{ number_format($item->price, 2) }}</td>
     <td>₹ {{ number_format($item->price, 2) }}</td>

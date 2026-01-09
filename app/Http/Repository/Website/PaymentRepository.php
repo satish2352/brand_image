@@ -115,6 +115,8 @@ class PaymentRepository
             'm.height',
             'oi.price',
             'oi.qty',
+            'oi.from_date',
+            'oi.to_date',
 
             // Location
             'a.common_stdiciar_name',
@@ -134,6 +136,8 @@ class PaymentRepository
             'm.height',
             'oi.price',
             'oi.qty',
+            'oi.from_date',
+            'oi.to_date',
             'a.common_stdiciar_name'
         )
         ->get();
