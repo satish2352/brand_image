@@ -2,6 +2,40 @@
     .bg-light{
         background-color: rgb(202, 196, 196) !important;
     }
+    .result-badge {
+    background: #fff9d9;
+    border-left: 5px solid #ffb100;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+}
+
+.result-badge .icon {
+    font-size: 18px;
+}
+
+.result-badge .count {
+    color: #007bff;
+    font-weight: 700;
+}
+
+.result-badge .label {
+    color: #333;
+}
+
+.result-badge.no-result {
+    border-left-color: #dc3545;
+    background: #ffe6e8;
+}
+
+.result-badge.no-result .count {
+    color: #dc3545;
+}
+
 </style>
 <div class="container mt-5 mb-5">
     <h3 class="text-center orange-text">Discover Media Spaces Near You</h3>
@@ -114,90 +148,54 @@
                 </div>
  
                 <!-- Buttons -->
-                <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+                {{-- <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
                     <button type="button"
                             class="btn btn-search"
                             onclick="document.getElementById('searchForm').submit();">
                         Search Media
                     </button>
-                </div>
- 
+                </div> --}}
+ <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+    <button type="button"
+            class="btn btn-search"
+            onclick="document.getElementById('searchForm').submit();">
+        Search Media
+    </button>
+</div>
+
                 <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
                     <button type="button" class="btn btn-clear" id="clearFilters">
                         Clear Filters
                     </button>
                 </div>
- 
+               
+                {{-- BEAUTIFUL COUNT DISPLAY --}}
+                @if(($filters['category_id'] ?? '') != '')
+                    @php $catName = $mediaList->first()->category_name ?? ''; @endphp
+
+                    <div class="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mt-2">
+                        @if($mediaList->total() > 0)
+                            <div class="result-badge" style="margin-top: 32px">
+                                <span class="icon">📍</span>
+                                <span class="count">{{ $mediaList->total() }} Results</span>
+                                <span class="label">for {{ $catName }}</span>
+                            </div>
+                        @else
+                            <div class="result-badge no-result">
+                                <span class="icon">❌</span>
+                                <span class="count">No Results</span>
+                                <span class="label">for {{ $catName }}</span>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+                
             </div>
         </form>
  
     </div>
 </div>
  
-
- 
-{{-- jQuery --}}
-
-
-{{-- <script>
-$(function () {
-
-    const csrf = "{{ csrf_token() }}";
-
-    /* State → District */
-    $('#state_id').change(function () {
-
-        $('#district_id').html('<option>Loading...</option>');
-        $('#city_id').html('<option value="">Select City</option>');
-        $('#area_id').html('<option value="">Select Area</option>');
-
-        $.post("{{ route('locations.districts') }}", {
-            _token: csrf,
-            state_id: $(this).val()
-        }, function (data) {
-
-            let html = '<option value="">Select District</option>';
-            data.forEach(d => html += `<option value="${d.location_id}">${d.name}</option>`);
-            $('#district_id').html(html);
-        });
-    });
-
-    /* District → City */
-    $('#district_id').change(function () {
-
-        $('#city_id').html('<option>Loading...</option>');
-        $('#area_id').html('<option value="">Select Area</option>');
-
-        $.post("{{ route('locations.cities') }}", {
-            _token: csrf,
-            district_id: $(this).val()
-        }, function (data) {
-
-            let html = '<option value="">Select City</option>';
-            data.forEach(c => html += `<option value="${c.location_id}">${c.name}</option>`);
-            $('#city_id').html(html);
-        });
-    });
-
-    /* City → Area */
-    $('#city_id').change(function () {
-
-        $('#area_id').html('<option>Loading...</option>');
-
-        $.post("{{ route('locations.areas') }}", {
-            _token: csrf,
-            city_id: $(this).val()
-        }, function (data) {
-
-            let html = '<option value="">Select Area</option>';
-            data.forEach(a => html += `<option value="${a.id}">${a.area_name}</option>`);
-            $('#area_id').html(html);
-        });
-    });
-
-});
-</script> --}}
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const selectedState    = "{{ $filters['state_id'] ?? '' }}";
@@ -315,7 +313,7 @@ $(document).ready(function () {
 
     function toggleDateFields(categoryId) {
 
-        //  Only category ID = 1 allows date selection
+        // ✅ Only category ID = 1 allows date selection
         if (categoryId == 1) {
             $('#from_date, #to_date, #available_days, #area_type')
                 .prop('disabled', false)
@@ -341,7 +339,7 @@ $(document).ready(function () {
 <script>
 $(document).ready(function () {
 
-    //  Allowed categories for Radius
+    // ✅ Allowed categories for Radius
     const radiusEnabledCategories = [1, 2]; 
     // 1 = Hoardings/Billboards
     // 2 = Digital Wall Painting
@@ -412,44 +410,3 @@ $(document).ready(function () {
     toggleFields($('select[name="category_id"]').val(), false);
 });
 </script>
-
-{{-- <script>
-$(document).ready(function () {
-
-    function toggleFields(categoryId) {
-
-        // 🔹 Reset all (HIDE + DISABLE)
-        $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
-            .hide()
-            .find('select, input')
-            .prop('disabled', true)
-            .val('');
-
-        // 🔹 Hoardings (ID = 1)
-        if (categoryId == 1) {
-
-            $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
-                .show()
-                .find('select, input')
-                .prop('disabled', false);
-        }
-
-        // 🔹 Digital Wall Painting (ID = 3)
-        if (categoryId == 2) {
-
-            $('#radius_wrapper')
-                .show()
-                .find('select')
-                .prop('disabled', false);
-        }
-    }
-
-    // On category change
-    $('select[name="category_id"]').on('change', function () {
-        toggleFields($(this).val());
-    });
-
-    // On page load
-    toggleFields($('select[name="category_id"]').val());
-});
-</script> --}}

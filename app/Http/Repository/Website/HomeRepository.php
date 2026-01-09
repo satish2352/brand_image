@@ -207,7 +207,7 @@ class HomeRepository
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
             ->leftJoin('facing_direction as fd', 'fd.id', '=', 'm.facing_id')
-            ->leftJoin('illumination as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
             // ->leftJoin('radius_master as rm', 'rm.id', '=', 'm.radius_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)
