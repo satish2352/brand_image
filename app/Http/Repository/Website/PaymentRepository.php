@@ -50,33 +50,93 @@ class PaymentRepository
             ->orderBy('o.id', 'DESC')
             ->get();
     }
+    // public function getInvoiceDetails($orderId)
+    // {
+    //     return DB::table('order_items as oi')
+    //         ->leftJoin('media_management as m', 'm.id', '=', 'oi.media_id')
+    //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+    //         ->leftJoin('media_images as mi', function ($join) {
+    //             $join->on('mi.media_id', '=', 'm.id')
+    //                 ->where('mi.is_deleted', 0);
+    //         })
+    //         ->select(
+    //             'm.media_title',
+    //             'm.width',
+    //             'm.height',
+    //             'oi.price',
+    //             'oi.qty',
+    //             'a.common_stdiciar_name',
+    //             DB::raw('GROUP_CONCAT(mi.images) as images')
+    //         )
+    //         ->where('oi.order_id', $orderId)
+    //         ->groupBy(
+    //             'm.media_title',
+    //             'm.width',
+    //             'm.height',
+    //             'oi.price',
+    //             'oi.qty',
+    //             'a.common_stdiciar_name',
+    //         )
+    //         ->get();
+    // }
+
     public function getInvoiceDetails($orderId)
-    {
-        return DB::table('order_items as oi')
-            ->leftJoin('media_management as m', 'm.id', '=', 'oi.media_id')
-            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->leftJoin('media_images as mi', function ($join) {
-                $join->on('mi.media_id', '=', 'm.id')
-                    ->where('mi.is_deleted', 0);
-            })
-            ->select(
-                'm.media_title',
-                'm.width',
-                'm.height',
-                'oi.price',
-                'oi.qty',
-                'a.common_stdiciar_name',
-                DB::raw('GROUP_CONCAT(mi.images) as images')
-            )
-            ->where('oi.order_id', $orderId)
-            ->groupBy(
-                'm.media_title',
-                'm.width',
-                'm.height',
-                'oi.price',
-                'oi.qty',
-                'a.common_stdiciar_name',
-            )
-            ->get();
-    }
+{
+    return DB::table('order_items as oi')
+        ->join('orders as o', 'o.id', '=', 'oi.order_id')
+
+        ->leftJoin('cart_items as ci', function ($join) {
+            $join->on('ci.media_id', '=', 'oi.media_id')
+                 ->where('ci.cart_type', 'CAMPAIGN');
+        })
+
+        ->leftJoin('campaign as c', 'c.id', '=', 'ci.campaign_id')
+        ->leftJoin('media_management as m', 'm.id', '=', 'oi.media_id')
+        ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+
+        ->leftJoin('media_images as mi', function ($join) {
+            $join->on('mi.media_id', '=', 'm.id')
+                 ->where('mi.is_deleted', 0);
+        })
+
+        ->select(
+            'o.id as order_id',
+            'o.order_no',
+            'o.total_amount',
+            'o.gst_amount',
+            'o.grand_total',
+
+            // Campaign
+            DB::raw('GROUP_CONCAT(DISTINCT c.campaign_name) as campaign_name'),
+
+            // Media
+            'm.media_title',
+            'm.width',
+            'm.height',
+            'oi.price',
+            'oi.qty',
+
+            // Location
+            'a.common_stdiciar_name',
+
+            DB::raw('GROUP_CONCAT(mi.images) as images')
+        )
+        ->where('oi.order_id', $orderId)
+        ->groupBy(
+            'o.id',
+            'o.order_no',
+            'o.total_amount',
+            'o.gst_amount',
+            'o.grand_total',
+
+            'm.media_title',
+            'm.width',
+            'm.height',
+            'oi.price',
+            'oi.qty',
+            'a.common_stdiciar_name'
+        )
+        ->get();
+}
+
 }

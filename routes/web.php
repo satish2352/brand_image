@@ -138,9 +138,15 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::get('details/{orderId}', [UserPaymentController::class, 'details'])
             ->name('user-payment.details');
     });
+
+    Route::get('admin-campaing/export-excel/{campaignId}',[CampaingController::class, 'exportExcel'])->name('admin.campaign.export.excel');
+
+
     Route::prefix('admin-campaing')->group(function () {
         Route::get('list', [CampaingController::class, 'index'])->name('admin-campaing.list');
         Route::post('delete', [CampaingController::class, 'delete'])->name('admin-campaing.delete');
+                Route::get('/details/{campaignId}', [CampaingController::class, 'details'])
+            ->name('admin.campaign.details');
     });
     // Radius Master
     Route::get('radius/list', [RadiusController::class, 'index'])->name('radius.list');
@@ -313,6 +319,9 @@ Route::middleware(['web'])->group(function () {
         ->middleware('auth:website');
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])
         ->name('campaign.invoice.view');
+    
+    Route::get('invoice/download/{id}', [PaymentHistoryController::class,'downloadInvoice'])->name('invoice.download');
+
 });
 Route::post('/locations/districts', [LocationController::class, 'getDistricts'])->name('locations.districts');
 Route::post('/locations/cities', [LocationController::class, 'getCities'])->name('locations.cities');
