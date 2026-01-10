@@ -9,6 +9,7 @@ return new class extends Migration {
     {
         Schema::create('contact_us', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('media_id')->nullable();
             $table->string('full_name');
             $table->string('mobile_no', 15);
             $table->string('email');
