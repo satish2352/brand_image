@@ -55,9 +55,13 @@
                     <select name="state_id" id="state_id" class="form-select form-control">
                         <option value="">Select State</option>
                         @foreach($states as $state)
-                            <option value="{{ $state->location_id }}"
+                            {{-- <option value="{{ $state->location_id }}"
                                 {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
                                 {{ $state->name }}
+                            </option> --}}
+                           <option value="{{ $state->id }}"
+                                {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
+                                {{ $state->state_name }}
                             </option>
                         @endforeach
                     </select>
@@ -163,6 +167,75 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    const selectedState = "{{ $filters['state_id'] ?? '' }}";
+    const selectedDistrict = "{{ $filters['district_id'] ?? '' }}";
+    const selectedCity = "{{ $filters['city_id'] ?? '' }}";
+    const selectedArea = "{{ $filters['area_id'] ?? '' }}";
+</script>
+
+<script>
+$(document).ready(function () {
+    const csrf = "{{ csrf_token() }}";
+
+    // Load Districts
+    function loadDistricts(stateId, selected = '') {
+        if (!stateId) return;
+        $.post("{{ route('ajax.districts') }}", {_token: csrf, state_id: stateId}, function (data) {
+            let html = '<option value="">Select District</option>';
+            data.forEach(d => {
+                html += `<option value="${d.id}" ${d.id == selected ? 'selected' : ''}>${d.district_name}</option>`;
+            });
+            $('#district_id').html(html);
+        });
+    }
+
+    // Load Cities
+    function loadCities(districtId, selected = '') {
+        if (!districtId) return;
+        $.post("{{ route('ajax.cities') }}", {_token: csrf, district_id: districtId}, function (data) {
+            let html = '<option value="">Select City</option>';
+            data.forEach(c => {
+                html += `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>${c.city_name}</option>`;
+            });
+            $('#city_id').html(html);
+        });
+    }
+
+    // Load Areas
+    function loadAreas(cityId, selected = '') {
+        if (!cityId) return;
+        $.post("{{ route('ajax.areas') }}", {_token: csrf, city_id: cityId}, function (data) {
+            let html = '<option value="">Select Area</option>';
+            data.forEach(a => {
+                html += `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>${a.area_name}</option>`;
+            });
+            $('#area_id').html(html);
+        });
+    }
+
+    // Change Events
+    $('#state_id').on('change', function () {
+        loadDistricts(this.value);
+        $('#city_id').html('<option value="">Select City</option>');
+        $('#area_id').html('<option value="">Select Area</option>');
+    });
+
+    $('#district_id').on('change', function () {
+        loadCities(this.value);
+        $('#area_id').html('<option value="">Select Area</option>');
+    });
+
+    $('#city_id').on('change', function () {
+        loadAreas(this.value);
+    });
+
+    // Initial selection
+    if (selectedState) loadDistricts(selectedState, selectedDistrict);
+    if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
+    if (selectedCity) loadAreas(selectedCity, selectedArea);
+});
+</script>
+{{-- <script>
     const selectedState    = "{{ $filters['state_id'] ?? '' }}";
     const selectedDistrict = "{{ $filters['district_id'] ?? '' }}";
     const selectedCity     = "{{ $filters['city_id'] ?? '' }}";
@@ -292,7 +365,7 @@ $(document).ready(function () {
     }
 
 });
-</script>
+</script> --}}
 
 <script>
 document.getElementById('clearFilters').addEventListener('click', function () {

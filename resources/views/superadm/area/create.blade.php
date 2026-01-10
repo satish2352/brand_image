@@ -7,97 +7,104 @@
             <div class="card-body">
 
                 <h4 class="mb-4">Add Area</h4>
-                    <form action="{{ route('area.store') }}" method="POST" novalidate>
-                        @csrf
+                <form action="{{ route('area.store') }}" method="POST" novalidate>
+                    @csrf
 
-                        {{-- STATE --}}
-                        <div class="form-group mb-3">
-                            <label>State <span class="text-danger">*</span></label>
-                            <select id="state" name="state_id"
-                                    class="form-control @error('state_id') is-invalid @enderror">
-                                <option value="">Select State</option>
-                            </select>
-                            @error('state_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- STATE --}}
+                    <div class="form-group mb-3">
+                        <label>State <span class="text-danger">*</span></label>
+                        <select id="state" name="state_id"
+                                class="form-control @error('state_id') is-invalid @enderror">
+                            <option value="">Select State</option>
+                        </select>
+                        @error('state_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                        {{-- DISTRICT --}}
-                        <div class="form-group mb-3">
-                            <label>District <span class="text-danger">*</span></label>
-                            <select id="district" name="district_id"
-                                    class="form-control @error('district_id') is-invalid @enderror">
-                                <option value="">Select District</option>
-                            </select>
-                            @error('district_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- DISTRICT --}}
+                    <div class="form-group mb-3">
+                        <label>District <span class="text-danger">*</span></label>
+                        <select id="district" name="district_id"
+                                class="form-control @error('district_id') is-invalid @enderror">
+                            <option value="">Select District</option>
+                        </select>
+                        @error('district_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                        {{-- CITY --}}
-                        <div class="form-group mb-3">
-                            <label>City <span class="text-danger">*</span></label>
-                            <select id="city" name="city_id"
-                                    class="form-control @error('city_id') is-invalid @enderror">
-                                <option value="">Select City</option>
-                            </select>
-                            @error('city_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- CITY --}}
+                    <div class="form-group mb-3">
+                        <label>City <span class="text-danger">*</span></label>
+                        <select id="city" name="city_id"
+                                class="form-control @error('city_id') is-invalid @enderror">
+                            <option value="">Select City</option>
+                        </select>
+                        @error('city_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-                        {{-- AREA NAME --}}
-                        <div class="form-group mb-4">
-                            <label>Area Name <span class="text-danger">*</span></label>
-                            <input type="text"
-                                name="area_name"
-                                value="{{ old('area_name') }}"
-                                class="form-control @error('area_name') is-invalid @enderror">
-                            @error('area_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
- 
-                        <div class="form-group mb-4">
-                            <label>Common State District City Area Name <span class="text-danger">*</span></label>
-                            <input type="text"
-                                name="common_stdiciar_name"
-                                value="{{ old('common_stdiciar_name') }}"
-                                class="form-control @error('common_stdiciar_name') is-invalid @enderror">
-                            @error('common_stdiciar_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="row">
-                          <div class="col-md-6 mb-3">
+                    {{-- AREA NAME --}}
+                    <div class="form-group mb-4">
+                        <label>Area Name <span class="text-danger">*</span></label>
+                        <input type="text"
+                            name="area_name"
+                            value="{{ old('area_name') }}"
+                            class="form-control @error('area_name') is-invalid @enderror">
+                        @error('area_name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- COMMON STDICIAR NAME --}}
+                    <div class="form-group mb-4">
+                        <label>Common State District City Area Name <span class="text-danger">*</span></label>
+                        <input type="text"
+                            name="common_stdiciar_name"
+                            value="{{ old('common_stdiciar_name') }}"
+                            class="form-control @error('common_stdiciar_name') is-invalid @enderror">
+                        @error('common_stdiciar_name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- LAT / LNG --}}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label>Latitude <span class="text-danger">*</span></label>
                             <input type="text" name="latitude"
                                 value="{{ old('latitude') }}"
                                 class="form-control @error('latitude') is-invalid @enderror">
-                                    @error('latitude')
+                            @error('latitude')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
                         <div class="col-md-6 mb-3">
                             <label>Longitude <span class="text-danger">*</span></label>
                             <input type="text" name="longitude"
                                 value="{{ old('longitude') }}"
                                 class="form-control @error('longitude') is-invalid @enderror">
-                                    @error('longitude')
+                            @error('longitude')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <a href="{{ route('area.list') }}" class="btn btn-secondary mr-3">Cancel</a>
-                            <button type="submit" class="btn btn-success">Save Area</button>
-                        </div>
-                    </form>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ route('area.list') }}" class="btn btn-secondary mr-3">Cancel</a>
+                        <button type="submit" class="btn btn-success">Save Area</button>
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>
 </div>
 @endsection
+
 
 @section('scripts')
 <script>
@@ -106,9 +113,9 @@ $(document).ready(function () {
     console.log('Area create page loaded');
 
     // ================= LOAD STATES =================
-    $.get("{{ url('/get-states') }}", function (response) {
+    $.get("{{ route('ajax.states') }}", function (response) {
 
-        $('#state').html('<option value="" disabled selected>Select State</option>');
+        $('#state').html('<option value="" selected>Select State</option>');
 
         if (!response.length) {
             $('#state').append('<option value="" disabled>No states found</option>');
@@ -117,57 +124,55 @@ $(document).ready(function () {
 
         $.each(response, function (i, item) {
             $('#state').append(
-                `<option value="${item.location_id}">${item.name}</option>`
+                `<option value="${item.id}">${item.state_name}</option>`
             );
         });
     });
 
-    // ================= STATE → DISTRICT =================
+    // ================= STATE → DISTRICTS =================
     $('#state').on('change', function () {
 
         let stateId = $(this).val();
 
-        $('#district').prop('disabled', true);
-        $('#city').prop('disabled', true);
-
-        $('#district').html('<option value="" disabled selected>Select District</option>');
-        $('#city').html('<option value="" disabled selected>Select City</option>');
+        $('#district').prop('disabled', true).html('<option value="">Select District</option>');
+        $('#city').prop('disabled', true).html('<option value="">Select City</option>');
 
         if (!stateId) return;
 
-        $.get("{{ url('/get-districts') }}/" + stateId, function (response) {
-
-            if (!response.length) return;
+        $.post("{{ route('ajax.districts') }}", {
+            _token: "{{ csrf_token() }}",
+            state_id: stateId
+        }, function (response) {
 
             $('#district').prop('disabled', false);
 
             $.each(response, function (i, item) {
                 $('#district').append(
-                    `<option value="${item.location_id}">${item.name}</option>`
+                    `<option value="${item.id}">${item.district_name}</option>`
                 );
             });
         });
     });
 
-    // ================= DISTRICT → CITY =================
+    // ================= DISTRICT → CITIES =================
     $('#district').on('change', function () {
 
         let districtId = $(this).val();
 
-        $('#city').prop('disabled', true);
-        $('#city').html('<option value="" disabled selected>Select City</option>');
+        $('#city').prop('disabled', true).html('<option value="">Select City</option>');
 
         if (!districtId) return;
 
-        $.get("{{ url('/get-cities') }}/" + districtId, function (response) {
-
-            if (!response.length) return;
+        $.post("{{ route('ajax.cities') }}", {
+            _token: "{{ csrf_token() }}",
+            district_id: districtId
+        }, function (response) {
 
             $('#city').prop('disabled', false);
 
             $.each(response, function (i, item) {
                 $('#city').append(
-                    `<option value="${item.location_id}">${item.name}</option>`
+                    `<option value="${item.id}">${item.city_name}</option>`
                 );
             });
         });

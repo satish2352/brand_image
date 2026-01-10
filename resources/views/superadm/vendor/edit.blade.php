@@ -103,62 +103,59 @@ $(document).ready(function () {
     let selectedDistrict = "{{ old('district_id', $vendor->district_id) }}";
     let selectedCity     = "{{ old('city_id', $vendor->city_id) }}";
 
-    // LOAD STATES
-    $.get("{{ url('/get-states') }}", function (states) {
+    // Load States
+    $.get("{{ route('ajax.states') }}", function (states) {
         $('#state').html('<option value="">Select State</option>');
         $.each(states, function (i, s) {
-            let selected = s.location_id == selectedState ? 'selected' : '';
-            $('#state').append(`<option value="${s.location_id}" ${selected}>${s.name}</option>`);
+            let selected = s.id == selectedState ? 'selected' : '';
+            $('#state').append(`<option value="${s.id}" ${selected}>${s.state_name}</option>`);
         });
 
         if (selectedState) loadDistricts(selectedState);
     });
 
+    // Load Districts
     function loadDistricts(stateId) {
-        $.get("{{ url('/get-districts') }}/" + stateId, function (districts) {
+        $.post("{{ route('ajax.districts') }}", 
+            {_token: "{{ csrf_token() }}", state_id: stateId}, 
+            function (districts) {
+
             $('#district').html('<option value="">Select District</option>');
             $.each(districts, function (i, d) {
-                let selected = d.location_id == selectedDistrict ? 'selected' : '';
-                $('#district').append(`<option value="${d.location_id}" ${selected}>${d.name}</option>`);
+                let selected = d.id == selectedDistrict ? 'selected' : '';
+                $('#district').append(`<option value="${d.id}" ${selected}>${d.district_name}</option>`);
             });
 
             if (selectedDistrict) loadCities(selectedDistrict);
         });
     }
 
+    // Load Cities
     function loadCities(districtId) {
-        $.get("{{ url('/get-cities') }}/" + districtId, function (cities) {
+        $.post("{{ route('ajax.cities') }}", 
+            {_token: "{{ csrf_token() }}", district_id: districtId}, 
+            function (cities) {
+
             $('#city').html('<option value="">Select City</option>');
             $.each(cities, function (i, c) {
-                let selected = c.location_id == selectedCity ? 'selected' : '';
-                $('#city').append(`<option value="${c.location_id}" ${selected}>${c.name}</option>`);
+                let selected = c.id == selectedCity ? 'selected' : '';
+                $('#city').append(`<option value="${c.id}" ${selected}>${c.city_name}</option>`);
             });
         });
     }
 
     $('#state').change(function () {
+        selectedDistrict = "";
+        selectedCity = "";
         loadDistricts($(this).val());
     });
 
     $('#district').change(function () {
+        selectedCity = "";
         loadCities($(this).val());
     });
 
-    // ================= AUTO GENERATE VENDOR CODE =================
-    $('input[name="vendor_name"]').on('input', function () {
-
-        let name = $(this).val();
-
-        // lowercase + remove all spaces
-        let vendorCode = name
-            .toLowerCase()
-            .replace(/[^a-z\s]/g, '') // remove special chars & numbers
-            .replace(/\s+/g, '');     // remove spaces
-
-        $('#vendor_code').val(vendorCode);
-    });
-
-
 });
 </script>
+
 @endsection

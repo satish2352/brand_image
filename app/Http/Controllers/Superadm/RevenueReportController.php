@@ -35,16 +35,15 @@ class RevenueReportController extends Controller
                 DB::raw('SUM(oi.price) as total_revenue'),
                 DB::raw('MIN(oi.from_date) as sort_date')
             )
-            ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
-            ->orderBy('sort_date', 'desc');
-
+                ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
+                ->orderBy('sort_date', 'desc');
         } elseif ($type === 'media') {
 
             $query->select(
                 'm.id',
                 'm.media_code',
                 'm.media_title',
-                'cat.category_name as category_name', 
+                'cat.category_name as category_name',
                 's.name as state_name',
                 'd.name as district_name',
                 'c.name as city_name',
@@ -55,20 +54,19 @@ class RevenueReportController extends Controller
                 DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
                 DB::raw('SUM(oi.price) as total_revenue')
             )
-            ->groupBy(
-                'm.id',
-                'm.media_code',
-                'm.media_title',
-                'cat.category_name', 
-                's.name',
-                'd.name',
-                'c.name',
-                'a.area_name',
-                'm.width',
-                'm.height'
-            )
-            ->orderByDesc('total_revenue');
-
+                ->groupBy(
+                    'm.id',
+                    'm.media_code',
+                    'm.media_title',
+                    'cat.category_name',
+                    's.name',
+                    'd.name',
+                    'c.name',
+                    'a.area_name',
+                    'm.width',
+                    'm.height'
+                )
+                ->orderByDesc('total_revenue');
         } else { // USER-WISE
 
             $query->select(
@@ -78,8 +76,8 @@ class RevenueReportController extends Controller
                 DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
                 DB::raw('SUM(oi.price) as total_revenue')
             )
-            ->groupBy('u.id', 'u.name')
-            ->orderByDesc('total_revenue');
+                ->groupBy('u.id', 'u.name')
+                ->orderByDesc('total_revenue');
         }
 
         $reports = $query->paginate(10)->withQueryString();
@@ -99,9 +97,9 @@ class RevenueReportController extends Controller
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
             ->join('category as cat', 'cat.id', '=', 'm.category_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->leftJoin('tbl_location as s', 's.location_id', '=', 'a.state_id')
-            ->leftJoin('tbl_location as d', 'd.location_id', '=', 'a.district_id')
-            ->leftJoin('tbl_location as c', 'c.location_id', '=', 'a.city_id')
+            ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
+            ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->where('o.payment_status', 'paid')
             ->where('m.is_deleted', 0);
 
@@ -134,10 +132,29 @@ class RevenueReportController extends Controller
             $searchYear = $yearMatch[1] ?? null;
 
             $monthMap = [
-                'jan'=>1,'january'=>1,'feb'=>2,'february'=>2,'mar'=>3,'march'=>3,
-                'apr'=>4,'april'=>4,'may'=>5,'jun'=>6,'june'=>6,'jul'=>7,'july'=>7,
-                'aug'=>8,'august'=>8,'sep'=>9,'september'=>9,'oct'=>10,'october'=>10,
-                'nov'=>11,'november'=>11,'dec'=>12,'december'=>12,
+                'jan' => 1,
+                'january' => 1,
+                'feb' => 2,
+                'february' => 2,
+                'mar' => 3,
+                'march' => 3,
+                'apr' => 4,
+                'april' => 4,
+                'may' => 5,
+                'jun' => 6,
+                'june' => 6,
+                'jul' => 7,
+                'july' => 7,
+                'aug' => 8,
+                'august' => 8,
+                'sep' => 9,
+                'september' => 9,
+                'oct' => 10,
+                'october' => 10,
+                'nov' => 11,
+                'november' => 11,
+                'dec' => 12,
+                'december' => 12,
             ];
 
             $searchMonth = null;
@@ -151,9 +168,9 @@ class RevenueReportController extends Controller
             $query->where(function ($q) use ($search, $searchYear, $searchMonth) {
 
                 $q->where('m.media_title', 'like', "%{$search}%")
-                ->orWhere('m.media_code', 'like', "%{$search}%")
-                ->orWhere('u.name', 'like', "%{$search}%")
-                ->orWhere('cat.category_name', 'like', "%{$search}%");
+                    ->orWhere('m.media_code', 'like', "%{$search}%")
+                    ->orWhere('u.name', 'like', "%{$search}%")
+                    ->orWhere('cat.category_name', 'like', "%{$search}%");
 
                 if ($searchYear) {
                     $q->orWhereYear('oi.from_date', $searchYear);
@@ -166,7 +183,7 @@ class RevenueReportController extends Controller
                 if ($searchYear && $searchMonth) {
                     $q->orWhere(function ($qq) use ($searchYear, $searchMonth) {
                         $qq->whereYear('oi.from_date', $searchYear)
-                        ->whereMonth('oi.from_date', $searchMonth);
+                            ->whereMonth('oi.from_date', $searchMonth);
                     });
                 }
             });
@@ -176,110 +193,108 @@ class RevenueReportController extends Controller
     }
 
 
-private function exportQuery(Request $request)
-{
-    $type = $request->report_type ?? 'date';
-    $query = $this->baseQuery($request);
+    private function exportQuery(Request $request)
+    {
+        $type = $request->report_type ?? 'date';
+        $query = $this->baseQuery($request);
 
-    if ($type === 'date') {
-        $query->select(
-            DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
-            DB::raw('COUNT(oi.id) as total_bookings'),
-            DB::raw('SUM(oi.price) as total_revenue')
-        )
-        ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
-        ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
+        if ($type === 'date') {
+            $query->select(
+                DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
+                DB::raw('COUNT(oi.id) as total_bookings'),
+                DB::raw('SUM(oi.price) as total_revenue')
+            )
+                ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
+                ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
+        } elseif ($type === 'media') {
+            $query->select(
+                'm.media_code',
+                'cat.category_name',
+                'm.media_title',
+                's.name as state_name',
+                'd.name as district_name',
+                'c.name as city_name',
+                'a.area_name',
+                'm.width',
+                'm.height',
+                DB::raw('COUNT(oi.id) as total_bookings'),
+                DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+                DB::raw('SUM(oi.price) as total_revenue')
+            )
+                ->groupBy(
+                    'm.media_code',
+                    'cat.category_name',
+                    'm.media_title',
+                    's.name',
+                    'd.name',
+                    'c.name',
+                    'a.area_name',
+                    'm.width',
+                    'm.height'
+                )
+                ->orderByDesc('total_revenue');
+        } else { // user
+            $query->select(
+                'u.name as user_name',
+                DB::raw('COUNT(oi.id) as total_bookings'),
+                DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+                DB::raw('SUM(oi.price) as total_revenue')
+            )
+                ->groupBy('u.name')
+                ->orderByDesc('total_revenue');
+        }
 
-    } elseif ($type === 'media') {
-        $query->select(
-            'm.media_code',
-            'cat.category_name',
-            'm.media_title',
-            's.name as state_name',
-            'd.name as district_name',
-            'c.name as city_name',
-            'a.area_name',
-            'm.width',
-            'm.height',
-            DB::raw('COUNT(oi.id) as total_bookings'),
-            DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-            DB::raw('SUM(oi.price) as total_revenue')
-        )
-        ->groupBy(
-            'm.media_code',
-            'cat.category_name',
-            'm.media_title',
-            's.name',
-            'd.name',
-            'c.name',
-            'a.area_name',
-            'm.width',
-            'm.height'
-        )
-        ->orderByDesc('total_revenue');
-
-    } else { // user
-        $query->select(
-            'u.name as user_name',
-            DB::raw('COUNT(oi.id) as total_bookings'),
-            DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-            DB::raw('SUM(oi.price) as total_revenue')
-        )
-        ->groupBy('u.name')
-        ->orderByDesc('total_revenue');
+        return $query->get();
     }
 
-    return $query->get();
-}
 
+    public function monthDetails(Request $request)
+    {
+        [$month, $year] = explode(' ', $request->period);
 
-public function monthDetails(Request $request)
-{
-    [$month, $year] = explode(' ', $request->period);
+        $monthNum = date('m', strtotime($month));
 
-    $monthNum = date('m', strtotime($month));
+        $data = DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+            ->join('category as c', 'c.id', '=', 'm.category_id')
+            ->where('o.payment_status', 'paid')
+            ->whereYear('oi.from_date', $year)
+            ->whereMonth('oi.from_date', $monthNum)
+            ->select(
+                'm.media_code',
+                'm.media_title',
+                'c.category_name',
+                DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
+                'oi.price'
+            )
+            ->get();
 
-    $data = DB::table('order_items as oi')
-        ->join('orders as o', 'o.id', '=', 'oi.order_id')
-        ->join('media_management as m','m.id','=','oi.media_id')
-        ->join('category as c','c.id','=','m.category_id')
-        ->where('o.payment_status', 'paid')
-        ->whereYear('oi.from_date', $year)
-        ->whereMonth('oi.from_date', $monthNum)
-        ->select(
-            'm.media_code',
-            'm.media_title',
-            'c.category_name',
-            DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
-            'oi.price'
-        )
-        ->get();
+        return response()->json($data);
+    }
 
-    return response()->json($data);
-}
+    public function userDetails(Request $request)
+    {
+        $rows = DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+            ->join('category as cat', 'cat.id', '=', 'm.category_id')
+            ->where('o.user_id', $request->user_id)
+            ->where('o.payment_status', 'paid')
+            ->select(
+                'm.media_code',
+                'm.media_title',
+                'cat.category_name',
+                'oi.from_date',
+                'oi.to_date',
+                DB::raw('DATEDIFF(oi.to_date, oi.from_date)+1 as booked_days'),
+                'oi.price'
+            )
+            ->orderBy('oi.from_date', 'desc')
+            ->get();
 
-public function userDetails(Request $request)
-{
-    $rows = DB::table('order_items as oi')
-        ->join('orders as o','o.id','=','oi.order_id')
-        ->join('media_management as m','m.id','=','oi.media_id')
-        ->join('category as cat','cat.id','=','m.category_id')
-        ->where('o.user_id', $request->user_id)
-        ->where('o.payment_status','paid')
-        ->select(
-            'm.media_code',
-            'm.media_title',
-            'cat.category_name',
-            'oi.from_date',
-            'oi.to_date',
-            DB::raw('DATEDIFF(oi.to_date, oi.from_date)+1 as booked_days'),
-            'oi.price'
-        )
-        ->orderBy('oi.from_date','desc')
-        ->get();
-
-    return response()->json($rows);
-}
+        return response()->json($rows);
+    }
 
 
     /* ======================
@@ -296,38 +311,36 @@ public function userDetails(Request $request)
     }
 
 
-public function exportExcel(Request $request)
-{
-    $data = $this->exportQuery($request);
+    public function exportExcel(Request $request)
+    {
+        $data = $this->exportQuery($request);
 
-    if ($data->isEmpty()) {
-        return response()->json(['status' => 'empty']);
+        if ($data->isEmpty()) {
+            return response()->json(['status' => 'empty']);
+        }
+
+        return Excel::download(
+            new \App\Exports\RevenueExport($data, $request->report_type),
+            'revenue_report.xlsx'
+        );
     }
 
-    return Excel::download(
-        new \App\Exports\RevenueExport($data, $request->report_type),
-        'revenue_report.xlsx'
-    );
-}
+    public function exportPdf(Request $request)
+    {
+        $data = $this->exportQuery($request);
 
-public function exportPdf(Request $request)
-{
-    $data = $this->exportQuery($request);
+        if ($data->isEmpty()) {
+            return response()->json(['status' => 'empty']);
+        }
 
-    if ($data->isEmpty()) {
-        return response()->json(['status' => 'empty']);
+        $pdf = Pdf::loadView(
+            'superadm.reports.revenue-report-pdf',
+            [
+                'reports' => $data,
+                'type'    => $request->report_type
+            ]
+        )->setPaper('A4', 'landscape');
+
+        return $pdf->download('revenue_report.pdf');
     }
-
-    $pdf = Pdf::loadView(
-        'superadm.reports.revenue-report-pdf',
-        [
-            'reports' => $data,
-            'type'    => $request->report_type
-        ]
-    )->setPaper('A4', 'landscape');
-
-    return $pdf->download('revenue_report.pdf');
-}
-
-
 }

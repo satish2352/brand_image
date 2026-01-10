@@ -455,7 +455,7 @@
                     @enderror
                 </div>
 
-                 <div class="col-md-3 mb-3" id="radiusSection">
+                 {{-- <div class="col-md-3 mb-3" id="radiusSection">
     <label>Radius <span class="text-danger">*</span></label>
     <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
         <option value="">Select</option>
@@ -470,7 +470,7 @@
     @error('radius_id')
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
-</div>
+</div> --}}
               <div class="col-md-3 mb-4">
     <label>Images</label>
 
@@ -632,20 +632,20 @@ $(document).ready(function () {
 
     function showSection(category) {
         hideAllSections();
-    $('#radiusSection').hide(); // default hidden
+    // $('#radiusSection').hide(); // default hidden
         if (!category) return;
 
         // if (category.includes('hoardings')) $('#billboardsId').show();
          //  HOARDINGS
     if (category.includes('hoardings')) {
         $('#billboardsId').show();
-        $('#radiusSection').show();
+        
     }
 
     //  DIGITAL WALL / WALL PAINTING
     if (category.includes('wall')) {
         $('#wallWrapSection').show();
-        $('#radiusSection').show();
+       
     }
         if (category.includes('mall')) $('#mallMedia').show();
         if (category.includes('airport')) $('#airportBranding').show();

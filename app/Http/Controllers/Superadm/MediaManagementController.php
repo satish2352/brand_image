@@ -273,16 +273,26 @@ class MediaManagementController extends Controller
         );
     }
 
+    // public function getAreaParents($areaId)
+    // {
+    //     $city = DB::table('tbl_location')->where('location_id', $areaId)->first();
+    //     $district = DB::table('tbl_location')->where('location_id', $city->parent_id)->first();
+    //     $state = DB::table('tbl_location')->where('location_id', $district->parent_id)->first();
+
+    //     return response()->json([
+    //         'city_id' => $city->location_id,
+    //         'district_id' => $district->location_id,
+    //         'state_id' => $state->location_id,
+    //     ]);
+    // }
     public function getAreaParents($areaId)
     {
-        $city = DB::table('tbl_location')->where('location_id', $areaId)->first();
-        $district = DB::table('tbl_location')->where('location_id', $city->parent_id)->first();
-        $state = DB::table('tbl_location')->where('location_id', $district->parent_id)->first();
+        $area = DB::table('areas')->where('id', $areaId)->firstOrFail();
 
         return response()->json([
-            'city_id' => $city->location_id,
-            'district_id' => $district->location_id,
-            'state_id' => $state->location_id,
+            'city_id'     => $area->city_id,
+            'district_id' => $area->district_id,
+            'state_id'    => $area->state_id,
         ]);
     }
 
@@ -302,9 +312,9 @@ class MediaManagementController extends Controller
         $illuminations = Illumination::where('is_active', 1)
             ->where('is_deleted', 0)
             ->get();
-        $radius = RadiusMaster::where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->get();
+        // $radius = RadiusMaster::where('is_active', 1)
+        //     ->where('is_deleted', 0)
+        //     ->get();
 
         // FETCH VENDORS
         $vendors = Vendor::where('is_active', 1)
@@ -316,7 +326,7 @@ class MediaManagementController extends Controller
             'categories',
             'facings',
             'illuminations',
-            'radius',
+            // 'radius',
             'vendors'
         ));
     }
@@ -366,12 +376,12 @@ class MediaManagementController extends Controller
             //  Hoardings / Billboards
             case str_contains($slug, 'hoardings'):
                 $rules += [
-                    'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
+                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
                     'media_title' => 'required|string|max:255',
                     // 'facing_id' => 'required',
                     'facing' => 'required',
                     'illumination_id' => 'required',
-                    'radius_id' => 'required',
+                    // 'radius_id' => 'required',
                     // 'minimum_booking_days' => 'required|integer|min:1',
                     'area_type' => 'required',
                     'address' => 'required',
@@ -415,7 +425,7 @@ class MediaManagementController extends Controller
             //  Wall Wrap
             case str_contains($slug, 'wall'):
                 $rules += [
-                    'radius_id' => 'required',
+                    // 'radius_id' => 'required',
                     // 'area_auto' => 'required|numeric|min:1',
                 ];
                 break;
@@ -480,9 +490,9 @@ class MediaManagementController extends Controller
             $categories = Category::where('is_active', 1)->where('is_deleted', 0)->get();
             $facings = FacingDirection::where('is_active', 1)->where('is_deleted', 0)->get();
             $illuminations = Illumination::where('is_active', 1)->where('is_deleted', 0)->get();
-            $radius = RadiusMaster::where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->get();
+            // $radius = RadiusMaster::where('is_active', 1)
+            //     ->where('is_deleted', 0)
+            //     ->get();
             $areas = DB::table('areas')
                 ->where('is_active', 1)
                 ->where('is_deleted', 0)
@@ -500,7 +510,7 @@ class MediaManagementController extends Controller
                 'illuminations',
                 'encodedId',
                 'areas',
-                'radius',
+                // 'radius',
                 'vendors'
             ));
         } catch (\Exception $e) {
@@ -548,12 +558,12 @@ class MediaManagementController extends Controller
 
             case str_contains($slug, 'hoardings'):
                 $rules += [
-                    'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
+                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
                     'media_title' => 'required|string|max:255',
                     // 'facing_id' => 'required',
                     'facing' => 'required',
                     'illumination_id' => 'required',
-                    'radius_id' => 'required',
+                    // 'radius_id' => 'required',
                     // 'minimum_booking_days' => 'required|integer|min:1',
                     'area_type' => 'required',
                     'address' => 'required',
@@ -667,61 +677,64 @@ class MediaManagementController extends Controller
 
 
     /* =========================
-       AJAX : STATE (ONLY MAHARASHTRA)
-    ========================== */
+   AJAX : STATES
+========================== */
     public function getStates()
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 1)     // STATE
+            DB::table('states')
                 ->where('is_active', 1)
-                ->where('name', 'Maharashtra')
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->select('id', 'state_name')
+                ->orderBy('state_name')
                 ->get()
         );
     }
 
     /* =========================
-       AJAX : DISTRICT
-    ========================== */
+   AJAX : DISTRICTS
+========================== */
     public function getDistricts($stateId)
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 2)     // DISTRICT
-                ->where('parent_id', $stateId) // Maharashtra ID
+            DB::table('districts')
+                ->where('state_id', $stateId)
                 ->where('is_active', 1)
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->select('id', 'district_name')
+                ->orderBy('district_name')
                 ->get()
         );
     }
 
     /* =========================
-       AJAX : TALUKA
-    ========================== */
+   AJAX : CITIES
+========================== */
     public function getCities($districtId)
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 3)     // TALUKA
-                ->where('parent_id', $districtId)
+            DB::table('cities')
+                ->where('district_id', $districtId)
                 ->where('is_active', 1)
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->select('id', 'city_name')
+                ->orderBy('city_name')
                 ->get()
         );
     }
 
     /* =========================
-       AJAX : VILLAGE / CITY
-    ========================== */
+   AJAX : AREAS
+========================== */
     public function getAreas($cityId)
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 4)     // CITY / VILLAGE
-                ->where('parent_id', $cityId)
+            DB::table('areas')
+                ->where('city_id', $cityId)
                 ->where('is_active', 1)
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->select('id', 'area_name')
+                ->orderBy('area_name')
                 ->get()
         );
     }

@@ -17,11 +17,20 @@ class HordingBookRepository
         $perPage = config('fileConstants.PAGINATION', 10);
 
         $query = DB::table('media_management as m')
-            ->leftJoin('tbl_location as city', 'city.location_id', '=', 'm.city_id')
+            ->leftJoin('cities as city', 'city.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            // ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
-            // ->leftJoin('radius_master as rd', 'rd.id', '=', 'm.radius_id')
-            ->leftJoin(DB::raw('(SELECT * FROM category WHERE is_active = 1 AND is_deleted = 0 ORDER BY id LIMIT 1) as c'), 'c.id', '=', 'm.category_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
+            ->leftJoin('states as s', 's.id', '=', 'm.state_id')
+            ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin(DB::raw('(
+    SELECT *
+    FROM category
+    WHERE is_active = 1
+      AND is_deleted = 0
+    ORDER BY id LIMIT 1
+) as cat2'), 'cat2.id', '=', 'm.category_id')
+
+            // ->leftJoin(DB::raw('(SELECT * FROM category WHERE is_active = 1 AND is_deleted = 0 ORDER BY id LIMIT 1) as c'), 'c.id', '=', 'm.category_id')
             ->leftJoin(DB::raw('
              (SELECT media_id, MIN(images) AS first_image
               FROM media_images
@@ -40,7 +49,7 @@ class HordingBookRepository
                 'm.category_id',
                 'c.category_name',
                 'm.area_type',
-                'city.name as city_name',
+                'city.city_name as city_name',
                 'a.common_stdiciar_name as area_name',
                 'mi.first_image',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
@@ -236,14 +245,13 @@ class HordingBookRepository
     public function getMediaDetailsAdmin($mediaId)
     {
         $media = DB::table('media_management as m')
-            ->leftJoin('tbl_location as state', 'state.location_id', '=', 'm.state_id')
-            ->leftJoin('tbl_location as district', 'district.location_id', '=', 'm.district_id')
-            ->leftJoin('tbl_location as city', 'city.location_id', '=', 'm.city_id')
+            ->leftJoin('states as s', 's.id', '=', 'm.state_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
+            ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            // ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
-            ->leftJoin(DB::raw('(SELECT * FROM category WHERE is_active = 1 AND is_deleted = 0 ORDER BY id LIMIT 1) as c'), 'c.id', '=', 'm.category_id')
+            ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             ->leftJoin('facing_direction as fd', 'fd.id', '=', 'm.facing_id')
-            ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('illumination as il', 'il.id', '=', 'm.illumination_id')
             // ->leftJoin('radius_master as rm', 'rm.id', '=', 'm.radius_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)

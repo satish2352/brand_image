@@ -25,7 +25,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Sr.No</th>
-                                <th>Media Code</th>
+                                {{-- <th>Media Code</th> --}}
                                 <th>Media Title</th>
                                 <th>Category</th>
                                 <th>State</th>
@@ -33,7 +33,7 @@
                                 <th>City</th>
                                 <th>Area</th>
                                 <th>Price</th>
-                                 <th>Vendor Name</th>
+                                 {{-- <th>Vendor Name</th> --}}
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -43,7 +43,7 @@
                             @forelse ($mediaList as $key => $media)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                  <td>{{ $media->media_code ?? '-' }}</td>
+                                  {{-- <td>{{ $media->media_code ?? '-' }}</td> --}}
                                     <td>{{ $media->media_title ?? '-' }}</td>
                                     <td>{{ $media->category_name ?? '-' }}</td>
                                     <td>{{ $media->state_name ?? '-' }}</td>
@@ -53,7 +53,7 @@
                                     <td>
                                         ₹ {{ $media->price !== null ? number_format($media->price, 2) : '-' }}
                                     </td>
-                                    <td>{{ $media->vendor_name ?? '-' }}</td>
+                                    {{-- <td>{{ $media->vendor_name ?? '-' }}</td> --}}
                                     <td>
                                         <label class="switch">
                                             <input type="checkbox"

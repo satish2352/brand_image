@@ -92,7 +92,7 @@ class CampaignController extends Controller
     {
         try {
 
-            $cartItemId = base64_decode($cartItemId); // 🔐 DECRYPT HERE
+            $cartItemId = base64_decode($cartItemId); //  DECRYPT HERE
 
             $campaign = $this->campaignService->getCampaignDetailsByCartItem(
                 Auth::guard('website')->id(),
@@ -134,9 +134,9 @@ class CampaignController extends Controller
         $items = DB::table('cart_items as ci')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->leftJoin('tbl_location as c', 'c.location_id', '=', 'm.city_id')
+            ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
             ->leftJoin('illuminations as i', 'i.id', '=', 'm.illumination_id')
-            ->leftJoin('category as cat', 'cat.id', '=', 'm.category_id') // ⭐ NEW JOIN
+            ->leftJoin('category as cat', 'cat.id', '=', 'm.category_id') //  NEW JOIN
             ->leftJoin(DB::raw("
         (
             SELECT media_id, GROUP_CONCAT(images) AS all_images
@@ -155,7 +155,7 @@ class CampaignController extends Controller
                 'a.common_stdiciar_name',
                 'c.name as city_name',
                 'i.illumination_name',
-                'cat.category_name as media_type', // ⭐ GET CATEGORY NAME
+                'cat.category_name as media_type', //  GET CATEGORY NAME
                 'mi.all_images'
             )
             ->where('ci.campaign_id', $campaignId)

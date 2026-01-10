@@ -31,7 +31,7 @@ class RadiusController extends Controller
     public function save(Request $req)
     {
         $req->validate([
-            'radius' => 'required|numeric|min:1|max:50'
+            'radius' => 'required|numeric|min:1|max:500'
         ]);
 
         try {

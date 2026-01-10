@@ -10,27 +10,26 @@ class MediaManagementRepository
     public function getAll()
     {
         return DB::table('media_management as m')
-            ->leftJoin('tbl_location as state', 'state.location_id', '=', 'm.state_id')
-            ->leftJoin('tbl_location as district', 'district.location_id', '=', 'm.district_id')
-            ->leftJoin('tbl_location as city', 'city.location_id', '=', 'm.city_id')
+            ->leftJoin('states as s', 's.id', '=', 'm.state_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
+            ->leftJoin('cities as cty', 'cty.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
-            ->leftJoin('category', 'm.category_id', '=', 'category.id')
             ->select([
                 'm.id',
                 'm.media_code',
                 'm.media_title',
                 'm.price',
-                'm.vendor_name',
+                'm.vendor_id',
                 'm.is_active',
                 'm.category_id',
                 'm.created_at',
-                'category.category_name',
-                'state.name as state_name',
-                'district.name as district_name',
-                'city.name as city_name',
-                'a.common_stdiciar_name as area_name',
+
                 'c.category_name',
+                's.state_name',
+                'd.district_name',
+                'cty.city_name',
+                'a.area_name',
             ])
             ->where('m.is_deleted', 0)
             ->orderBy('m.id', 'desc')
@@ -38,13 +37,10 @@ class MediaManagementRepository
     }
     public function getDetailsById($id)
     {
-
         return DB::table('media_management as mm')
-
-
-            ->leftJoin('tbl_location as st', 'st.location_id', '=', 'mm.state_id')
-            ->leftJoin('tbl_location as dt', 'dt.location_id', '=', 'mm.district_id')
-            ->leftJoin('tbl_location as ct', 'ct.location_id', '=', 'mm.city_id')
+            ->leftJoin('states as st', 'st.id', '=', 'mm.state_id')
+            ->leftJoin('districts as dt', 'dt.id', '=', 'mm.district_id')
+            ->leftJoin('cities as ct', 'ct.id', '=', 'mm.city_id')
             ->leftJoin('areas as ar', 'ar.id', '=', 'mm.area_id')
             ->leftJoin('category as cat', 'cat.id', '=', 'mm.category_id')
             ->leftJoin('facing_direction as fd', 'fd.id', '=', 'mm.facing_id')
@@ -54,20 +50,16 @@ class MediaManagementRepository
                 $join->on('mi.media_id', '=', 'mm.id')
                     ->where('mi.is_deleted', 0);
             })
-
-            /*  CORRECT FILTER */
             ->where('mm.id', $id)
             ->where('mm.is_deleted', 0)
-
             ->select(
                 'mm.*',
                 'mm.area_type',
                 'cat.category_name',
-                // 'cat.slug as category_slug',
-                'st.name as state_name',
-                'dt.name as district_name',
-                'ct.name as city_name',
-                'ar.common_stdiciar_name as area_name',
+                'st.state_name',
+                'dt.district_name',
+                'ct.city_name',
+                'ar.area_name',
                 'fd.facing_name',
                 'il.illumination_name',
                 'rm.radius',
@@ -76,6 +68,7 @@ class MediaManagementRepository
             )
             ->get();
     }
+
     public function store(array $data)
     {
         return MediaManagement::create($data);

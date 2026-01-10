@@ -72,7 +72,7 @@ class CheckoutController extends Controller
             return back()->with('error', 'Cart is empty');
         }
 
-        // 🚫 Prevent empty date items
+        //  Prevent empty date items
         foreach ($items as $item) {
             if (!$item->from_date || !$item->to_date) {
                 return redirect()
@@ -81,7 +81,7 @@ class CheckoutController extends Controller
             }
         }
 
-        // 💰 Calculate total AFTER validation
+        //  Calculate total AFTER validation
         $total = $items->sum(fn($i) => $i->total_price);
 
         $order = DB::transaction(function () use ($items, $total) {
@@ -90,7 +90,7 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        // 🔔 Notify all admins
+        // Notify all admins
         $admins = User::where('id', 1)->get();
         foreach ($admins as $admin) {
             $admin->notify(new OrderPlacedNotification($order));
@@ -132,7 +132,7 @@ class CheckoutController extends Controller
         $secret    = config('services.razorpay.webhook_secret');
 
         try {
-            // ⭐ VERIFY WEBHOOK SIGNATURE
+            //  VERIFY WEBHOOK SIGNATURE
             $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
             $api->utility->verifyWebhookSignature($payload, $signature, $secret);
 
@@ -178,7 +178,7 @@ class CheckoutController extends Controller
             'amount'   => $grandTotal * 100, //  GST INCLUDED
             'currency' => 'INR',
         ]);
-        // ⭐⭐⭐ IMPORTANT: SAVE RAZORPAY ORDER ID IN DB
+        //  IMPORTANT: SAVE RAZORPAY ORDER ID IN DB
         $order->update([
             'payment_gateway_order_id' => $razorpayOrder['id'],
         ]);
@@ -221,7 +221,7 @@ class CheckoutController extends Controller
 
         $order = Order::find($orderId);
 
-        // 🔔 Notify admins payment done
+        //  Notify admins payment done
         $admins = User::where('id', 1)->get();
         foreach ($admins as $admin) {
             $admin->notify(new PaymentReceivedNotification($order));
@@ -265,7 +265,7 @@ class CheckoutController extends Controller
         }
 
 
-        //  2️⃣ Clear CAMPAIGN items if campaign order
+        //  2 Clear CAMPAIGN items if campaign order
         if ($campaignId) {
             \App\Models\CartItem::where('campaign_id', $campaignId)
                 ->where('cart_type', 'CAMPAIGN')

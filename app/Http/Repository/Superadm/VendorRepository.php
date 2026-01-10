@@ -1,6 +1,5 @@
 <?php
 
-// app/Http/Repository/Superadm/VendorRepository.php
 namespace App\Http\Repository\Superadm;
 
 use App\Models\Vendor;
@@ -11,15 +10,15 @@ class VendorRepository
     public function getAll()
     {
         return DB::table('vendors as v')
-            ->join('tbl_location as s', 's.location_id', '=', 'v.state_id')
-            ->join('tbl_location as d', 'd.location_id', '=', 'v.district_id')
-            ->join('tbl_location as c', 'c.location_id', '=', 'v.city_id')
+            ->join('states as s', 's.id', '=', 'v.state_id')
+            ->join('districts as d', 'd.id', '=', 'v.district_id')
+            ->join('cities as c', 'c.id', '=', 'v.city_id')
             ->where('v.is_deleted', 0)
             ->select(
                 'v.*',
-                's.name as state_name',
-                'd.name as district_name',
-                'c.name as city_name'
+                's.state_name',
+                'd.district_name',
+                'c.city_name'
             )
             ->orderBy('v.id', 'desc')
             ->get();

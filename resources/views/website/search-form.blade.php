@@ -67,9 +67,13 @@
                     <select name="state_id" id="state_id" class="form-select">
                         <option value="">Select State</option>
                         @foreach($states as $state)
-                            <option value="{{ $state->location_id }}"
+                            {{-- <option value="{{ $state->location_id }}"
                                 {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
-                                {{ $state->name }}
+                                {{ $state->name }} --}}
+                                <option value="{{ $state->id }}"
+                                    {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
+                                    {{ $state->state_name }}
+
                             </option>
                         @endforeach
                     </select>
@@ -198,78 +202,53 @@
  
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    const selectedState    = "{{ $filters['state_id'] ?? '' }}";
+    const selectedState = "{{ $filters['state_id'] ?? '' }}";
     const selectedDistrict = "{{ $filters['district_id'] ?? '' }}";
-    const selectedCity     = "{{ $filters['city_id'] ?? '' }}";
-    const selectedArea     = "{{ $filters['area_id'] ?? '' }}";
+    const selectedCity = "{{ $filters['city_id'] ?? '' }}";
+    const selectedArea = "{{ $filters['area_id'] ?? '' }}";
 </script>
 
 <script>
 $(document).ready(function () {
-
     const csrf = "{{ csrf_token() }}";
 
-    /* ================= LOAD DISTRICTS ================= */
+    // Load Districts
     function loadDistricts(stateId, selected = '') {
         if (!stateId) return;
-
-        $.post("{{ route('locations.districts') }}", {
-            _token: csrf,
-            state_id: stateId
-        }, function (data) {
-
+        $.post("{{ route('ajax.districts') }}", {_token: csrf, state_id: stateId}, function (data) {
             let html = '<option value="">Select District</option>';
             data.forEach(d => {
-                html += `<option value="${d.location_id}" ${d.location_id == selected ? 'selected' : ''}>
-                            ${d.name}
-                         </option>`;
+                html += `<option value="${d.id}" ${d.id == selected ? 'selected' : ''}>${d.district_name}</option>`;
             });
-
             $('#district_id').html(html);
         });
     }
 
-    /* ================= LOAD CITIES ================= */
+    // Load Cities
     function loadCities(districtId, selected = '') {
         if (!districtId) return;
-
-        $.post("{{ route('locations.cities') }}", {
-            _token: csrf,
-            district_id: districtId
-        }, function (data) {
-
+        $.post("{{ route('ajax.cities') }}", {_token: csrf, district_id: districtId}, function (data) {
             let html = '<option value="">Select City</option>';
             data.forEach(c => {
-                html += `<option value="${c.location_id}" ${c.location_id == selected ? 'selected' : ''}>
-                            ${c.name}
-                         </option>`;
+                html += `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>${c.city_name}</option>`;
             });
-
             $('#city_id').html(html);
         });
     }
 
-    /* ================= LOAD AREAS ================= */
+    // Load Areas
     function loadAreas(cityId, selected = '') {
         if (!cityId) return;
-
-        $.post("{{ route('locations.areas') }}", {
-            _token: csrf,
-            city_id: cityId
-        }, function (data) {
-
+        $.post("{{ route('ajax.areas') }}", {_token: csrf, city_id: cityId}, function (data) {
             let html = '<option value="">Select Area</option>';
             data.forEach(a => {
-                html += `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>
-                            ${a.area_name}
-                         </option>`;
+                html += `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>${a.area_name}</option>`;
             });
-
             $('#area_id').html(html);
         });
     }
 
-    /* ================= ON CHANGE EVENTS ================= */
+    // Change Events
     $('#state_id').on('change', function () {
         loadDistricts(this.value);
         $('#city_id').html('<option value="">Select City</option>');
@@ -285,19 +264,18 @@ $(document).ready(function () {
         loadAreas(this.value);
     });
 
-    /* ================= PAGE LOAD ================= */
-    if (selectedState) {
-        loadDistricts(selectedState, selectedDistrict);
-    }
+    // Initial selection
+    if (selectedState) loadDistricts(selectedState, selectedDistrict);
+    if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
+    if (selectedCity) loadAreas(selectedCity, selectedArea);
+    
+});
+</script>
 
-    if (selectedDistrict) {
-        loadCities(selectedDistrict, selectedCity);
-    }
-
-    if (selectedCity) {
-        loadAreas(selectedCity, selectedArea);
-    }
-
+<script>
+document.getElementById('clearFilters').addEventListener('click', function () {
+    document.getElementById('clearFlag').value = '1';
+    this.closest('form').submit();
 });
 </script>
 
@@ -339,35 +317,40 @@ $(document).ready(function () {
 <script>
 $(document).ready(function () {
 
-    // ✅ Allowed categories for Radius
-    const radiusEnabledCategories = [1, 2]; 
-    // 1 = Hoardings/Billboards
-    // 2 = Digital Wall Painting
+    const allowedCategories = [1, 2];
 
-    function toggleRadiusField(categoryId) {
+    function toggleRadius() {
+        let categoryId = parseInt($('select[name="category_id"]').val());
+        let hasCity    = $('#city_id').val();
 
-        if (radiusEnabledCategories.includes(parseInt(categoryId))) {
+        // No city, OR category not allowed = disable
+        if (!allowedCategories.includes(categoryId) || !hasCity) {
+            $('#radius_id')
+                .val('')
+                .prop('disabled', true)
+                .addClass('bg-light');
+        } 
+        else {
             $('#radius_id')
                 .prop('disabled', false)
                 .removeClass('bg-light');
-        } else {
-            $('#radius_id')
-                .prop('disabled', true)
-                .addClass('bg-light')
-                .val('');
         }
     }
 
-    // 🔥 On category change
-    $('select[name="category_id"]').on('change', function () {
-        toggleRadiusField($(this).val());
-    });
+    // Category change
+    $('select[name="category_id"]').on('change', toggleRadius);
 
-    // 🔥 On page load (important)
-    toggleRadiusField($('select[name="category_id"]').val());
+    // City change
+    $('#city_id').on('change', toggleRadius);
 
+    // Always run after AJAX loads dropdowns
+    setTimeout(toggleRadius, 500);
+
+    // On page load (important!)
+    toggleRadius();
 });
 </script>
+
 <script>
 $(document).ready(function () {
 

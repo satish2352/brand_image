@@ -70,14 +70,12 @@ class PaymentHistoryController extends Controller
         $items = $this->campaignService->getInvoiceDetails($orderId);
 
         $pdf = Pdf::loadView('website.payment-receipt-pdf', [
-    'items'   => $items,
-    'orderId' => $orderId
-])->setPaper('A4');
+            'items'   => $items,
+            'orderId' => $orderId
+        ])->setPaper('A4');
 
-$pdf->setOption('defaultFont', 'dejavusans');
+        $pdf->setOption('defaultFont', 'dejavusans');
 
-return $pdf->download('RECEIPT_'.$orderId.'.pdf');
+        return $pdf->download('RECEIPT_' . $orderId . '.pdf');
     }
-
-
 }

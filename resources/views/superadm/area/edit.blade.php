@@ -88,14 +88,14 @@ $(document).ready(function () {
     let selectedCity     = "{{ $area->city_id }}";
 
     /* ================= LOAD STATES ================= */
-    $.get("{{ url('/get-states') }}", function (states) {
+    $.get("{{ url('/area/get-states') }}", function (states) {
 
         $('#state').html('<option value="">Select State</option>');
 
         $.each(states, function (i, state) {
-            let selected = state.location_id == selectedState ? 'selected' : '';
+            let selected = state.id == selectedState ? 'selected' : '';
             $('#state').append(
-                `<option value="${state.location_id}" ${selected}>${state.name}</option>`
+                `<option value="${state.id}" ${selected}>${state.state_name}</option>`
             );
         });
 
@@ -109,12 +109,12 @@ $(document).ready(function () {
 
         $('#district').html('<option value="">Select District</option>');
 
-        $.get("{{ url('/get-districts') }}/" + stateId, function (districts) {
+        $.get("{{ url('/area/get-districts') }}", { state_id: stateId }, function (districts) {
 
             $.each(districts, function (i, district) {
-                let selected = district.location_id == selectedDistrict ? 'selected' : '';
+                let selected = district.id == selectedDistrict ? 'selected' : '';
                 $('#district').append(
-                    `<option value="${district.location_id}" ${selected}>${district.name}</option>`
+                    `<option value="${district.id}" ${selected}>${district.district_name}</option>`
                 );
             });
 
@@ -129,12 +129,12 @@ $(document).ready(function () {
 
         $('#city').html('<option value="">Select City</option>');
 
-        $.get("{{ url('/get-cities') }}/" + districtId, function (cities) {
+        $.get("{{ url('/area/get-cities') }}", { district_id: districtId }, function (cities) {
 
             $.each(cities, function (i, city) {
-                let selected = city.location_id == selectedCity ? 'selected' : '';
+                let selected = city.id == selectedCity ? 'selected' : '';
                 $('#city').append(
-                    `<option value="${city.location_id}" ${selected}>${city.name}</option>`
+                    `<option value="${city.id}" ${selected}>${city.city_name}</option>`
                 );
             });
         });
@@ -157,5 +157,7 @@ $(document).ready(function () {
 });
 </script>
 @endsection
+
+
 
 @endsection

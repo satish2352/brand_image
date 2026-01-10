@@ -11,9 +11,9 @@ class VendorExport implements FromCollection, WithHeadings
     public function collection()
     {
         return DB::table('vendors as v')
-            ->join('tbl_location as s', 's.location_id', '=', 'v.state_id')
-            ->join('tbl_location as d', 'd.location_id', '=', 'v.district_id')
-            ->join('tbl_location as c', 'c.location_id', '=', 'v.city_id')
+            ->leftJoin('states as s', 's.id', '=', 'v.state_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'v.district_id')
+            ->leftJoin('cities as c', 'c.id', '=', 'v.city_id')
             ->where('v.is_deleted', 0)
             ->select(
                 'v.vendor_code',

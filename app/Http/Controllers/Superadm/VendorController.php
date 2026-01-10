@@ -33,9 +33,9 @@ class VendorController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'state_id'    => 'required|integer|exists:tbl_location,location_id',
-            'district_id' => 'required|integer|exists:tbl_location,location_id',
-            'city_id'     => 'required|integer|exists:tbl_location,location_id',
+            'state_id'    => 'required|integer|exists:states,id',
+            'district_id' => 'required|integer|exists:districts,id',
+            'city_id'     => 'required|integer|exists:cities,id',
 
             'vendor_name' => 'required|string|max:255',
             'vendor_code' => 'required|string|max:100',
@@ -68,9 +68,9 @@ class VendorController extends Controller
         $id = base64_decode($encodedId);
 
         $validated = $request->validate([
-            'state_id'    => 'required|integer|exists:tbl_location,location_id',
-            'district_id' => 'required|integer|exists:tbl_location,location_id',
-            'city_id'     => 'required|integer|exists:tbl_location,location_id',
+            'state_id'    => 'required|integer|exists:states,id',
+            'district_id' => 'required|integer|exists:districts,id',
+            'city_id'     => 'required|integer|exists:cities,id',
 
             'vendor_name' => 'required|string|max:255',
             'vendor_code' => 'required|string|max:100',
@@ -107,5 +107,4 @@ class VendorController extends Controller
     {
         return Excel::download(new VendorExport, 'vendors.xlsx');
     }
-    
 }

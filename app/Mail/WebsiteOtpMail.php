@@ -2,8 +2,7 @@
 
 namespace App\Mail;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -21,6 +20,6 @@ class WebsiteOtpMail extends Mailable
     public function build()
     {
         return $this->subject('Your OTP Verification Code')
-            ->view('emails.website_otp'); 
+            ->view('emails.website_otp');
     }
 }

@@ -43,3 +43,16 @@ function removeImage($fileName, $folder)
 
     return false;
 }
+function haversineKm($lat1, $lon1, $lat2, $lon2)
+{
+    $earth = 6371;
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLon = deg2rad($lon2 - $lon1);
+    $lat1 = deg2rad($lat1);
+    $lat2 = deg2rad($lat2);
+
+    $a = sin($dLat / 2) ** 2 + cos($lat1) * cos($lat2) * sin($dLon / 2) ** 2;
+
+
+    return $earth * 2 * asin(sqrt($a));
+}

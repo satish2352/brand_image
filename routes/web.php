@@ -30,11 +30,11 @@ use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Website\LocationController;
 use App\Http\Controllers\Website\PaymentHistoryController;
 use App\Http\Controllers\Superadm\CampaingController;
 use App\Http\Controllers\Superadm\HordingBookController;
 use App\Http\Controllers\Superadm\AdminNotificationController;
+use App\Http\Controllers\Common\LocationController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -47,6 +47,22 @@ Route::get('/clear-cache', function () {
 
 Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
 Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
+
+
+
+// Route::middleware('auth.both')->group(function () {
+//     Route::get('/ajax/get-states', [LocationController::class, 'getStates'])->name('ajax.states');
+//     Route::post('/ajax/get-districts', [LocationController::class, 'getDistricts'])->name('ajax.districts');
+//     Route::post('/ajax/get-cities', [LocationController::class, 'getCities'])->name('ajax.cities');
+//     Route::post('/ajax/get-areas', [LocationController::class, 'getAreas'])->name('ajax.areas');
+// });
+/* ============================================
+   PUBLIC AJAX - NO MIDDLEWARE REQUIRED
+=============================================== */
+Route::get('/ajax/get-states', [LocationController::class, 'getStates'])->name('ajax.states');
+Route::post('/ajax/get-districts', [LocationController::class, 'getDistricts'])->name('ajax.districts');
+Route::post('/ajax/get-cities', [LocationController::class, 'getCities'])->name('ajax.cities');
+Route::post('/ajax/get-areas', [LocationController::class, 'getAreas'])->name('ajax.areas');
 
 Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -62,6 +78,10 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('delete', [AreaController::class, 'delete'])->name('area.delete');
         Route::post('update-status', [AreaController::class, 'updateStatus'])->name('area.updatestatus');
     });
+
+    /* AREA AJAX DROPDOWNS */
+
+
     /* CATEGORY MANAGEMENT */
     Route::prefix('category')->group(function () {
         Route::get('list', [CategoryController::class, 'index'])->name('category.list');
@@ -111,13 +131,13 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::get('details/{orderId}', [UserPaymentController::class, 'details'])->name('user-payment.details');
     });
 
-    Route::get('admin-campaing/export-excel/{campaignId}',[CampaingController::class, 'exportExcel'])->name('admin.campaign.export.excel');
+    Route::get('admin-campaing/export-excel/{campaignId}', [CampaingController::class, 'exportExcel'])->name('admin.campaign.export.excel');
 
 
     Route::prefix('admin-campaing')->group(function () {
         Route::get('list', [CampaingController::class, 'index'])->name('admin-campaing.list');
         Route::post('delete', [CampaingController::class, 'delete'])->name('admin-campaing.delete');
-                Route::get('/details/{campaignId}', [CampaingController::class, 'details'])
+        Route::get('/details/{campaignId}', [CampaingController::class, 'details'])
             ->name('admin.campaign.details');
     });
     // Radius Master
@@ -266,13 +286,10 @@ Route::middleware(['web'])->group(function () {
         ->middleware('auth:website');
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])
         ->name('campaign.invoice.view');
-    
-    Route::get('invoice/download/{id}', [PaymentHistoryController::class,'downloadInvoice'])->name('invoice.download');
 
+    Route::get('invoice/download/{id}', [PaymentHistoryController::class, 'downloadInvoice'])->name('invoice.download');
 });
 // Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
-Route::post('/locations/districts', [LocationController::class, 'getDistricts'])->name('locations.districts');
-Route::post('/locations/cities', [LocationController::class, 'getCities'])->name('locations.cities');
-Route::post('/locations/areas', [LocationController::class, 'getAreas'])->name('locations.areas');
+
 Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');

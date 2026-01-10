@@ -39,9 +39,9 @@ class AreaController extends Controller
     {
         //  Validation rules
         $rules = [
-            'state_id'              => 'required|integer|exists:tbl_location,location_id',
-            'district_id'           => 'required|integer|exists:tbl_location,location_id',
-            'city_id'               => 'required|integer|exists:tbl_location,location_id',
+            'state_id'             => 'required|integer|exists:states,id',
+            'district_id'          => 'required|integer|exists:districts,id',
+            'city_id'              => 'required|integer|exists:cities,id',
             'area_name'             => 'required|string|max:255',
             'common_stdiciar_name'  => 'required|string|max:255',
             'latitude'             => 'required|numeric',
@@ -120,9 +120,9 @@ class AreaController extends Controller
         $id = base64_decode($encodedId);
 
         $validated = $request->validate([
-            'state_id'             => 'required|integer|exists:tbl_location,location_id',
-            'district_id'          => 'required|integer|exists:tbl_location,location_id',
-            'city_id'              => 'required|integer|exists:tbl_location,location_id',
+            'state_id'             => 'required|integer|exists:states,id',
+            'district_id'          => 'required|integer|exists:districts,id',
+            'city_id'              => 'required|integer|exists:cities,id',
             'area_name'            => 'required|string|max:255',
             'common_stdiciar_name' => 'required|string|max:255',
             'latitude'             => 'required|numeric',
@@ -188,62 +188,136 @@ class AreaController extends Controller
     }
 
     /* =========================
-       AJAX : STATE (ONLY MAHARASHTRA)
+       AJAX : STATE LIST
     ========================== */
     public function getStates()
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 1)     // STATE
+            DB::table('states')
                 ->where('is_active', 1)
-                ->where('name', 'Maharashtra')
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->orderBy('state_name')
+                ->select('id', 'state_name')
                 ->get()
         );
     }
 
     /* =========================
-       AJAX : DISTRICT
+       AJAX : DISTRICT LIST
     ========================== */
-    public function getDistricts($stateId)
+    public function getDistricts(Request $request)
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 2)     // DISTRICT
-                ->where('parent_id', $stateId) // Maharashtra ID
+            DB::table('districts')
+                ->where('state_id', $request->state_id)
                 ->where('is_active', 1)
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->orderBy('district_name')
+                ->select('id', 'district_name')
                 ->get()
         );
     }
 
     /* =========================
-       AJAX : TALUKA
+       AJAX : CITY LIST
     ========================== */
-    public function getCities($districtId)
+    public function getCities(Request $request)
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 3)     // TALUKA
-                ->where('parent_id', $districtId)
+            DB::table('cities')
+                ->where('district_id', $request->district_id)
                 ->where('is_active', 1)
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->orderBy('city_name')
+                ->select('id', 'city_name')
                 ->get()
         );
     }
 
     /* =========================
-       AJAX : VILLAGE / CITY
+       AJAX : AREA LIST
     ========================== */
-    public function getAreas($cityId)
+    public function getAreas(Request $request)
     {
         return response()->json(
-            DB::table('tbl_location')
-                ->where('location_type', 4)     // CITY / VILLAGE
-                ->where('parent_id', $cityId)
+            DB::table('areas')
+                ->where('city_id', $request->city_id)
                 ->where('is_active', 1)
-                ->select('location_id', 'name')
+                ->where('is_deleted', 0)
+                ->orderBy('area_name')
+                ->select('id', 'area_name')
                 ->get()
         );
     }
+
+    // /* =========================
+    //    AJAX : STATE (ONLY MAHARASHTRA)
+    // ========================== */
+    // public function getStates()
+    // {
+    //     return response()->json(
+    //         DB::table('tbl_location')
+    //             ->where('location_type', 1)     // STATE
+    //             ->where('is_active', 1)
+    //             ->where('name', 'Maharashtra')
+    //             ->select('location_id', 'name')
+    //             ->get()
+    //     );
+    // }
+
+    // /* =========================
+    //    AJAX : DISTRICT
+    // ========================== */
+    // public function getDistricts($stateId)
+    // {
+    //     return response()->json(
+    //         DB::table('tbl_location')
+    //             ->where('location_type', 2)     // DISTRICT
+    //             ->where('parent_id', $stateId) // Maharashtra ID
+    //             ->where('is_active', 1)
+    //             ->select('location_id', 'name')
+    //             ->get()
+    //     );
+    // }
+
+    // /* =========================
+    //    AJAX : TALUKA
+    // ========================== */
+    // public function getCities($districtId)
+    // {
+    //     return response()->json(
+    //         DB::table('tbl_location')
+    //             ->where('location_type', 3)     // TALUKA
+    //             ->where('parent_id', $districtId)
+    //             ->where('is_active', 1)
+    //             ->select('location_id', 'name')
+    //             ->get()
+    //     );
+    // }
+
+    //  public function getCitiesByDistrict($districtId)
+    // {
+    //     return DB::table('tbl_location as city')
+    //         ->join('tbl_location as taluka', 'taluka.location_id', '=', 'city.parent_id')
+    //         ->where('city.location_type', 4)    // City/Village
+    //         ->where('taluka.parent_id', $districtId) // Taluka belongs to this District
+    //         ->where('city.is_active', 1)
+    //         ->orderBy('city.name')
+    //         ->select('city.location_id', 'city.name')
+    //         ->get();
+    // }
+    // /* =========================
+    //    AJAX : VILLAGE / CITY
+    // ========================== */
+    // public function getAreas($cityId)
+    // {
+    //     return response()->json(
+    //         DB::table('tbl_location')
+    //             ->where('location_type', 4)     // CITY / VILLAGE
+    //             ->where('parent_id', $cityId)
+    //             ->where('is_active', 1)
+    //             ->select('location_id', 'name')
+    //             ->get()
+    //     );
+    // }
 }

@@ -9,7 +9,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\SuperAdmin;
-use App\Http\Middleware\Employee;
+use App\Http\Middleware\WebsiteAuth;
+use App\Http\Middleware\AuthBoth;
+
 // use App\Http\Middleware\WebsiteAuth;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -20,12 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'SuperAdmin' => SuperAdmin::class,
-            'Employee' => Employee::class,
-            // 'website.auth' => WebsiteAuth::class,
-
+            'SuperAdmin'   => \App\Http\Middleware\SuperAdmin::class,
+            'website.auth' => \App\Http\Middleware\WebsiteAuth::class,
+            'auth.both'    => \App\Http\Middleware\AuthBoth::class,
         ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
