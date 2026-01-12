@@ -169,6 +169,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::get('reports/revenue/user-details', [RevenueReportController::class, 'userDetails'])->name('reports.revenue.user.details');
         Route::get('reports/revenue-graph', [RevenueGraphController::class, 'index'])->name('reports.revenue.graph');
         Route::post('/admin-booking/list-booking', [HordingBookController::class, 'bookingList'])->name('admin.booking.list-booking');
+        Route::get('/admin-booking/list-booking', [HordingBookController::class, 'bookingList'])->name('admin.booking.list-booking');
         Route::get('booking-details/{orderId}', [HordingBookController::class, 'bookingDetailsList'])->name('admin-booking.booking-details');
     });
     Route::prefix('vendor')->group(function () {
