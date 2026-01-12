@@ -14,10 +14,14 @@ use App\Models\{
     Illumination,
     EmployeeType,
     FinancialYear,
-    EmployeePlantAssignment
+    EmployeePlantAssignment,
+    ContactUs,
+    Order,
+    OrderItem
 };
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -39,6 +43,61 @@ class DashboardController extends Controller
                 $allFacingDirection = FacingDirection::where('is_deleted', 0)->count();
                 $allIllumination = Illumination::where('is_deleted', 0)->count();
 
+                $latestContactCount = ContactUs::where(
+                    'created_at',
+                    '>=',
+                    Carbon::now()->subDays(15)
+                )->count();
+
+                $latestBookingCount = Order::where(
+                    'created_at',
+                    '>=',
+                    Carbon::now()->subDays(15)
+                )->count();
+
+                // THIS MONTH revenue (paid only)
+                $monthlyRevenue = Order::where('payment_status', 'PAID')
+                    ->whereYear('created_at', Carbon::now()->year)
+                    ->whereMonth('created_at', Carbon::now()->month)
+                    ->sum('grand_total');
+
+                // THIS YEAR revenue (paid only)
+                $yearlyRevenue = Order::where('payment_status', 'PAID')
+                    ->whereYear('created_at', Carbon::now()->year)
+                    ->sum('grand_total');
+
+                $categoryMediaCounts = Category::leftJoin(
+                        'media_management as m',
+                        function ($join) {
+                            $join->on('m.category_id', '=', 'category.id')
+                                ->where('m.is_deleted', 0);
+                        }
+                    )
+                    ->where('category.is_deleted', 0)
+                    ->select(
+                        'category.id',
+                        'category.category_name',
+                        DB::raw('COUNT(m.id) as media_count')
+                    )
+                    ->groupBy('category.id', 'category.category_name')
+                    ->orderBy('category.category_name')
+                    ->get();
+
+                $today = Carbon::today();
+
+                /*
+                 Ongoing Campaign Count
+                ------------------------
+                 Condition:
+                   to_date >= today
+                */
+                $ongoingCampaignCount = DB::table('campaign as c')
+                    ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
+                    ->where('ci.cart_type', 'CAMPAIGN')
+                    // ->where('ci.status', 'ACTIVE')
+                    ->whereDate('ci.to_date', '>=', $today)
+                    ->distinct('c.id')
+                    ->count('c.id');
 
 
                 return view('dashboard.dashboard', compact(
@@ -47,6 +106,12 @@ class DashboardController extends Controller
                     'allCategory',
                     'allFacingDirection',
                     'allIllumination',
+                    'latestContactCount',
+                    'latestBookingCount',
+                    'monthlyRevenue',
+                    'yearlyRevenue',
+                    'categoryMediaCounts',
+                    'ongoingCampaignCount'
 
                 ));
             } else {

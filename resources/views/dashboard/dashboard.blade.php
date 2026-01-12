@@ -117,6 +117,142 @@
                             </a>
                         </div>
 
+                        <!-- Contact us Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <a href="{{ route('contact-us.list') }}" class="text-decoration-none text-dark">
+                                <div class="card shadow-sm card-radius h-80">
+                                    <div class="card-body bg-department">
+                                        <div class="d-flex flex-row">
+                                            <div
+                                                class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
+                                                <i class="mdi mdi-email-outline mdi-36px icon-padding"></i>
+                                            </div>
+                                            <div class="ml-2 align-self-center">
+                                                <h3 class="mb-0 font-weight-light-new new-font-size">
+                                                    Contact Enquiry
+                                                    <strong>{{ $latestContactCount }}</strong>
+                                                </h3>
+                                                <small>Last 15 Days</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Booking count Card -->
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <a href="{{ route('admin.booking.list-booking') }}" class="text-decoration-none text-dark">
+                                <div class="card shadow-sm card-radius h-80">
+                                    <div class="card-body bg-projects">
+                                        <div class="d-flex flex-row">
+                                            <div
+                                                class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
+                                                <i class="mdi mdi-calendar-check mdi-36px icon-padding"></i>
+                                            </div>
+                                            <div class="ml-2 align-self-center">
+                                                <h3 class="mb-0 font-weight-light-new new-font-size">
+                                                    Bookings
+                                                    <strong>{{ $latestBookingCount }}</strong>
+                                                </h3>
+                                                <small>Last 15 Days</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        {{-- Monthly booking Revenue count --}}
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <a href="{{ route('reports.revenue.index') }}" class="text-decoration-none text-dark">
+                                <div class="card shadow-sm card-radius h-80">
+                                    <div class="card-body bg-department">
+                                        <div class="d-flex flex-row">
+                                            <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                                <i class="mdi mdi-cash mdi-36px icon-padding"></i>
+                                            </div>
+                                            <div class="ml-2 align-self-center">
+                                                <h4 class="mb-0">
+                                                    ₹ {{ formatAmountShort($monthlyRevenue) }}
+                                                </h4>
+                                                <small>This Month Revenue</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        {{-- Yearly booking Revenue count --}}
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <a href="{{ route('reports.revenue.index') }}" class="text-decoration-none text-dark">
+                                <div class="card shadow-sm card-radius h-80">
+                                    <div class="card-body bg-department">
+                                        <div class="d-flex flex-row">
+                                            <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                                <i class="mdi mdi-chart-line mdi-36px icon-padding"></i>
+                                            </div>
+                                            <div class="ml-2 align-self-center">
+                                                <h4 class="mb-0">
+                                                    ₹ {{ formatAmountShort($yearlyRevenue) }}
+                                                </h4>
+                                                <small>This Year Revenue</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        {{-- ONGOING CAMPAIGNS --}}
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <a href="{{ route('admin-campaing.list') }}" class="text-decoration-none text-dark">
+                                <div class="card shadow-sm card-radius h-80">
+                                    <div class="card-body bg-department">
+                                        <div class="d-flex flex-row">
+                                            <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                                <i class="mdi mdi-bullhorn mdi-36px icon-padding"></i>
+                                            </div>
+                                            <div class="ml-2 align-self-center">
+                                                <h3 class="mb-0 font-weight-bold">
+                                                    {{ $ongoingCampaignCount }}
+                                                </h3>
+                                                <small>Ongoing Campaigns</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                        {{-- CATEGORY WISE MEDIA COUNT --}}
+                        <div class="col-12 mt-4">
+                            <h4 class="mb-3">Media Count by Category</h4>
+                        </div>
+
+                        @foreach ($categoryMediaCounts as $cat)
+                            <div class="col-lg-3 col-md-6 mb-4">
+                                <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
+                                    <div class="card shadow-sm card-radius h-80">
+                                        <div class="card-body bg-plants">
+                                            <div class="d-flex flex-row">
+                                                <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                                    <i class="mdi mdi-monitor-multiple mdi-36px icon-padding"></i>
+                                                </div>
+                                                <div class="ml-2 align-self-center">
+                                                    <h4 class="mb-0 font-weight-bold">
+                                                        {{ $cat->media_count }}
+                                                    </h4>
+                                                    <small>{{ $cat->category_name }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        @endforeach
 
                           <!-- Plants Card -->
                         {{-- <div class="col-lg-3 col-md-6 mb-4">
