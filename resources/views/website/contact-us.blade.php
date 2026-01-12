@@ -97,20 +97,6 @@
                                 @enderror
                             </div>
                         </div>
-
-                        <!-- MESSAGE -->
-                        {{-- <div class="row">
-                            <div class="col-12 mb-3">
-                                <textarea name="remark"
-                                          class="form-control"
-                                          rows="6"
-                                          placeholder="Message">{{ old('remark') }}</textarea>
-                                @error('remark')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        </div> --}}
-
                         <!-- SUBMIT -->
                         <div class="row">
                             <div class="col-12">

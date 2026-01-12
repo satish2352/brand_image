@@ -28,23 +28,6 @@ class MediaManagementController extends Controller
     {
         $this->mediaService = $mediaService;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOCATION TYPE MAP (as per your DB)
-    |--------------------------------------------------------------------------
-    | 0 = Country
-    | 1 = State
-    | 2 = District
-    | 3 = Taluka
-    | 4 = City / Village
-    | 5 = Area
-    |--------------------------------------------------------------------------
-    */
-
-    /* =========================
-       LIST PAGE
-    ========================== */
     public function index()
     {
         try {
@@ -86,23 +69,6 @@ class MediaManagementController extends Controller
 
         return view('superadm.mediamanagement.viewDetails', compact('media'));
     }
-
-    // public function viewDetails($encodedId)
-    // {
-    //     try {
-    //         $id = base64_decode($encodedId);
-
-    //         $media = $this->mediaService->viewDetails($id);
-
-    //         if (!$media) {
-    //             abort(404);
-    //         }
-
-    //         return view('superadm.mediamanagement.viewDetails', compact('media'));
-    //     } catch (\Exception $e) {
-    //         abort(404);
-    //     }
-    // }
     public function deleteImage(Request $request)
     {
         try {
@@ -111,18 +77,18 @@ class MediaManagementController extends Controller
                 'image_id' => 'required|integer'
             ]);
 
-            // 1️⃣ Get image record
+            // Get image record
             $image = MediaImage::where('id', $request->image_id)
                 ->where('is_deleted', 0)
                 ->firstOrFail();
 
-            // 2️⃣ DELETE FILE FIRST (IMPORTANT)
+            // DELETE FILE FIRST (IMPORTANT)
             removeImage(
                 $image->images,
                 config('fileConstants.IMAGE_DELETE')
             );
 
-            // 3️⃣ SOFT DELETE DB RECORD
+            // SOFT DELETE DB RECORD
             $image->update([
                 'is_active'  => 0,
                 'is_deleted' => 1,
@@ -140,57 +106,6 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
-    // public function uploadImage(Request $request)
-    // {
-    //     $request->validate(
-    //         [
-    //             'media_id'   => 'required|integer',
-    //             'images'     => 'required|array|max:10',
-    //             'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024',
-    //         ],
-    //         [
-    //             'media_id.required' => 'Media ID is required.',
-    //             'media_id.exists'   => 'Invalid media ID.',
-
-    //             'images.required' => 'Please upload at least one image.',
-    //             'images.array'    => 'Images must be an array.',
-    //             'images.max'      => 'You can upload a maximum of 10 images only.',
-
-    //             'images.*.image'  => 'Each file must be an image.',
-    //             'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
-    //             'images.*.max'    => 'Each image must be less than 1MB.',
-    //         ]
-    //     );
-
-    //     try {
-
-    //         foreach ($request->file('images') as $image) {
-
-    //             $fileName = uploadImage(
-    //                 $image,
-    //                 config('fileConstants.IMAGE_ADD')
-    //             );
-
-    //             MediaImage::create([
-    //                 'media_id'   => $request->media_id,
-    //                 'images'     => $fileName,
-    //                 'is_active'  => 1,
-    //                 'is_deleted' => 0,
-    //             ]);
-    //         }
-
-    //         return response()->json([
-    //             'status'  => true,
-    //             'message' => 'Images uploaded successfully'
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status'  => false,
-    //             'message' => 'Upload failed'
-    //         ], 500);
-    //     }
-    // }
-
     public function uploadImage(Request $request)
     {
         // EXISTING VALIDATION
@@ -272,19 +187,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    // public function getAreaParents($areaId)
-    // {
-    //     $city = DB::table('tbl_location')->where('location_id', $areaId)->first();
-    //     $district = DB::table('tbl_location')->where('location_id', $city->parent_id)->first();
-    //     $state = DB::table('tbl_location')->where('location_id', $district->parent_id)->first();
-
-    //     return response()->json([
-    //         'city_id' => $city->location_id,
-    //         'district_id' => $district->location_id,
-    //         'state_id' => $state->location_id,
-    //     ]);
-    // }
     public function getAreaParents($areaId)
     {
         $area = DB::table('areas')->where('id', $areaId)->firstOrFail();
@@ -295,10 +197,6 @@ class MediaManagementController extends Controller
             'state_id'    => $area->state_id,
         ]);
     }
-
-    /* =========================
-       CREATE PAGE
-    ========================== */
     public function create()
     {
         $categories = Category::where('is_active', 1)
@@ -332,21 +230,10 @@ class MediaManagementController extends Controller
     }
     public function store(Request $request)
     {
-        /**
-         * -------------------------------------------------
-         * STEP 1: Get category & normalize slug
-         * -------------------------------------------------
-         */
         $category = Category::findOrFail($request->category_id);
 
-        // Works even if slug column is NULL
         $slug = Str::slug($category->slug ?? $category->category_name);
 
-        /**
-         * -------------------------------------------------
-         * STEP 2: COMMON VALIDATION (ALL CATEGORIES)
-         * -------------------------------------------------
-         */
         $rules = [
             'area_id'     => 'required|integer',
             'category_id' => 'required|integer',
@@ -365,12 +252,6 @@ class MediaManagementController extends Controller
             'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024',
         ];
 
-        /**
-         * -------------------------------------------------
-         * STEP 3: CATEGORY-WISE VALIDATION
-         * -------------------------------------------------
-         * Using str_contains() to match UI slug
-         */
         switch (true) {
 
             //  Hoardings / Billboards
@@ -430,12 +311,6 @@ class MediaManagementController extends Controller
                 ];
                 break;
         }
-
-        /**
-         * -------------------------------------------------
-         * STEP 4: CUSTOM ERROR MESSAGES
-         * -------------------------------------------------
-         */
         $messages = [
             'area_id.required' => 'Please select an area.',
             'category_id.required' => 'Please select a category.',
@@ -450,19 +325,8 @@ class MediaManagementController extends Controller
             'images.*.image' => 'Each file must be an image.',
             'images.*.max' => 'Each image must be less than 1MB.',
         ];
-
-        /**
-         * -------------------------------------------------
-         * STEP 5: VALIDATE REQUEST
-         * -------------------------------------------------
-         */
         $request->validate($rules, $messages);
 
-        /**
-         * -------------------------------------------------
-         * STEP 6: SAVE DATA
-         * -------------------------------------------------
-         */
         try {
             $this->mediaService->store($request);
 
@@ -520,20 +384,9 @@ class MediaManagementController extends Controller
     public function update(Request $request, $encodedId)
     {
         $id = base64_decode($encodedId);
-
-        /**
-         * -------------------------------------------------
-         * STEP 1: Get category & normalize slug
-         * -------------------------------------------------
-         */
         $category = Category::findOrFail($request->category_id);
         $slug = Str::slug($category->slug ?? $category->category_name);
 
-        /**
-         * -------------------------------------------------
-         * STEP 2: COMMON VALIDATION
-         * -------------------------------------------------
-         */
         $rules = [
             'area_id'     => 'required|integer',
             'category_id' => 'required|integer',
@@ -549,11 +402,6 @@ class MediaManagementController extends Controller
             'vendor_id' => 'required|integer|exists:vendors,id',
         ];
 
-        /**
-         * -------------------------------------------------
-         * STEP 3: CATEGORY-WISE VALIDATION
-         * -------------------------------------------------
-         */
         switch (true) {
 
             case str_contains($slug, 'hoardings'):
@@ -606,19 +454,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
         }
-
-        /**
-         * -------------------------------------------------
-         * STEP 4: VALIDATE
-         * -------------------------------------------------
-         */
         $request->validate($rules);
-
-        /**
-         * -------------------------------------------------
-         * STEP 5: UPDATE DATA
-         * -------------------------------------------------
-         */
         try {
             $this->mediaService->update($id, $request);
 
@@ -630,10 +466,6 @@ class MediaManagementController extends Controller
             return back()->withInput()->with('error', 'Update failed');
         }
     }
-
-    /* =========================
-   UPDATE STATUS
-========================== */
     public function updateStatus(Request $request)
     {
         try {
@@ -653,9 +485,6 @@ class MediaManagementController extends Controller
         }
     }
 
-    /* =========================
-   DELETE (SOFT)
-========================== */
     public function delete(Request $request)
     {
         try {
@@ -674,11 +503,6 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
-
-
-    /* =========================
-   AJAX : STATES
-========================== */
     public function getStates()
     {
         return response()->json(
@@ -690,10 +514,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-   AJAX : DISTRICTS
-========================== */
     public function getDistricts($stateId)
     {
         return response()->json(
@@ -706,10 +526,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-   AJAX : CITIES
-========================== */
     public function getCities($districtId)
     {
         return response()->json(
@@ -722,10 +538,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-   AJAX : AREAS
-========================== */
     public function getAreas($cityId)
     {
         return response()->json(

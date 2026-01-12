@@ -37,7 +37,6 @@ class AreaController extends Controller
 
     public function store(Request $request)
     {
-        //  Validation rules
         $rules = [
             'state_id'             => 'required|integer|exists:states,id',
             'district_id'          => 'required|integer|exists:districts,id',
@@ -48,7 +47,6 @@ class AreaController extends Controller
             'longitude'            => 'required|numeric',
         ];
 
-        //  Custom validation messages
         $messages = [
             'state_id.required'     => 'Please select a state.',
             'state_id.integer'      => 'Invalid state selected.',
@@ -75,7 +73,7 @@ class AreaController extends Controller
             'longitude.numeric'  => 'Longitude must be numeric.',
         ];
 
-        //  Validate request
+
         $validated = $request->validate($rules, $messages);
 
         try {
@@ -95,11 +93,6 @@ class AreaController extends Controller
                 ->with('error', 'Failed to add area. Please try again.');
         }
     }
-
-
-    /* =========================
-   EDIT PAGE
-========================== */
     public function edit($encodedId)
     {
         try {
@@ -111,10 +104,6 @@ class AreaController extends Controller
             return redirect()->route('area.list')->with('error', 'Area not found');
         }
     }
-
-    /* =========================
-   UPDATE AREA
-========================== */
     public function update(Request $request, $encodedId)
     {
         $id = base64_decode($encodedId);
@@ -142,10 +131,6 @@ class AreaController extends Controller
                 ->with('error', $e->getMessage());
         }
     }
-
-    /* =========================
-   UPDATE STATUS
-========================== */
     public function updateStatus(Request $request)
     {
         try {
@@ -164,10 +149,6 @@ class AreaController extends Controller
             ], 500);
         }
     }
-
-    /* =========================
-   DELETE (SOFT)
-========================== */
     public function delete(Request $request)
     {
         try {
@@ -186,10 +167,6 @@ class AreaController extends Controller
             ], 500);
         }
     }
-
-    /* =========================
-       AJAX : STATE LIST
-    ========================== */
     public function getStates()
     {
         return response()->json(
@@ -201,10 +178,6 @@ class AreaController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-       AJAX : DISTRICT LIST
-    ========================== */
     public function getDistricts(Request $request)
     {
         return response()->json(
@@ -217,10 +190,6 @@ class AreaController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-       AJAX : CITY LIST
-    ========================== */
     public function getCities(Request $request)
     {
         return response()->json(
@@ -233,10 +202,6 @@ class AreaController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-       AJAX : AREA LIST
-    ========================== */
     public function getAreas(Request $request)
     {
         return response()->json(
@@ -249,75 +214,4 @@ class AreaController extends Controller
                 ->get()
         );
     }
-
-    // /* =========================
-    //    AJAX : STATE (ONLY MAHARASHTRA)
-    // ========================== */
-    // public function getStates()
-    // {
-    //     return response()->json(
-    //         DB::table('tbl_location')
-    //             ->where('location_type', 1)     // STATE
-    //             ->where('is_active', 1)
-    //             ->where('name', 'Maharashtra')
-    //             ->select('location_id', 'name')
-    //             ->get()
-    //     );
-    // }
-
-    // /* =========================
-    //    AJAX : DISTRICT
-    // ========================== */
-    // public function getDistricts($stateId)
-    // {
-    //     return response()->json(
-    //         DB::table('tbl_location')
-    //             ->where('location_type', 2)     // DISTRICT
-    //             ->where('parent_id', $stateId) // Maharashtra ID
-    //             ->where('is_active', 1)
-    //             ->select('location_id', 'name')
-    //             ->get()
-    //     );
-    // }
-
-    // /* =========================
-    //    AJAX : TALUKA
-    // ========================== */
-    // public function getCities($districtId)
-    // {
-    //     return response()->json(
-    //         DB::table('tbl_location')
-    //             ->where('location_type', 3)     // TALUKA
-    //             ->where('parent_id', $districtId)
-    //             ->where('is_active', 1)
-    //             ->select('location_id', 'name')
-    //             ->get()
-    //     );
-    // }
-
-    //  public function getCitiesByDistrict($districtId)
-    // {
-    //     return DB::table('tbl_location as city')
-    //         ->join('tbl_location as taluka', 'taluka.location_id', '=', 'city.parent_id')
-    //         ->where('city.location_type', 4)    // City/Village
-    //         ->where('taluka.parent_id', $districtId) // Taluka belongs to this District
-    //         ->where('city.is_active', 1)
-    //         ->orderBy('city.name')
-    //         ->select('city.location_id', 'city.name')
-    //         ->get();
-    // }
-    // /* =========================
-    //    AJAX : VILLAGE / CITY
-    // ========================== */
-    // public function getAreas($cityId)
-    // {
-    //     return response()->json(
-    //         DB::table('tbl_location')
-    //             ->where('location_type', 4)     // CITY / VILLAGE
-    //             ->where('parent_id', $cityId)
-    //             ->where('is_active', 1)
-    //             ->select('location_id', 'name')
-    //             ->get()
-    //     );
-    // }
 }

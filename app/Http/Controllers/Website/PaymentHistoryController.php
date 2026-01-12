@@ -26,23 +26,6 @@ class PaymentHistoryController extends Controller
 
         return view('website.payment-history', compact('payments'));
     }
-    // public function viewInvoice($orderId)
-    // {
-    //     try {
-    //         $orderId = base64_decode($orderId);
-
-    //         $items = $this->campaignService->getInvoiceDetails($orderId);
-
-    //         return view('website.payment-receipt', compact('items'));
-    //     } catch (\Throwable $e) {
-    //         Log::error('Invoice View Error', [
-    //             'message' => $e->getMessage()
-    //         ]);
-
-    //         return redirect()->back()->with('error', 'Unable to load invoice');
-    //     }
-    // }
-
     public function viewInvoice($orderId)
     {
         try {

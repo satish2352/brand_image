@@ -18,19 +18,11 @@ class CampaingController extends Controller
 	{
 		$this->service = $service;
 	}
-
-	// public function index()
-	// {
-	// 	$campaigns = $this->service->list();
-	// 	return view('superadm.campaing.campaing-list', compact('campaigns'));
-	// }
-
 	public function index()
 	{
 		$campaigns = $this->service->adminCampaignList();
 		return view('superadm.campaing.campaing-list', compact('campaigns'));
 	}
-
 	public function details($userId, CampaingService $service)
 	{
 		$userId = base64_decode($userId);
@@ -61,8 +53,7 @@ class CampaingController extends Controller
 
 		return Excel::download(
 			new AdminCampaignExport($campaignId),
-			'admin_campaign_'.$campaignId.'.xlsx'
+			'admin_campaign_' . $campaignId . '.xlsx'
 		);
 	}
-	
 }

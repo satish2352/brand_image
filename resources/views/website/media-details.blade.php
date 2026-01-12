@@ -224,26 +224,6 @@
 <div class="mt-150 mb-150">
 <div class="container">
 <div class="row">
-
-{{-- LEFT : IMAGES --}}
-{{-- <div class="col-lg-7">
-    <div class="media-gallery">
-        <div class="media-thumbs">
-            @foreach($media->images as $k => $img)
-                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
-                     class="{{ $k==0?'active':'' }}"
-                     onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
-            @endforeach
-        </div>
-        <div class="media-main"
-             onmousemove="zoomMedia(event,this)"
-             onmouseleave="resetZoom(this)">
-            <img class="main-media-image"
-                 src="{{ config('fileConstants.IMAGE_VIEW') . $media->images[0]->images }}">
-        </div>
-
-    </div>
-</div> --}}
 <div class="col-lg-7">
     <div class="card shadow-sm border-0 p-3">
 
@@ -267,79 +247,6 @@
 
     </div>
 </div>
-
-
-{{-- RIGHT : DETAILS --}}
-{{-- <div class="col-lg-5">
-<div class="media-info">
-
-<h4>{{ $media->media_title }}</h4>
-
-<p>
-    <i class="fas fa-map-marker-alt"></i>
-    {{ $media->area_name }},
-    {{ $media->city_name }},
-    {{ $media->district_name }},
-    {{ $media->state_name }}
-</p>
-
-<p><strong>Category:</strong> {{ $media->category_name }}</p>
-<p><strong>Media Code:</strong> {{ $media->media_code }}</p>
-<p><strong>Media Title:</strong> {{ $media->media_title }}</p>
-<p><strong>Facing:</strong> {{ $media->facing_name }}</p>
-<p><strong>Area Type:</strong> {{ $media->area_type }}</p>
-<p><strong>Radius:</strong> {{ $media->radius }}</p>
-<p><strong>Illumination:</strong> {{ $media->illumination_name }}</p>
-<p><strong>Address:</strong> {{ $media->address }}</p>
-<p><strong>Size:</strong> {{ $media->width}}x{{ $media->height  }}</p>
-<p class="price">₹ {{ number_format($media->price,2) }} / month</p>
-<p class="per-day">₹ {{ number_format($media->per_day_price,2) }} / day</p>
-
-<hr>
-
-<h6 class="fw-bold mt-3">Select Booking Dates</h6>
-
-<form method="POST" action="{{ route('cart.add.with.date') }}">
-@csrf
-
-<input type="hidden" name="media_id" value="{{ base64_encode($media->id) }}">
-<input type="hidden" name="from_date" id="from_date">
-<input type="hidden" name="to_date" id="to_date">
-
-<div class="p-2 mt-2">
-    <input type="text" id="booking_range" class="d-none">
-</div>
-
-<div class="text-danger mt-2 d-none" id="dateError">
-    Please select booking dates
-</div>
-
-
-@auth('website')
-<button type="submit" class="add-to-cart-btn mt-4" id="addToCartBtn" disabled>
-    <i class="fas fa-shopping-cart me-2"></i>
-    Add to Cart
-</button>
-                
-            @else
-          <button type="button"
-        class="card-btn cart add-to-cart-btn mt-4"
-        data-bs-toggle="modal"
-        data-bs-target="#authModal">
-    <i class="fas fa-shopping-cart me-2"></i>
-    Add to Cart
-</button>
-
-             
-            @endauth
-
-
-
-</form>
-
-
-</div>
-</div> --}}
 <div class="col-lg-5">
     <div class="card shadow-sm border-0 p-4">
 
@@ -424,64 +331,6 @@
 </div>
 </div>
 </div>
-
-{{-- ================= SCRIPTS ================= --}}
-{{-- <script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    let bookedRanges = @json($bookedRanges ?? []);
-
-    const form      = document.querySelector('form[action="{{ route('cart.add.with.date') }}"]');
-    const fromInput = document.getElementById('from_date');
-    const toInput   = document.getElementById('to_date');
-    const errorBox  = document.getElementById('dateError');
-    const addBtn    = document.getElementById('addToCartBtn'); //  FIX
-
-    flatpickr("#booking_range", {
-        mode: "range",
-        minDate: "today",
-        dateFormat: "Y-m-d",
-        inline: true,
-        static: true,
-
-        disable: bookedRanges.map(r => ({
-            from: r.from_date,
-            to: r.to_date
-        })),
-
-        onDayCreate: function (dObj, dStr, fp, dayElem) {
-            let date = dayElem.dateObj.toISOString().split('T')[0];
-
-            bookedRanges.forEach(function (range) {
-                if (date >= range.from_date && date <= range.to_date) {
-                    dayElem.classList.add('booked-date');
-                }
-            });
-        },
-
-        onChange: function (selectedDates) {
-            if (selectedDates.length === 2) {
-
-                fromInput.value = selectedDates[0].toISOString().split('T')[0];
-                toInput.value   = selectedDates[1].toISOString().split('T')[0];
-
-                errorBox.classList.add('d-none');
-                addBtn.disabled = false; //  NOW WORKS
-            }
-        }
-    });
-
-    // Form validation
-    form.addEventListener('submit', function (e) {
-        if (!fromInput.value || !toInput.value) {
-            e.preventDefault();
-            errorBox.classList.remove('d-none');
-        }
-    });
-
-});
-</script> --}}
-
 <script>
 function changeMediaImage(el, src) {
     document.getElementById('mainMediaImage').src = src;
