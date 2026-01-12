@@ -397,31 +397,16 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-
-                {{-- <div class="col-md-4 mb-3" id="radiusSection">
-                    <label>Radius <span class="text-danger">*</span></label>
-                    <select name="radius_id"
-                        class="form-control @error('radius_id') is-invalid @enderror">
-                        <option value="">Select</option>
-                        @foreach($radius as $r)
-                            <option value="{{ $r->id }}"
-                                {{ old('radius_id', $media->radius_id) == $r->id ? 'selected' : '' }}>
-                                {{ $r->radius }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('radius_id')
+  <div class="col-md-3 mb-3">
+                    <label>360 View Link </label>
+                    <input type="text" name="video_link"
+                    value="{{ old('video_link', $media->video_link) }}"
+                           class="form-control @error('video_link') is-invalid @enderror">
+                    @error('video_link')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                </div> --}}
-
-                {{-- IMAGES --}}
-                {{-- <div class="col-md-6 mb-4">
-                    <label>Replace Images</label>
-                    <input type="file" name="images[]" id="images"
-                           multiple class="form-control">
-                    <div id="imagePreview" class="d-flex mt-2"></div>
-                </div> --}}
+                </div>
+                
             </div>
             {{-- ================= WALL WRAP ================= --}}
             <div class="row" id="wallWrap">

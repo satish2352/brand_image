@@ -119,4 +119,22 @@ class DashboardController extends Controller
             return back()->with('error', 'Something went wrong while loading the dashboard. Please try again later.');
         }
     }
+
+    public function markNotificationsRead()
+    {
+        $adminId = session('user_id') ?? session('id');
+
+        if (!$adminId) {
+            return response()->json(['status' => 'not_logged_in'], 401);
+        }
+
+        $admin = \App\Models\User::find($adminId);
+
+        // Mark unread notifications as read
+        $admin->unreadNotifications->each(function ($notification) {
+            $notification->update(['read_at' => now()]);
+        });
+
+        return response()->json(['status' => 'success']);
+    }
 }

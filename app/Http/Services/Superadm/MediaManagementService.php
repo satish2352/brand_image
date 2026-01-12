@@ -19,7 +19,6 @@ class MediaManagementService
     public function getAll()
     {
         $data_output = $this->repo->getAll();
-
         return $data_output;
     }
     public function store(Request $request)
@@ -46,7 +45,8 @@ class MediaManagementService
                 'minimum_booking_days',
                 'price',
                 // 'vendor_name',
-                'vendor_id'
+                'vendor_id',
+
 
             ]);
 
@@ -70,6 +70,7 @@ class MediaManagementService
                 'area_auto',
                 'radius_id',
                 'area_type',
+                'video_link'
             ];
 
             foreach ($optionalFields as $field) {
@@ -145,6 +146,7 @@ class MediaManagementService
                 'vendor_id'
 
 
+
             ]);
 
             // AUTO GENERATE MEDIA CODE
@@ -165,6 +167,7 @@ class MediaManagementService
                 'area_auto',
                 'radius_id',
                 'area_type',
+                'video_link'
             ];
 
             foreach ($optionalFields as $field) {

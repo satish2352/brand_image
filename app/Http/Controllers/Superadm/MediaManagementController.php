@@ -47,10 +47,6 @@ class MediaManagementController extends Controller
         $illuminations = Illumination::where('is_active', 1)
             ->where('is_deleted', 0)
             ->get();
-        // $radius = RadiusMaster::where('is_active', 1)
-        //     ->where('is_deleted', 0)
-        //     ->get();
-
         // FETCH VENDORS
         $vendors = Vendor::where('is_active', 1)
             ->where('is_deleted', 0)
@@ -61,7 +57,6 @@ class MediaManagementController extends Controller
             'categories',
             'facings',
             'illuminations',
-            // 'radius',
             'vendors'
         ));
     }

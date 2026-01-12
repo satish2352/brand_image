@@ -94,6 +94,6 @@ class LoginController extends Controller
     public function logOut(Request $req)
     {
         $req->session()->flush();   // clear all session values
-        return redirect()->route('superadm.login'); // redirect to super admin login page
+        return redirect()->route('login'); // redirect to super admin login page
     }
 }

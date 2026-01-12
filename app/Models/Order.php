@@ -19,4 +19,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(\App\Models\WebsiteUser::class, 'user_id');
+    }
 }

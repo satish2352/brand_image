@@ -7,34 +7,43 @@ use Illuminate\Support\Facades\DB;
 
 class MediaManagementRepository
 {
-    public function getAll()
+    public function getAll($search = null)
     {
-        return DB::table('media_management as m')
+        $perPage = config('fileConstants.PAGINATION', 10);
+
+        $query = DB::table('media_management as m')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
             ->leftJoin('cities as cty', 'cty.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
             ->select([
                 'm.id',
                 'm.media_code',
                 'm.media_title',
                 'm.price',
-                'm.vendor_id',
                 'm.is_active',
-                'm.category_id',
-                'm.created_at',
-
+                'v.vendor_name',
                 'c.category_name',
                 's.state_name',
                 'd.district_name',
                 'cty.city_name',
                 'a.area_name',
             ])
-            ->where('m.is_deleted', 0)
-            ->orderBy('m.id', 'desc')
-            ->get();
+            ->where('m.is_deleted', 0);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('m.media_title', 'like', "%$search%")
+                    ->orWhere('v.vendor_name', 'like', "%$search%")
+                    ->orWhere('c.category_name', 'like', "%$search%");
+            });
+        }
+
+        return $query->orderBy('m.id', 'desc')->paginate($perPage);
     }
+
     public function store(array $data)
     {
         return MediaManagement::create($data);

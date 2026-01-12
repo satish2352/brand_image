@@ -32,21 +32,24 @@
             <div class="media-price">
                 ₹ {{ number_format($media->price, 2) }}
             </div>
-    
-            <div class="media-map mt-4 d-flex align-items-center gap-3">
+    <div class="media-map mt-4 d-flex align-items-center gap-3">
+
+    {{-- View on Map --}}
     <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
        target="_blank"
        class="text-muted d-inline-flex align-items-center gap-1">
         <img src="{{ asset('assets/img/map.png') }}" width="30">
         <span>View on Map</span>
     </a>
+    @if(!empty($media->video_link))
+        <a href="{{ $media->video_link }}"
+           target="_blank"
+           class="text-muted d-inline-flex align-items-center gap-1">
+            <img src="{{ asset('assets/img/360view.png') }}" width="30">
+            <span>360° View</span>
+        </a>
+    @endif
 
-   
-    <a href="https://view.sivaraa360studio.com/tours/2EZX1xSI6"
-       target="_blank"
-       class="text-muted d-inline-flex align-items-center gap-1">
-        🔁 <span>360° View</span>
-    </a>
 </div>
           @php
     $isBillboard = ($media->category_id == 1); 

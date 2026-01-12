@@ -32,7 +32,10 @@
     $admin = $adminId ? \App\Models\User::find($adminId) : null;
 
     // Step 3: unread count
-    $notifyCount = $admin ? $admin->unreadNotifications()->count() : 0;
+$notifyCount = \App\Models\Notification::where('user_id', $adminId)
+                ->where('is_read', 0)
+                ->count();
+
 @endphp
 
 
@@ -178,7 +181,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Notifications</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+   
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+
+
       </div>
       <div class="modal-body" id="notificationList">
         Loading...
@@ -187,12 +195,50 @@
   </div>
 </div>
 <script>
+    function refreshNotificationCount() {
+    $.get("{{ route('admin.notifications.count') }}", function(count) {
+        let badge = $('.fa-bell').next('span.badge');
+
+        if (count > 0) {
+            if (badge.length) {
+                badge.text(count);
+            } else {
+                $('.fa-bell').after('<span class="badge badge-danger" style="position:absolute; top:5px; right:5px;">'+count+'</span>');
+            }
+        } else {
+            badge.remove();
+        }
+    });
+}
+
+refreshNotificationCount();
+setInterval(refreshNotificationCount, 10000);
+
+</script>
+<script>
+    $('#notificationModal').on('shown.bs.modal', function () {
+
+    $.get("{{ route('admin.notifications.data') }}", function(res){
+        $('#notificationList').html(res);
+    });
+
+    // NOW UPDATE read_at to current time
+    $.post("{{ route('admin.notifications.markRead') }}", {
+        _token: "{{ csrf_token() }}"
+    }, function(){
+        // remove badge visually
+        $('.fa-bell').next('span.badge').remove();
+    });
+});
+
+</script>
+{{-- <script>
 $('#notificationModal').on('shown.bs.modal', function () {
     $.get("{{ route('admin.notifications.data') }}", function(res){
         $('#notificationList').html(res);
     });
 });
-</script>
+</script> --}}
 
                 @yield('content')
                 @include('toast')

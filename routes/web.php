@@ -68,6 +68,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin/change-password', [ChangePasswordController::class, 'index'])->name('admin.change-password');
     Route::post('/admin/update-password', [ChangePasswordController::class, 'updatePassword'])->name('admin.update-password');
+    Route::post('/admin/notifications/mark-read', [DashboardController::class, 'markNotificationsRead'])
+        ->name('admin.notifications.markRead');
+
     /* AREA MANAGEMENT */
     Route::prefix('area')->group(function () {
         Route::get('list', [AreaController::class, 'index'])->name('area.list');
@@ -201,6 +204,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         ->name('admin.notifications.data');
     Route::get('notifications/read/{id}', [AdminNotificationController::class, 'read'])
         ->name('admin.notifications.read');
+
+    Route::get('notifications/count', [AdminNotificationController::class, 'count'])
+        ->name('admin.notifications.count');
 });
 
 // Website Rotes

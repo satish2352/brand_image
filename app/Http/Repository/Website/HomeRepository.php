@@ -36,6 +36,7 @@ class HomeRepository
                 'm.latitude',
                 'm.longitude',
                 'm.facing',
+                'm.video_link',
                 'ct.category_name',
                 's.state_name as state_name',
                 'd.district_name as district_name',

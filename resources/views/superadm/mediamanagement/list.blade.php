@@ -33,7 +33,8 @@
                                 <th>City</th>
                                 <th>Area</th>
                                 <th>Price</th>
-                                 {{-- <th>Vendor Name</th> --}}
+                                 <th>Vendor Name</th>
+                                <th>Media Code</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -43,7 +44,7 @@
                             @forelse ($mediaList as $key => $media)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                  {{-- <td>{{ $media->media_code ?? '-' }}</td> --}}
+                                  
                                     <td>{{ $media->media_title ?? '-' }}</td>
                                     <td>{{ $media->category_name ?? '-' }}</td>
                                     <td>{{ $media->state_name ?? '-' }}</td>
@@ -53,7 +54,8 @@
                                     <td>
                                         ₹ {{ $media->price !== null ? number_format($media->price, 2) : '-' }}
                                     </td>
-                                    {{-- <td>{{ $media->vendor_name ?? '-' }}</td> --}}
+                                    <td>{{ $media->vendor_name ?? '-' }}</td>
+                                    <td>{{ $media->media_code ?? '-' }}</td>
                                     <td>
                                         <label class="switch">
                                             <input type="checkbox"
@@ -72,9 +74,9 @@
                                         </a>
 
                                         <a href="{{ route('media.view', base64_encode($media->id)) }}"
-                                        class="btn btn-info btn-sm mr-1"
+                                        class="btn btn-warning btn-sm mr-1"
                                         title="View Images">
-                                            <i class="fa fa-eye"></i>
+                                            <i class="fa fa-image"></i>
                                         </a>
 
 
