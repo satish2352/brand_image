@@ -15,15 +15,12 @@ use App\Models\{
     Illumination,
     MediaManagement,
     MediaImage,
-    RadiusMaster,
     Vendor
 };
 
 class MediaManagementController extends Controller
 {
-
     protected $mediaService;
-
     public function __construct(MediaManagementService $mediaService)
     {
         $this->mediaService = $mediaService;
@@ -36,166 +33,6 @@ class MediaManagementController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong');
         }
-    }
-    public function view($encodedId)
-    {
-        try {
-            $id = base64_decode($encodedId);
-
-            $media = MediaManagement::with(['images' => function ($q) {
-                $q->where('is_deleted', 0);
-            }])->findOrFail($id);
-
-            return view('superadm.mediamanagement.view', compact('media'));
-        } catch (\Exception $e) {
-            abort(404);
-        }
-    }
-    public function viewDetails($encodedId)
-    {
-        $id = base64_decode($encodedId, true);
-
-        if (!$id || !is_numeric($id)) {
-            abort(404);
-        }
-
-        logger('Decoded Media ID:', [$id]); // 👈 ADD THIS
-
-        $media = $this->mediaService->viewDetails($id);
-
-        if (!$media) {
-            abort(404);
-        }
-
-        return view('superadm.mediamanagement.viewDetails', compact('media'));
-    }
-    public function deleteImage(Request $request)
-    {
-        try {
-
-            $request->validate([
-                'image_id' => 'required|integer'
-            ]);
-
-            // Get image record
-            $image = MediaImage::where('id', $request->image_id)
-                ->where('is_deleted', 0)
-                ->firstOrFail();
-
-            // DELETE FILE FIRST (IMPORTANT)
-            removeImage(
-                $image->images,
-                config('fileConstants.IMAGE_DELETE')
-            );
-
-            // SOFT DELETE DB RECORD
-            $image->update([
-                'is_active'  => 0,
-                'is_deleted' => 1,
-            ]);
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Image deleted successfully'
-            ]);
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'status'  => false,
-                'message' => 'Image delete failed'
-            ], 500);
-        }
-    }
-    public function uploadImage(Request $request)
-    {
-        // EXISTING VALIDATION
-        $request->validate(
-            [
-                'media_id'   => 'required|integer',
-                'images'     => 'required|array|max:10',
-                'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024',
-            ],
-            [
-                'media_id.required' => 'Media ID is required.',
-                'media_id.exists'   => 'Invalid media ID.',
-
-                'images.required' => 'Please upload at least one image.',
-                'images.array'    => 'Images must be an array.',
-                'images.max'      => 'You can upload a maximum of 10 images only.',
-
-                'images.*.image'  => 'Each file must be an image.',
-                'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
-                'images.*.max'    => 'Each image must be less than 1MB.',
-            ]
-        );
-
-        // NEW VALIDATION : TOTAL IMAGE LIMIT PER MEDIA
-        $existingCount = MediaImage::where('media_id', $request->media_id)
-            ->where('is_deleted', 0)
-            ->count();
-
-        $newCount = count($request->file('images'));
-
-        if (($existingCount + $newCount) > 10) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'You can upload maximum 10 images per media.'
-            ], 422);
-        }
-
-        try {
-            foreach ($request->file('images') as $image) {
-
-                $fileName = uploadImage(
-                    $image,
-                    config('fileConstants.IMAGE_ADD')
-                );
-
-                MediaImage::create([
-                    'media_id'   => $request->media_id,
-                    'images'     => $fileName,
-                    'is_active'  => 1,
-                    'is_deleted' => 0,
-                ]);
-            }
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Images uploaded successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Upload failed'
-            ], 500);
-        }
-    }
-
-    public function getAllAreas()
-    {
-        return response()->json(
-            DB::table('areas')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->select(
-                    'id',
-                    'state_id',
-                    'district_id',
-                    'city_id',
-                    'common_stdiciar_name'
-                )
-                ->get()
-        );
-    }
-    public function getAreaParents($areaId)
-    {
-        $area = DB::table('areas')->where('id', $areaId)->firstOrFail();
-
-        return response()->json([
-            'city_id'     => $area->city_id,
-            'district_id' => $area->district_id,
-            'state_id'    => $area->state_id,
-        ]);
     }
     public function create()
     {
@@ -338,8 +175,6 @@ class MediaManagementController extends Controller
             return back()->withInput()->with('error', 'Something went wrong');
         }
     }
-
-
     public function edit($encodedId)
     {
         try {
@@ -484,7 +319,6 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
-
     public function delete(Request $request)
     {
         try {
@@ -502,6 +336,165 @@ class MediaManagementController extends Controller
                 'message' => 'Delete failed'
             ], 500);
         }
+    }
+    public function view($encodedId)
+    {
+        try {
+            $id = base64_decode($encodedId);
+
+            $media = MediaManagement::with(['images' => function ($q) {
+                $q->where('is_deleted', 0);
+            }])->findOrFail($id);
+
+            return view('superadm.mediamanagement.view', compact('media'));
+        } catch (\Exception $e) {
+            abort(404);
+        }
+    }
+    public function viewDetails($encodedId)
+    {
+        $id = base64_decode($encodedId, true);
+
+        if (!$id || !is_numeric($id)) {
+            abort(404);
+        }
+
+        logger('Decoded Media ID:', [$id]);
+
+        $media = $this->mediaService->viewDetails($id);
+
+        if (!$media) {
+            abort(404);
+        }
+
+        return view('superadm.mediamanagement.viewDetails', compact('media'));
+    }
+    public function deleteImage(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'image_id' => 'required|integer'
+            ]);
+
+            // Get image record
+            $image = MediaImage::where('id', $request->image_id)
+                ->where('is_deleted', 0)
+                ->firstOrFail();
+
+            // DELETE FILE FIRST (IMPORTANT)
+            removeImage(
+                $image->images,
+                config('fileConstants.IMAGE_DELETE')
+            );
+
+            // SOFT DELETE DB RECORD
+            $image->update([
+                'is_active'  => 0,
+                'is_deleted' => 1,
+            ]);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Image deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Image delete failed'
+            ], 500);
+        }
+    }
+    public function uploadImage(Request $request)
+    {
+
+        $request->validate(
+            [
+                'media_id'   => 'required|integer',
+                'images'     => 'required|array|max:10',
+                'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024',
+            ],
+            [
+                'media_id.required' => 'Media ID is required.',
+                'media_id.exists'   => 'Invalid media ID.',
+
+                'images.required' => 'Please upload at least one image.',
+                'images.array'    => 'Images must be an array.',
+                'images.max'      => 'You can upload a maximum of 10 images only.',
+
+                'images.*.image'  => 'Each file must be an image.',
+                'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
+                'images.*.max'    => 'Each image must be less than 1MB.',
+            ]
+        );
+
+        // NEW VALIDATION : TOTAL IMAGE LIMIT PER MEDIA
+        $existingCount = MediaImage::where('media_id', $request->media_id)
+            ->where('is_deleted', 0)
+            ->count();
+
+        $newCount = count($request->file('images'));
+
+        if (($existingCount + $newCount) > 10) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You can upload maximum 10 images per media.'
+            ], 422);
+        }
+
+        try {
+            foreach ($request->file('images') as $image) {
+
+                $fileName = uploadImage(
+                    $image,
+                    config('fileConstants.IMAGE_ADD')
+                );
+
+                MediaImage::create([
+                    'media_id'   => $request->media_id,
+                    'images'     => $fileName,
+                    'is_active'  => 1,
+                    'is_deleted' => 0,
+                ]);
+            }
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Images uploaded successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Upload failed'
+            ], 500);
+        }
+    }
+    public function getAllAreas()
+    {
+        return response()->json(
+            DB::table('areas')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->select(
+                    'id',
+                    'state_id',
+                    'district_id',
+                    'city_id',
+                    'common_stdiciar_name'
+                )
+                ->get()
+        );
+    }
+    public function getAreaParents($areaId)
+    {
+        $area = DB::table('areas')->where('id', $areaId)->firstOrFail();
+
+        return response()->json([
+            'city_id'     => $area->city_id,
+            'district_id' => $area->district_id,
+            'state_id'    => $area->state_id,
+        ]);
     }
     public function getStates()
     {
@@ -550,7 +543,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
     public function getNextMediaCode($vendorId)
     {
         $vendor = Vendor::where('id', $vendorId)

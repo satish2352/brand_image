@@ -35,6 +35,30 @@ class MediaManagementRepository
             ->orderBy('m.id', 'desc')
             ->get();
     }
+    public function store(array $data)
+    {
+        return MediaManagement::create($data);
+    }
+    public function update($id, array $data)
+    {
+        return MediaManagement::where('id', $id)->update($data);
+    }
+    public function find($id)
+    {
+        return MediaManagement::findOrFail($id);
+    }
+    public function toggleStatus($id)
+    {
+        $media = $this->find($id);
+        $media->update(['is_active' => !$media->is_active]);
+    }
+    public function softDelete($id)
+    {
+        return MediaManagement::where('id', $id)->update([
+            'is_deleted' => 1,
+            'is_active'  => 0
+        ]);
+    }
     public function getDetailsById($id)
     {
         return DB::table('media_management as mm')
@@ -67,35 +91,5 @@ class MediaManagementRepository
                 'mi.images as image_name'
             )
             ->get();
-    }
-
-    public function store(array $data)
-    {
-        return MediaManagement::create($data);
-    }
-
-    public function update($id, array $data)
-    {
-        return MediaManagement::where('id', $id)->update($data);
-    }
-
-
-    public function find($id)
-    {
-        return MediaManagement::findOrFail($id);
-    }
-
-    public function toggleStatus($id)
-    {
-        $media = $this->find($id);
-        $media->update(['is_active' => !$media->is_active]);
-    }
-
-    public function softDelete($id)
-    {
-        return MediaManagement::where('id', $id)->update([
-            'is_deleted' => 1,
-            'is_active'  => 0
-        ]);
     }
 }

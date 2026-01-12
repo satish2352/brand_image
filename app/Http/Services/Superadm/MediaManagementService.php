@@ -16,50 +16,17 @@ class MediaManagementService
     {
         $this->repo = $repo;
     }
-
     public function getAll()
     {
         $data_output = $this->repo->getAll();
 
         return $data_output;
     }
-    public function viewDetails($id)
-    {
-        $rows = $this->repo->getDetailsById($id);
-
-        if ($rows->isEmpty()) {
-            return null;
-        }
-
-        /* ---------- FORMAT DATA ---------- */
-        $media = $rows->first();
-
-        $media->images = $rows
-            ->whereNotNull('image_name')
-            ->map(function ($row) {
-                return [
-                    'id'    => $row->image_id,
-                    'image' => $row->image_name,
-                ];
-            })
-            ->values();
-
-        return $media;
-    }
-
-
-    /* =========================
-       STORE
-    ========================== */
     public function store(Request $request)
     {
         DB::beginTransaction();
 
         try {
-
-            /** -------------------------
-             * REQUIRED FIELDS
-             * ------------------------*/
             $mediaData = $request->only([
                 'state_id',
                 'district_id',
@@ -145,10 +112,6 @@ class MediaManagementService
             throw $e;
         }
     }
-
-    /* =========================
-       UPDATE
-    ========================== */
     public function update($id, Request $request)
     {
         DB::beginTransaction();
@@ -258,15 +221,10 @@ class MediaManagementService
             throw $e;
         }
     }
-
-
-
-
     public function toggleStatus($id)
     {
         $this->repo->toggleStatus($id);
     }
-
     public function delete($id)
     {
         DB::beginTransaction();
@@ -302,7 +260,6 @@ class MediaManagementService
             throw $e;
         }
     }
-
     private function generateMediaCode(int $vendorId): string
     {
         // Get vendor code
@@ -324,5 +281,25 @@ class MediaManagementService
         $next = str_pad($count + 1, 2, '0', STR_PAD_LEFT);
 
         return $vendorCode . '_' . $next;
+    }
+    public function viewDetails($id)
+    {
+        $rows = $this->repo->getDetailsById($id);
+
+        if ($rows->isEmpty()) {
+            return null;
+        }
+        $media = $rows->first();
+        $media->images = $rows
+            ->whereNotNull('image_name')
+            ->map(function ($row) {
+                return [
+                    'id'    => $row->image_id,
+                    'image' => $row->image_name,
+                ];
+            })
+            ->values();
+
+        return $media;
     }
 }
