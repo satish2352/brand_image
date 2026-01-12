@@ -7,18 +7,34 @@ use Illuminate\Support\Facades\DB;
 
 class VendorRepository
 {
+    // public function getAll()
+    // {
+    //     return DB::table('vendors as v')
+    //         ->join('states as s', 's.id', '=', 'v.state_id')
+    //         ->join('districts as d', 'd.id', '=', 'v.district_id')
+    //         ->join('cities as c', 'c.id', '=', 'v.city_id')
+    //         ->where('v.is_deleted', 0)
+    //         ->select(
+    //             'v.*',
+    //             's.state_name',
+    //             'd.district_name',
+    //             'c.city_name'
+    //         )
+    //         ->orderBy('v.id', 'desc')
+    //         ->get();
+    // }
     public function getAll()
     {
         return DB::table('vendors as v')
-            ->join('states as s', 's.id', '=', 'v.state_id')
-            ->join('districts as d', 'd.id', '=', 'v.district_id')
-            ->join('cities as c', 'c.id', '=', 'v.city_id')
+            ->leftJoin('states as s', 's.id', '=', 'v.state_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'v.district_id')
+            ->leftJoin('cities as c', 'c.id', '=', 'v.city_id')
             ->where('v.is_deleted', 0)
             ->select(
                 'v.*',
-                's.state_name',
-                'd.district_name',
-                'c.city_name'
+                's.state_name as state_name',
+                'd.district_name as district_name',
+                'c.city_name as city_name'
             )
             ->orderBy('v.id', 'desc')
             ->get();

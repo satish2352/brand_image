@@ -72,21 +72,31 @@ class HordingBookRepository
             ->value('id');
 
 
+        /* ──────────────────────────────
+         1 FIND CENTER POINT (CITY)
+         ───────────────────────────────*/
         $centerLat = null;
         $centerLng = null;
 
         if (!empty($filters['city_id'])) {
-
-            $center = DB::table('media_management')
-                ->where('city_id', $filters['city_id'])
-                ->whereNotNull('latitude')
-                ->whereNotNull('longitude')
+            $center = DB::table('cities')
+                ->where('id', $filters['city_id'])
                 ->select('latitude', 'longitude')
                 ->first();
 
-            if ($center) {
+            if ($center && $center->latitude && $center->longitude) {
                 $centerLat = $center->latitude;
                 $centerLng = $center->longitude;
+
+                Log::info("🎯 Using city lat/lng only", [
+                    'city_id' => $filters['city_id'],
+                    'lat'     => $centerLat,
+                    'lng'     => $centerLng
+                ]);
+            } else {
+                Log::warning("⚠ City missing lat/lng — radius disabled", [
+                    'city_id' => $filters['city_id']
+                ]);
             }
         }
 
@@ -107,22 +117,11 @@ class HordingBookRepository
 
         if (!empty($filters['radius_id']) && $centerLat && $centerLng) {
 
-            $radiusKm = (float) $filters['radius_id'];
+            $radiusKm = (float)$filters['radius_id'];
 
-            // 🔹 Bounding box (FAST)
-            $latRange = $radiusKm / 111;
-            $lngRange = $radiusKm / (111 * cos(deg2rad($centerLat)));
+            $query->whereNotNull('m.latitude')
+                ->whereNotNull('m.longitude');
 
-            $query->whereBetween('m.latitude', [
-                $centerLat - $latRange,
-                $centerLat + $latRange
-            ])
-                ->whereBetween('m.longitude', [
-                    $centerLng - $lngRange,
-                    $centerLng + $lngRange
-                ]);
-
-            // 🔹 Exact distance (Haversine)
             $query->addSelect(DB::raw("
         (6371 * acos(
             cos(radians($centerLat))
@@ -131,10 +130,15 @@ class HordingBookRepository
             + sin(radians($centerLat))
             * sin(radians(m.latitude))
         )) AS distance
-    "));
-
-            $query->having('distance', '<=', $radiusKm)
+    "))
+                ->having('distance', '<=', $radiusKm)
                 ->orderBy('distance', 'asc');
+
+            Log::info('🎯 Radius Filter Applied', [
+                'center_lat' => $centerLat,
+                'center_lng' => $centerLng,
+                'radius_km'  => $radiusKm
+            ]);
         }
 
         if (!empty($filters['area_type'])) {
@@ -148,10 +152,12 @@ class HordingBookRepository
         if (!empty($filters['district_id'])) {
             $query->where('m.district_id', $filters['district_id']);
         }
-
-        if (!empty($filters['city_id'])) {
+        if (!empty($filters['city_id']) && empty($filters['radius_id'])) {
             $query->where('m.city_id', $filters['city_id']);
         }
+        // if (!empty($filters['city_id'])) {
+        //     $query->where('m.city_id', $filters['city_id']);
+        // }
 
         if (!empty($filters['area_id'])) {
             $query->where('m.area_id', $filters['area_id']);
@@ -257,10 +263,10 @@ class HordingBookRepository
             ->where('m.is_deleted', 0)
             ->select([
                 'm.*',
-                'c.category_name',
-                'state.name as state_name',
-                'district.name as district_name',
-                'city.name as city_name',
+                'ct.category_name',
+                's.state_name as state_name',
+                'd.district_name as district_name',
+                'c.city_name as city_name',
                 'a.common_stdiciar_name as area_name',
                 'fd.facing_name',
                 'il.illumination_name',

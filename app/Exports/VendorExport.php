@@ -21,9 +21,9 @@ class VendorExport implements FromCollection, WithHeadings
                 'v.mobile',
                 'v.email',
                 'v.address',
-                's.name as state',
-                'd.name as district',
-                'c.name as city'
+                's.state_name as state',
+                'd.district_name as district',
+                'c.city_name as city'
             )->get();
     }
 

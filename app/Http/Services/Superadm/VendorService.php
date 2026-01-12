@@ -18,7 +18,9 @@ class VendorService
 
     public function list()
     {
-        return $this->repo->getAll();
+        $data_output = $this->repo->getAll();
+
+        return  $data_output;
     }
 
     public function store(array $data)

@@ -398,7 +398,7 @@
                     @enderror
                 </div>
 
-                <div class="col-md-4 mb-3" id="radiusSection">
+                {{-- <div class="col-md-4 mb-3" id="radiusSection">
                     <label>Radius <span class="text-danger">*</span></label>
                     <select name="radius_id"
                         class="form-control @error('radius_id') is-invalid @enderror">
@@ -413,7 +413,7 @@
                     @error('radius_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                </div>
+                </div> --}}
 
                 {{-- IMAGES --}}
                 {{-- <div class="col-md-6 mb-4">

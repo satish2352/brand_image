@@ -153,7 +153,7 @@ class CampaignController extends Controller
                 'm.price',
                 'a.area_name',
                 'a.common_stdiciar_name',
-                'c.name as city_name',
+                'c.city_name as city_name',
                 'i.illumination_name',
                 'cat.category_name as media_type', //  GET CATEGORY NAME
                 'mi.all_images'

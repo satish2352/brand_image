@@ -58,8 +58,10 @@ class CampaignExport implements
             ->where('ci.is_active', 1)
             ->where('ci.is_deleted', 0)
             ->select(
-                'district.name as district_name',
-                'city.name as city_name',
+                // 'district.name as district_name',
+                // 'city.name as city_name',
+                'd.district_name as district_name',
+                'ct.city_name as city_name',
                 'm.media_code',
                 'ar.area_name',
                 'm.width',

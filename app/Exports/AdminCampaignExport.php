@@ -53,8 +53,10 @@ class AdminCampaignExport implements
             ->where('ci.is_deleted', 0)
             ->select(
                 'u.name as user_name',
-                'district.name as district_name',
-                'city.name as city_name',
+                // 'district.name as district_name',
+                // 'city.name as city_name',
+                'd.district_name as district_name',
+                'ct.city_name as city_name',
                 'm.media_code',
                 'ar.area_name',
                 'm.width',

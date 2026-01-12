@@ -89,7 +89,7 @@
  
                 <!-- City -->
                 <div class="col-lg-3 col-md-4 col-sm-6">
-                    <label class="form-label">City</label>
+                    <label class="form-label">Town</label>
                     <select name="city_id" id="city_id" class="form-select">
                         <option value="">Select City</option>
                     </select>
@@ -146,8 +146,8 @@
                     <label class="form-label">Available Days</label>
                     <select name="available_days" id="available_days" class="form-select">
                         <option value="">Select Days</option>
-                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>7 Days</option>
-                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>15 Days</option>
+                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>After 7 Days</option>
+                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>After 15 Days</option>
                     </select>
                 </div>
  

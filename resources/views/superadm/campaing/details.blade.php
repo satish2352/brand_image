@@ -52,7 +52,7 @@
                             <th>Size</th>
                             <th>From</th>
                             <th>To</th>
-                            <th>Qty</th>
+                            {{-- <th>Qty</th> --}}
                             <th>Total</th>
                         </tr>
                     </thead>
@@ -66,7 +66,7 @@
                             <td>{{ $row->width }} × {{ $row->height }}</td>
                             <td>{{ $row->from_date }}</td>
                             <td>{{ $row->to_date }}</td>
-                            <td>{{ $row->qty }}</td>
+                            {{-- <td>{{ $row->qty }}</td> --}}
                             <td>₹ {{ number_format($row->total_price, 2) }}</td>
                         </tr>
                     @endforeach
