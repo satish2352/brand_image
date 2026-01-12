@@ -24,6 +24,19 @@
 </head>
 
 <body class="fix-header fix-sidebar card-no-border">
+@php
+    // Step 1: get admin ID saved in session
+    $adminId = session('user_id') ?? session('id');
+
+    // Step 2: load user object from DB if available
+    $admin = $adminId ? \App\Models\User::find($adminId) : null;
+
+    // Step 3: unread count
+    $notifyCount = $admin ? $admin->unreadNotifications()->count() : 0;
+@endphp
+
+
+
     <div class="preloader">
         <svg class="circular" viewBox="25 25 50 50">
             <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2"
@@ -53,6 +66,39 @@
 
                     </ul>
                     <ul class="navbar-nav my-lg-0 d-flex justify-content-center align-items-center">
+                       <?php
+                        //  dump(session()->all()); 
+                        ?>
+                        <li class="nav-item">
+    {{-- <a class="nav-link text-muted waves-effect waves-dark" 
+       href="{{ route('admin.notifications') }}"
+       title="Notifications">
+        <i class="fa fa-bell"></i>
+
+        @if($notifyCount > 0)
+            <span class="badge badge-danger" 
+                  style="position:absolute; top:5px; right:5px;">
+                {{ $notifyCount }}
+            </span>
+        @endif
+    </a> --}}
+ <a class="nav-link text-muted waves-effect waves-dark" 
+   href="javascript:void(0)"
+   data-toggle="modal"
+   data-target="#notificationModal">
+
+    <i class="fa fa-bell"></i>
+
+    @if($notifyCount > 0)
+        <span class="badge badge-danger" 
+              style="position:absolute; top:5px; right:5px;">
+            {{ $notifyCount }}
+        </span>
+    @endif
+</a>
+
+</li>
+
                         <li class="fnt-size">{{ session('name') }}</li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark" href="#"
@@ -63,19 +109,19 @@
                                 <ul class="dropdown-user">                                    
                                     {{-- <li><a href="{{ route('change-password') }}"><i class="fa fa-key"></i> Change Password</a></li> --}}
                                     <li>
-                                        @if(session('role') == 'admin')
+                                        {{-- @if(session('role') == 'admin') --}}
                                             <a href="{{ route('admin.change-password') }}"><i class="fa fa-key"></i> Change Password</a>
-                                        @else
+                                        {{-- @else
                                             <a href="{{ route('employee.change-password') }}"><i class="fa fa-key"></i> Change Password</a>
-                                        @endif
+                                        @endif --}}
                                     </li>
                               {{-- <li><a href="{{ route('logout') }}"><i class="fa fa-power-off"></i> Logout</a></li> --}}
                                     <li>
-                                        @if(session('role') == 'admin')
+                                        {{-- @if(session('role') == 'admin') --}}
                                             <a href="{{ route('admin.logout') }}"><i class="fa fa-power-off"></i> Logout</a>
-                                        @else
+                                        {{-- @else
                                             <a href="{{ route('emp.logout') }}"><i class="fa fa-power-off"></i> Logout</a>
-                                        @endif
+                                        @endif --}}
                                     </li>
                                 </ul>
                             </div>
@@ -90,6 +136,7 @@
                                         class="flag-icon flag-icon-cn"></i> China</a> <a class="dropdown-item"
                                     href="#"><i class="flag-icon flag-icon-de"></i> Dutch</a> </div>
                         </li>
+                        
                     </ul>
                 </div>
             </nav>
@@ -97,11 +144,11 @@
         <aside class="left-sidebar">
             <div class="scroll-sidebar">
                 <div class="user-profile" style="margin-top: 28px;"></div>
-                @if (session('role') == 'admin')
+                {{-- @if (session('role') == 'admin') --}}
                     @include('superadm.layout.super-menu')
-                @else
+                {{-- @else
                     @include('superadm.layout.emp-menu')
-                @endif
+                @endif --}}
 
 
               
@@ -124,6 +171,28 @@
                     </div>
 
                 </div>
+
+
+                <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Notifications</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="notificationList">
+        Loading...
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+$('#notificationModal').on('shown.bs.modal', function () {
+    $.get("{{ route('admin.notifications.data') }}", function(res){
+        $('#notificationList').html(res);
+    });
+});
+</script>
 
                 @yield('content')
                 @include('toast')

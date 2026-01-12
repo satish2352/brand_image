@@ -84,14 +84,12 @@ class LoginController extends Controller
 
         /* ---------------- SESSION ---------------- */
         Session::put('user_id', $user->id);
-        Session::put('role_id', $user->role_id);
-        Session::put('role', $user->role_id == 0 ? 'admin' : 'employee');
+        // Session::put('role_id', $user->role_id);
+        // Session::put('role', $user->role_id == 0 ? 'admin' : 'employee');
         Session::put('email', $user->email);
         Session::put('name', $user->name);
 
-        return $user->role_id == 0
-            ? redirect('dashboard')
-            : redirect('dashboard-emp');
+        return redirect()->route('dashboard');
     }
     public function logOut(Request $req)
     {

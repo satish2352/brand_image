@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\MediaBookedDate;
-
+use App\Models\User;
+use App\Notifications\OrderPlacedNotification;
+use App\Notifications\PaymentReceivedNotification;
 
 class CheckoutController extends Controller
 {
@@ -87,6 +89,12 @@ class CheckoutController extends Controller
             $this->orderRepo->createOrderItems($order->id, $items);
             return $order;
         });
+
+        // 🔔 Notify all admins
+        $admins = User::where('id', 1)->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new OrderPlacedNotification($order));
+        }
 
         session(['order_id' => $order->id]);
 
@@ -210,6 +218,14 @@ class CheckoutController extends Controller
             'payment_status' => 'PAID',
             'payment_id'     => $request->razorpay_payment_id,
         ]);
+
+        $order = Order::find($orderId);
+
+        // 🔔 Notify admins payment done
+        $admins = User::where('id', 1)->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new PaymentReceivedNotification($order));
+        }
 
         //  Clear NORMAL cart items (VERY IMPORTANT)
         \App\Models\CartItem::where('user_id', $userId)

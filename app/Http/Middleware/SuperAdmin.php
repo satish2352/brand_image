@@ -8,15 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SuperAdmin
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!($request->session()->has('user_id') && $request->session()->get('role_id') == 0)) {
-            return redirect()->route('login');
+        // Check if user is logged in using session user_id
+        if (!$request->session()->has('user_id')) {
+            return redirect()->route('login')->with('error', 'Please login');
         }
 
         return $next($request);

@@ -34,6 +34,7 @@ use App\Http\Controllers\Website\LocationController;
 use App\Http\Controllers\Website\PaymentHistoryController;
 use App\Http\Controllers\Superadm\CampaingController;
 use App\Http\Controllers\Superadm\HordingBookController;
+use App\Http\Controllers\Superadm\AdminNotificationController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -172,7 +173,16 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     });
     Route::get('media/next-code/{vendorId}', [MediaManagementController::class, 'getNextMediaCode'])->name('media.next.code');
     Route::get('admin/logout', [LoginController::class, 'logOut'])->name('admin.logout');
+
+
+    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications');
+    Route::get('notifications/read-all', [AdminNotificationController::class, 'markAllRead'])->name('admin.notifications.readAll');
+    Route::get('notifications/data', [AdminNotificationController::class, 'getData'])
+        ->name('admin.notifications.data');
+    Route::get('notifications/read/{id}', [AdminNotificationController::class, 'read'])
+        ->name('admin.notifications.read');
 });
+
 // Website Rotes
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
