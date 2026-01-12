@@ -20,7 +20,7 @@ class RevenueReportController extends Controller
                 ->withInput();
         }
 
-        $type = $request->report_type ?? 'date'; // date | media | user
+        $type = $request->report_type ?? 'media'; // date | media | user
         $query = $this->baseQuery($request);
 
         /* ======================
@@ -32,8 +32,11 @@ class RevenueReportController extends Controller
             $query->select(
                 DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
                 DB::raw('COUNT(oi.id) as total_bookings'),
-                DB::raw('SUM(oi.price) as total_revenue'),
-                DB::raw('MIN(oi.from_date) as sort_date')
+                // DB::raw('SUM(oi.price) as total_revenue'),
+                DB::raw('MIN(oi.from_date) as sort_date'),
+                DB::raw('SUM(o.total_amount) as total_amount'),
+                DB::raw('SUM(o.gst_amount) as gst_amount'),
+                DB::raw('SUM(o.grand_total) as grand_total')
             )
                 ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
                 ->orderBy('sort_date', 'desc');
@@ -52,7 +55,10 @@ class RevenueReportController extends Controller
                 'm.height',
                 DB::raw('COUNT(oi.id) as total_bookings'),
                 DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-                DB::raw('SUM(oi.price) as total_revenue')
+                // DB::raw('SUM(oi.price) as total_revenue')
+                DB::raw('SUM(o.total_amount) as total_amount'),
+                DB::raw('SUM(o.gst_amount) as gst_amount'),
+                DB::raw('SUM(o.grand_total) as grand_total')
             )
                 ->groupBy(
                     'm.id',
@@ -66,7 +72,7 @@ class RevenueReportController extends Controller
                     'm.width',
                     'm.height'
                 )
-                ->orderByDesc('total_revenue');
+                ->orderByDesc('grand_total');
         } else { // USER-WISE
 
             $query->select(
@@ -74,10 +80,13 @@ class RevenueReportController extends Controller
                 'u.name as user_name',
                 DB::raw('COUNT(oi.id) as total_bookings'),
                 DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-                DB::raw('SUM(oi.price) as total_revenue')
+                // DB::raw('SUM(oi.price) as total_revenue')
+                DB::raw('SUM(o.total_amount) as total_amount'),
+                DB::raw('SUM(o.gst_amount) as gst_amount'),
+                DB::raw('SUM(o.grand_total) as grand_total')
             )
                 ->groupBy('u.id', 'u.name')
-                ->orderByDesc('total_revenue');
+                ->orderByDesc('grand_total');
         }
 
         $reports = $query->paginate(10)->withQueryString();
@@ -101,6 +110,7 @@ class RevenueReportController extends Controller
             ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->where('o.payment_status', 'paid')
+            // ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
             ->where('m.is_deleted', 0);
 
         // Year filter
@@ -193,55 +203,128 @@ class RevenueReportController extends Controller
     }
 
 
+    // private function exportQuery(Request $request)
+    // {
+    //     $type = $request->report_type ?? 'date';
+    //     $query = $this->baseQuery($request);
+
+    //     if ($type === 'date') {
+    //         $query->select(
+    //             DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
+    //             DB::raw('COUNT(oi.id) as total_bookings'),
+    //             DB::raw('SUM(oi.price) as total_revenue')
+    //         )
+    //             ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
+    //             ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
+    //     } elseif ($type === 'media') {
+    //         $query->select(
+    //             'm.media_code',
+    //             'cat.category_name',
+    //             'm.media_title',
+    //             's.state_name as state_name',
+    //             'd.district_name as district_name',
+    //             'c.city_name as city_name',
+    //             'a.area_name',
+    //             'm.width',
+    //             'm.height',
+    //             DB::raw('COUNT(oi.id) as total_bookings'),
+    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+    //             DB::raw('SUM(oi.price) as total_revenue')
+    //         )
+    //             ->groupBy(
+    //                 'm.media_code',
+    //                 'cat.category_name',
+    //                 'm.media_title',
+    //                 's.state_name',
+    //                 'd.district_name',
+    //                 'c.city_name',
+    //                 'a.area_name',
+    //                 'm.width',
+    //                 'm.height'
+    //             )
+    //             ->orderByDesc('total_revenue');
+    //     } else { // user
+    //         $query->select(
+    //             'u.name as user_name',
+    //             DB::raw('COUNT(oi.id) as total_bookings'),
+    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+    //             DB::raw('SUM(oi.price) as total_revenue')
+    //         )
+    //             ->groupBy('u.name')
+    //             ->orderByDesc('total_revenue');
+    //     }
+
+    //     return $query->get();
+    // }
+
     private function exportQuery(Request $request)
     {
-        $type = $request->report_type ?? 'date';
+        $type = $request->report_type ?? 'media';
         $query = $this->baseQuery($request);
 
         if ($type === 'date') {
+
             $query->select(
                 DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
                 DB::raw('COUNT(oi.id) as total_bookings'),
-                DB::raw('SUM(oi.price) as total_revenue')
+
+                // ORDERS TABLE
+                DB::raw('SUM(o.total_amount) as total_amount'),
+                DB::raw('SUM(o.gst_amount) as gst_amount'),
+                DB::raw('SUM(o.grand_total) as grand_total')
             )
-                ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
-                ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
+            ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
+            ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
+
         } elseif ($type === 'media') {
+
             $query->select(
                 'm.media_code',
                 'cat.category_name',
                 'm.media_title',
-                's.state_name as state_name',
-                'd.district_name as district_name',
-                'c.city_name as city_name',
+                's.state_name',
+                'd.district_name',
+                'c.city_name',
                 'a.area_name',
                 'm.width',
                 'm.height',
+
                 DB::raw('COUNT(oi.id) as total_bookings'),
                 DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-                DB::raw('SUM(oi.price) as total_revenue')
+
+                // ORDERS TABLE
+                DB::raw('SUM(o.total_amount) as total_amount'),
+                DB::raw('SUM(o.gst_amount) as gst_amount'),
+                DB::raw('SUM(o.grand_total) as grand_total')
             )
-                ->groupBy(
-                    'm.media_code',
-                    'cat.category_name',
-                    'm.media_title',
-                    's.state_name',
-                    'd.district_name',
-                    'c.city_name',
-                    'a.area_name',
-                    'm.width',
-                    'm.height'
-                )
-                ->orderByDesc('total_revenue');
-        } else { // user
+            ->groupBy(
+                'm.media_code',
+                'cat.category_name',
+                'm.media_title',
+                's.state_name',
+                'd.district_name',
+                'c.city_name',
+                'a.area_name',
+                'm.width',
+                'm.height'
+            )
+            ->orderByDesc('grand_total');
+
+        } else { // USER-WISE
+
             $query->select(
                 'u.name as user_name',
+
                 DB::raw('COUNT(oi.id) as total_bookings'),
                 DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-                DB::raw('SUM(oi.price) as total_revenue')
+
+                // ORDERS TABLE
+                DB::raw('SUM(o.total_amount) as total_amount'),
+                DB::raw('SUM(o.gst_amount) as gst_amount'),
+                DB::raw('SUM(o.grand_total) as grand_total')
             )
-                ->groupBy('u.name')
-                ->orderByDesc('total_revenue');
+            ->groupBy('u.name')
+            ->orderByDesc('grand_total');
         }
 
         return $query->get();
@@ -256,17 +339,23 @@ class RevenueReportController extends Controller
 
         $data = DB::table('order_items as oi')
             ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('website_users as u', 'u.id', '=', 'o.user_id')
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
             ->join('category as c', 'c.id', '=', 'm.category_id')
             ->where('o.payment_status', 'paid')
             ->whereYear('oi.from_date', $year)
             ->whereMonth('oi.from_date', $monthNum)
             ->select(
+                'u.name as user_name',
                 'm.media_code',
                 'm.media_title',
                 'c.category_name',
                 DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
-                'oi.price'
+
+                // ✅ AMOUNTS FROM ORDERS TABLE
+                'o.total_amount',
+                'o.gst_amount',
+                'o.grand_total'
             )
             ->get();
 
@@ -311,6 +400,20 @@ class RevenueReportController extends Controller
     }
 
 
+    // public function exportExcel(Request $request)
+    // {
+    //     $data = $this->exportQuery($request);
+
+    //     if ($data->isEmpty()) {
+    //         return response()->json(['status' => 'empty']);
+    //     }
+
+    //     return Excel::download(
+    //         new \App\Exports\RevenueExport($data, $request->report_type),
+    //         'revenue_report.xlsx'
+    //     );
+    // }
+
     public function exportExcel(Request $request)
     {
         $data = $this->exportQuery($request);
@@ -319,8 +422,10 @@ class RevenueReportController extends Controller
             return response()->json(['status' => 'empty']);
         }
 
+        $type = $request->report_type ?? 'media';
+
         return Excel::download(
-            new \App\Exports\RevenueExport($data, $request->report_type),
+            new \App\Exports\RevenueExport($data, $type),
             'revenue_report.xlsx'
         );
     }
