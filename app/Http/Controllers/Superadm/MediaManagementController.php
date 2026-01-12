@@ -15,36 +15,16 @@ use App\Models\{
     Illumination,
     MediaManagement,
     MediaImage,
-    RadiusMaster,
     Vendor
 };
 
 class MediaManagementController extends Controller
 {
-
     protected $mediaService;
-
     public function __construct(MediaManagementService $mediaService)
     {
         $this->mediaService = $mediaService;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOCATION TYPE MAP (as per your DB)
-    |--------------------------------------------------------------------------
-    | 0 = Country
-    | 1 = State
-    | 2 = District
-    | 3 = Taluka
-    | 4 = City / Village
-    | 5 = Area
-    |--------------------------------------------------------------------------
-    */
-
-    /* =========================
-       LIST PAGE
-    ========================== */
     public function index()
     {
         try {
@@ -52,6 +32,309 @@ class MediaManagementController extends Controller
             return view('superadm.mediamanagement.list', compact('mediaList'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong');
+        }
+    }
+    public function create()
+    {
+        $categories = Category::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
+
+        $facings = FacingDirection::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
+
+        $illuminations = Illumination::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
+        // $radius = RadiusMaster::where('is_active', 1)
+        //     ->where('is_deleted', 0)
+        //     ->get();
+
+        // FETCH VENDORS
+        $vendors = Vendor::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('vendor_name')
+            ->get();
+
+        return view('superadm.mediamanagement.create', compact(
+            'categories',
+            'facings',
+            'illuminations',
+            // 'radius',
+            'vendors'
+        ));
+    }
+    public function store(Request $request)
+    {
+        $category = Category::findOrFail($request->category_id);
+
+        $slug = Str::slug($category->slug ?? $category->category_name);
+
+        $rules = [
+            'area_id'     => 'required|integer',
+            'category_id' => 'required|integer',
+
+            'width'       => 'required|numeric|min:0',
+            'height'      => 'required|numeric|min:0',
+
+            'latitude'    => 'required|numeric|between:-90,90',
+            'longitude'   => 'required|numeric|between:-180,180',
+
+            'price'       => 'required|numeric|min:0',
+            // 'vendor_name' => 'required|string|max:255',
+            'vendor_id' => 'required|integer|exists:vendors,id',
+
+            'images'      => 'nullable|array|max:10',
+            'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024',
+        ];
+
+        switch (true) {
+
+            //  Hoardings / Billboards
+            case str_contains($slug, 'hoardings'):
+                $rules += [
+                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
+                    'media_title' => 'required|string|max:255',
+                    // 'facing_id' => 'required',
+                    'facing' => 'required',
+                    'illumination_id' => 'required',
+                    // 'radius_id' => 'required',
+                    // 'minimum_booking_days' => 'required|integer|min:1',
+                    'area_type' => 'required',
+                    'address' => 'required',
+                ];
+                break;
+
+            //  Mall Media
+            case str_contains($slug, 'mall'):
+                $rules += [
+                    'mall_name' => 'required|string|max:255',
+                    'media_format' => 'required|string',
+                ];
+                break;
+
+            //  Airport Branding
+            case str_contains($slug, 'airport'):
+                $rules += [
+                    'airport_name' => 'required|string|max:255',
+                    'zone_type' => 'required|in:Arrival,Departure',
+                    'media_type' => 'required|string',
+                ];
+                break;
+
+            //  Transit Media
+            case str_contains($slug, 'transit'):
+                $rules += [
+                    'transit_type' => 'required|string',
+                    'branding_type' => 'required|string',
+                    'vehicle_count' => 'required|integer|min:1',
+                ];
+                break;
+
+            //  Office Branding
+            case str_contains($slug, 'office'):
+                $rules += [
+                    'building_name' => 'required|string|max:255',
+                    'wall_length' => 'required|string',
+                ];
+                break;
+
+            //  Wall Wrap
+            case str_contains($slug, 'wall'):
+                $rules += [
+                    // 'radius_id' => 'required',
+                    // 'area_auto' => 'required|numeric|min:1',
+                ];
+                break;
+        }
+        $messages = [
+            'area_id.required' => 'Please select an area.',
+            'category_id.required' => 'Please select a category.',
+            'width.required' => 'Width is required.',
+            'height.required' => 'Height is required.',
+            'price.required' => 'Price is required.',
+            // 'vendor_name.required' => 'Vendor name is required.',
+            'vendor_id.required' => 'Please select a vendor',
+            // 'vendor_id.exists'   => 'Invalid vendor selected',
+            'images.max' => 'You can upload a maximum of 10 images.',
+            'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
+            'images.*.image' => 'Each file must be an image.',
+            'images.*.max' => 'Each image must be less than 1MB.',
+        ];
+        $request->validate($rules, $messages);
+
+        try {
+            $this->mediaService->store($request);
+
+            return redirect()
+                ->route('media.list')
+                ->with('success', 'Media added successfully');
+        } catch (\Exception $e) {
+            Log::error($e);
+            return back()->withInput()->with('error', 'Something went wrong');
+        }
+    }
+    public function edit($encodedId)
+    {
+        try {
+            $id = base64_decode($encodedId);
+
+            $media = DB::table('media_management')->where('id', $id)->first();
+
+            if (!$media) {
+                return redirect()->route('media.list')->with('error', 'Media not found');
+            }
+
+            $categories = Category::where('is_active', 1)->where('is_deleted', 0)->get();
+            $facings = FacingDirection::where('is_active', 1)->where('is_deleted', 0)->get();
+            $illuminations = Illumination::where('is_active', 1)->where('is_deleted', 0)->get();
+            // $radius = RadiusMaster::where('is_active', 1)
+            //     ->where('is_deleted', 0)
+            //     ->get();
+            $areas = DB::table('areas')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->get();
+
+            $vendors = Vendor::where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->orderBy('vendor_name')
+                ->get();
+
+            return view('superadm.mediamanagement.edit', compact(
+                'media',
+                'categories',
+                'facings',
+                'illuminations',
+                'encodedId',
+                'areas',
+                // 'radius',
+                'vendors'
+            ));
+        } catch (\Exception $e) {
+            return redirect()->route('media.list')->with('error', 'Invalid media ID');
+        }
+    }
+    public function update(Request $request, $encodedId)
+    {
+        $id = base64_decode($encodedId);
+        $category = Category::findOrFail($request->category_id);
+        $slug = Str::slug($category->slug ?? $category->category_name);
+
+        $rules = [
+            'area_id'     => 'required|integer',
+            'category_id' => 'required|integer',
+
+            'width'       => 'required|numeric|min:0',
+            'height'      => 'required|numeric|min:0',
+
+            'latitude'    => 'required|numeric|between:-90,90',
+            'longitude'   => 'required|numeric|between:-180,180',
+
+            'price'       => 'required|numeric|min:0',
+            // 'vendor_name' => 'required|string|max:255',
+            'vendor_id' => 'required|integer|exists:vendors,id',
+        ];
+
+        switch (true) {
+
+            case str_contains($slug, 'hoardings'):
+                $rules += [
+                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
+                    'media_title' => 'required|string|max:255',
+                    // 'facing_id' => 'required',
+                    'facing' => 'required',
+                    'illumination_id' => 'required',
+                    // 'radius_id' => 'required',
+                    // 'minimum_booking_days' => 'required|integer|min:1',
+                    'area_type' => 'required',
+                    'address' => 'required',
+                ];
+                break;
+
+            case str_contains($slug, 'mall'):
+                $rules += [
+                    'mall_name' => 'required|string|max:255',
+                    'media_format' => 'required|string',
+                ];
+                break;
+
+            case str_contains($slug, 'airport'):
+                $rules += [
+                    'airport_name' => 'required|string|max:255',
+                    'zone_type' => 'required|in:Arrival,Departure',
+                    'media_type' => 'required|string',
+                ];
+                break;
+
+            case str_contains($slug, 'transit'):
+                $rules += [
+                    'transit_type' => 'required|string',
+                    'branding_type' => 'required|string',
+                    'vehicle_count' => 'required|integer|min:1',
+                ];
+                break;
+
+            case str_contains($slug, 'office'):
+                $rules += [
+                    'building_name' => 'required|string|max:255',
+                    'wall_length' => 'required|string',
+                ];
+                break;
+
+            case str_contains($slug, 'wall'):
+                $rules += [
+                    'area_auto' => 'required|numeric|min:1',
+                ];
+                break;
+        }
+        $request->validate($rules);
+        try {
+            $this->mediaService->update($id, $request);
+
+            return redirect()
+                ->route('media.list')
+                ->with('success', 'Media updated successfully');
+        } catch (\Exception $e) {
+            Log::error($e);
+            return back()->withInput()->with('error', 'Update failed');
+        }
+    }
+    public function updateStatus(Request $request)
+    {
+        try {
+            $id = base64_decode($request->id);
+
+            $this->mediaService->toggleStatus($id);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Status updated successfully'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Status update failed'
+            ], 500);
+        }
+    }
+    public function delete(Request $request)
+    {
+        try {
+            $id = base64_decode($request->id);
+
+            $this->mediaService->delete($id);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Media deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Delete failed'
+            ], 500);
         }
     }
     public function view($encodedId)
@@ -76,7 +359,7 @@ class MediaManagementController extends Controller
             abort(404);
         }
 
-        logger('Decoded Media ID:', [$id]); // 👈 ADD THIS
+        logger('Decoded Media ID:', [$id]);
 
         $media = $this->mediaService->viewDetails($id);
 
@@ -86,23 +369,6 @@ class MediaManagementController extends Controller
 
         return view('superadm.mediamanagement.viewDetails', compact('media'));
     }
-
-    // public function viewDetails($encodedId)
-    // {
-    //     try {
-    //         $id = base64_decode($encodedId);
-
-    //         $media = $this->mediaService->viewDetails($id);
-
-    //         if (!$media) {
-    //             abort(404);
-    //         }
-
-    //         return view('superadm.mediamanagement.viewDetails', compact('media'));
-    //     } catch (\Exception $e) {
-    //         abort(404);
-    //     }
-    // }
     public function deleteImage(Request $request)
     {
         try {
@@ -111,18 +377,18 @@ class MediaManagementController extends Controller
                 'image_id' => 'required|integer'
             ]);
 
-            // 1️⃣ Get image record
+            // Get image record
             $image = MediaImage::where('id', $request->image_id)
                 ->where('is_deleted', 0)
                 ->firstOrFail();
 
-            // 2️⃣ DELETE FILE FIRST (IMPORTANT)
+            // DELETE FILE FIRST (IMPORTANT)
             removeImage(
                 $image->images,
                 config('fileConstants.IMAGE_DELETE')
             );
 
-            // 3️⃣ SOFT DELETE DB RECORD
+            // SOFT DELETE DB RECORD
             $image->update([
                 'is_active'  => 0,
                 'is_deleted' => 1,
@@ -140,60 +406,9 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
-    // public function uploadImage(Request $request)
-    // {
-    //     $request->validate(
-    //         [
-    //             'media_id'   => 'required|integer',
-    //             'images'     => 'required|array|max:10',
-    //             'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024',
-    //         ],
-    //         [
-    //             'media_id.required' => 'Media ID is required.',
-    //             'media_id.exists'   => 'Invalid media ID.',
-
-    //             'images.required' => 'Please upload at least one image.',
-    //             'images.array'    => 'Images must be an array.',
-    //             'images.max'      => 'You can upload a maximum of 10 images only.',
-
-    //             'images.*.image'  => 'Each file must be an image.',
-    //             'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
-    //             'images.*.max'    => 'Each image must be less than 1MB.',
-    //         ]
-    //     );
-
-    //     try {
-
-    //         foreach ($request->file('images') as $image) {
-
-    //             $fileName = uploadImage(
-    //                 $image,
-    //                 config('fileConstants.IMAGE_ADD')
-    //             );
-
-    //             MediaImage::create([
-    //                 'media_id'   => $request->media_id,
-    //                 'images'     => $fileName,
-    //                 'is_active'  => 1,
-    //                 'is_deleted' => 0,
-    //             ]);
-    //         }
-
-    //         return response()->json([
-    //             'status'  => true,
-    //             'message' => 'Images uploaded successfully'
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status'  => false,
-    //             'message' => 'Upload failed'
-    //         ], 500);
-    //     }
-    // }
-
     public function uploadImage(Request $request)
     {
-        // EXISTING VALIDATION
+
         $request->validate(
             [
                 'media_id'   => 'required|integer',
@@ -255,7 +470,6 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
-
     public function getAllAreas()
     {
         return response()->json(
@@ -272,19 +486,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    // public function getAreaParents($areaId)
-    // {
-    //     $city = DB::table('tbl_location')->where('location_id', $areaId)->first();
-    //     $district = DB::table('tbl_location')->where('location_id', $city->parent_id)->first();
-    //     $state = DB::table('tbl_location')->where('location_id', $district->parent_id)->first();
-
-    //     return response()->json([
-    //         'city_id' => $city->location_id,
-    //         'district_id' => $district->location_id,
-    //         'state_id' => $state->location_id,
-    //     ]);
-    // }
     public function getAreaParents($areaId)
     {
         $area = DB::table('areas')->where('id', $areaId)->firstOrFail();
@@ -295,390 +496,6 @@ class MediaManagementController extends Controller
             'state_id'    => $area->state_id,
         ]);
     }
-
-    /* =========================
-       CREATE PAGE
-    ========================== */
-    public function create()
-    {
-        $categories = Category::where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->get();
-
-        $facings = FacingDirection::where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->get();
-
-        $illuminations = Illumination::where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->get();
-        // $radius = RadiusMaster::where('is_active', 1)
-        //     ->where('is_deleted', 0)
-        //     ->get();
-
-        // FETCH VENDORS
-        $vendors = Vendor::where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->orderBy('vendor_name')
-            ->get();
-
-        return view('superadm.mediamanagement.create', compact(
-            'categories',
-            'facings',
-            'illuminations',
-            // 'radius',
-            'vendors'
-        ));
-    }
-    public function store(Request $request)
-    {
-        /**
-         * -------------------------------------------------
-         * STEP 1: Get category & normalize slug
-         * -------------------------------------------------
-         */
-        $category = Category::findOrFail($request->category_id);
-
-        // Works even if slug column is NULL
-        $slug = Str::slug($category->slug ?? $category->category_name);
-
-        /**
-         * -------------------------------------------------
-         * STEP 2: COMMON VALIDATION (ALL CATEGORIES)
-         * -------------------------------------------------
-         */
-        $rules = [
-            'area_id'     => 'required|integer',
-            'category_id' => 'required|integer',
-
-            'width'       => 'required|numeric|min:0',
-            'height'      => 'required|numeric|min:0',
-
-            'latitude'    => 'required|numeric|between:-90,90',
-            'longitude'   => 'required|numeric|between:-180,180',
-
-            'price'       => 'required|numeric|min:0',
-            // 'vendor_name' => 'required|string|max:255',
-            'vendor_id' => 'required|integer|exists:vendors,id',
-
-            'images'      => 'nullable|array|max:10',
-            'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024',
-        ];
-
-        /**
-         * -------------------------------------------------
-         * STEP 3: CATEGORY-WISE VALIDATION
-         * -------------------------------------------------
-         * Using str_contains() to match UI slug
-         */
-        switch (true) {
-
-            //  Hoardings / Billboards
-            case str_contains($slug, 'hoardings'):
-                $rules += [
-                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
-                    'media_title' => 'required|string|max:255',
-                    // 'facing_id' => 'required',
-                    'facing' => 'required',
-                    'illumination_id' => 'required',
-                    // 'radius_id' => 'required',
-                    // 'minimum_booking_days' => 'required|integer|min:1',
-                    'area_type' => 'required',
-                    'address' => 'required',
-                ];
-                break;
-
-            //  Mall Media
-            case str_contains($slug, 'mall'):
-                $rules += [
-                    'mall_name' => 'required|string|max:255',
-                    'media_format' => 'required|string',
-                ];
-                break;
-
-            //  Airport Branding
-            case str_contains($slug, 'airport'):
-                $rules += [
-                    'airport_name' => 'required|string|max:255',
-                    'zone_type' => 'required|in:Arrival,Departure',
-                    'media_type' => 'required|string',
-                ];
-                break;
-
-            //  Transit Media
-            case str_contains($slug, 'transit'):
-                $rules += [
-                    'transit_type' => 'required|string',
-                    'branding_type' => 'required|string',
-                    'vehicle_count' => 'required|integer|min:1',
-                ];
-                break;
-
-            //  Office Branding
-            case str_contains($slug, 'office'):
-                $rules += [
-                    'building_name' => 'required|string|max:255',
-                    'wall_length' => 'required|string',
-                ];
-                break;
-
-            //  Wall Wrap
-            case str_contains($slug, 'wall'):
-                $rules += [
-                    // 'radius_id' => 'required',
-                    // 'area_auto' => 'required|numeric|min:1',
-                ];
-                break;
-        }
-
-        /**
-         * -------------------------------------------------
-         * STEP 4: CUSTOM ERROR MESSAGES
-         * -------------------------------------------------
-         */
-        $messages = [
-            'area_id.required' => 'Please select an area.',
-            'category_id.required' => 'Please select a category.',
-            'width.required' => 'Width is required.',
-            'height.required' => 'Height is required.',
-            'price.required' => 'Price is required.',
-            // 'vendor_name.required' => 'Vendor name is required.',
-            'vendor_id.required' => 'Please select a vendor',
-            // 'vendor_id.exists'   => 'Invalid vendor selected',
-            'images.max' => 'You can upload a maximum of 10 images.',
-            'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
-            'images.*.image' => 'Each file must be an image.',
-            'images.*.max' => 'Each image must be less than 1MB.',
-        ];
-
-        /**
-         * -------------------------------------------------
-         * STEP 5: VALIDATE REQUEST
-         * -------------------------------------------------
-         */
-        $request->validate($rules, $messages);
-
-        /**
-         * -------------------------------------------------
-         * STEP 6: SAVE DATA
-         * -------------------------------------------------
-         */
-        try {
-            $this->mediaService->store($request);
-
-            return redirect()
-                ->route('media.list')
-                ->with('success', 'Media added successfully');
-        } catch (\Exception $e) {
-            Log::error($e);
-            return back()->withInput()->with('error', 'Something went wrong');
-        }
-    }
-
-
-    public function edit($encodedId)
-    {
-        try {
-            $id = base64_decode($encodedId);
-
-            $media = DB::table('media_management')->where('id', $id)->first();
-
-            if (!$media) {
-                return redirect()->route('media.list')->with('error', 'Media not found');
-            }
-
-            $categories = Category::where('is_active', 1)->where('is_deleted', 0)->get();
-            $facings = FacingDirection::where('is_active', 1)->where('is_deleted', 0)->get();
-            $illuminations = Illumination::where('is_active', 1)->where('is_deleted', 0)->get();
-            // $radius = RadiusMaster::where('is_active', 1)
-            //     ->where('is_deleted', 0)
-            //     ->get();
-            $areas = DB::table('areas')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->get();
-
-            $vendors = Vendor::where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->orderBy('vendor_name')
-                ->get();
-
-            return view('superadm.mediamanagement.edit', compact(
-                'media',
-                'categories',
-                'facings',
-                'illuminations',
-                'encodedId',
-                'areas',
-                // 'radius',
-                'vendors'
-            ));
-        } catch (\Exception $e) {
-            return redirect()->route('media.list')->with('error', 'Invalid media ID');
-        }
-    }
-    public function update(Request $request, $encodedId)
-    {
-        $id = base64_decode($encodedId);
-
-        /**
-         * -------------------------------------------------
-         * STEP 1: Get category & normalize slug
-         * -------------------------------------------------
-         */
-        $category = Category::findOrFail($request->category_id);
-        $slug = Str::slug($category->slug ?? $category->category_name);
-
-        /**
-         * -------------------------------------------------
-         * STEP 2: COMMON VALIDATION
-         * -------------------------------------------------
-         */
-        $rules = [
-            'area_id'     => 'required|integer',
-            'category_id' => 'required|integer',
-
-            'width'       => 'required|numeric|min:0',
-            'height'      => 'required|numeric|min:0',
-
-            'latitude'    => 'required|numeric|between:-90,90',
-            'longitude'   => 'required|numeric|between:-180,180',
-
-            'price'       => 'required|numeric|min:0',
-            // 'vendor_name' => 'required|string|max:255',
-            'vendor_id' => 'required|integer|exists:vendors,id',
-        ];
-
-        /**
-         * -------------------------------------------------
-         * STEP 3: CATEGORY-WISE VALIDATION
-         * -------------------------------------------------
-         */
-        switch (true) {
-
-            case str_contains($slug, 'hoardings'):
-                $rules += [
-                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
-                    'media_title' => 'required|string|max:255',
-                    // 'facing_id' => 'required',
-                    'facing' => 'required',
-                    'illumination_id' => 'required',
-                    // 'radius_id' => 'required',
-                    // 'minimum_booking_days' => 'required|integer|min:1',
-                    'area_type' => 'required',
-                    'address' => 'required',
-                ];
-                break;
-
-            case str_contains($slug, 'mall'):
-                $rules += [
-                    'mall_name' => 'required|string|max:255',
-                    'media_format' => 'required|string',
-                ];
-                break;
-
-            case str_contains($slug, 'airport'):
-                $rules += [
-                    'airport_name' => 'required|string|max:255',
-                    'zone_type' => 'required|in:Arrival,Departure',
-                    'media_type' => 'required|string',
-                ];
-                break;
-
-            case str_contains($slug, 'transit'):
-                $rules += [
-                    'transit_type' => 'required|string',
-                    'branding_type' => 'required|string',
-                    'vehicle_count' => 'required|integer|min:1',
-                ];
-                break;
-
-            case str_contains($slug, 'office'):
-                $rules += [
-                    'building_name' => 'required|string|max:255',
-                    'wall_length' => 'required|string',
-                ];
-                break;
-
-            case str_contains($slug, 'wall'):
-                $rules += [
-                    'area_auto' => 'required|numeric|min:1',
-                ];
-                break;
-        }
-
-        /**
-         * -------------------------------------------------
-         * STEP 4: VALIDATE
-         * -------------------------------------------------
-         */
-        $request->validate($rules);
-
-        /**
-         * -------------------------------------------------
-         * STEP 5: UPDATE DATA
-         * -------------------------------------------------
-         */
-        try {
-            $this->mediaService->update($id, $request);
-
-            return redirect()
-                ->route('media.list')
-                ->with('success', 'Media updated successfully');
-        } catch (\Exception $e) {
-            Log::error($e);
-            return back()->withInput()->with('error', 'Update failed');
-        }
-    }
-
-    /* =========================
-   UPDATE STATUS
-========================== */
-    public function updateStatus(Request $request)
-    {
-        try {
-            $id = base64_decode($request->id);
-
-            $this->mediaService->toggleStatus($id);
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Status updated successfully'
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Status update failed'
-            ], 500);
-        }
-    }
-
-    /* =========================
-   DELETE (SOFT)
-========================== */
-    public function delete(Request $request)
-    {
-        try {
-            $id = base64_decode($request->id);
-
-            $this->mediaService->delete($id);
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Media deleted successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Delete failed'
-            ], 500);
-        }
-    }
-
-
-    /* =========================
-   AJAX : STATES
-========================== */
     public function getStates()
     {
         return response()->json(
@@ -690,10 +507,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-   AJAX : DISTRICTS
-========================== */
     public function getDistricts($stateId)
     {
         return response()->json(
@@ -706,10 +519,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-   AJAX : CITIES
-========================== */
     public function getCities($districtId)
     {
         return response()->json(
@@ -722,10 +531,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
-    /* =========================
-   AJAX : AREAS
-========================== */
     public function getAreas($cityId)
     {
         return response()->json(
@@ -738,7 +543,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-
     public function getNextMediaCode($vendorId)
     {
         $vendor = Vendor::where('id', $vendorId)

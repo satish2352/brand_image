@@ -93,13 +93,7 @@ class LoginController extends Controller
     }
     public function logOut(Request $req)
     {
-        $role = $req->session()->get('role'); // should now work
-        $req->session()->flush();
-
-        if ($role === 'admin') {
-            return redirect()->route('login'); // admin login page
-        } else {
-            return redirect()->route('emp.login'); // employee login page
-        }
+        $req->session()->flush();   // clear all session values
+        return redirect()->route('superadm.login'); // redirect to super admin login page
     }
 }

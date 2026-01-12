@@ -1,5 +1,5 @@
 <?php
-// app/Http/Controllers/Superadm/IlluminationController.php
+
 namespace App\Http\Controllers\Superadm;
 
 use App\Http\Controllers\Controller;
@@ -38,7 +38,7 @@ class IlluminationController extends Controller
         ], [
             'illumination_name.required' => 'Illumination name is required',
             'illumination_name.regex' =>
-                'Only letters, spaces and dash (-) are allowed'
+            'Only letters, spaces and dash (-) are allowed'
         ]);
 
         try {

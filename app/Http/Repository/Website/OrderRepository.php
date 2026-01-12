@@ -29,9 +29,6 @@ class OrderRepository
 
     public function createOrderItems($orderId, $items)
     {
-
-        // dd($items);
-        // die();
         foreach ($items as $item) {
             OrderItem::create([
                 'order_id' => $orderId,
