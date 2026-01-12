@@ -14,16 +14,28 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class RevenueExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
     protected Collection $data;
+    protected string $type;
 
-    public function __construct(Collection $data)
+    public function __construct(Collection $data, string $type)
     {
         $this->data = $data;
+        $this->type = $type;
     }
+
+    // public function collection()
+    // {
+    //     return $this->data->map(function ($row) {
+    //         return (array) $row;
+    //     });
+    // }
 
     public function collection()
     {
-        return $this->data->map(function ($row) {
-            return (array) $row;
+        return $this->data->values()->map(function ($row, $index) {
+            return array_merge(
+                ['sr_no' => $index + 1],
+                (array) $row
+            );
         });
     }
 
@@ -33,29 +45,50 @@ class RevenueExport implements FromCollection, WithHeadings, WithStyles, ShouldA
             return [];
         }
 
-        // Custom readable headings
-        $map = [
-            'period'         => 'Period',
-            'media_code'     => 'Media Code',
-            'category_name'  => 'Category',
-            'media_title'    => 'Media Title',
-            'state_name'     => 'State',
-            'district_name'  => 'District',
-            'city_name'      => 'City',
-            'area_name'      => 'Area',
-            'width'          => 'Width',
-            'height'         => 'Height',
-            'total_bookings' => 'Total Bookings',
-            'booked_days'    => 'Booked Days',
-            'total_revenue'  => 'Total Revenue (₹)',
+        if ($this->type === 'date') {
+            return [
+                'Sr. No',
+                'Period',
+                'Booking Type',
+                'Total Bookings',
+                'Amount (₹)',
+                'GST (₹)',
+                'Final Total (₹)',
+            ];
+        }
+
+        if ($this->type === 'media') {
+            return [
+                'Sr. No',
+                'Media Code',
+                'Category',
+                'Media Title',
+                'State',
+                'District',
+                'City',
+                'Area',
+                'Width',
+                'Height',
+                'Booking Type',
+                'Total Bookings',
+                'Booked Days',
+                'Amount (₹)',
+                'GST (₹)',
+                'Final Total (₹)',
+            ];
+        }
+
+        // USER-WISE
+        return [
+            'Sr. No',
+            'User Name',
+            'Booking Type',
+            'Total Bookings',
+            'Booked Days',
+            'Amount (₹)',
+            'GST (₹)',
+            'Final Total (₹)',
         ];
-
-        $firstRow = (array) $this->data->first();
-
-        return array_map(
-            fn ($key) => $map[$key] ?? ucfirst(str_replace('_', ' ', $key)),
-            array_keys($firstRow)
-        );
     }
 
     public function styles(Worksheet $sheet)

@@ -16,13 +16,8 @@
 
         {{-- TABS --}}
         <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <a class="nav-link {{ $type=='date' ? 'active' : '' }}"
-                href="{{ route('reports.revenue.index', ['report_type'=>'date']) }}">
-                    Month-wise
-                </a>
-            </li>
 
+            {{-- MEDIA --}}
             <li class="nav-item">
                 <a class="nav-link {{ $type=='media' ? 'active' : '' }}"
                 href="{{ route('reports.revenue.index', ['report_type'=>'media']) }}">
@@ -30,12 +25,22 @@
                 </a>
             </li>
 
+            {{-- USER --}}
             <li class="nav-item">
                 <a class="nav-link {{ $type=='user' ? 'active' : '' }}"
                 href="{{ route('reports.revenue.index', ['report_type'=>'user']) }}">
                     User-wise
                 </a>
             </li>
+
+            {{-- MONTH --}}
+            <li class="nav-item">
+                <a class="nav-link {{ $type=='date' ? 'active' : '' }}"
+                href="{{ route('reports.revenue.index', ['report_type'=>'date']) }}">
+                    Month-wise
+                </a>
+            </li>
+
         </ul>
 
         {{-- FILTERS --}}
@@ -70,13 +75,15 @@
                 </select>
             </div>
 
-            <div class="col-md-3">
-                <label class="form-label">Search</label>
-                <input type="text" name="search"
-                       value="{{ request('search') }}"
-                       class="form-control"
-                       placeholder="Search media / user">
-            </div>
+            @if($type !== 'date')
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search"
+                        value="{{ request('search') }}"
+                        class="form-control"
+                        placeholder="Search media / user">
+                </div>
+            @endif
 
             <div class="col-md-12 mt-3">
                 <button class="btn btn-primary">
@@ -127,7 +134,10 @@
                     @if($type === 'date')
                         <th>Period</th>
                         <th>Total Bookings</th>
-                        <th>Total Revenue (₹)</th>
+                        {{-- <th>Total Revenue (₹)</th> --}}
+                        <th>Amount (₹)</th>
+                        <th>GST (₹)</th>
+                        <th>Final Total (₹)</th>
 
                     @elseif($type === 'media')
                         <th>Media Code</th>
@@ -140,13 +150,19 @@
                         <th>Size (WxH)</th>
                         <th>Total Bookings</th>
                         <th>Booked Days</th>
-                        <th>Total Revenue (₹)</th>
+                        {{-- <th>Total Revenue (₹)</th> --}}
+                        <th>Amount (₹)</th>
+                        <th>GST (₹)</th>
+                        <th>Final Total (₹)</th>
 
                     @elseif($type === 'user')
                         <th>User Name</th>
                         <th>Total Bookings</th>
                         <th>Booked Days</th>
-                        <th>Total Revenue (₹)</th>
+                        {{-- <th>Total Revenue (₹)</th> --}}
+                        <th>Amount (₹)</th>
+                        <th>GST (₹)</th>
+                        <th>Final Total (₹)</th>
                     @endif
                 </tr>
                 </thead>
@@ -165,7 +181,10 @@
                                     <i class="mdi mdi-eye"></i> {{ $row->total_bookings }}
                                 </button>
                             </td>
-                            <td>₹ {{ number_format($row->total_revenue, 2) }}</td>
+                            {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
+                            <td>₹ {{ number_format($row->total_amount, 2) }}</td>
+                            <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
+                            <td><strong>₹ {{ number_format($row->grand_total, 2) }}</strong></td>
 
                         @elseif($type === 'media')
                             <td>{{ $row->media_code }}</td>
@@ -178,7 +197,10 @@
                             <td>{{ $row->width }} x {{ $row->height }}</td>
                             <td>{{ $row->total_bookings }}</td>
                             <td>{{ $row->booked_days }}</td>
-                            <td>₹ {{ number_format($row->total_revenue, 2) }}</td>
+                            {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
+                            <td>₹ {{ number_format($row->total_amount, 2) }}</td>
+                            <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
+                            <td><strong>₹ {{ number_format($row->grand_total, 2) }}</strong></td>
 
                         @elseif($type === 'user')
                             <td>{{ $row->user_name }}</td>
@@ -190,7 +212,10 @@
                                 </button>
                             </td>
                             <td>{{ $row->booked_days }}</td>
-                            <td>₹ {{ number_format($row->total_revenue, 2) }}</td>
+                            {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
+                            <td>₹ {{ number_format($row->total_amount, 2) }}</td>
+                            <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
+                            <td><strong>₹ {{ number_format($row->grand_total, 2) }}</strong></td>
                         @endif
                     </tr>
                 @empty
@@ -284,11 +309,14 @@ function openBookingModal(period) {
             <table class="table table-bordered table-striped">
                 <thead class="table-light">
                     <tr>
+                        <th>User Name</th>
                         <th>Media Code</th>
                         <th>Media Title</th>
                         <th>Category</th>
                         <th>Booked Days</th>
-                        <th>Revenue (₹)</th>
+                        <th>Amount (₹)</th>
+                        <th>GST Amount (₹)</th>
+                        <th>Final Total (₹)</th>
                     </tr>
                 </thead>
                 <tbody>`;
@@ -296,11 +324,14 @@ function openBookingModal(period) {
             rows.forEach(r => {
                 html += `
                 <tr>
+                    <td>${r.user_name}</td> 
                     <td>${r.media_code}</td>
                     <td>${r.media_title}</td>
                     <td>${r.category_name}</td>
                     <td>${r.booked_days}</td>
-                    <td>₹ ${parseFloat(r.price).toFixed(2)}</td>
+                    <td>₹ ${parseFloat(r.total_amount).toFixed(2)}</td>
+                    <td>₹ ${parseFloat(r.gst_amount).toFixed(2)}</td>
+                    <td><strong>₹ ${parseFloat(r.grand_total).toFixed(2)}</strong></td>
                 </tr>`;
             });
 
