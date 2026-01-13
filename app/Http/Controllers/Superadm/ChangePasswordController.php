@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Superadm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Hash;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 
 class ChangePasswordController extends Controller
@@ -47,10 +46,6 @@ class ChangePasswordController extends Controller
             $userId = Session::get('user_id');
             $loginRoute = 'login'; // admin login route
             $sessionKeys = ['user_id', 'role_id', 'role', 'email_id', 'department_id', 'projects_id'];
-        } elseif ($role === 'employee') {
-            $userId = Session::get('emp_user_id');
-            $loginRoute = 'emp.login'; // employee login route
-            $sessionKeys = ['emp_user_id', 'emp_role_id', 'emp_plant_id', 'emp_code', 'emp_financial_year_id', 'role'];
         } else {
             return redirect()->back()->with('error', 'Session not found.');
         }
