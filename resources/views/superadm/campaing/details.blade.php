@@ -118,6 +118,7 @@
                                 <th>Days</th>
                                 <th>Price</th>
                                 <th>Total</th>
+                                <th>Export</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -131,7 +132,24 @@
                                 <td>{{ $item->total_days }}</td>
                                 <td>{{ number_format($item->price,2) }}</td>
                                 <td>{{ number_format($item->total_price,2) }}</td>
-                                <td></td>
+                              
+                              <td>       <a href="{{ route('campaign.export.excel', base64_encode($campaignId)) }}"
+                                   class="btn btn-success btn-sm">
+                                    Export Excel
+                                </a>
+
+                                <a href="{{ route('campaign.export.ppt', base64_encode($campaignId)) }}"
+                                   class="btn btn-warning btn-sm">
+                                    Export PPT
+                                </a></td>
+                                <td>
+    @if($item->is_booked)
+        <span class="badge badge-danger">Booked</span>
+    @else
+        <span class="badge badge-success">Available</span>
+    @endif
+</td>
+
                                 <?php
                                 // dd( $item);
                                 ?>

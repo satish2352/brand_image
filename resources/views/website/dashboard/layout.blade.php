@@ -52,11 +52,11 @@
                 <h5 class="sidebar-title">My Dashboard</h5>
 
                 <ul class="sidebar-menu">
-                    <li class="{{ request()->routeIs('dashboard.home') ? 'active' : '' }}">
+                    {{-- <li class="{{ request()->routeIs('dashboard.home') ? 'active' : '' }}">
                         <a href="{{ route('dashboard.home') }}">
                             <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
-                    </li>
+                    </li> --}}
 
                     {{-- <li class="{{ request()->routeIs('campaign.list') ? 'active' : '' }}">
                         <a href="{{ route('campaign.list') }}">
@@ -93,11 +93,11 @@
                         </a>
                     </li>
 
-                    <li class="{{ request()->routeIs('dashboard.profile') ? 'active' : '' }}">
+                    {{-- <li class="{{ request()->routeIs('dashboard.profile') ? 'active' : '' }}">
                         <a href="{{ route('dashboard.profile') }}">
                             <i class="bi bi-person"></i> Update Details
                         </a>
-                    </li>
+                    </li> --}}
                 </ul>
             </div>
         </div>

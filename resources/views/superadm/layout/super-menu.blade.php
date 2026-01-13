@@ -56,6 +56,12 @@
             </a>
 
             <ul class="submenu">
+                <li class="nav-item {{ request()->is('city/list') || request()->is('city/add') || request()->is('city/edit/*') ? 'active' : '' }}">
+                    <a href="{{ route('city.list') }}">
+                        <i class="mdi mdi-domain"></i>
+                        <span>City</span>
+                    </a>
+                </li>
                 <li class="nav-item {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active' : '' }}">
             <a href="{{ route('area.list') }}">
                 <i class="mdi mdi-domain"></i>

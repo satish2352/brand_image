@@ -13,6 +13,7 @@
                     <th>User Name</th>
                     <th>Campaign Name</th>
                     <th>Date</th>
+                   
                      <th>Action</th>
                 </tr>
             </thead>
@@ -24,6 +25,8 @@
                     <td>{{ $row->user_name }}</td>
                     <td>{{ $row->campaign_name }}</td>
                     <td>{{ \Carbon\Carbon::parse($row->created_at)->format('d M Y') }}</td>
+                    
+
                     <td>
                         <a href="{{ route('admin.campaign.details', [
         'campaignId' => base64_encode($row->campaign_id),

@@ -15,6 +15,7 @@ use App\Http\Controllers\Superadm\VendorController;
 use App\Http\Controllers\Superadm\IlluminationController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
 use App\Http\Controllers\Superadm\AreaController;
+use App\Http\Controllers\Superadm\CityController;
 use App\Http\Controllers\Superadm\MediaManagementController;
 use App\Http\Controllers\Superadm\EmployeesController;
 use App\Http\Controllers\Superadm\ChangePasswordController;
@@ -80,6 +81,16 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('update/{encodedId}', [AreaController::class, 'update'])->name('area.update');
         Route::post('delete', [AreaController::class, 'delete'])->name('area.delete');
         Route::post('update-status', [AreaController::class, 'updateStatus'])->name('area.updatestatus');
+    });
+    /* CITY MANAGEMENT */
+    Route::prefix('city')->group(function () {
+        Route::get('list', [CityController::class, 'index'])->name('city.list');
+        Route::get('add', [CityController::class, 'create'])->name('city.create');
+        Route::post('add', [CityController::class, 'store'])->name('city.store');
+        Route::get('edit/{encodedId}', [CityController::class, 'edit'])->name('city.edit');
+        Route::post('update/{encodedId}', [CityController::class, 'update'])->name('city.update');
+        Route::post('delete', [CityController::class, 'delete'])->name('city.delete');
+        Route::post('update-status', [CityController::class, 'updateStatus'])->name('city.updatestatus');
     });
 
     /* AREA AJAX DROPDOWNS */
