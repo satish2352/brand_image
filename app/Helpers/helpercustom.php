@@ -52,6 +52,8 @@ function haversineKm($lat1, $lon1, $lat2, $lon2)
     $lat2 = deg2rad($lat2);
 
     $a = sin($dLat / 2) ** 2 + cos($lat1) * cos($lat2) * sin($dLon / 2) ** 2;
+
+
     return $earth * 2 * asin(sqrt($a));
 }
 if (!function_exists('formatAmountShort')) {
