@@ -25,7 +25,7 @@
         {{-- ================= SIDEBAR ================= --}}
         <div class="col-lg-3">
             <div class="dashboard-sidebar">
-                <h5 class="sidebar-title">My Dashboard</h5>
+                {{-- <h5 class="sidebar-title">My Dashboard</h5> --}}
 
                 <ul class="sidebar-menu" id="dashboardMenu">
                     <li>
@@ -42,12 +42,12 @@
                         </a>
                     </li>
 
-                    <li>
+                    {{-- <li>
                         <a href="#profile" data-menu="profile">
                             <i class="bi bi-person"></i>
                             Update Details
                         </a>
-                    </li>
+                    </li> --}}
                 </ul>
             </div>
         </div>
