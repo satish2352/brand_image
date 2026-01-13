@@ -120,6 +120,10 @@ class CampaignController extends Controller
     }
     public function exportPpt($campaignId)
     {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
         $campaignId = base64_decode($campaignId);
 
         /* ================= CAMPAIGN ================= */
@@ -231,11 +235,25 @@ class CampaignController extends Controller
             $gap = 10; // Space between images
             $maxWidth = 420; // Keep images IN left column
 
+            $hasValidImage = false;
+
             if (!empty($images)) {
                 foreach ($images as $img) {
+
                     $path = public_path('storage/upload/images/media/' . trim($img));
 
-                    if (file_exists($path)) {
+                    // 🔐 HARD SAFETY CHECKS
+                    if (
+                        empty($img) ||
+                        !file_exists($path) ||
+                        !is_readable($path) ||
+                        filesize($path) === 0 ||
+                        filesize($path) > (3 * 1024 * 1024) // 3MB limit
+                    ) {
+                        continue;
+                    }
+
+                    try {
                         $slide->createDrawingShape()
                             ->setPath($path)
                             ->setWidth($w)
@@ -243,13 +261,18 @@ class CampaignController extends Controller
                             ->setOffsetX($x)
                             ->setOffsetY($y);
 
+                        $hasValidImage = true;
+
                         $x += $w + $gap;
 
-                        // Wrap row
                         if ($x > $maxWidth) {
                             $x = 40;
                             $y += $h + $gap;
                         }
+
+                    } catch (\Throwable $e) {
+                        // image corrupt असेल तरी PPT break होणार नाही
+                        continue;
                     }
                 }
             } else {
@@ -305,8 +328,20 @@ class CampaignController extends Controller
 
         $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
 
+        // return response()->streamDownload(function () use ($writer) {
+        //     $writer->save('php://output');
+        // }, $fileName);
         return response()->streamDownload(function () use ($writer) {
+
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+
             $writer->save('php://output');
-        }, $fileName);
+
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'Cache-Control' => 'no-store, no-cache',
+        ]);
     }
 }

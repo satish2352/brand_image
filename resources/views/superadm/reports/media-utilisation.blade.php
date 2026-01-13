@@ -85,7 +85,7 @@
                     </div>
 
                     {{-- Category --}}
-                    <div class="col-md-2">
+                    {{-- <div class="col-md-2">
                         <label class="form-label mb-1">Category</label>
                         <select name="category_id" class="form-control">
                             <option value="">All Categories</option>
@@ -96,7 +96,7 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
+                    </div> --}}
 
                     {{-- Search --}}
                     <div class="col-md-4 mt-2">
@@ -109,7 +109,7 @@
                     </div>
 
                     {{-- Buttons --}}
-                    <div class="col-md-12 mt-3">
+                    <div class="col-md-8" style="margin-top: 2rem">
                         <button class="btn btn-primary">
                             <i class="mdi mdi-filter"></i> Apply
                         </button>
