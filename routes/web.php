@@ -140,8 +140,11 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::prefix('admin-campaing')->group(function () {
         Route::get('list', [CampaingController::class, 'index'])->name('admin-campaing.list');
         Route::post('delete', [CampaingController::class, 'delete'])->name('admin-campaing.delete');
-        Route::get('/details/{campaignId}', [CampaingController::class, 'details'])
+        Route::get('/details/{campaignId}/{userId}', [CampaingController::class, 'details'])
             ->name('admin.campaign.details');
+
+        Route::post('admin-campaing/book', [CampaingController::class, 'book'])
+            ->name('admin.campaign.book');
     });
     // Radius Master
     Route::get('radius/list', [RadiusController::class, 'index'])->name('radius.list');
