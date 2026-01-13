@@ -93,7 +93,21 @@ class CheckoutController extends Controller
         // Notify all admins
         $admins = User::where('id', 1)->get();
         foreach ($admins as $admin) {
-            $admin->notify(new OrderPlacedNotification($order));
+            // $admin->notify(new OrderPlacedNotification($order));
+            // \App\Models\Notification::create([
+            //     'user_id'  => $admin->id,
+            //     'order_id' => $order->id,
+            //     'media_id' => null, // use when needed
+            // ]);
+            foreach ($items as $item) {
+
+                \App\Models\Notification::create([
+                    'user_id'  => $admin->id, // Admin who reads
+                    'order_id' => $order->id,
+                    'media_id' => $item->media_id,
+                    'is_read'  => 0,
+                ]);
+            }
         }
 
         session(['order_id' => $order->id]);
@@ -224,7 +238,13 @@ class CheckoutController extends Controller
         //  Notify admins payment done
         $admins = User::where('id', 1)->get();
         foreach ($admins as $admin) {
-            $admin->notify(new PaymentReceivedNotification($order));
+            // $admin->notify(new PaymentReceivedNotification($order));
+            \App\Models\Notification::create([
+                'user_id'  => $admin->id,
+                'order_id' => $order->id,
+                'media_id' => null,   // payment -> no media
+                'is_read'  => 0,      // important
+            ]);
         }
 
         //  Clear NORMAL cart items (VERY IMPORTANT)
@@ -282,7 +302,7 @@ class CheckoutController extends Controller
             'razorpay_order_id'
         ]);
 
-        return view('website.payment-success');
+        return view('website.dashboard');
     }
 
 

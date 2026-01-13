@@ -11,13 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Schema::create('notifications', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->string('type');
+        //     $table->morphs('notifiable');
+        //     $table->text('data');
+        //     $table->timestamp('read_at')->nullable();
+        //     $table->timestamps();
+        // });
         Schema::create('notifications', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('type');
-            $table->morphs('notifiable');
-            $table->text('data');
-            $table->timestamp('read_at')->nullable();
-            $table->timestamps();
+
+            $table->unsignedBigInteger('media_id')->nullable();
+            $table->unsignedBigInteger('user_id')->notNull();
+            $table->unsignedBigInteger('order_id')->notNull();
+
+            $table->boolean('is_read')->default(0);   // 0 = unread, 1 = read
+
+            $table->timestamps();  // created_at & updated_at
         });
     }
 

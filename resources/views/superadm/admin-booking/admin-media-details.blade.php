@@ -249,7 +249,7 @@
                 <div class="row small">
                     <div class="col-6 mb-2"><strong>Category:</strong> {{ $media->category_name }}</div>
                     <div class="col-6 mb-2"><strong>Media Code:</strong> {{ $media->media_code }}</div>
-                    <div class="col-6 mb-2"><strong>Facing:</strong> {{ $media->facing_name }}</div>
+                    <div class="col-6 mb-2"><strong>Facing:</strong> {{ $media->facing }}</div>
                     <div class="col-6 mb-2"><strong>Area Type:</strong> {{ $media->area_type }}</div>
                     <div class="col-6 mb-2"><strong>Illumination:</strong> {{ $media->illumination_name }}</div>
 

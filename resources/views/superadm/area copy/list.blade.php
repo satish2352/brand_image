@@ -8,9 +8,9 @@
 
                 {{-- HEADER --}}
                 <div class="d-flex justify-content-between mb-3">
-                    <h4>Area List</h4>
-                    <a href="{{ route('area.create') }}" class="btn btn-add">
-                        Add Area
+                    <h4>City List</h4>
+                    <a href="{{ route('city.create') }}" class="btn btn-add">
+                        Add City
                     </a>
                 </div>
 
@@ -35,77 +35,57 @@
                                 <th>Sr.No.</th>
                                 <th>State</th>
                                 <th>District</th>
-                                <th>City</th>
-                                <th>Area Name</th>
+                                <th>City Name</th>
                                 <th>Latitude</th>
                                 <th>Longitude</th>
                                 <th>Status</th>
-                                 <th>Action</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @forelse ($areas as $key => $area)
+                            @forelse ($cities as $key => $city)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $area->state_name }}</td>
-                                    <td>{{ $area->district_name }}</td>
-                                    <td>{{ $area->city_name }}</td>
-                                    <td>{{ $area->area_name }}</td>
-                                     <td>{{ $area->latitude }}</td>
-                                      <td>{{ $area->longitude }}</td>
+                                    <td>{{ $city->state_name }}</td>
+                                    <td>{{ $city->district_name }}</td>
+                                    <td>{{ $city->city_name }}</td>
+                                     <td>{{ $city->latitude }}</td>
+                                      <td>{{ $city->longitude }}</td>
                                      <td>
-                                            <form action="{{ route('area.updatestatus') }}" method="POST"
+                                            <form action="{{ route('city.updatestatus') }}" method="POST"
                                                 class="d-inline-block delete-form">
                                                 @csrf
                                                 <label class="switch">
                                                     <input type="checkbox" class="toggle-status"
-                                                        data-id="{{ base64_encode($area->id) }}"
-                                                        {{ $area->is_active == '1' ? 'checked' : '' }}>
+                                                        data-id="{{ base64_encode($city->id) }}"
+                                                        {{ $city->is_active == '1' ? 'checked' : '' }}>
                                                     <span class="slider"></span>
                                                 </label>
 
                                                 <input type="hidden" name="id"
-                                                    value="{{ base64_encode($area->id) }}">
+                                                    value="{{ base64_encode($city->id) }}">
                                             </form>
                                         </td>
                                         <td class="d-flex">
-    <a href="{{ route('area.edit', base64_encode($area->id)) }}"
+    <a href="{{ route('city.edit', base64_encode($city->id)) }}"
        class="btn btn-sm btn-primary mr-2">
         <i class="mdi mdi-square-edit-outline"></i>
     </a>
 
     <button type="button"
             class="btn btn-sm btn-danger delete-btn"
-            data-id="{{ base64_encode($area->id) }}">
+            data-id="{{ base64_encode($city->id) }}">
         <i class="mdi mdi-trash-can-outline"></i>
     </button>
 </td>
 
-                                          {{-- <td class="d-flex">
-                                            <a href="{{ route('area.edit', base64_encode($area->id)) }}" 
-                                            class="btn btn-sm btn-primary mr-2" 
-                                            data-bs-toggle="tooltip" 
-                                            data-bs-placement="top" 
-                                            title="Edit">
-                                            <i class="mdi mdi-square-edit-outline icon-medium"></i>
-                                            </a>
-                                            <form action="{{ route('area.delete') }}" method="POST" class="d-inline-block delete-form">
-                                                @csrf
-                                                <input type="hidden" name="id" value="{{ base64_encode($area->id) }}">
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn" 
-                                                        data-bs-toggle="tooltip" 
-                                                        data-bs-placement="top" 
-                                                        title="Delete">
-                                                    <i class="mdi mdi-trash-can-outline icon-medium"></i>
-                                                </button>
-                                            </form>
-                                        </td> --}}
+                                       
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="6" class="text-center">
-                                        No areas found
+                                        No cities found
                                     </td>
                                 </tr>
                             @endforelse
@@ -124,7 +104,7 @@ $('.toggle-status').change(function () {
 
     let id = $(this).data('id');
 
-    $.post("{{ route('area.updatestatus') }}", {
+    $.post("{{ route('city.updatestatus') }}", {
         _token: "{{ csrf_token() }}",
         id: id
     }, function (response) {
@@ -140,9 +120,9 @@ $('.delete-btn').click(function () {
 
     let id = $(this).data('id');
 
-    if (!confirm('Are you sure you want to delete this area?')) return;
+    if (!confirm('Are you sure you want to delete this city?')) return;
 
-    $.post("{{ route('area.delete') }}", {
+    $.post("{{ route('city.delete') }}", {
         _token: "{{ csrf_token() }}",
         id: id
     }, function (response) {

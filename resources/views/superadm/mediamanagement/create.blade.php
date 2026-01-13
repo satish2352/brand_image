@@ -498,7 +498,15 @@
 
     <div id="imagePreview" class="d-flex flex-wrap mt-2"></div>
 </div>
-
+  <div class="col-md-3 mb-3">
+                    <label>360 View Link </label>
+                    <input type="text" name="video_link"
+                           value="{{ old('video_link') }}"
+                           class="form-control @error('video_link') is-invalid @enderror">
+                    @error('video_link')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
 
             </div>

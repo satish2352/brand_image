@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('cities', function (Blueprint $table) {
             $table->bigIncrements('id');
+            // Add this line (missing earlier)
+            $table->foreignId('state_id')->constrained('states')->onDelete('cascade');
             $table->foreignId('district_id')->constrained('districts')->onDelete('cascade');
             $table->string('city_name');
             $table->decimal('latitude', 10, 7)->nullable();

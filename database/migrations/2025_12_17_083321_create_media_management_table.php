@@ -45,6 +45,7 @@ return new class extends Migration
             $table->string('building_name')->nullable();
             $table->string('wall_length')->nullable();
             $table->string('area_auto')->nullable();
+            $table->string('video_link')->nullable();
             $table->tinyInteger('is_active')->default(1);
             $table->tinyInteger('is_deleted')->default(0);
             $table->timestamps();

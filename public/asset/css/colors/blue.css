@@ -153,9 +153,9 @@ File: scss
 /*Topi bar  
 *******************/
 .topbar {
-  background: #952419; }
+  background: #008f97; }
   .topbar .top-navbar .navbar-header {
-    background: #952419; }
+    background: #008f97; }
   .topbar .top-navbar .navbar-header .navbar-brand .dark-logo {
     display: none; }
   .topbar .top-navbar .navbar-header .navbar-brand .light-logo {
@@ -228,13 +228,13 @@ a.link:hover, a.link:focus {
   .sidebar-nav ul li a {
     color: #607d8b; }
     .sidebar-nav ul li a.active, .sidebar-nav ul li a:hover {
-      color: #952419; }
+      color: #008f97; }
     .sidebar-nav ul li a.active {
       color: #212529; }
   .sidebar-nav ul li.nav-small-cap {
     color: #99abb4; }
   .sidebar-nav > ul > li > a.active i, .sidebar-nav > ul > li > a:hover i {
-    color: #952419; }
+    color: #008f97; }
   .sidebar-nav > ul > li > a i {
     color: #99abb4; }
   .sidebar-nav > ul > li > a.active {
@@ -243,7 +243,7 @@ a.link:hover, a.link:focus {
     color: #c74434; }
   .sidebar-nav > ul > li.active > a, .sidebar-nav > ul > li.active:hover > a {
     color: #fff;
-    background: #952419 !important; }
+    background: #008f97 !important; }
     .sidebar-nav > ul > li.active > a i, .sidebar-nav > ul > li.active:hover > a i {
       color: #fff; }
     .sidebar-nav > ul > li.active > a:after, .sidebar-nav > ul > li.active:hover > a:after {

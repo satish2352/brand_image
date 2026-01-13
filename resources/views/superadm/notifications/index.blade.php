@@ -1,66 +1,36 @@
-<style>
-.notification-item {
-    border-bottom: 1px solid #eee;
-    padding: 10px 15px;
-    cursor: pointer;
-}
-.notification-item:last-child {
-    border-bottom: none;
-}
-.notification-item:hover {
-    background-color: #f8f9fa;
-}
-.notification-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
-}
-.notification-time {
-    font-size: 12px;
-    color: #888;
-}
-</style>
-
 @if($notifications->count() == 0)
-    <p class="text-muted text-center p-3 mb-0">No notifications</p>
+    <p class="text-muted text-center">No new notifications 🎉</p>
 @else
-    @foreach($notifications as $notify)
-        <div class="notification-item d-block text-dark"
-             data-id="{{ $notify->id }}"
-             data-url="{{ route('admin.notifications.read', $notify->id) }}"
-             style="cursor:pointer;">
-            <div class="notification-title">
-                {{ $notify->data['message'] ?? 'Notification' }}
-            </div>
-            <div class="notification-time">
-                {{ $notify->created_at->diffForHumans() }}
-            </div>
-        </div>
-    @endforeach
+    <ul style="padding-left:20px; list-style:disc;">
+        @foreach($notifications as $noti)
+            @php
+                $firstItem = $noti->order?->items?->first();
+            @endphp
+
+            <li class="mb-3 border-bottom pb-2">
+                <a href="{{ route('admin.notifications.read', $noti->id) }}" style="text-decoration:none;color:inherit;">
+                    <strong>
+                        {{ $noti->order?->customer?->name ?? 'Unknown User' }}
+
+                        @if($noti->media_id)
+                            booked {{ $noti->media?->media_title ?? 'N/A' }}
+                        @else
+                            completed payment for order {{ $noti->order?->order_no }}
+                        @endif
+                    </strong>
+                    <br>
+
+                    @if($noti->media_id)
+                        From {{ \Carbon\Carbon::parse($firstItem?->from_date)->format('d M Y') ?? '-' }}
+                        To {{ \Carbon\Carbon::parse($firstItem?->to_date)->format('d M Y') ?? '-' }}
+                        <br>
+                    @endif
+
+                    <small class="text-muted">
+                        {{ $noti->created_at->diffForHumans() }}
+                    </small>
+                </a>
+            </li>
+        @endforeach
+    </ul>
 @endif
-<script>
-$(document).on('click', '.notification-item', function() {
-    let id = $(this).data('id');
-    let redirectUrl = $(this).data('url');
-    let item = $(this);
-
-    // Remove it visually
-    item.fadeOut(300, function() {
-        $(this).remove();
-    });
-
-    // Update badge count
-    let badge = $('.fa-bell').siblings('.badge');
-    let count = parseInt(badge.text()) - 1;
-    if (count <= 0) {
-        badge.remove();
-    } else {
-        badge.text(count);
-    }
-
-    // Redirect after a tiny delay
-    setTimeout(() => window.location.href = redirectUrl, 350);
-});
-</script>
-
-
