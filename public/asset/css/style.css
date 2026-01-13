@@ -2158,8 +2158,8 @@ fieldset:disabled a.btn {
       box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125), 0 0 0 0.2rem rgba(64, 154, 233, 0.5); }
 
 .btn-add{
-  background-color: #952419 !important;
-  border-color: #952419 !important;
+  background-color: #008f97 !important;
+  border-color: #008f97 !important;
   color: #fff !important;
 }
 
@@ -5733,7 +5733,7 @@ button.bg-success:focus {
   background-color: #1a99aa !important; }
 
 .bg-dashboard-info {
-  background-color: #952419 !important; }
+  background-color: #008f97 !important; }
 
   a.bg-dashboard-info:hover, a.bg-dashboard-info:focus,
 button.bg-dashboard-info:hover,

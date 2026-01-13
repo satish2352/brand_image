@@ -79,7 +79,7 @@
 
                             <div class="row">
                                 <div class="col-sm-6 login-bg d-none d-sm-block">
-    <img src="{{ asset('asset/theamoriginalalf/images/loginbg.png') }}" alt="Login Image">
+    <img src="{{ asset('asset/theamoriginalalf/images/loginbg.jpeg') }}" alt="Login Image">
 </div>
 
 
