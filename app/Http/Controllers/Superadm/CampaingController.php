@@ -45,96 +45,6 @@ class CampaingController extends Controller
 		return view('superadm.campaing.details', compact('campaigns'));
 	}
 
-	// public function book(Request $request)
-	// {
-	// 	$campaignId = $request->campaign_id;
-	// 	$mediaId = $request->media_id;
-	// 	$from = $request->from_date;
-	// 	$to = $request->to_date;
-	// 	// $price = $request->price;
-	// 	// $qty = 1;
-
-	// 	// Calculate days
-	// 	// $days = Carbon::parse($from)->diffInDays(Carbon::parse($to)) + 1;
-	// 	// $total = $days * $price;
-	// 	$price = $request->price;
-	// 	$days = $request->total_days;
-	// 	$total = $request->total_price;
-
-
-	// 	// 1️⃣ Check overlap
-	// 	$exists = DB::table('media_booked_date')
-	// 		->where('media_id', $mediaId)
-	// 		->where('is_deleted', 0)
-	// 		->where(function ($query) use ($from, $to) {
-	// 			$query->whereBetween('from_date', [$from, $to])
-	// 				->orWhereBetween('to_date', [$from, $to])
-	// 				->orWhereRaw("'$from' BETWEEN from_date AND to_date")
-	// 				->orWhereRaw("'$to' BETWEEN from_date AND to_date");
-	// 		})
-	// 		->exists();
-
-	// 	if ($exists) {
-	// 		return back()->with('error', '⚠ Already booked in these dates!');
-	// 	}
-
-	// 	// 2️⃣ Update / Insert media_booked_date
-	// 	$last = DB::table('media_booked_date')
-	// 		->where('media_id', $mediaId)
-	// 		->where('is_deleted', 0)
-	// 		->orderByDesc('id')
-	// 		->first();
-
-	// 	if ($last) {
-	// 		DB::table('media_booked_date')
-	// 			->where('id', $last->id)
-	// 			->update([
-	// 				'to_date' => $to,
-	// 				'updated_at' => now(),
-	// 			]);
-	// 	} else {
-	// 		DB::table('media_booked_date')->insert([
-	// 			// 'campaign_id' => $campaignId,
-	// 			'media_id'    => $mediaId,
-	// 			'from_date'   => $from,
-	// 			'to_date'     => $to,
-	// 			'is_active'   => 1,
-	// 			'is_deleted'  => 0,
-	// 			'created_at'  => now(),
-	// 		]);
-	// 	}
-
-	// 	// 3️⃣ Create Order
-	// 	$orderId = DB::table('orders')->insertGetId([
-	// 		'user_id' => $request->user_id ?? auth()->id(), // Better if you pass correct user
-	// 		'order_no' => 'ORD-' . time(),
-	// 		'total_amount' => $total,
-	// 		'gst_amount' => 0,
-	// 		'grand_total' => $total,
-	// 		'payment_status' => 'ADMIN_BOOKED',
-	// 		'is_active' => 1,
-	// 		'is_deleted' => 0,
-	// 		'created_at' => now()
-	// 	]);
-
-	// 	// 4️⃣ Insert order item
-	// 	DB::table('order_items')->insert([
-	// 		'order_id' => $orderId,
-	// 		'media_id' => $mediaId,
-	// 		'price' => $price,
-	// 		'qty' => $qty,
-	// 		'from_date' => $from,
-	// 		'to_date' => $to,
-	// 		'total_days' => $days,
-	// 		'total_price' => $total,
-	// 		'is_active' => 1,
-	// 		'is_deleted' => 0,
-	// 		'created_at' => now()
-	// 	]);
-
-	// 	return back()->with('success', '🎉 Booking Done & Order Created!');
-	// }
-
 	public function book(Request $request)
 	{
 		$campaignId = $request->campaign_id;
@@ -200,7 +110,7 @@ class CampaingController extends Controller
 
 		/** 3️⃣ Create Order **/
 		$orderId = DB::table('orders')->insertGetId([
-			'user_id'        => $request->user_id ?? auth()->id(),
+			'user_id'        => $request->user_id,
 			'order_no'       => 'ORD-' . time(),
 			'total_amount'   => $totalAmount,
 			'gst_amount'     => $gstAmount,

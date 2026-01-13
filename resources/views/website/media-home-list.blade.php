@@ -4,6 +4,9 @@
 @php
     $isBillboard = ((int) $media->category_id === 1);
     $isBooked = (int) ($media->is_booked ?? 0);
+    $width  = (float) ($media->width ?? 0);
+    $height = (float) ($media->height ?? 0);
+    $sqft   = $width * $height;
 @endphp
 <div class="col-lg-4 col-md-6 mb-5">
     <div class="single-latest-news">
@@ -28,7 +31,15 @@
                 <i class="fas fa-map-marker-alt"></i>
                 {{ $media->area_name }}, {{ $media->city_name }}
             </p>
+            <div class="col-6 mb-2">
+                <strong>Size:</strong>
+                {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
 
+            </div>
+ <div class="col-6 mb-2">
+                <strong>Total Area:</strong>
+                {{ number_format($sqft, 2) }} SQFT
+            </div>
             <div class="media-price">
                 ₹ {{ number_format($media->price, 2) }}
             </div>
