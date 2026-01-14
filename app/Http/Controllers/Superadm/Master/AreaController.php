@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Superadm;
+namespace App\Http\Controllers\Superadm\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Services\Superadm\AreaService;
+use App\Http\Services\Superadm\Master\AreaService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;

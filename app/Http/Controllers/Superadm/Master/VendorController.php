@@ -1,10 +1,10 @@
 <?php
 
 // app/Http/Controllers/Superadm/VendorController.php
-namespace App\Http\Controllers\Superadm;
+namespace App\Http\Controllers\Superadm\Master;
 
 use App\Http\Controllers\Controller;
-use App\Http\Services\Superadm\VendorService;
+use App\Http\Services\Superadm\Master\VendorService;
 use Illuminate\Http\Request;
 use Exception;
 use Maatwebsite\Excel\Facades\Excel;

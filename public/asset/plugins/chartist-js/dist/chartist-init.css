@@ -17,7 +17,7 @@
 .ct-svg-chart .ct-series-a .ct-line,
 .user-analytics .ct-series-a .ct-line,
 .user-analytics .ct-series-a .ct-point{
-    stroke: #c74434;
+    stroke: #008f97
 }
 
 .ct-sm-line-chart .ct-series-b .ct-line,
@@ -56,7 +56,7 @@
 
 .ct-area-ln-chart .ct-series-a .ct-area,
 .ct-svg-chart .ct-series-a .ct-area {
-    fill: #c74434;
+    fill: #008f97
 }
 .user-analytics .ct-series-a .ct-area{
     fill:none;

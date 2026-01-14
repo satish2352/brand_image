@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Superadm;
+namespace App\Http\Controllers\Superadm\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Services\Superadm\CityService;
+use App\Http\Services\Superadm\Master\CityService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 

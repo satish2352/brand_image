@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Repository\Superadm;
+namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\City;
 use Illuminate\Support\Facades\DB;
