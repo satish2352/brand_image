@@ -24,6 +24,7 @@
                                     <th>Mobile</th>
                                     <th>Organization</th>
                                     <th>GST</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

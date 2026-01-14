@@ -214,7 +214,7 @@
 
     {{-- ================= MEDIA DETAILS ================= --}}
     <div class="mt-150 mb-150">
-        <div class="container">
+        <div class="container-fluid">
 
             <div class="card shadow-sm border-0 p-4">
 
@@ -287,9 +287,10 @@
 
 
                         {{-- CALENDAR --}}
+                        <form id="bookingForm" method="POST" action="{{ route('admin.booking.store') }}">
 
 
-                        <form method="POST" action="{{ route('admin.booking.store') }}">
+                            {{-- <form method="POST" action="{{ route('admin.booking.store') }}"> --}}
                             @csrf
                             <input type="hidden" name="media_id" value="{{ base64_encode($media->id) }}">
                             <input type="hidden" name="from_date" id="from_date">
@@ -439,7 +440,7 @@
                 dateFormat: "Y-m-d",
                 inline: true,
                 static: true,
-
+                showMonths: 2,
                 //  Disable booked dates
                 disable: bookedRanges.map(r => ({
                     from: r.from_date,
@@ -456,7 +457,6 @@
                         }
                     });
                 },
-
                 onChange: function(selectedDates) {
 
                     addBtn.disabled = true;
@@ -467,25 +467,57 @@
                     const start = selectedDates[0];
                     const end = selectedDates[1];
 
-                    const diffDays =
-                        Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                    // Calculate difference days
+                    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
                     if (diffDays < MIN_DAYS) {
                         errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
                         errorBox.classList.remove('d-none');
+
+                        document.getElementById('totalDays').innerText = 0;
+                        document.getElementById('baseAmount').innerText = "0.00";
+                        document.getElementById('gstAmount').innerText = "0.00";
+                        document.getElementById('grandTotal').innerText = "0.00";
+
+                        document.getElementById('total_amount').value = "";
+                        document.getElementById('gst_amount').value = "";
+                        document.getElementById('grand_total').value = "";
+                        fromInput.value = "";
+                        toInput.value = "";
+
+                        addBtn.disabled = true;
                         return;
                     }
 
-                    const baseAmount = diffDays * pricePerDay;
-                    const gstAmount = +(baseAmount * 0.18).toFixed(2);
-                    const grandTotal = +(baseAmount + gstAmount).toFixed(2);
+                    // ===========================
+                    // MONTH WISE BILLING START
+                    // ===========================
+                    const monthlyPrice = {{ (float) $media->price }};
+
+                    let totalAmount = 0;
+                    let cursor = new Date(start);
+
+                    while (cursor <= end) {
+                        const year = cursor.getFullYear();
+                        const month = cursor.getMonth(); // 0 index
+
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        const perDayPrice = monthlyPrice / daysInMonth;
+
+                        totalAmount += perDayPrice;
+
+                        cursor.setDate(cursor.getDate() + 1);
+                    }
+
+                    const gstAmount = +(totalAmount * 0.18).toFixed(2);
+                    const grandTotal = +(totalAmount + gstAmount).toFixed(2);
 
                     document.getElementById('totalDays').innerText = diffDays;
-                    document.getElementById('baseAmount').innerText = baseAmount.toFixed(2);
+                    document.getElementById('baseAmount').innerText = totalAmount.toFixed(2);
                     document.getElementById('gstAmount').innerText = gstAmount.toFixed(2);
                     document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
 
-                    document.getElementById('total_amount').value = baseAmount.toFixed(2);
+                    document.getElementById('total_amount').value = totalAmount.toFixed(2);
                     document.getElementById('gst_amount').value = gstAmount.toFixed(2);
                     document.getElementById('grand_total').value = grandTotal.toFixed(2);
 
@@ -494,6 +526,66 @@
 
                     addBtn.disabled = false;
                 }
+
+                // onChange: function(selectedDates) {
+
+                //     addBtn.disabled = true;
+                //     errorBox.classList.add('d-none');
+
+                //     if (selectedDates.length !== 2) return;
+
+                //     const start = selectedDates[0];
+                //     const end = selectedDates[1];
+
+                //     const diffDays =
+                //         Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+                //     // if (diffDays < MIN_DAYS) {
+                //     //     errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
+                //     //     errorBox.classList.remove('d-none');
+                //     //     return;
+                //     // }
+                //     if (diffDays < MIN_DAYS) {
+                //         errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
+                //         errorBox.classList.remove('d-none');
+
+                //         // Reset UI values
+                //         document.getElementById('totalDays').innerText = 0;
+                //         document.getElementById('baseAmount').innerText = "0.00";
+                //         document.getElementById('gstAmount').innerText = "0.00";
+                //         document.getElementById('grandTotal').innerText = "0.00";
+
+                //         // Reset hidden fields
+                //         document.getElementById('total_amount').value = "";
+                //         document.getElementById('gst_amount').value = "";
+                //         document.getElementById('grand_total').value = "";
+                //         fromInput.value = "";
+                //         toInput.value = "";
+
+                //         // Disable button
+                //         addBtn.disabled = true;
+
+                //         return;
+                //     }
+
+                //     const baseAmount = diffDays * pricePerDay;
+                //     const gstAmount = +(baseAmount * 0.18).toFixed(2);
+                //     const grandTotal = +(baseAmount + gstAmount).toFixed(2);
+
+                //     document.getElementById('totalDays').innerText = diffDays;
+                //     document.getElementById('baseAmount').innerText = baseAmount.toFixed(2);
+                //     document.getElementById('gstAmount').innerText = gstAmount.toFixed(2);
+                //     document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
+
+                //     document.getElementById('total_amount').value = baseAmount.toFixed(2);
+                //     document.getElementById('gst_amount').value = gstAmount.toFixed(2);
+                //     document.getElementById('grand_total').value = grandTotal.toFixed(2);
+
+                //     fromInput.value = flatpickr.formatDate(start, "Y-m-d");
+                //     toInput.value = flatpickr.formatDate(end, "Y-m-d");
+
+                //     addBtn.disabled = false;
+                // }
             });
         });
     </script>
@@ -525,5 +617,25 @@
         </script>
     @endif
 
+    </script>
+    <script>
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // stop normal submit
+
+            Swal.fire({
+                title: "Confirm Booking?",
+                text: "Do you want to book this media for selected dates?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: "Yes, Book Now",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    e.target.submit(); // SUBMIT if user confirms 🚀
+                }
+            });
+        });
     </script>
 @endsection

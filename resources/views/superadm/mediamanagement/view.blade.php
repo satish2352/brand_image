@@ -5,56 +5,105 @@
         <div class="card-body">
 
             <h4 class="mb-4">Media Images</h4>
+
             @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
+                <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            {{-- ================= ADD IMAGE FORM ================= --}}
-            <form id="imageUploadForm" enctype="multipart/form-data" class="mb-4">
+            {{-- ================= ADD MEDIA FORM ================= --}}
+            {{-- <form id="imageUploadForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="media_id" value="{{ $media->id }}">
 
-                <div class="row align-items-center">
+                <div class="row mb-3">
                     <div class="col-md-6">
+                        <label class="form-label fw-semibold">Upload Images</label>
                         <input type="file" name="images[]" multiple class="form-control" accept="image/*">
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-6 d-flex align-items-end gap-2 mt-2 mt-md-0">
+                        <a href="{{ route('media.list') }}" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Back
+                        </a>
+
                         <button type="submit" class="btn btn-primary">
                             <i class="fa fa-upload"></i> Submit
                         </button>
                     </div>
                 </div>
+            </form> --}}
+            <form id="imageUploadForm" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="media_id" value="{{ $media->id }}">
+
+                {{-- IMAGE INPUT FIELD --}}
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Upload Images</label>
+                        <input type="file" name="images[]" multiple class="form-control" accept="image/*">
+                    </div>
+                </div>
+
+                {{-- IMAGE LIST --}}
+                <div class="row">
+                    @forelse($media->images as $img)
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4" id="img-{{ $img->id }}">
+                            <div class="border rounded position-relative overflow-hidden">
+
+                                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}" class="img-fluid w-100"
+                                    style="height:170px; object-fit:cover;">
+
+                                <button type="button" class="btn btn-danger btn-sm position-absolute"
+                                    style="top:6px; right:6px" onclick="deleteImage({{ $img->id }})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12 text-center py-4">
+                            <p class="text-muted">No images uploaded yet.</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- BUTTONS BELOW IMAGES --}}
+                <div class="mt-3 d-flex gap-2">
+                    <a href="{{ route('media.list') }}" class="btn btn-secondary m-1">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </a>
+
+                    <button type="submit" class="btn btn-success m-1">
+                        <i class="fa fa-upload"></i> Submit
+                    </button>
+                </div>
+
             </form>
 
-            {{-- ================= IMAGE GRID ================= --}}
-            <div class="row">
-                @forelse($media->images as $img)
-                    <div class="col-md-3 mb-4" id="img-{{ $img->id }}">
-                        <div class="border rounded p-2 position-relative">
+            {{-- ================= IMAGE GALLERY ================= --}}
+            <hr>
 
-                            <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}" class="img-fluid rounded"
-                                style="height:150px; width:100%; object-fit:cover;">
+            {{-- <div class="row mt-3">
+                @forelse($media->images as $img)
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4" id="img-{{ $img->id }}">
+                        <div class="border rounded position-relative overflow-hidden">
+
+                            <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}" class="img-fluid w-100"
+                                style="height:170px; object-fit:cover;">
 
                             <button type="button" class="btn btn-danger btn-sm position-absolute"
-                                style="top:5px; right:5px" onclick="deleteImage({{ $img->id }})">
+                                style="top:6px; right:6px;" onclick="deleteImage({{ $img->id }})">
                                 <i class="fa fa-trash"></i>
                             </button>
 
                         </div>
                     </div>
                 @empty
-                    <div class="col-12">
-                        <p class="text-muted">No images available.</p>
+                    <div class="col-12 text-center py-4">
+                        <p class="text-muted">No images uploaded yet.</p>
                     </div>
                 @endforelse
-            </div>
-
-            <a href="{{ route('media.list') }}" class="btn btn-secondary mt-3">
-                Back
-            </a>
+            </div> --}}
 
         </div>
     </div>
@@ -134,31 +183,6 @@
 
     {{-- ================= DELETE IMAGE ================= --}}
     <script>
-        // function deleteImage(imageId) {
-
-        //     if (!confirm('Delete this image?')) return;
-
-        //     $.ajax({
-        //         url: "{{ route('media.image.delete') }}",
-        //         type: "POST",
-        //         data: {
-        //             _token: "{{ csrf_token() }}",
-        //             image_id: imageId
-        //         },
-        //         success: function(res) {
-        //             if (res.status) {
-        //                 $('#img-' + imageId).fadeOut(300, function () {
-        //                     $(this).remove();
-        //                 });
-        //             } else {
-        //                 alert(res.message);
-        //             }
-        //         },
-        //         error: function () {
-        //             alert('Delete failed');
-        //         }
-        //     });
-        // }
         function deleteImage(imageId) {
 
             Swal.fire({

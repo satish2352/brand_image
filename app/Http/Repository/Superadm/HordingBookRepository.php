@@ -2,12 +2,8 @@
 
 namespace App\Http\Repository\Superadm;
 
-use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use App\Models\WebsiteUser;
 
 class HordingBookRepository
@@ -240,10 +236,6 @@ class HordingBookRepository
             END AS is_booked
         "));
         }
-
-
-
-
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
         return $query->orderBy('m.id', 'DESC')->paginate($perPage);
     }

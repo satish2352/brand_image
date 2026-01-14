@@ -64,7 +64,7 @@
                                                 <span class="slider"></span>
                                             </label>
                                         </td>
-                                        <td class="d-flex">
+                                        {{-- <td class="d-flex">
 
                                             <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
                                                 class="btn btn-info btn-sm mr-1" title="View Details">
@@ -86,6 +86,33 @@
                                                 data-id="{{ base64_encode($media->id) }}">
                                                 <i class="mdi mdi-trash-can-outline"></i>
                                             </button>
+                                        </td> --}}
+                                        <td class="d-flex">
+
+                                            {{-- View Details --}}
+                                            <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
+                                                class="btn btn-success btn-sm m-1" title="View Details">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+
+                                            {{-- View Images --}}
+                                            <a href="{{ route('media.view', base64_encode($media->id)) }}"
+                                                class="btn btn-secondary btn-sm m-1" title="Add Images">
+                                                <i class="fa fa-image"></i>
+                                            </a>
+
+                                            {{-- Edit --}}
+                                            <a href="{{ route('media.edit', base64_encode($media->id)) }}"
+                                                class="btn btn-primary btn-sm m-1" title="Edit">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+
+                                            {{-- Delete --}}
+                                            <button type="button" class="btn btn-danger btn-sm delete-btn m-1"
+                                                data-id="{{ base64_encode($media->id) }}" title="Delete">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+
                                         </td>
 
 
