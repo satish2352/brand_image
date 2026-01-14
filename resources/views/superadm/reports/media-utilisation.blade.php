@@ -100,7 +100,7 @@
 
                         {{-- Buttons --}}
                         <div class="col-md-8" style="margin-top: 2rem">
-                            <button class="btn btn-primary">
+                            <button class="btn btn-success">
                                 <i class="mdi mdi-filter"></i> Apply
                             </button>
                             <a href="{{ route('reports.media.utilisation') }}" class="btn btn-secondary">

@@ -92,7 +92,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="11" class="text-center">
+                                        <td colspan="12" class="text-center">
                                             No media found
                                         </td>
                                     </tr>

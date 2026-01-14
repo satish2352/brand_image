@@ -107,7 +107,7 @@
                                     <table class="table table-bordered table-hover text-center align-middle mb-0">
                                         <thead class="table-dark">
                                             <tr>
-                                                <th>#</th>
+                                                <th>Sr. No.</th>
                                                 <th>Location</th>
                                                 <th>Media</th>
                                                 <th>Size</th>
