@@ -1,58 +1,58 @@
 @extends('superadm.layout.master')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
 
-                {{-- HEADER --}}
-                <div class="d-flex justify-content-between mb-3">
-                    <h4>City List</h4>
-                    <a href="{{ route('city.create') }}" class="btn btn-add">
-                        Add City
-                    </a>
-                </div>
-
-                {{-- FLASH MESSAGES --}}
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show">
-                        {{ session('success') }}
+                    {{-- HEADER --}}
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>City List</h4>
+                        <a href="{{ route('city.create') }}" class="btn btn-add">
+                            Add City
+                        </a>
                     </div>
-                @endif
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        {{ session('error') }}
-                    </div>
-                @endif
+                    {{-- FLASH MESSAGES --}}
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
-                {{-- TABLE --}}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped datatables">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Sr.No.</th>
-                                <th>State</th>
-                                <th>District</th>
-                                <th>City Name</th>
-                                <th>Latitude</th>
-                                <th>Longitude</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
-                        <tbody>
-                            @forelse ($cities as $key => $city)
+                    {{-- TABLE --}}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped datatables">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>{{ $city->state_name }}</td>
-                                    <td>{{ $city->district_name }}</td>
-                                    <td>{{ $city->city_name }}</td>
-                                     <td>{{ $city->latitude }}</td>
-                                      <td>{{ $city->longitude }}</td>
-                                     <td>
+                                    <th>Sr.No.</th>
+                                    <th>State</th>
+                                    <th>District</th>
+                                    <th>City Name</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @forelse ($cities as $key => $city)
+                                    <tr>
+                                        <td>{{ $key + 1 }}</td>
+                                        <td>{{ $city->state_name }}</td>
+                                        <td>{{ $city->district_name }}</td>
+                                        <td>{{ $city->city_name }}</td>
+                                        <td>{{ $city->latitude }}</td>
+                                        <td>{{ $city->longitude }}</td>
+                                        <td>
                                             <form action="{{ route('city.updatestatus') }}" method="POST"
                                                 class="d-inline-block delete-form">
                                                 @csrf
@@ -68,72 +68,70 @@
                                             </form>
                                         </td>
                                         <td class="d-flex">
-    <a href="{{ route('city.edit', base64_encode($city->id)) }}"
-       class="btn btn-sm btn-primary mr-2">
-        <i class="mdi mdi-square-edit-outline"></i>
-    </a>
+                                            <a href="{{ route('city.edit', base64_encode($city->id)) }}"
+                                                class="btn btn-sm btn-primary mr-2">
+                                                <i class="mdi mdi-square-edit-outline"></i>
+                                            </a>
 
-    <button type="button"
-            class="btn btn-sm btn-danger delete-btn"
-            data-id="{{ base64_encode($city->id) }}">
-        <i class="mdi mdi-trash-can-outline"></i>
-    </button>
-</td>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                                data-id="{{ base64_encode($city->id) }}">
+                                                <i class="mdi mdi-trash-can-outline"></i>
+                                            </button>
+                                        </td>
 
-                                       
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center">
-                                        No cities found
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            No cities found
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
-
             </div>
         </div>
     </div>
-</div>
-@section('scripts')
-<script>
-/* ================= STATUS TOGGLE ================= */
-$('.toggle-status').change(function () {
+    @section('scripts')
+        <script>
+            /* ================= STATUS TOGGLE ================= */
+            $('.toggle-status').change(function() {
 
-    let id = $(this).data('id');
+                let id = $(this).data('id');
 
-    $.post("{{ route('city.updatestatus') }}", {
-        _token: "{{ csrf_token() }}",
-        id: id
-    }, function (response) {
-        toastr.success(response.message);
-    }).fail(function () {
-        toastr.error('Failed to update status');
-    });
+                $.post("{{ route('city.updatestatus') }}", {
+                    _token: "{{ csrf_token() }}",
+                    id: id
+                }, function(response) {
+                    toastr.success(response.message);
+                }).fail(function() {
+                    toastr.error('Failed to update status');
+                });
 
-});
+            });
 
-/* ================= DELETE ================= */
-$('.delete-btn').click(function () {
+            /* ================= DELETE ================= */
+            $('.delete-btn').click(function() {
 
-    let id = $(this).data('id');
+                let id = $(this).data('id');
 
-    if (!confirm('Are you sure you want to delete this city?')) return;
+                if (!confirm('Are you sure you want to delete this city?')) return;
 
-    $.post("{{ route('city.delete') }}", {
-        _token: "{{ csrf_token() }}",
-        id: id
-    }, function (response) {
-        toastr.success(response.message);
-        location.reload();
-    }).fail(function () {
-        toastr.error('Delete failed');
-    });
+                $.post("{{ route('city.delete') }}", {
+                    _token: "{{ csrf_token() }}",
+                    id: id
+                }, function(response) {
+                    toastr.success(response.message);
+                    location.reload();
+                }).fail(function() {
+                    toastr.error('Delete failed');
+                });
 
-});
-</script>
-@endsection
-
+            });
+        </script>
+    @endsection
 @endsection

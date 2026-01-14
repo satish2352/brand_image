@@ -7,24 +7,25 @@
     <title>@yield('title', 'Website')</title>
 
     {{-- Bootstrap 5 CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
     <!-- fontawesome -->
-	<link rel="stylesheet" href="{{ asset('assets/css/all.min.css') }}">
-	<!-- bootstrap -->
-	{{-- <link rel="stylesheet" href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}"> --}}
-	<!-- owl carousel -->
-	<link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.css') }}">
-	<!-- magnific popup -->
-	<link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
-	<!-- animate css -->
-	<link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}">
-	<!-- mean menu css -->
-	<link rel="stylesheet" href="{{ asset('assets/css/meanmenu.min.css') }}">
-	<!-- main style -->
-	<link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
-	<!-- responsive -->
-	<link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/all.min.css') }}">
+    <!-- bootstrap -->
+    {{-- <link rel="stylesheet" href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}"> --}}
+    <!-- owl carousel -->
+    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.css') }}">
+    <!-- magnific popup -->
+    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
+    <!-- animate css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}">
+    <!-- mean menu css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/meanmenu.min.css') }}">
+    <!-- main style -->
+    <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
+    <!-- responsive -->
+    <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
 
     {{-- Custom Website CSS --}}
     <link rel="stylesheet" href="{{ asset('asset/css/website_css/style.css') }}">
@@ -47,14 +48,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': document
-                .querySelector('meta[name="csrf-token"]')
-                .getAttribute('content')
-        }
-    });
-</script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content')
+            }
+        });
+    </script>
 
 </head>
 
@@ -73,7 +74,9 @@
     @include('website.includes.footer')
 
     {{-- Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+    </script>
 
     <!-- GLOBAL LOADER -->
     <div id="globalLoader" aria-hidden="true" class="global-loader">

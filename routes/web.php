@@ -150,8 +150,8 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
             ->name('admin.campaign.book');
     });
 
-    Route::get('superadm/contact-us/view/{id}',[ContactUsController::class, 'viewDetails'])->name('contact-us.view');
-    
+    Route::get('superadm/contact-us/view/{id}', [ContactUsController::class, 'viewDetails'])->name('contact-us.view');
+
     /* ================= HOME SLIDER ================= */
     Route::prefix('home-slider')->group(function () {
 

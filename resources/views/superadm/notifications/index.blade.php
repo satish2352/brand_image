@@ -1,8 +1,8 @@
-@if($notifications->count() == 0)
+@if ($notifications->count() == 0)
     <p class="text-muted text-center">No new notifications 🎉</p>
 @else
     <ul style="padding-left:20px; list-style:disc;">
-        @foreach($notifications as $noti)
+        @foreach ($notifications as $noti)
             @php
                 $firstItem = $noti->order?->items?->first();
             @endphp
@@ -12,7 +12,7 @@
                     <strong>
                         {{ $noti->order?->customer?->name ?? 'Unknown User' }}
 
-                        @if($noti->media_id)
+                        @if ($noti->media_id)
                             booked {{ $noti->media?->media_title ?? 'N/A' }}
                         @else
                             completed payment for order {{ $noti->order?->order_no }}
@@ -20,7 +20,7 @@
                     </strong>
                     <br>
 
-                    @if($noti->media_id)
+                    @if ($noti->media_id)
                         From {{ \Carbon\Carbon::parse($firstItem?->from_date)->format('d M Y') ?? '-' }}
                         To {{ \Carbon\Carbon::parse($firstItem?->to_date)->format('d M Y') ?? '-' }}
                         <br>
