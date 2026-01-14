@@ -10,6 +10,15 @@ html {
   height: 100%;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
+#contact-form {
+    scroll-margin-top: 100px; /* value adjust*/
+}
+
+
 body {
   font-family: "Outfit", sans-serif;
   font-weight: 400;

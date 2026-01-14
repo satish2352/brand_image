@@ -45,7 +45,7 @@
                                     @endauth
                                 @endif
                             @else
-                                <a href="{{ route('contact.create') }}" class="btn btn-sm btn-warning">
+                                <a href="{{ route('contact.create') }}#contact-form" class="btn btn-sm btn-warning">
                                     Contact Us
                                 </a>
                             @endif

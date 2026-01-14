@@ -347,7 +347,7 @@
 
                                             {{-- ================= OTHER MEDIA ================= --}}
                                         @else
-                                            <a href="{{ route('contact.create') }}" class="card-btn contact">
+                                            <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
                                                 Contact Us
                                             </a>
                                         @endif
@@ -468,7 +468,10 @@
 
                                         {{-- ================= OTHER MEDIA ================= --}}
                                     @else
-                                        <a href="{{ route('contact.create') }}" class="card-btn contact">
+                                        {{-- <a href="{{ route('contact.create') }}" class="card-btn contact">
+                                            Contact Us
+                                        </a> --}}
+                                        <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
                                             Contact Us
                                         </a>
                                     @endif

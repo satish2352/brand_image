@@ -16,7 +16,7 @@
     <!-- end breadcrumb section -->
 
     <!-- contact form -->
-    <div class="contact-from-section conatact-top conatact-bottom">
+    <div id="contact-form" class="contact-from-section conatact-top conatact-bottom">
         <div class="container">
             <div class="row contact-modern-wrapper">
 
