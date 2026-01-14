@@ -50,7 +50,7 @@
 
 
                         <img src="{{ asset('asset/images/background/logo.png') }}" class="light-logo" alt="homepage"
-                            style="    height: 50px;" />
+                            style="height: 50px; marign:10px !important;" />
                     </a>
                 </div>
                 <div class="navbar-collapse">

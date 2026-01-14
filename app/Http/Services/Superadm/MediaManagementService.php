@@ -16,11 +16,16 @@ class MediaManagementService
     {
         $this->repo = $repo;
     }
-    public function getAll()
+    // public function getAll()
+    // {
+    //     $data_output = $this->repo->getAll();
+    //     return $data_output;
+    // }
+    public function getAll($filters = [])
     {
-        $data_output = $this->repo->getAll();
-        return $data_output;
+        return $this->repo->getAll($filters);
     }
+
     public function store(Request $request)
     {
         DB::beginTransaction();
