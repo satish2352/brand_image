@@ -26,4 +26,23 @@ class ContactUsController extends Controller
         $this->service->delete(base64_decode($request->id));
         return back()->with('success', 'Contact deleted successfully');
     }
+
+    public function viewDetails($encodedId)
+{
+    $id = base64_decode($encodedId, true);
+
+    if (!$id || !is_numeric($id)) {
+        abort(404);
+    }
+
+    $contact = $this->service->getById($id);
+
+    if (!$contact) {
+        abort(404);
+    }
+
+    return view('superadm.contact-us.view-details', compact('contact'));
+}
+
+
 }

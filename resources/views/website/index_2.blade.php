@@ -1,21 +1,13 @@
 
 
 	<!-- home page slider -->
-	<div class="homepage-slider">
+	{{-- <div class="homepage-slider">
 		<!-- single home slider -->
 		<div class="single-homepage-slider homepage-bg-1">
 			<div class="container">
 				<div class="row">
 					<div class="col-md-12 col-lg-7 offset-lg-1 offset-xl-0">
 						<div class="hero-text">
-							{{-- <div class="hero-text-tablecell">
-								<p class="subtitle">Fresh & Organic</p>
-								<h1>Delicious Seasonal Fruits</h1>
-								<div class="hero-btns">
-									<a href="shop.html" class="boxed-btn">Fruit Collection</a>
-									<a href="contact.html" class="bordered-btn">Contact Us</a>
-								</div>
-							</div> --}}
 						</div>
 					</div>
 				</div>
@@ -27,14 +19,6 @@
 				<div class="row">
 					<div class="col-lg-10 offset-lg-1 text-center">
 						<div class="hero-text">
-							{{-- <div class="hero-text-tablecell">
-								<p class="subtitle">Fresh Everyday</p>
-								<h1>100% Organic Collection</h1>
-								<div class="hero-btns">
-									<a href="shop.html" class="boxed-btn">Visit Shop</a>
-									<a href="contact.html" class="bordered-btn">Contact Us</a>
-								</div>
-							</div> --}}
 						</div>
 					</div>
 				</div>
@@ -46,21 +30,70 @@
 				<div class="row">
 					<div class="col-lg-10 offset-lg-1 text-right">
 						<div class="hero-text">
-							{{-- <div class="hero-text-tablecell">
-								<p class="subtitle">Mega Sale Going On!</p>
-								<h1>Get December Discount</h1>
-								<div class="hero-btns">
-									<a href="shop.html" class="boxed-btn">Visit Shop</a>
-									<a href="contact.html" class="bordered-btn">Contact Us</a>
-								</div>
-							</div> --}}
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> --}}
 	<!-- end home page slider -->
+
+	@if($sliders->count())
+
+	<div id="carouselExampleControls"
+		class="carousel slide"
+		data-bs-ride="carousel">
+
+		<div class="carousel-inner">
+
+			@foreach($sliders as $key => $slider)
+				<div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
+
+					<img src="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
+						class="d-block w-100 carousel-img"
+						data-desktop="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
+						data-mobile="{{ config('fileConstants.IMAGE_VIEW') . $slider->mobile_image }}"
+						alt="Home Slider {{ $key + 1 }}">
+
+				</div>
+			@endforeach
+
+		</div>
+
+		{{-- CONTROLS --}}
+		<button class="carousel-control-prev"
+				type="button"
+				data-bs-target="#carouselExampleControls"
+				data-bs-slide="prev">
+			<span class="carousel-control-prev-icon"></span>
+		</button>
+
+		<button class="carousel-control-next"
+				type="button"
+				data-bs-target="#carouselExampleControls"
+				data-bs-slide="next">
+			<span class="carousel-control-next-icon"></span>
+		</button>
+
+	</div>
+
+	@else
+
+	{{-- NO SLIDER IMAGE --}}
+	<div class="d-flex align-items-center justify-content-center"
+		style="height: calc(100vh - 90px); background:#f5f5f5;">
+
+		<div class="text-center">
+			<i class="bi bi-image text-muted" style="font-size:60px;"></i>
+			<h4 class="mt-3 text-muted">No image uploaded</h4>
+			<p class="text-muted">Please upload home slider images from admin panel</p>
+		</div>
+
+	</div>
+
+	@endif
+
+
 
 	<!-- FEATURES SECTION -->
 	<div class="list-section pt-80 pb-80">

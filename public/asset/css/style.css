@@ -14649,6 +14649,3 @@ input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::after {
 .media-img-wrapper:hover .media-img {
     transform: scale(1.8); /* zoom level */
 }
-.btn-bg{
-  background: red;
-}

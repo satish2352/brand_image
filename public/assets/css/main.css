@@ -1586,6 +1586,28 @@ input[type="submit"] {
   background-image: url(../img/hero-bg-3.png);
 }
 
+.carousel-item {
+  margin-top: 6rem;
+}
+
+@media (max-width: 980px) {
+  .carousel-item {
+    margin-top: 5rem;
+  }
+
+}
+
+.carousel-img {
+    height: calc(100vh - 90px);
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .carousel-img {
+        height: auto;
+    }
+}
+
 /* vivek */
 /* .homepage-slider {
   height: 100dvh;

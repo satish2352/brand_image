@@ -203,6 +203,26 @@
 
 	});
 	</script>
+
+	<script>
+	function swapCarouselImages() {
+		let isMobile = window.innerWidth <= 768;
+
+		document.querySelectorAll('.carousel-img').forEach(img => {
+			let mobile  = img.dataset.mobile;
+			let desktop = img.dataset.desktop;
+
+			if (isMobile && mobile) {
+				img.src = mobile;
+			} else {
+				img.src = desktop;
+			}
+		});
+	}
+
+	window.addEventListener('load', swapCarouselImages);
+	window.addEventListener('resize', swapCarouselImages);
+	</script>
 	
 	<!-- jquery -->
 	<script src="{{ asset('assets/js/jquery-1.11.3.min.js') }}"></script>

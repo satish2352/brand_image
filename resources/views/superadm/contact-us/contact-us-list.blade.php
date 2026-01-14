@@ -19,7 +19,7 @@
                         <thead>
                             <tr>
                                 <th>Sr.No.</th>
-                                  <th>Category Name</th>
+                                <th>Category Name</th>
                                 <th>Full Name</th>
                                 <th>Mobile</th>
                                 <th>Email</th>
@@ -40,6 +40,11 @@
                                 <td>{{ $row->address }}</td>
                                 <td>{{ $row->remark }}</td>
                                 <td>
+                                    <a href="{{ route('contact-us.view', base64_encode($row->id)) }}"
+                                    class="btn btn-sm btn-info"
+                                    title="View Details">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
                                     <form action="{{ route('contact-us.delete') }}" method="POST" class="d-inline-block delete-form">
                                         @csrf
                                         <input type="hidden" name="id" value="{{ base64_encode($row->id) }}">

@@ -17,6 +17,7 @@ use App\Http\Controllers\Superadm\MediaManagementController;
 use App\Http\Controllers\Superadm\ChangePasswordController;
 use App\Http\Controllers\Website\CartController;
 use App\Http\Controllers\Website\CheckoutController;
+use App\Http\Controllers\Superadm\HomeSliderController;
 // website
 use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\AuthController;
@@ -148,6 +149,33 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('admin-campaing/book', [CampaingController::class, 'book'])
             ->name('admin.campaign.book');
     });
+
+    Route::get('superadm/contact-us/view/{id}',[ContactUsController::class, 'viewDetails'])->name('contact-us.view');
+    
+    /* ================= HOME SLIDER ================= */
+    Route::prefix('home-slider')->group(function () {
+
+        Route::get('list', [HomeSliderController::class, 'index'])
+            ->name('homeslider.list');
+
+        Route::get('add', [HomeSliderController::class, 'create'])
+            ->name('homeslider.create');
+
+        Route::post('add', [HomeSliderController::class, 'store'])
+            ->name('homeslider.store');
+
+        Route::post('delete', [HomeSliderController::class, 'delete'])
+            ->name('homeslider.delete');
+
+        Route::get('edit/{id}', [HomeSliderController::class, 'edit'])
+            ->name('homeslider.edit');
+
+        Route::post('update/{id}', [HomeSliderController::class, 'update'])
+            ->name('homeslider.update');
+
+        Route::post('update-status', [HomeSliderController::class, 'toggleStatus'])->name('homeslider.status');
+    });
+
     // Radius Master
     Route::get('radius/list', [RadiusController::class, 'index'])->name('radius.list');
     Route::get('radius/create', [RadiusController::class, 'create'])->name('radius.create');

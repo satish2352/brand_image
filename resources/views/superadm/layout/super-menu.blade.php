@@ -49,6 +49,15 @@
            <li class="nav-item has-sub
             {{ request()->is('area/list*') || request()->is('illumination/list*') ? 'active open' : '' }}">
 
+        <li class="nav-item
+            {{ request()->is('home-slider/list') || request()->is('home-slider/add') ? 'active' : '' }}">
+            <a href="{{ route('homeslider.list') }}">
+                <i class="mdi mdi-image-multiple"></i>
+                <span>Home Slider</span>
+            </a>
+        </li>
+      
+         <li class="nav-item {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active' : '' }}">
             <a href="#">
                 <i class="mdi mdi-file-chart"></i>
                 <span>Master</span>

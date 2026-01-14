@@ -85,7 +85,7 @@
                 </div>
             @endif
 
-            <div class="col-md-12 mt-3">
+            <div class="col-md-5" style="margin-top: 2rem">
                 <button class="btn btn-primary">
                     <i class="mdi mdi-filter"></i> Apply
                 </button>
