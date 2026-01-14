@@ -71,7 +71,7 @@
         .flatpickr-day.booked-date {
             background: #dc3545 !important;
             color: #fff !important;
-            border-radius: 50%;
+            border-radius: 5%;
             cursor: not-allowed;
         }
 

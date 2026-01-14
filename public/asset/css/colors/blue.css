@@ -160,6 +160,9 @@ File: scss
     display: none; }
   .topbar .top-navbar .navbar-header .navbar-brand .light-logo {
     display: inline-block;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+      background-color: #fff;
+border-radius : 20px 10px;
     color: rgba(255, 255, 255, 0.8); }
   .topbar .navbar-light .navbar-nav .nav-item > a.nav-link {
     color: #fff !important; }

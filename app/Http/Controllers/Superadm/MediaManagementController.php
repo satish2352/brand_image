@@ -25,15 +25,46 @@ class MediaManagementController extends Controller
     {
         $this->mediaService = $mediaService;
     }
-    public function index()
+    // public function index()
+    // {
+    //     try {
+    //         $mediaList = $this->mediaService->getAll();
+    //         return view('superadm.mediamanagement.list', compact('mediaList'));
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Something went wrong');
+    //     }
+    // }
+    public function index(Request $request)
     {
         try {
-            $mediaList = $this->mediaService->getAll();
-            return view('superadm.mediamanagement.list', compact('mediaList'));
+            $filters = [
+                'vendor_id' => $request->vendor_id,
+                'category_id' => $request->category_id,
+                'month' => $request->month,
+                'year' => $request->year,
+                'from_date' => $request->from_date,
+                'to_date' => $request->to_date,
+            ];
+
+            $mediaList = $this->mediaService->getAll($filters);
+
+            $vendors = Vendor::where('is_active', 1)->where('is_deleted', 0)->get();
+            $categories = Category::where('is_active', 1)->where('is_deleted', 0)->get();
+
+            $years = getYears();
+            $months = getMonths();
+            return view('superadm.mediamanagement.list', compact(
+                'mediaList',
+                'vendors',
+                'categories',
+                'years',
+                'months'
+            ));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong');
         }
     }
+
     public function create()
     {
         $categories = Category::where('is_active', 1)

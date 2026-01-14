@@ -70,7 +70,7 @@
         .flatpickr-day.booked-date {
             background: #dc3545 !important;
             color: #fff !important;
-            border-radius: 50%;
+            border-radius: 5%;
             cursor: not-allowed;
         }
 
@@ -448,8 +448,21 @@
                 })),
 
                 //  Mark booked dates RED
+                // onDayCreate: function(dObj, dStr, fp, dayElem) {
+                //     const date = dayElem.dateObj.toISOString().split('T')[0];
+
+                //     bookedRanges.forEach(range => {
+                //         // if (date >= range.from_date && date <= range.to_date) {
+                //         //     dayElem.classList.add('booked-date');
+                //         // }
+                //         if (date > range.from_date && date < range.to_date) {
+                //             dayElem.classList.add('booked-date');
+                //         }
+
+                //     });
+                // },
                 onDayCreate: function(dObj, dStr, fp, dayElem) {
-                    const date = dayElem.dateObj.toISOString().split('T')[0];
+                    const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
 
                     bookedRanges.forEach(range => {
                         if (date >= range.from_date && date <= range.to_date) {
@@ -457,6 +470,7 @@
                         }
                     });
                 },
+
                 onChange: function(selectedDates) {
 
                     addBtn.disabled = true;
@@ -468,7 +482,9 @@
                     const end = selectedDates[1];
 
                     // Calculate difference days
+                    // const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
                     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
 
                     if (diffDays < MIN_DAYS) {
                         errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
