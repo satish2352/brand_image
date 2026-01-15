@@ -236,7 +236,7 @@
                             <div class="col-lg-3 col-md-6 mb-4">
                                 <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
                                     <div class="card shadow-sm card-radius h-80">
-                                        <div class="card-body bg-plants">
+                                        <div class="card-body bg-department">
                                             <div class="d-flex flex-row">
                                                 <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
                                                     <i class="mdi mdi-monitor-multiple mdi-36px icon-padding"></i>

@@ -1364,14 +1364,14 @@ Header
     display: block;              /* 🔥 each item new line */
     color: #fff;
     font-size: 15px;
-    cursor: pointer;
+    /* cursor: pointer; */
     margin-bottom: 1px;
     position: relative;
     width: fit-content;          /* hover only on text */
     transition: color 0.3s ease;
 }
 .footer-links.no-anchor li:hover{
-    color: #ffc107;
+    /* color: #ffc107; */
 }
 .footer-contact li{
     display: flex;
