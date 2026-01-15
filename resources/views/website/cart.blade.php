@@ -332,7 +332,7 @@
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
             <div class="col-md-12">
-                <img src="{{ asset('assets/img/cart.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/addtocart.png') }}" alt="About Banner" class="img-fluid">
             </div>
         </div>
     </div>

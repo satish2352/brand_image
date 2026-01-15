@@ -108,29 +108,51 @@ class HomeController extends Controller
     //     //  IMPORTANT: load SEARCH page, not HOME
     //     return view('website.search', compact('mediaList', 'filters'));
     // }
-
-
-
     public function getMediaDetails($mediaId)
     {
         try {
             $mediaId = base64_decode($mediaId);
 
-            if (!$mediaId) {
-                abort(404);
-            }
+            if (!$mediaId) abort(404);
 
             $media = $this->homeService->getMediaDetails($mediaId);
 
-            if (!$media) {
-                abort(404);
+            if (!$media) abort(404);
+
+            // Fetch all bookings from order_items
+            $orders = DB::table('order_items')
+                ->where('media_id', $mediaId)
+                ->where('is_deleted', 0)
+                ->select('from_date', 'to_date')
+                ->orderBy('from_date')
+                ->get();
+
+            // 🔥 MERGE OVERLAPPING RANGES
+            $merged = [];
+            foreach ($orders as $range) {
+                if (empty($merged)) {
+                    $merged[] = [
+                        'from_date' => $range->from_date,
+                        'to_date'   => $range->to_date
+                    ];
+                    continue;
+                }
+
+                $lastIndex = count($merged) - 1;
+                $last = $merged[$lastIndex];
+
+                // If overlapping or touching (14-30 and 15-31)
+                if ($range->from_date <= $last['to_date']) {
+                    $merged[$lastIndex]['to_date'] = max($last['to_date'], $range->to_date);
+                } else {
+                    $merged[] = [
+                        'from_date' => $range->from_date,
+                        'to_date'   => $range->to_date
+                    ];
+                }
             }
 
-            //  Get booked date ranges from order_items
-            $bookedRanges = DB::table('order_items')
-                ->where('media_id', $mediaId)
-                ->select('from_date', 'to_date')
-                ->get();
+            $bookedRanges = $merged;
 
             return view('website.media-details', compact('media', 'bookedRanges'));
         } catch (Exception $e) {
@@ -145,4 +167,41 @@ class HomeController extends Controller
                 ->with('error', 'Unable to load media details.');
         }
     }
+
+
+
+    // public function getMediaDetails($mediaId)
+    // {
+    //     try {
+    //         $mediaId = base64_decode($mediaId);
+
+    //         if (!$mediaId) {
+    //             abort(404);
+    //         }
+
+    //         $media = $this->homeService->getMediaDetails($mediaId);
+
+    //         if (!$media) {
+    //             abort(404);
+    //         }
+
+    //         //  Get booked date ranges from order_items
+    //         $bookedRanges = DB::table('order_items')
+    //             ->where('media_id', $mediaId)
+    //             ->select('from_date', 'to_date')
+    //             ->get();
+
+    //         return view('website.media-details', compact('media', 'bookedRanges'));
+    //     } catch (Exception $e) {
+
+    //         Log::error('Media Details Error', [
+    //             'media_id' => $mediaId,
+    //             'message'  => $e->getMessage()
+    //         ]);
+
+    //         return redirect()
+    //             ->route('website.home')
+    //             ->with('error', 'Unable to load media details.');
+    //     }
+    // }
 }

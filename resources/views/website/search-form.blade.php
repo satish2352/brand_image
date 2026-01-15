@@ -63,28 +63,27 @@
     .range-slider-container {
         position: relative;
         width: 100%;
-        height: 40px;
+        padding-top: 15px;
+        padding-bottom: 30px;
         margin-top: 10px;
     }
 
-    /* Remove default look */
     .range-slider-container input[type=range] {
         -webkit-appearance: none;
         width: 100%;
         background: transparent;
         position: absolute;
-        top: 0;
+        top: 10px !important;
+        /* keep thumb centered */
         pointer-events: none;
     }
 
-    /* GREY base track */
     .range-slider-container input[type=range]::-webkit-slider-runnable-track {
         height: 6px;
         background: #d7d7d7;
         border-radius: 3px;
     }
 
-    /* SLIDER THUMB */
     .range-slider-container input[type=range]::-webkit-slider-thumb {
         -webkit-appearance: none;
         pointer-events: auto;
@@ -97,12 +96,11 @@
         box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
     }
 
-    /* ORANGE SELECTED RANGE */
     .range-slider-fill {
         position: absolute;
         height: 6px;
         background: #f28123;
-        top: 0px;
+        top: 10px;
         border-radius: 3px;
         z-index: 2;
     }
@@ -227,6 +225,15 @@
                 <div class="col-lg-4 col-md-4 col-sm-6" id="days_wrapper">
 
                     <!-- Budget Slider -->
+                    <div class="d-flex justify-content-between mt-2">
+                        <span id="minRangeLabel" style="font-weight:600">
+                            ₹{{ number_format($filters['min_price'] ?? 0) }}
+                        </span>
+
+                        <span id="maxRangeLabel" style="font-weight:600">
+                            ₹{{ number_format($filters['max_price'] ?? 200000) }}
+                        </span>
+                    </div>
                     <div class="range-slider-container">
                         <input type="hidden" name="min_price" id="min_price" value="{{ $filters['min_price'] ?? 0 }}">
                         <input type="hidden" name="max_price" id="max_price"
@@ -239,15 +246,7 @@
                         <input type="range" id="maxRange" min="0" max="200000" step="1000"
                             value="{{ $filters['max_price'] ?? 200000 }}">
 
-                        <div class="d-flex justify-content-between mt-2">
-                            <span id="minRangeLabel" style="font-weight:600">
-                                ₹{{ number_format($filters['min_price'] ?? 0) }}
-                            </span>
 
-                            <span id="maxRangeLabel" style="font-weight:600">
-                                ₹{{ number_format($filters['max_price'] ?? 200000) }}
-                            </span>
-                        </div>
                     </div>
 
                 </div>

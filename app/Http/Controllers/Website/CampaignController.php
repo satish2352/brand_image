@@ -25,31 +25,31 @@ class CampaignController extends Controller
         $this->campaignService = $campaignService;
     }
 
-public function store(Request $request)
-{
-    try {
-        $request->validate([
-            'campaign_name' => 'required|string|max:255',
-        ]);
+    public function store(Request $request)
+    {
+        try {
+            $request->validate([
+                'campaign_name' => 'required|string|max:255',
+            ]);
 
-        $this->campaignService->saveCampaign(
-            Auth::guard('website')->id(),
-            $request->campaign_name
-        );
+            $this->campaignService->saveCampaign(
+                Auth::guard('website')->id(),
+                $request->campaign_name
+            );
 
-        // ✅ MAIL CALL
-        $this->campaignService->sendCampaignMailToAdmin(
-            Auth::guard('website')->id()
-        );
+            // ✅ MAIL CALL
+            $this->campaignService->sendCampaignMailToAdmin(
+                Auth::guard('website')->id()
+            );
 
-        return redirect()
-            ->route('campaign.list')
-            ->with('success', 'Campaign created successfully');
-    } catch (\Exception $e) {
-        Log::error($e->getMessage());
-        return back()->with('error', $e->getMessage());
+            return redirect()
+                ->route('campaign.list')
+                ->with('success', 'Campaign created successfully');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return back()->with('error', $e->getMessage());
+        }
     }
-}
 
 
 
@@ -162,6 +162,8 @@ public function store(Request $request)
                 'm.width',
                 'm.height',
                 'm.price',
+                'ci.from_date',
+                'ci.to_date',
                 'a.area_name',
                 'a.common_stdiciar_name',
                 'c.city_name as city_name',
@@ -276,7 +278,6 @@ public function store(Request $request)
                             $x = 40;
                             $y += $h + $gap;
                         }
-
                     } catch (\Throwable $e) {
                         // image corrupt असेल तरी PPT break होणार नाही
                         continue;
@@ -304,16 +305,41 @@ public function store(Request $request)
             $details->createTextRun("SITE DETAILS\n\n")
                 ->getFont()->setSize(22)->setBold(true);
 
+
+            $from = $item->from_date
+                ? \Carbon\Carbon::parse($item->from_date)->format('d M Y')
+                : '-';
+
+            $to = $item->to_date
+                ? \Carbon\Carbon::parse($item->to_date)->format('d M Y')
+                : '-';
+
+
+            $details->getActiveParagraph()->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
             $details->createTextRun(
-                "Location : {$item->common_stdiciar_name}\n" .
-                    "Area     : {$item->area_name}\n" .
-                    "City     : {$item->city_name}\n" .
-                    "Size     : {$item->width} × {$item->height}\n" .
-                    "Media type    : {$item->media_type}\n" .
-                    "Price    : ₹ " . number_format($item->price) . "\n" .
-                    "Lighting : {$item->illumination_name}\n" .
-                    "Date     : " . now()->format('d M Y')
+
+                "Location  : {$item->common_stdiciar_name}\n" .
+                    "Area      : {$item->area_name}\n" .
+                    "City      : {$item->city_name}\n" .
+                    "Size      : {$item->width} × {$item->height}\n" .
+                    "Media type: {$item->media_type}\n" .
+                    "Price     : ₹ " . number_format($item->price) . "\n" .
+                    "From Date : $from\n" .
+                    "To Date   : $to\n" .
+                    "Lighting  : {$item->illumination_name}\n"
             )->getFont()->setSize(18);
+            // $details->createTextRun(
+            //     "Location : {$item->common_stdiciar_name}\n" .
+            //         "Area     : {$item->area_name}\n" .
+            //         "City     : {$item->city_name}\n" .
+            //         "Size     : {$item->width} × {$item->height}\n" .
+            //         "Media type    : {$item->media_type}\n" .
+            //         "Price    : ₹ " . number_format($item->price) . "\n" .
+            //         "Lighting : {$item->illumination_name}\n" .
+            //         "Date     : " . now()->format('d M Y')
+            // )->getFont()->setSize(18);
         }
 
 
@@ -331,7 +357,11 @@ public function store(Request $request)
             ->setOffsetY(0);
 
         /* ================= DOWNLOAD ================= */
-        $fileName = 'Media_Plan_' . now()->format('d-m-Y') . '.pptx';
+        $campaignId = base64_decode($campaignId);
+
+
+        $campaignName = preg_replace('/[^A-Za-z0-9_-]/', '_', $campaign->campaign_name);
+        $fileName = $campaignName . '_' . now()->format('d-m-Y') . '.pptx';
 
         $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
 
@@ -345,36 +375,35 @@ public function store(Request $request)
             }
 
             $writer->save('php://output');
-
         }, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'Cache-Control' => 'no-store, no-cache',
         ]);
     }
 
-public function generatePptFile(int $campaignId, string $savePath): void
-{
-    // 🔒 clean output buffer (VERY IMPORTANT for PPT)
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
+    public function generatePptFile(int $campaignId, string $savePath): void
+    {
+        // 🔒 clean output buffer (VERY IMPORTANT for PPT)
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
 
-    /* ================= CAMPAIGN ================= */
-    $campaign = DB::table('campaign')
-        ->where('id', $campaignId)
-        ->first();
+        /* ================= CAMPAIGN ================= */
+        $campaign = DB::table('campaign')
+            ->where('id', $campaignId)
+            ->first();
 
-    if (!$campaign) {
-        throw new \Exception('Campaign not found');
-    }
+        if (!$campaign) {
+            throw new \Exception('Campaign not found');
+        }
 
-    $items = DB::table('cart_items as ci')
-        ->join('media_management as m', 'm.id', '=', 'ci.media_id')
-        ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-        ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
-        ->leftJoin('illuminations as i', 'i.id', '=', 'm.illumination_id')
-        ->leftJoin('category as cat', 'cat.id', '=', 'm.category_id')
-        ->leftJoin(DB::raw("
+        $items = DB::table('cart_items as ci')
+            ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
+            ->leftJoin('illuminations as i', 'i.id', '=', 'm.illumination_id')
+            ->leftJoin('category as cat', 'cat.id', '=', 'm.category_id')
+            ->leftJoin(DB::raw("
             (
                 SELECT media_id, GROUP_CONCAT(images) AS all_images
                 FROM media_images
@@ -382,132 +411,172 @@ public function generatePptFile(int $campaignId, string $savePath): void
                 GROUP BY media_id
             ) mi
         "), 'mi.media_id', '=', 'm.id')
-        ->select(
-            'm.media_title',
-            'm.width',
-            'm.height',
-            'm.price',
-            'a.area_name',
-            'a.common_stdiciar_name',
-            'c.city_name',
-            'i.illumination_name',
-            'cat.category_name as media_type',
-            'mi.all_images'
-        )
-        ->where('ci.campaign_id', $campaignId)
-        ->where('ci.cart_type', 'CAMPAIGN')
-        ->get();
+            ->select(
+                'm.media_title',
+                'm.width',
+                'm.height',
+                'm.price',
+                'ci.from_date',
+                'ci.to_date',
+                'a.area_name',
+                'a.common_stdiciar_name',
+                'c.city_name',
+                'i.illumination_name',
+                'cat.category_name as media_type',
+                'mi.all_images'
+            )
+            ->where('ci.campaign_id', $campaignId)
+            ->where('ci.cart_type', 'CAMPAIGN')
+            ->get();
 
-    /* ================= INIT PPT ================= */
-    $ppt = new PhpPresentation();
+        /* ================= INIT PPT ================= */
+        $ppt = new PhpPresentation();
 
-    /* ================= COVER SLIDE ================= */
-    $slide1 = $ppt->getActiveSlide();
+        /* ================= COVER SLIDE ================= */
+        $slide1 = $ppt->getActiveSlide();
 
-    // Background
-    $slide1->createDrawingShape()
-        ->setPath(public_path('asset/theamoriginalalf/images/bluebg.png'))
-        ->setWidth(960)->setHeight(540);
+        // Background
+        $slide1->createDrawingShape()
+            ->setPath(public_path('asset/theamoriginalalf/images/bluebg.png'))
+            ->setWidth(960)->setHeight(540);
 
-    // Logo
-    $slide1->createDrawingShape()
-        ->setPath(public_path('asset/theamoriginalalf/images/logo.png'))
-        ->setHeight(60)->setOffsetX(40)->setOffsetY(40);
-
-    // Title
-    $title = $slide1->createRichTextShape()
-        ->setOffsetX(260)->setOffsetY(220)->setWidth(500);
-
-    $title->getActiveParagraph()->getAlignment()
-        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-    $title->createTextRun("Campaign Name\n")
-        ->getFont()->setSize(34)->setBold(true);
-
-    $title->createTextRun($campaign->campaign_name)
-        ->getFont()->setSize(22);
-
-    /* ================= MEDIA SLIDES ================= */
-    foreach ($items as $item) {
-
-        $slide = $ppt->createSlide();
+        // Logo
+        $slide1->createDrawingShape()
+            ->setPath(public_path('asset/theamoriginalalf/images/logo.png'))
+            ->setHeight(60)->setOffsetX(40)->setOffsetY(40);
 
         // Title
-        $slide->createRichTextShape()
-            ->setOffsetX(40)->setOffsetY(20)->setWidth(850)
-            ->createTextRun($item->media_title)
-            ->getFont()->setSize(26)->setBold(true);
+        $title = $slide1->createRichTextShape()
+            ->setOffsetX(260)->setOffsetY(220)->setWidth(500);
 
-        /* ---------- IMAGES ---------- */
-        $images = $item->all_images ? explode(',', $item->all_images) : [];
+        $title->getActiveParagraph()->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $x = 40; $y = 90; $w = 200; $h = 140; $gap = 10;
-        $hasImage = false;
+        $title->createTextRun("Campaign Name\n")
+            ->getFont()->setSize(34)->setBold(true);
 
-        foreach ($images as $img) {
+        $title->createTextRun($campaign->campaign_name)
+            ->getFont()->setSize(22);
 
-            $path = public_path('storage/upload/images/media/' . trim($img));
+        /* ================= MEDIA SLIDES ================= */
+        foreach ($items as $item) {
 
-            if (!file_exists($path) || !is_readable($path) || filesize($path) === 0) {
-                continue;
-            }
+            $slide = $ppt->createSlide();
 
-            try {
-                $slide->createDrawingShape()
-                    ->setPath($path)
-                    ->setWidth($w)->setHeight($h)
-                    ->setOffsetX($x)->setOffsetY($y);
+            // Title
+            $slide->createRichTextShape()
+                ->setOffsetX(40)->setOffsetY(20)->setWidth(850)
+                ->createTextRun($item->media_title)
+                ->getFont()->setSize(26)->setBold(true);
 
-                $hasImage = true;
-                $x += $w + $gap;
+            /* ---------- IMAGES ---------- */
+            $images = $item->all_images ? explode(',', $item->all_images) : [];
 
-                if ($x > 420) {
-                    $x = 40;
-                    $y += $h + $gap;
+            $x = 40;
+            $y = 90;
+            $w = 200;
+            $h = 140;
+            $gap = 10;
+            $hasImage = false;
+
+            foreach ($images as $img) {
+
+                $path = public_path('storage/upload/images/media/' . trim($img));
+
+                if (!file_exists($path) || !is_readable($path) || filesize($path) === 0) {
+                    continue;
                 }
-            } catch (\Throwable $e) {
-                continue;
+
+                try {
+                    $slide->createDrawingShape()
+                        ->setPath($path)
+                        ->setWidth($w)->setHeight($h)
+                        ->setOffsetX($x)->setOffsetY($y);
+
+                    $hasImage = true;
+                    $x += $w + $gap;
+
+                    if ($x > 420) {
+                        $x = 40;
+                        $y += $h + $gap;
+                    }
+                } catch (\Throwable $e) {
+                    continue;
+                }
             }
-        }
 
-        // Placeholder if no images
-        if (!$hasImage) {
-            $ph = $slide->createRichTextShape()
-                ->setOffsetX(40)->setOffsetY(90)
-                ->setWidth(360)->setHeight(240);
+            // Placeholder if no images
+            if (!$hasImage) {
+                $ph = $slide->createRichTextShape()
+                    ->setOffsetX(40)->setOffsetY(90)
+                    ->setWidth(360)->setHeight(240);
 
-            $ph->getFill()->setFillType(Fill::FILL_SOLID)
-                ->setStartColor(new Color('FFEFEFEF'));
+                $ph->getFill()->setFillType(Fill::FILL_SOLID)
+                    ->setStartColor(new Color('FFEFEFEF'));
 
-            $ph->createTextRun('NO IMAGES AVAILABLE')
-                ->getFont()->setSize(18)->setBold(true);
-        }
+                $ph->createTextRun('NO IMAGES AVAILABLE')
+                    ->getFont()->setSize(18)->setBold(true);
+            }
 
-        /* ---------- DETAILS ---------- */
-        $slide->createRichTextShape()
-            ->setOffsetX(520)->setOffsetY(90)->setWidth(420)
-            ->createTextRun(
+            /* ---------- DETAILS ---------- */
+
+            // $slide->createRichTextShape()
+            //     ->setOffsetX(520)->setOffsetY(90)->setWidth(420)
+
+            //     ->createTextRun(
+            //         "SITE DETAILS\n\n" .
+            //             "Location : {$item->common_stdiciar_name}\n" .
+            //             "Area     : {$item->area_name}\n" .
+            //             "City     : {$item->city_name}\n" .
+            //             "Size     : {$item->width} × {$item->height}\n" .
+            //             "Media    : {$item->media_type}\n" .
+            //             "Price    : ₹ " . number_format($item->price) . "\n" .
+            //             "From Date : $from\n" .
+            //             "To Date   : $to" .
+            //             "Lighting : {$item->illumination_name}\n"
+            //     )->getFont()->setSize(18);
+
+            /* ---------- SITE DETAILS RIGHT COLUMN ---------- */
+            $from = $item->from_date
+                ? \Carbon\Carbon::parse($item->from_date)->format('d M Y')
+                : '-';
+
+            $to = $item->to_date
+                ? \Carbon\Carbon::parse($item->to_date)->format('d M Y')
+                : '-';
+
+            $details = $slide->createRichTextShape()
+                ->setOffsetX(520)
+                ->setOffsetY(90)
+                ->setWidth(420);
+
+            $details->getActiveParagraph()->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+            $details->createTextRun(
                 "SITE DETAILS\n\n" .
-                "Location : {$item->common_stdiciar_name}\n" .
-                "Area     : {$item->area_name}\n" .
-                "City     : {$item->city_name}\n" .
-                "Size     : {$item->width} × {$item->height}\n" .
-                "Media    : {$item->media_type}\n" .
-                "Price    : ₹ " . number_format($item->price) . "\n" .
-                "Lighting : {$item->illumination_name}\n"
+                    "Location  : {$item->common_stdiciar_name}\n" .
+                    "Area      : {$item->area_name}\n" .
+                    "City      : {$item->city_name}\n" .
+                    "Size      : {$item->width} × {$item->height}\n" .
+                    "Media type: {$item->media_type}\n" .
+                    "Price     : ₹ " . number_format($item->price) . "\n" .
+                    "From Date : $from\n" .
+                    "To Date   : $to\n" .
+                    "Lighting  : {$item->illumination_name}\n"
             )->getFont()->setSize(18);
+        }
+
+
+
+        /* ================= THANK YOU SLIDE ================= */
+        $ppt->createSlide()
+            ->createDrawingShape()
+            ->setPath(public_path('asset/theamoriginalalf/images/thankyou.png'))
+            ->setWidth(960)->setHeight(540);
+
+        /* ================= SAVE FILE ================= */
+        $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
+        $writer->save($savePath); // ✅ FINAL OUTPUT
     }
-
-    /* ================= THANK YOU SLIDE ================= */
-    $ppt->createSlide()
-        ->createDrawingShape()
-        ->setPath(public_path('asset/theamoriginalalf/images/thankyou.png'))
-        ->setWidth(960)->setHeight(540);
-
-    /* ================= SAVE FILE ================= */
-    $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
-    $writer->save($savePath); // ✅ FINAL OUTPUT
-}
-
-    
 }
