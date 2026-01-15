@@ -59,7 +59,7 @@ class ContactController extends Controller
                 'is_delete' => 0,
             ]);
 
-            return redirect()->back()->with('success', 'Contact submitted successfully');
+            return redirect()->back()->with('success', 'Thank you! We will contact you soon.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong');
         }

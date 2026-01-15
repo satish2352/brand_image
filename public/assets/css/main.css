@@ -2477,7 +2477,7 @@ ul.social-link-team li a {
 
 .find-location p {
   color: #fff;
-  font-size: 35px;
+  font-size: 20px;
   margin: 0;
   font-weight: 600;
   padding: 8px 0;
@@ -3069,7 +3069,7 @@ table.order-details tbody td {
 
 .dark-card{
     /* background: linear-gradient(135deg, #0a2540e0, #2b64b5); */
-    background: linear-gradient(135deg, #2b64b5, #2b64b5d1);
+    background: linear-gradient(135deg,#f28123,#ff9f45);
     color: #fff;
     box-shadow: 0 25px 60px rgb(10 37 64 / 22%);
 }
@@ -3080,6 +3080,9 @@ table.order-details tbody td {
     border-radius: 16px;
     padding: 18px 40px;
     margin-bottom: 18px;
+}
+.contact-form-box i {
+  color: #ffffff !important;
 }
 
 .contact-form-box h4{
