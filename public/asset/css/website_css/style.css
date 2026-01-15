@@ -1257,7 +1257,6 @@ Header
 
 .footer-links-center li {
     display: flex;
-    justify-content: center;
     margin-bottom: 10px;
     width: 160px;               /* SAME WIDTH FOR ALL */
     margin-bottom: 10px;
