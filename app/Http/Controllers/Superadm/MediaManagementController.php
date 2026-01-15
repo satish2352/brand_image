@@ -38,32 +38,37 @@ class MediaManagementController extends Controller
     {
         try {
             $filters = [
-                'vendor_id' => $request->vendor_id,
+                'vendor_id'   => $request->vendor_id,
                 'category_id' => $request->category_id,
-                'month' => $request->month,
-                'year' => $request->year,
-                'from_date' => $request->from_date,
-                'to_date' => $request->to_date,
+                'district_id' => $request->district_id,
+                'city_id'     => $request->city_id,
+                'month'       => $request->month,
+                'year'        => $request->year,
+                'from_date'   => $request->from_date,
+                'to_date'     => $request->to_date,
             ];
 
-            $mediaList = $this->mediaService->getAll($filters);
-
-            $vendors = Vendor::where('is_active', 1)->where('is_deleted', 0)->get();
+            $mediaList  = $this->mediaService->getAll($filters);
+            $vendors    = Vendor::where('is_active', 1)->where('is_deleted', 0)->get();
             $categories = Category::where('is_active', 1)->where('is_deleted', 0)->get();
+            $districts  = DB::table('districts')->where('is_active', 1)->where('is_deleted', 0)->get();
 
-            $years = getYears();
+            $years  = getYears();
             $months = getMonths();
+
             return view('superadm.mediamanagement.list', compact(
                 'mediaList',
                 'vendors',
                 'categories',
+                'districts',
                 'years',
                 'months'
             ));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Something went wrong');
+            return back()->with('error', 'Something went wrong');
         }
     }
+
 
     public function create()
     {

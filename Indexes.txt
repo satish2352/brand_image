@@ -1,0 +1,50 @@
+ALTER TABLE media_management
+  ADD INDEX idx_city_id (city_id),
+  ADD INDEX idx_area_id (area_id),
+  ADD INDEX idx_category_id (category_id),
+  ADD INDEX idx_state_id (state_id),
+  ADD INDEX idx_district_id (district_id),
+  ADD INDEX idx_is_active (is_active),
+  ADD INDEX idx_latitude_longitude (latitude, longitude);
+
+
+ALTER TABLE areas
+  ADD INDEX idx_city_id (city_id),
+  ADD INDEX idx_district_id (district_id),
+  ADD INDEX idx_state_id (state_id),
+  ADD INDEX idx_is_active (is_active);
+
+ALTER TABLE vendors
+  ADD INDEX idx_city_id (city_id),
+  ADD INDEX idx_district_id (district_id),
+  ADD INDEX idx_state_id (state_id),
+  ADD INDEX idx_is_active (is_active);
+
+ALTER TABLE media_booked_date
+  ADD INDEX idx_media_id (media_id),
+  ADD INDEX idx_date_range (from_date, to_date);
+
+ALTER TABLE cart_items
+  ADD INDEX idx_user_id (user_id),
+  ADD INDEX idx_session_id (session_id),
+  ADD INDEX idx_campaign_id (campaign_id),
+  ADD INDEX idx_media_id (media_id);
+
+ALTER TABLE orders
+  ADD INDEX idx_user_id (user_id),
+  ADD INDEX idx_payment_status (payment_status),
+  ADD INDEX idx_created_at (created_at);
+
+ALTER TABLE order_items
+  ADD INDEX idx_media_id (media_id);
+
+
+ALTER TABLE notifications
+  ADD INDEX idx_user_id (user_id),
+  ADD INDEX idx_order_id (order_id),
+  ADD INDEX idx_media_id (media_id),
+  ADD INDEX idx_is_read (is_read);
+
+ALTER TABLE website_users
+  ADD INDEX idx_mobile (mobile_number),
+  ADD INDEX idx_is_active (is_active);

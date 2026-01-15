@@ -49,7 +49,25 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-md-3">
+                                    <label>District</label>
+                                    <select name="district_id" id="district_id" class="form-control">
+                                        <option value="">All</option>
+                                        @foreach ($districts as $d)
+                                            <option value="{{ $d->id }}"
+                                                {{ request('district_id') == $d->id ? 'selected' : '' }}>
+                                                {{ $d->district_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
+                                <div class="col-md-3">
+                                    <label>City</label>
+                                    <select name="city_id" id="city_id" class="form-control">
+                                        <option value="">All</option>
+                                    </select>
+                                </div>
                                 <div class="col-md-3">
                                     <label>Year</label>
                                     <select name="year" class="form-control">
@@ -93,8 +111,9 @@
                                 </div>
                             </div>
                         </form>
+                        <table class="table table-bordered table-striped">
 
-                        <table class="table table-bordered table-striped datatables">
+                            {{-- <table class="table table-bordered table-striped datatables"> --}}
                             <thead class="table-light">
                                 <tr>
                                     <th>Sr.No</th>

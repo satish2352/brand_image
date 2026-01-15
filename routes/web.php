@@ -115,15 +115,19 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     /* MEDIA AJAX (LOCATION HELPERS) */
     Route::get('get-states', [MediaManagementController::class, 'getStates']);
     Route::get('get-districts/{stateId}', [MediaManagementController::class, 'getDistricts']);
-    Route::get('get-cities/{districtId}', [MediaManagementController::class, 'getCities']);
+    // Route::get('get-cities/{districtId}', [MediaManagementController::class, 'getCities']);
     Route::get('get-areas/{cityId}', [MediaManagementController::class, 'getAreas']);
     Route::get('get-all-areas', [MediaManagementController::class, 'getAllAreas']);
     Route::get('get-area-parents/{areaId}', [MediaManagementController::class, 'getAreaParents']);
+
+    Route::get('get-cities/{districtId}', [MediaManagementController::class, 'getCities'])
+        ->name('media.getCities');
+
     // ===================
-    Route::post('/media/update-status', [MediaManagementController::class, 'getAllAreas'])->name('media.updatestatus');
-    Route::post('/media/update-status', [MediaManagementController::class, 'getAreaParents'])->name('media.updatestatus');
-    Route::post('/media/update-status', [MediaManagementController::class, 'getDistricts'])->name('media.updatestatus');
-    Route::post('/media/update-status', [MediaManagementController::class, 'getAreas'])->name('media.updatestatus');
+    // Route::post('/media/update-status', [MediaManagementController::class, 'getAllAreas'])->name('media.updatestatus');
+    // Route::post('/media/update-status', [MediaManagementController::class, 'getAreaParents'])->name('media.updatestatus');
+    // Route::post('/media/update-status', [MediaManagementController::class, 'getDistricts'])->name('media.updatestatus');
+    // Route::post('/media/update-status', [MediaManagementController::class, 'getAreas'])->name('media.updatestatus');
     Route::prefix('website-user')->group(function () {
         Route::get('list', [WebsiteUserController::class, 'index'])->name('website-user.list');
         Route::post('delete', [WebsiteUserController::class, 'delete'])->name('website-user.delete');
