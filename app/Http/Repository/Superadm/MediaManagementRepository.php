@@ -45,7 +45,7 @@ class MediaManagementRepository
     // }
     public function getAll($filters = [])
     {
-        $perPage = config('fileConstants.PAGINATION', 10);
+        $perPage = config('fileConstants.PAGINATION', 1);
 
         $query = DB::table('media_management as m')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
@@ -76,12 +76,21 @@ class MediaManagementRepository
         if (!empty($filters['category_id'])) {
             $query->where('m.category_id', $filters['category_id']);
         }
+        if (!empty($filters['district_id'])) {
+            $query->where('m.district_id', $filters['district_id']);
+        }
+
+        if (!empty($filters['city_id'])) {
+            $query->where('m.city_id', $filters['city_id']);
+        }
+
         if (!empty($filters['month'])) {
             $query->whereMonth('m.created_at', $filters['month']);
         }
         if (!empty($filters['year'])) {
             $query->whereYear('m.created_at', $filters['year']);
         }
+
         if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
             $query->whereBetween(DB::raw('DATE(m.created_at)'), [
                 $filters['from_date'],
