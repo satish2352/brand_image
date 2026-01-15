@@ -43,7 +43,7 @@
 
                                 {{-- EDIT --}}
                                 <a href="{{ route('homeslider.edit', base64_encode($row->id)) }}"
-                                    class="btn btn-sm btn-warning">
+                                    class="btn btn-sm btn-primary">
                                     <i class="mdi mdi-pencil"></i>
                                 </a>
 
