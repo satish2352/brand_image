@@ -36,6 +36,76 @@
     .result-badge.no-result .count {
         color: #dc3545;
     }
+
+    /* .range-slider-container {
+        position: relative;
+        height: 40px;
+    }
+
+    .range-slider-container input[type=range] {
+        position: absolute;
+        width: 100%;
+        pointer-events: none;
+        -webkit-appearance: none;
+        background: none;
+    }
+
+    .range-slider-container input[type=range]::-webkit-slider-thumb {
+        pointer-events: auto;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #f28123;
+        cursor: pointer;
+        -webkit-appearance: none;
+    } */
+    /* SLIDER WRAP */
+    .range-slider-container {
+        position: relative;
+        width: 100%;
+        height: 40px;
+        margin-top: 10px;
+    }
+
+    /* Remove default look */
+    .range-slider-container input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        background: transparent;
+        position: absolute;
+        top: 0;
+        pointer-events: none;
+    }
+
+    /* GREY base track */
+    .range-slider-container input[type=range]::-webkit-slider-runnable-track {
+        height: 6px;
+        background: #d7d7d7;
+        border-radius: 3px;
+    }
+
+    /* SLIDER THUMB */
+    .range-slider-container input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        pointer-events: auto;
+        width: 18px;
+        height: 18px;
+        background: #f28123;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid white;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ORANGE SELECTED RANGE */
+    .range-slider-fill {
+        position: absolute;
+        height: 6px;
+        background: #f28123;
+        top: 0px;
+        border-radius: 3px;
+        z-index: 2;
+    }
 </style>
 <div class="container mt-5 mb-5">
     <h3 class="text-center orange-text">Discover Media Spaces Near You</h3>
@@ -154,6 +224,34 @@
                             15 Days</option>
                     </select>
                 </div>
+                <div class="col-lg-4 col-md-4 col-sm-6" id="days_wrapper">
+
+                    <!-- Budget Slider -->
+                    <div class="range-slider-container">
+                        <input type="hidden" name="min_price" id="min_price" value="{{ $filters['min_price'] ?? 0 }}">
+                        <input type="hidden" name="max_price" id="max_price"
+                            value="{{ $filters['max_price'] ?? 200000 }}">
+
+                        <div class="range-slider-fill" id="rangeFill"></div>
+
+                        <input type="range" id="minRange" min="0" max="200000" step="1000"
+                            value="{{ $filters['min_price'] ?? 0 }}">
+                        <input type="range" id="maxRange" min="0" max="200000" step="1000"
+                            value="{{ $filters['max_price'] ?? 200000 }}">
+
+                        <div class="d-flex justify-content-between mt-2">
+                            <span id="minRangeLabel" style="font-weight:600">
+                                ₹{{ number_format($filters['min_price'] ?? 0) }}
+                            </span>
+
+                            <span id="maxRangeLabel" style="font-weight:600">
+                                ₹{{ number_format($filters['max_price'] ?? 200000) }}
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
 
                 <!-- Buttons -->
                 {{-- <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
@@ -405,5 +503,53 @@
 
         // 🔥 Page load → KEEP values
         toggleFields($('select[name="category_id"]').val(), false);
+    });
+</script>
+<script>
+    $(document).ready(function() {
+
+        let minSlider = $("#minRange");
+        let maxSlider = $("#maxRange");
+        let fill = $("#rangeFill");
+        let minLabel = $("#minRangeLabel");
+        let maxLabel = $("#maxRangeLabel");
+        let maxValue = parseInt(maxSlider.attr("max"));
+
+        function updateSlider() {
+            let minVal = parseInt(minSlider.val());
+            let maxVal = parseInt(maxSlider.val());
+
+            if (minVal > maxVal - 1000) {
+                minVal = maxVal - 1000;
+                minSlider.val(minVal);
+            }
+
+            let minPercent = (minVal / maxValue) * 100;
+            let maxPercent = (maxVal / maxValue) * 100;
+
+            fill.css({
+                left: minPercent + "%",
+                width: (maxPercent - minPercent) + "%"
+            });
+
+            minLabel.text("₹" + minVal.toLocaleString('en-IN'));
+            maxLabel.text("₹" + maxVal.toLocaleString('en-IN'));
+
+            $("#min_price").val(minVal);
+            $("#max_price").val(maxVal);
+        }
+
+        // Restore values from search page
+        let savedMin = {{ $filters['min_price'] ?? 0 }};
+        let savedMax = {{ $filters['max_price'] ?? 200000 }};
+
+        minSlider.val(savedMin);
+        maxSlider.val(savedMax);
+
+        updateSlider(); // initial paint
+
+        // ⭐⭐ MOST IMPORTANT — Update UI when dragging ⭐⭐
+        minSlider.on("input change", updateSlider);
+        maxSlider.on("input change", updateSlider);
     });
 </script>

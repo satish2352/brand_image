@@ -57,6 +57,8 @@ class HomeController extends Controller
             'to_date',
             'area_type',
             'available_days',
+            'min_price',   // <- add
+            'max_price',   // <- add
         ]);
 
         $mediaList = $this->homeService->searchMedia($filters);
