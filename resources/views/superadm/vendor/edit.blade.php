@@ -69,7 +69,7 @@
                         {{-- MOBILE --}}
                         <div class="mb-3">
                             <label>Mobile <span class="text-danger">*</span></label>
-                            <input type="text" name="mobile" maxlength="10"
+                            <input type="text" id="mobile" name="mobile" maxlength="10"
                                 class="form-control @error('mobile') is-invalid @enderror"
                                 value="{{ old('mobile', $vendor->mobile) }}">
                             @error('mobile')
@@ -177,4 +177,42 @@
 
         });
     </script>
+
+    <script>
+$(document).ready(function () {
+
+    $('#mobile').on('input', function () {
+
+        // फक्त numbers ठेवतो
+        let value = $(this).val().replace(/[^0-9]/g, '');
+        $(this).val(value);
+
+        let errorMsg = '';
+
+        // Starting digit check
+        if (value.length > 0 && !/^[6-9]/.test(value)) {
+            errorMsg = 'Mobile number must start with 6, 7, 8, or 9';
+        }
+        // Length check
+        else if (value.length > 10) {
+            errorMsg = 'Mobile number must be exactly 10 digits';
+        }
+
+        // Error show / hide
+        if (errorMsg !== '') {
+            $(this).addClass('is-invalid');
+            if (!$('#mobile-error').length) {
+                $(this).after(`<div id="mobile-error" class="invalid-feedback">${errorMsg}</div>`);
+            } else {
+                $('#mobile-error').text(errorMsg);
+            }
+        } else {
+            $(this).removeClass('is-invalid');
+            $('#mobile-error').remove();
+        }
+    });
+
+});
+</script>
+
 @endsection

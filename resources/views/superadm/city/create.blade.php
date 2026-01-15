@@ -78,6 +78,8 @@
 
 @section('scripts')
     <script>
+        let oldState    = "{{ old('state_id') }}";
+        let oldDistrict = "{{ old('district_id') }}";
         $(document).ready(function() {
 
             console.log('Area create page loaded');
@@ -85,47 +87,54 @@
             // ================= LOAD STATES =================
             $.get("{{ route('ajax.states') }}", function(response) {
 
-                $('#state').html('<option value="" selected>Select State</option>');
-
-                if (!response.length) {
-                    $('#state').append('<option value="" disabled>No states found</option>');
-                    return;
-                }
+                $('#state').html('<option value="">Select State</option>');
 
                 $.each(response, function(i, item) {
+                    let selected = item.id == oldState ? 'selected' : '';
                     $('#state').append(
-                        `<option value="${item.id}">${item.state_name}</option>`
+                        `<option value="${item.id}" ${selected}>${item.state_name}</option>`
                     );
                 });
+
+                // OLD STATE असल्यास districts auto load
+                if (oldState) {
+                    loadDistricts(oldState);
+                }
             });
 
             // ================= STATE → DISTRICTS =================
             $('#state').on('change', function() {
 
                 let stateId = $(this).val();
-
-                $('#district').prop('disabled', true).html('<option value="">Select District</option>');
-
+                oldDistrict = null; // new selection
+                $('#district').html('<option value="">Select District</option>');
 
                 if (!stateId) return;
 
-                $.post("{{ route('ajax.districts') }}", {
-                    _token: "{{ csrf_token() }}",
-                    state_id: stateId
-                }, function(response) {
-
-                    $('#district').prop('disabled', false);
-
-                    $.each(response, function(i, item) {
-                        $('#district').append(
-                            `<option value="${item.id}">${item.district_name}</option>`
-                        );
-                    });
-                });
+                loadDistricts(stateId);
             });
 
 
 
         });
+
+        function loadDistricts(stateId) {
+
+            $('#district').html('<option value="">Select District</option>');
+
+            $.post("{{ route('ajax.districts') }}", {
+                _token: "{{ csrf_token() }}",
+                state_id: stateId
+            }, function(response) {
+
+                $.each(response, function(i, item) {
+                    let selected = item.id == oldDistrict ? 'selected' : '';
+                    $('#district').append(
+                        `<option value="${item.id}" ${selected}>${item.district_name}</option>`
+                    );
+                });
+            });
+        }
+
     </script>
 @endsection
