@@ -10,6 +10,15 @@ html {
   height: 100%;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
+#contact-form {
+    scroll-margin-top: 100px; /* value adjust*/
+}
+
+
 body {
   font-family: "Outfit", sans-serif;
   font-weight: 400;
@@ -1584,6 +1593,28 @@ input[type="submit"] {
 
 .homepage-bg-3 {
   background-image: url(../img/hero-bg-3.png);
+}
+
+.carousel-item {
+  margin-top: 6rem;
+}
+
+@media (max-width: 980px) {
+  .carousel-item {
+    margin-top: 5rem;
+  }
+
+}
+
+.carousel-img {
+    height: calc(100vh - 90px);
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .carousel-img {
+        height: auto;
+    }
 }
 
 /* vivek */

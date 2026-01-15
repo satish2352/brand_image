@@ -7,7 +7,43 @@ use Illuminate\Support\Facades\DB;
 
 class MediaManagementRepository
 {
-    public function getAll($search = null)
+    // public function getAll($search = null)
+    // {
+    //     $perPage = config('fileConstants.PAGINATION', 10);
+
+    //     $query = DB::table('media_management as m')
+    //         ->leftJoin('states as s', 's.id', '=', 'm.state_id')
+    //         ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
+    //         ->leftJoin('cities as cty', 'cty.id', '=', 'm.city_id')
+    //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+    //         ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+    //         ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
+    //         ->select([
+    //             'm.id',
+    //             'm.media_code',
+    //             'm.media_title',
+    //             'm.price',
+    //             'm.is_active',
+    //             'v.vendor_name',
+    //             'c.category_name',
+    //             's.state_name',
+    //             'd.district_name',
+    //             'cty.city_name',
+    //             'a.area_name',
+    //         ])
+    //         ->where('m.is_deleted', 0);
+
+    //     if (!empty($search)) {
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('m.media_title', 'like', "%$search%")
+    //                 ->orWhere('v.vendor_name', 'like', "%$search%")
+    //                 ->orWhere('c.category_name', 'like', "%$search%");
+    //         });
+    //     }
+
+    //     return $query->orderBy('m.id', 'desc')->paginate($perPage);
+    // }
+    public function getAll($filters = [])
     {
         $perPage = config('fileConstants.PAGINATION', 10);
 
@@ -29,16 +65,28 @@ class MediaManagementRepository
                 's.state_name',
                 'd.district_name',
                 'cty.city_name',
-                'a.area_name',
+                'a.area_name'
             ])
             ->where('m.is_deleted', 0);
 
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('m.media_title', 'like', "%$search%")
-                    ->orWhere('v.vendor_name', 'like', "%$search%")
-                    ->orWhere('c.category_name', 'like', "%$search%");
-            });
+        // 🔍 FILTERS
+        if (!empty($filters['vendor_id'])) {
+            $query->where('m.vendor_id', $filters['vendor_id']);
+        }
+        if (!empty($filters['category_id'])) {
+            $query->where('m.category_id', $filters['category_id']);
+        }
+        if (!empty($filters['month'])) {
+            $query->whereMonth('m.created_at', $filters['month']);
+        }
+        if (!empty($filters['year'])) {
+            $query->whereYear('m.created_at', $filters['year']);
+        }
+        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+            $query->whereBetween(DB::raw('DATE(m.created_at)'), [
+                $filters['from_date'],
+                $filters['to_date']
+            ]);
         }
 
         return $query->orderBy('m.id', 'desc')->paginate($perPage);

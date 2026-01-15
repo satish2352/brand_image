@@ -185,8 +185,8 @@
 
 .wizard-content .wizard>.actions>ul>li>a[href="#previous"] {
 	background-color: #fff;
-	color: #c74434;
-	border: 1px solid #c74434;
+	color: #008f97
+	border: 1px solid #008f97
 }
 
 .wizard-content .wizard>.actions>ul>li>a[href="#previous"]:focus,
@@ -337,7 +337,7 @@
 		width: 50%;
 	}
 	.wizard-content .wizard>.steps>ul>li.current:after {
-		background-color: #c74434;
+		background-color: #008f97
 	}
 	.wizard-content .wizard.vertical>.steps>ul>li {
 		display: block;

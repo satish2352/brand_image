@@ -1,25 +1,23 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Superadm\LoginController;
 use App\Http\Controllers\Superadm\DashboardController;
-
-use App\Http\Controllers\Superadm\RoleController;
-use App\Http\Controllers\Superadm\RadiusController;
 use App\Http\Controllers\Superadm\MediaUtilisationReportController;
 use App\Http\Controllers\Superadm\RevenueReportController;
 use App\Http\Controllers\Superadm\RevenueGraphController;
-use App\Http\Controllers\Superadm\VendorController;
-use App\Http\Controllers\Superadm\IlluminationController;
+use App\Http\Controllers\Superadm\Master\VendorController;
+use App\Http\Controllers\Superadm\Master\IlluminationController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
-use App\Http\Controllers\Superadm\AreaController;
+use App\Http\Controllers\Superadm\Master\AreaController;
+use App\Http\Controllers\Superadm\Master\CityController;
+use App\Http\Controllers\Superadm\Master\RadiusController;
 use App\Http\Controllers\Superadm\MediaManagementController;
-use App\Http\Controllers\Superadm\EmployeesController;
 use App\Http\Controllers\Superadm\ChangePasswordController;
 use App\Http\Controllers\Website\CartController;
 use App\Http\Controllers\Website\CheckoutController;
+use App\Http\Controllers\Superadm\HomeSliderController;
 // website
 use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\AuthController;
@@ -29,7 +27,6 @@ use App\Http\Controllers\Superadm\WebsiteUserController;
 use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Website\PaymentHistoryController;
 use App\Http\Controllers\Superadm\CampaingController;
 use App\Http\Controllers\Superadm\HordingBookController;
@@ -81,10 +78,16 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('delete', [AreaController::class, 'delete'])->name('area.delete');
         Route::post('update-status', [AreaController::class, 'updateStatus'])->name('area.updatestatus');
     });
-
-    /* AREA AJAX DROPDOWNS */
-
-
+    /* CITY MANAGEMENT */
+    Route::prefix('city')->group(function () {
+        Route::get('list', [CityController::class, 'index'])->name('city.list');
+        Route::get('add', [CityController::class, 'create'])->name('city.create');
+        Route::post('add', [CityController::class, 'store'])->name('city.store');
+        Route::get('edit/{encodedId}', [CityController::class, 'edit'])->name('city.edit');
+        Route::post('update/{encodedId}', [CityController::class, 'update'])->name('city.update');
+        Route::post('delete', [CityController::class, 'delete'])->name('city.delete');
+        Route::post('update-status', [CityController::class, 'updateStatus'])->name('city.updatestatus');
+    });
     /* CATEGORY MANAGEMENT */
     Route::prefix('category')->group(function () {
         Route::get('list', [CategoryController::class, 'index'])->name('category.list');
@@ -140,9 +143,39 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::prefix('admin-campaing')->group(function () {
         Route::get('list', [CampaingController::class, 'index'])->name('admin-campaing.list');
         Route::post('delete', [CampaingController::class, 'delete'])->name('admin-campaing.delete');
-        Route::get('/details/{campaignId}', [CampaingController::class, 'details'])
+        Route::get('/details/{campaignId}/{userId}', [CampaingController::class, 'details'])
             ->name('admin.campaign.details');
+
+        Route::post('admin-campaing/book', [CampaingController::class, 'book'])
+            ->name('admin.campaign.book');
     });
+
+    Route::get('superadm/contact-us/view/{id}', [ContactUsController::class, 'viewDetails'])->name('contact-us.view');
+
+    /* ================= HOME SLIDER ================= */
+    Route::prefix('home-slider')->group(function () {
+
+        Route::get('list', [HomeSliderController::class, 'index'])
+            ->name('homeslider.list');
+
+        Route::get('add', [HomeSliderController::class, 'create'])
+            ->name('homeslider.create');
+
+        Route::post('add', [HomeSliderController::class, 'store'])
+            ->name('homeslider.store');
+
+        Route::post('delete', [HomeSliderController::class, 'delete'])
+            ->name('homeslider.delete');
+
+        Route::get('edit/{id}', [HomeSliderController::class, 'edit'])
+            ->name('homeslider.edit');
+
+        Route::post('update/{id}', [HomeSliderController::class, 'update'])
+            ->name('homeslider.update');
+
+        Route::post('update-status', [HomeSliderController::class, 'toggleStatus'])->name('homeslider.status');
+    });
+
     // Radius Master
     Route::get('radius/list', [RadiusController::class, 'index'])->name('radius.list');
     Route::get('radius/create', [RadiusController::class, 'create'])->name('radius.create');
@@ -263,37 +296,17 @@ Route::post('/payment/success', [CheckoutController::class, 'success'])->name('p
 // })->name('payment.thankyou');
 Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 Route::middleware(['web'])->group(function () {
-    Route::post('/campaign/store', [CampaignController::class, 'store'])
-        ->name('campaign.store');
+    Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
     // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
     //     ->name('campaign.list');
-    Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])
-        ->name('campaign.list');
-    Route::get(
-        '/campaign-export-excel/{campaignId}',
-        [CampaignController::class, 'exportExcel']
-    )->name('campaign.export.excel');
-    Route::get(
-        '/campaign-export-ppt/{campaignId}',
-        [CampaignController::class, 'exportPpt']
-    )->name('campaign.export.ppt');
-    Route::post(
-        '/checkout/campaign/{campaignId}',
-        [CheckoutController::class, 'placeCampaignOrder']
-    )->name('checkout.campaign');
-
-    Route::get(
-        '/campaign/details/{cart_item_id}',
-        [CampaignController::class, 'viewDetails']
-    )->name('campaign.details');
-    Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])
-        ->name('campaign.payment.history');
-    Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])
-        ->name('campaign.invoice.payments')
-        ->middleware('auth:website');
-    Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])
-        ->name('campaign.invoice.view');
-
+    Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
+    Route::get('/campaign-export-excel/{campaignId}', [CampaignController::class, 'exportExcel'])->name('campaign.export.excel');
+    Route::get('/campaign-export-ppt/{campaignId}', [CampaignController::class, 'exportPpt'])->name('campaign.export.ppt');
+    Route::post('/checkout/campaign/{campaignId}', [CheckoutController::class, 'placeCampaignOrder'])->name('checkout.campaign');
+    Route::get('/campaign/details/{cart_item_id}', [CampaignController::class, 'viewDetails'])->name('campaign.details');
+    Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])->name('campaign.payment.history');
+    Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])->name('campaign.invoice.payments')->middleware('auth:website');
+    Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
     Route::get('invoice/download/{id}', [PaymentHistoryController::class, 'downloadInvoice'])->name('invoice.download');
 });
 // Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Services\Superadm;
+namespace App\Http\Services\Superadm\Master;
 
 use Illuminate\Support\Facades\DB;
-use App\Http\Repository\Superadm\AreaRepository;
+use App\Http\Repository\Superadm\Master\AreaRepository;
 use Exception;
 
 class AreaService

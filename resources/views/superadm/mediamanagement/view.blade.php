@@ -1,215 +1,230 @@
 @extends('superadm.layout.master')
 
 @section('content')
-<div class="card shadow-sm">
-    <div class="card-body">
+    <div class="card shadow-sm">
+        <div class="card-body">
 
-        <h4 class="mb-4">Media Images</h4>
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
+            <h4 class="mb-4">Media Images</h4>
 
-        {{-- ================= ADD IMAGE FORM ================= --}}
-        <form id="imageUploadForm" enctype="multipart/form-data" class="mb-4">
-            @csrf
-            <input type="hidden" name="media_id" value="{{ $media->id }}">
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <input type="file"
-                           name="images[]"
-                           multiple
-                           class="form-control"
-                           accept="image/*">
+            {{-- ================= ADD MEDIA FORM ================= --}}
+            {{-- <form id="imageUploadForm" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="media_id" value="{{ $media->id }}">
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Upload Images</label>
+                        <input type="file" name="images[]" multiple class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end gap-2 mt-2 mt-md-0">
+                        <a href="{{ route('media.list') }}" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Back
+                        </a>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-upload"></i> Submit
+                        </button>
+                    </div>
+                </div>
+            </form> --}}
+            <form id="imageUploadForm" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="media_id" value="{{ $media->id }}">
+
+                {{-- IMAGE INPUT FIELD --}}
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Upload Images</label>
+                        <input type="file" name="images[]" multiple class="form-control" accept="image/*">
+                    </div>
                 </div>
 
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary">
+                {{-- IMAGE LIST --}}
+                <div class="row">
+                    @forelse($media->images as $img)
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4" id="img-{{ $img->id }}">
+                            <div class="border rounded position-relative overflow-hidden">
+
+                                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}" class="img-fluid w-100"
+                                    style="height:170px; object-fit:cover;">
+
+                                <button type="button" class="btn btn-danger btn-sm position-absolute"
+                                    style="top:6px; right:6px" onclick="deleteImage({{ $img->id }})">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12 text-center py-4">
+                            <p class="text-muted">No images uploaded yet.</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- BUTTONS BELOW IMAGES --}}
+                <div class="mt-3 d-flex gap-2">
+                    <a href="{{ route('media.list') }}" class="btn btn-secondary m-1">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </a>
+
+                    <button type="submit" class="btn btn-success m-1">
                         <i class="fa fa-upload"></i> Submit
                     </button>
                 </div>
-            </div>
-        </form>
 
-        {{-- ================= IMAGE GRID ================= --}}
-        <div class="row">
-            @forelse($media->images as $img)
-                <div class="col-md-3 mb-4" id="img-{{ $img->id }}">
-                    <div class="border rounded p-2 position-relative">
+            </form>
 
-                        <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
-                             class="img-fluid rounded"
-                             style="height:150px; width:100%; object-fit:cover;">
+            {{-- ================= IMAGE GALLERY ================= --}}
+            <hr>
 
-                        <button type="button"
-                                class="btn btn-danger btn-sm position-absolute"
-                                style="top:5px; right:5px"
-                                onclick="deleteImage({{ $img->id }})">
-                            <i class="fa fa-trash"></i>
-                        </button>
+            {{-- <div class="row mt-3">
+                @forelse($media->images as $img)
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4" id="img-{{ $img->id }}">
+                        <div class="border rounded position-relative overflow-hidden">
 
+                            <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}" class="img-fluid w-100"
+                                style="height:170px; object-fit:cover;">
+
+                            <button type="button" class="btn btn-danger btn-sm position-absolute"
+                                style="top:6px; right:6px;" onclick="deleteImage({{ $img->id }})">
+                                <i class="fa fa-trash"></i>
+                            </button>
+
+                        </div>
                     </div>
-                </div>
-            @empty
-                <div class="col-12">
-                    <p class="text-muted">No images available.</p>
-                </div>
-            @endforelse
+                @empty
+                    <div class="col-12 text-center py-4">
+                        <p class="text-muted">No images uploaded yet.</p>
+                    </div>
+                @endforelse
+            </div> --}}
+
         </div>
-
-        <a href="{{ route('media.list') }}" class="btn btn-secondary mt-3">
-            Back
-        </a>
-
     </div>
-</div>
 @endsection
 
 
 @section('scripts')
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-function showAlert(type, message) {
-    Swal.fire({
-        icon: type,       // success | error | warning | info
-        text: message,
-        confirmButtonText: 'OK'
-    });
-}
-</script>
-
-{{-- ================= UPLOAD IMAGE ================= --}}
-<script>
-$('#imageUploadForm').on('submit', function(e) {
-    e.preventDefault();
-
-    let formData = new FormData(this);
-
-    $.ajax({
-        url: "{{ route('media.image.upload') }}",
-        type: "POST",
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function(res) {
-            if (res.status) {
-                location.reload();
-            } else {
-                // alert(res.message);
-                showAlert('error', res.message);
-            }
-        },
-        error: function (xhr) {
-
-            // Laravel validation errors
-            if (xhr.status === 422) {
-
-                // CASE 1: custom message (total > 10 images)
-                if (xhr.responseJSON.message) {
-                    // alert(xhr.responseJSON.message);
-                    showAlert('warning', xhr.responseJSON.message);
-                    return;
-                }
-
-                // CASE 2: normal validation errors
-                if (xhr.responseJSON.errors) {
-                    let errorMessage = '';
-
-                    $.each(xhr.responseJSON.errors, function (key, value) {
-                        errorMessage += value[0] + '\n';
-                    });
-
-                    // alert(errorMessage);
-                    // showAlert('error', errorMessage);
-                    showAlert('error', errorMessage);
-                    return;
-                }
-            }
-
-            // Other errors
-            // alert('Image upload failed. Please try again.');
-            showAlert('error', 'Image upload failed. Please try again.');
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function showAlert(type, message) {
+            Swal.fire({
+                icon: type, // success | error | warning | info
+                text: message,
+                confirmButtonText: 'OK'
+            });
         }
-        // error: function () {
-        //     alert('Image upload failed');
-        // }
-    });
-});
-</script>
+    </script>
 
-{{-- ================= DELETE IMAGE ================= --}}
-<script>
-// function deleteImage(imageId) {
+    {{-- ================= UPLOAD IMAGE ================= --}}
+    <script>
+        $('#imageUploadForm').on('submit', function(e) {
+            e.preventDefault();
 
-//     if (!confirm('Delete this image?')) return;
+            let formData = new FormData(this);
 
-//     $.ajax({
-//         url: "{{ route('media.image.delete') }}",
-//         type: "POST",
-//         data: {
-//             _token: "{{ csrf_token() }}",
-//             image_id: imageId
-//         },
-//         success: function(res) {
-//             if (res.status) {
-//                 $('#img-' + imageId).fadeOut(300, function () {
-//                     $(this).remove();
-//                 });
-//             } else {
-//                 alert(res.message);
-//             }
-//         },
-//         error: function () {
-//             alert('Delete failed');
-//         }
-//     });
-// }
-function deleteImage(imageId) {
+            $.ajax({
+                url: "{{ route('media.image.upload') }}",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(res) {
+                    if (res.status) {
+                        location.reload();
+                    } else {
+                        // alert(res.message);
+                        showAlert('error', res.message);
+                    }
+                },
+                error: function(xhr) {
 
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'This image will be deleted',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, delete it',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
+                    // Laravel validation errors
+                    if (xhr.status === 422) {
 
-        if (!result.isConfirmed) return;
+                        // CASE 1: custom message (total > 10 images)
+                        if (xhr.responseJSON.message) {
+                            // alert(xhr.responseJSON.message);
+                            showAlert('warning', xhr.responseJSON.message);
+                            return;
+                        }
 
-        $.ajax({
-            url: "{{ route('media.image.delete') }}",
-            type: "POST",
-            data: {
-                _token: "{{ csrf_token() }}",
-                image_id: imageId
-            },
-            success: function(res) {
-                if (res.status) {
-                    Swal.fire({
-                        icon: 'success',
-                        text: res.message,
-                        timer: 1200,
-                        showConfirmButton: false
-                    });
+                        // CASE 2: normal validation errors
+                        if (xhr.responseJSON.errors) {
+                            let errorMessage = '';
 
-                    $('#img-' + imageId).fadeOut(300, function () {
-                        $(this).remove();
-                    });
-                } else {
-                    showAlert('error', res.message);
+                            $.each(xhr.responseJSON.errors, function(key, value) {
+                                errorMessage += value[0] + '\n';
+                            });
+
+                            // alert(errorMessage);
+                            // showAlert('error', errorMessage);
+                            showAlert('error', errorMessage);
+                            return;
+                        }
+                    }
+
+                    // Other errors
+                    // alert('Image upload failed. Please try again.');
+                    showAlert('error', 'Image upload failed. Please try again.');
                 }
-            },
-            error: function () {
-                showAlert('error', 'Delete failed');
-            }
+                // error: function () {
+                //     alert('Image upload failed');
+                // }
+            });
         });
+    </script>
 
-    });
-}
+    {{-- ================= DELETE IMAGE ================= --}}
+    <script>
+        function deleteImage(imageId) {
 
-</script>
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This image will be deleted',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+
+                if (!result.isConfirmed) return;
+
+                $.ajax({
+                    url: "{{ route('media.image.delete') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        image_id: imageId
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            Swal.fire({
+                                icon: 'success',
+                                text: res.message,
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
+
+                            $('#img-' + imageId).fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    error: function() {
+                        showAlert('error', 'Delete failed');
+                    }
+                });
+
+            });
+        }
+    </script>
 @endsection

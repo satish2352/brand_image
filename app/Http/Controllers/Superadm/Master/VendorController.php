@@ -1,10 +1,10 @@
 <?php
 
 // app/Http/Controllers/Superadm/VendorController.php
-namespace App\Http\Controllers\Superadm;
+namespace App\Http\Controllers\Superadm\Master;
 
 use App\Http\Controllers\Controller;
-use App\Http\Services\Superadm\VendorService;
+use App\Http\Services\Superadm\Master\VendorService;
 use Illuminate\Http\Request;
 use Exception;
 use Maatwebsite\Excel\Facades\Excel;
@@ -39,11 +39,13 @@ class VendorController extends Controller
 
             'vendor_name' => 'required|string|max:255',
             'vendor_code' => 'required|string|max:100',
-            'mobile'      => 'required|digits:10',
+            // 'mobile'      => 'required|digits:10',
+            'mobile'      => ['required', 'regex:/^[6-9][0-9]{9}$/'],
             'email'       => 'required|email:rfc,dns',
             'address'     => 'required|string|min:5',
         ], [
-            'mobile.digits' => 'Mobile number must be exactly 10 digits',
+            // 'mobile.digits' => 'Mobile number must be exactly 10 digits',
+            'mobile.regex' => 'Mobile number must be 10 digits and start with 6, 7, 8, or 9',
             'email.email'   => 'Enter a valid email (example@domain.co)',
         ]);
 
@@ -74,9 +76,14 @@ class VendorController extends Controller
 
             'vendor_name' => 'required|string|max:255',
             'vendor_code' => 'required|string|max:100',
-            'mobile'      => 'required|digits:10',
+            // 'mobile'      => 'required|digits:10',
+            'mobile'      => ['required', 'regex:/^[6-9][0-9]{9}$/'],
             'email'       => 'required|email:rfc,dns',
             'address'     => 'required|string|min:5',
+        ], [
+            // 'mobile.digits' => 'Mobile number must be exactly 10 digits',
+            'mobile.regex' => 'Mobile number must be 10 digits and start with 6, 7, 8, or 9',
+            'email.email'   => 'Enter a valid email (example@domain.co)',
         ]);
 
         try {

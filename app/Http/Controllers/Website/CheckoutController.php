@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\MediaBookedDate;
 use App\Models\User;
-use App\Notifications\OrderPlacedNotification;
-use App\Notifications\PaymentReceivedNotification;
 
 class CheckoutController extends Controller
 {

@@ -40,6 +40,7 @@
                                 <th>Latitude</th>
                                 <th>Longitude</th>
                                 <th>Status</th>
+                                 <th>Action</th>
                             </tr>
                         </thead>
 
@@ -103,7 +104,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">
+                                    <td colspan="9" class="text-center">
                                         No areas found
                                     </td>
                                 </tr>

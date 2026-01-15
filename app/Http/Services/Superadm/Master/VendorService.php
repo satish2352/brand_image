@@ -1,38 +1,37 @@
 <?php
 
-namespace App\Http\Services\Superadm;
+// app/Http/Services/Superadm/VendorService.php
+namespace App\Http\Services\Superadm\Master;
 
-use App\Http\Repository\Superadm\IlluminationRepository;
+use App\Http\Repository\Superadm\Master\VendorRepository;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
-class IlluminationService
+class VendorService
 {
     protected $repo;
 
     public function __construct()
     {
-        $this->repo = new IlluminationRepository();
+        $this->repo = new VendorRepository();
     }
 
     public function list()
     {
-        return $this->repo->getAll();
+        $data_output = $this->repo->getAll();
+
+        return  $data_output;
     }
 
     public function store(array $data)
     {
         DB::beginTransaction();
         try {
-
-            if ($this->repo->existsByName($data['illumination_name'])) {
-                throw new Exception(
-                    'This illumination is already created'
-                );
+            if ($this->repo->existsByCode($data['vendor_code'])) {
+                throw new Exception('Vendor code already exists');
             }
 
             $this->repo->store($data);
-
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -49,18 +48,11 @@ class IlluminationService
     {
         DB::beginTransaction();
         try {
-
-            if ($this->repo->existsByName(
-                $data['illumination_name'],
-                $id
-            )) {
-                throw new Exception(
-                    'This illumination is already created'
-                );
+            if ($this->repo->existsByCode($data['vendor_code'], $id)) {
+                throw new Exception('Vendor code already exists');
             }
 
             $this->repo->update($id, $data);
-
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

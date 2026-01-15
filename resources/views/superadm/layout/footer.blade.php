@@ -78,7 +78,7 @@
 <!-- footer -->
 <!-- ============================================================== -->
 <footer class="footer">
-    © {{date('Y') }} Alf Engineering 
+    © {{ date('Y') }} Alf Engineering
 </footer>
 <!-- ============================================================== -->
 <!-- End footer -->
@@ -101,51 +101,51 @@
 
 
 <script>
-$(document).ready(function() {
-    if ($.fn.DataTable.isDataTable('.datatables')) {
-        $('.datatables').DataTable().destroy();
-    }
+    $(document).ready(function() {
+        if ($.fn.DataTable.isDataTable('.datatables')) {
+            $('.datatables').DataTable().destroy();
+        }
 
-    var table = $('.datatables').DataTable({
-        responsive: false,  // we are using scrollX for wide tables
-        scrollX: true,
-        autoWidth: false,
-        pageLength: 10,
-        ordering: true,
-        language: {
-            search: "Search:",
-            lengthMenu: "Show _MENU_ entries",
-            info: "Showing _START_ to _END_ of _TOTAL_ rows",
-            paginate: {
-                next: "Next",
-                previous: "Previous"
+        var table = $('.datatables').DataTable({
+            responsive: false, // we are using scrollX for wide tables
+            scrollX: true,
+            autoWidth: false,
+            pageLength: 10,
+            ordering: true,
+            language: {
+                search: "Search:",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ rows",
+                paginate: {
+                    next: "Next",
+                    previous: "Previous"
+                }
             }
+        });
+
+        // ✅ Adjust header widths on resize / zoom
+        function adjustTable() {
+            table.columns.adjust().draw(false);
         }
+
+        let resizeTimer;
+        $(window).on('resize orientationchange', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(adjustTable, 300);
+        });
+
+        // ✅ Fix header disappearing issue (wait until DOM is ready)
+        setTimeout(adjustTable, 500);
+
+        // ✅ Detect zoom changes
+        let oldZoom = window.devicePixelRatio;
+        setInterval(function() {
+            if (window.devicePixelRatio !== oldZoom) {
+                oldZoom = window.devicePixelRatio;
+                adjustTable();
+            }
+        }, 600);
     });
-
-    // ✅ Adjust header widths on resize / zoom
-    function adjustTable() {
-        table.columns.adjust().draw(false);
-    }
-
-    let resizeTimer;
-    $(window).on('resize orientationchange', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(adjustTable, 300);
-    });
-
-    // ✅ Fix header disappearing issue (wait until DOM is ready)
-    setTimeout(adjustTable, 500);
-
-    // ✅ Detect zoom changes
-    let oldZoom = window.devicePixelRatio;
-    setInterval(function() {
-        if (window.devicePixelRatio !== oldZoom) {
-            oldZoom = window.devicePixelRatio;
-            adjustTable();
-        }
-    }, 600);
-});
     // SweetAlert Delete Confirmation
     $(document).ready(function() {
         document.querySelectorAll('.delete-btn').forEach(button => {
@@ -170,10 +170,10 @@ $(document).ready(function() {
         });
     });
 </script>
- <script>
+<script>
     setTimeout(function() {
         let alert = document.getElementById('success-alert');
-        if(alert){
+        if (alert) {
             // Bootstrap 5 dismiss
             let bsAlert = new bootstrap.Alert(alert);
             bsAlert.close();
@@ -181,21 +181,21 @@ $(document).ready(function() {
     }, 3000); // 3000ms = 3 seconds
 </script>
 
-    <script>
-        $(document).ready(function() {
-            // Hide success alert after 5 seconds
-            setTimeout(function() {
-                $('#success-alert').fadeOut('slow');
-            }, 5000);
+<script>
+    $(document).ready(function() {
+        // Hide success alert after 5 seconds
+        setTimeout(function() {
+            $('#success-alert').fadeOut('slow');
+        }, 5000);
 
-            // Hide error alert after 5 seconds
-            setTimeout(function() {
-                $('#error-alert').fadeOut('slow');
-            }, 5000);
-        });
-    </script>
+        // Hide error alert after 5 seconds
+        setTimeout(function() {
+            $('#error-alert').fadeOut('slow');
+        }, 5000);
+    });
+</script>
 
-    {{-- for brand image --}}
+{{-- for brand image --}}
 
 
 

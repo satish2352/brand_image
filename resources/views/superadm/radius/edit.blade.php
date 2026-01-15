@@ -1,37 +1,37 @@
 @extends('superadm.layout.master')
 
 @section('content')
-<div class="row">
-    <div class="col-lg-6 col-md-8 mx-auto">
+    <div class="row">
+        <div class="col-lg-6 col-md-8 mx-auto">
 
-        <div class="card">
-            <div class="card-body">
+            <div class="card">
+                <div class="card-body">
 
-                <h4>Edit Radius</h4>
+                    <h4>Edit Radius</h4>
 
-                <form action="{{ route('radius.update', $encodedId) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="id" value="{{ $data->id }}">
+                    <form action="{{ route('radius.update', $encodedId) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $data->id }}">
 
-                    <div class="form-group">
-                        <label>Radius (e.g. 5km-10km) <span class="text-danger">*</span></label>
-                        <input type="text" name="radius" class="form-control"
-                               value="{{ old('radius', $data->radius) }}">
-                        @error('radius')
-                        <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
+                        <div class="form-group">
+                            <label>Radius (e.g. 5km-10km) <span class="text-danger">*</span></label>
+                            <input type="text" name="radius" class="form-control"
+                                value="{{ old('radius', $data->radius) }}">
+                            @error('radius')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <div class="form-group d-flex justify-content-end mt-3">
-                        <a href="{{ route('radius.list') }}" class="btn btn-secondary mr-2">Cancel</a>
-                        <button class="btn btn-success">Update</button>
-                    </div>
+                        <div class="form-group d-flex justify-content-end mt-3">
+                            <a href="{{ route('radius.list') }}" class="btn btn-secondary mr-2">Cancel</a>
+                            <button class="btn btn-success">Update</button>
+                        </div>
 
-                </form>
+                    </form>
 
+                </div>
             </div>
-        </div>
 
+        </div>
     </div>
-</div>
 @endsection

@@ -35,6 +35,8 @@ class HomeRepository
                 'm.category_id',
                 'm.latitude',
                 'm.longitude',
+                'm.width',
+                'm.height',
                 'm.facing',
                 'm.video_link',
                 'ct.category_name',
@@ -65,13 +67,13 @@ class HomeRepository
                 $centerLat = $center->latitude;
                 $centerLng = $center->longitude;
 
-                Log::info("🎯 Using city lat/lng only", [
+                Log::info(" Using city lat/lng only", [
                     'city_id' => $filters['city_id'],
                     'lat'     => $centerLat,
                     'lng'     => $centerLng
                 ]);
             } else {
-                Log::warning("⚠ City missing lat/lng — radius disabled", [
+                Log::warning(" City missing lat/lng — radius disabled", [
                     'city_id' => $filters['city_id']
                 ]);
             }

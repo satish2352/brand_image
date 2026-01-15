@@ -18262,7 +18262,7 @@ textarea.form-control {
   background-size: contain; }
 
 .label-info {
-  background-color: #c74434; }
+  background-color: #008f97 }
 
 .bootstrap-tagsinput .tag {
   display: inline-block;
@@ -18319,7 +18319,7 @@ textarea.form-control {
 .header-right {
   float: right;
   width: calc(100% - 250px);
-  background: #952419;
+  background: #008f97;
   height: 70px;
   /*padding: 10px 20px;*/
   -webkit-box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.4);

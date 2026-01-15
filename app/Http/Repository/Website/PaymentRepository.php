@@ -38,7 +38,8 @@ class PaymentRepository
                 DB::raw('GROUP_CONCAT(DISTINCT a.common_stdiciar_name) as common_stdiciar_name')
             )
             ->where('o.user_id', $userId)
-            ->where('o.payment_status', 'PAID')
+            // ->where('o.payment_status', 'PAID')
+            ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
             ->groupBy(
                 'o.id',
                 'o.order_no',

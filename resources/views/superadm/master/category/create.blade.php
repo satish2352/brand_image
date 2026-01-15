@@ -10,7 +10,8 @@
                         @csrf
                         <div class="form-group">
                             <label>Category Name <span class="text-danger">*</span></label>
-                            <input type="text" name="category_name" class="form-control" value="{{ old('category_name') }}">
+                            <input type="text" name="category_name" class="form-control"
+                                value="{{ old('category_name') }}">
                             @error('category_name')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror

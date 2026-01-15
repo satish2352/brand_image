@@ -11,7 +11,8 @@
                     </div> --}}
 
                     @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" id="success-alert">{{ session('success') }}</div>
+                        <div class="alert alert-success alert-dismissible fade show" id="success-alert">
+                            {{ session('success') }}</div>
                     @endif
 
                     @if (session('error'))
@@ -50,13 +51,11 @@
                                                 <input type="hidden" name="id" value="{{ base64_encode($data->id) }}">
                                             </form>
                                         </td>
-                                         <td>
-                                            <a href="{{ route('category.edit', base64_encode($data->id)) }}" 
-                                            class="btn btn-sm btn-primary" 
-                                            data-bs-toggle="tooltip" 
-                                            data-bs-placement="top" 
-                                            title="Edit">
-                                            <i class="mdi mdi-square-edit-outline icon-medium"></i>
+                                        <td>
+                                            <a href="{{ route('category.edit', base64_encode($data->id)) }}"
+                                                class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" title="Edit">
+                                                <i class="mdi mdi-square-edit-outline icon-medium"></i>
                                             </a>
                                             {{-- <form action="{{ route('category.delete') }}" method="POST" class="d-inline-block delete-form">
                                                 @csrf
@@ -117,7 +116,8 @@
                             }
                         },
                         error: function(xhr) {
-                            Swal.fire('Error!', xhr.responseJSON?.message || 'Something went wrong', 'error');
+                            Swal.fire('Error!', xhr.responseJSON?.message ||
+                                'Something went wrong', 'error');
                             checkbox.prop("checked", !is_active); // revert
                         }
                     });
@@ -130,7 +130,7 @@
 
     <script>
         // Delegated event for delete buttons
-        $(document).on("click", ".delete-btn", function (e) {
+        $(document).on("click", ".delete-btn", function(e) {
             e.preventDefault();
 
             let button = $(this);
@@ -151,7 +151,5 @@
                 }
             });
         });
-
     </script>
-
 @endsection

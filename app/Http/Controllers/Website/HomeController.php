@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Throwable;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use App\Models\HomeSlider;
 
 
 class HomeController extends Controller
@@ -16,13 +17,27 @@ class HomeController extends Controller
     public function __construct(private HomeService $homeService) {}
 
     // Initial page load (NO FILTERS)
+    // public function index()
+    // {
+    //     $filters = [];
+    //     $mediaList = $this->homeService->searchMedia($filters);
+
+
+    //     return view('website.home', compact('mediaList', 'filters'));
+    // }
+
     public function index()
     {
         $filters = [];
         $mediaList = $this->homeService->searchMedia($filters);
 
+        // ADD THIS (ONLY ACTIVE SLIDERS)
+        $sliders = HomeSlider::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('id', 'desc')
+            ->get();
 
-        return view('website.home', compact('mediaList', 'filters'));
+        return view('website.home', compact('mediaList', 'filters', 'sliders'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)

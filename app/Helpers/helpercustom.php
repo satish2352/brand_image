@@ -56,3 +56,50 @@ function haversineKm($lat1, $lon1, $lat2, $lon2)
 
     return $earth * 2 * asin(sqrt($a));
 }
+if (!function_exists('formatAmountShort')) {
+    function formatAmountShort($amount)
+    {
+        if ($amount >= 10000000) {
+            return round($amount / 10000000, 2) . ' Cr';
+        } elseif ($amount >= 100000) {
+            return round($amount / 100000, 2) . ' L';
+        } elseif ($amount >= 1000) {
+            return round($amount / 1000, 1) . ' K';
+        }
+
+        return number_format($amount);
+    }
+    if (!function_exists('getYears')) {
+        function getYears($startYear = 2025)
+        {
+            $years = [];
+            $current = date('Y');
+
+            for ($y = $startYear; $y <= $current; $y++) {
+                $years[] = $y;
+            }
+
+            return $years;
+        }
+    }
+
+    if (!function_exists('getMonths')) {
+        function getMonths()
+        {
+            return [
+                1 => 'January',
+                2 => 'February',
+                3 => 'March',
+                4 => 'April',
+                5 => 'May',
+                6 => 'June',
+                7 => 'July',
+                8 => 'August',
+                9 => 'September',
+                10 => 'October',
+                11 => 'November',
+                12 => 'December'
+            ];
+        }
+    }
+}

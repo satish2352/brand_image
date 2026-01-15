@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Services\Superadm;
+namespace App\Http\Services\Superadm\Master;
 
-use App\Http\Repository\Superadm\RadiusRepository;
+use App\Http\Repository\Superadm\Master\RadiusRepository;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
