@@ -15,6 +15,8 @@ class UserPaymentRepository
                 'o.id',
                 'o.order_no',
                 'o.total_amount',
+                'o.gst_amount',
+                'o.grand_total',
                 'o.payment_status',
                 'o.payment_id',
                 'o.created_at',
@@ -29,6 +31,8 @@ class UserPaymentRepository
                 'o.id',
                 'o.order_no',
                 'o.total_amount',
+                'o.gst_amount',
+                'o.grand_total',
                 'o.payment_status',
                 'o.payment_id',
                 'o.created_at',
@@ -49,7 +53,10 @@ class UserPaymentRepository
                 'o.*',
                 'u.name',
                 'u.email',
-                'u.mobile_number'
+                'u.mobile_number',
+                'o.total_amount',
+                'o.gst_amount',
+                'o.grand_total',
             )
             ->first();
 

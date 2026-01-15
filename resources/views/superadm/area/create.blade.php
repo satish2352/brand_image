@@ -17,6 +17,7 @@
                                 class="form-control @error('state_id') is-invalid @enderror">
                             <option value="">Select State</option>
                         </select>
+                        <input type="hidden" id="old_state" value="{{ old('state_id') }}">
                         @error('state_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -29,6 +30,7 @@
                                 class="form-control @error('district_id') is-invalid @enderror">
                             <option value="">Select District</option>
                         </select>
+                        <input type="hidden" id="old_district" value="{{ old('district_id') }}">
                         @error('district_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -41,6 +43,7 @@
                                 class="form-control @error('city_id') is-invalid @enderror">
                             <option value="">Select City</option>
                         </select>
+                        <input type="hidden" id="old_city" value="{{ old('city_id') }}">
                         @error('city_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -110,74 +113,139 @@
 <script>
 $(document).ready(function () {
 
-    console.log('Area create page loaded');
+    /* ================= OLD VALUES ================= */
+    let oldState    = $('#old_state').val();
+    let oldDistrict = $('#old_district').val();
+    let oldCity     = $('#old_city').val();
 
-    // ================= LOAD STATES =================
-    $.get("{{ route('ajax.states') }}", function (response) {
+    /* ================= LOAD STATES ================= */
+    $.get("{{ route('ajax.states') }}", function (states) {
 
-        $('#state').html('<option value="" selected>Select State</option>');
+        $('#state').html('<option value="">Select State</option>');
 
-        if (!response.length) {
-            $('#state').append('<option value="" disabled>No states found</option>');
-            return;
-        }
-
-        $.each(response, function (i, item) {
+        $.each(states, function (i, state) {
+            let selected = state.id == oldState ? 'selected' : '';
             $('#state').append(
-                `<option value="${item.id}">${item.state_name}</option>`
+                `<option value="${state.id}" ${selected}>${state.state_name}</option>`
             );
         });
+
+        if (oldState) loadDistricts(oldState);
     });
 
-    // ================= STATE → DISTRICTS =================
-    $('#state').on('change', function () {
+    /* ================= DISTRICTS ================= */
+    function loadDistricts(stateId) {
 
-        let stateId = $(this).val();
-
-        $('#district').prop('disabled', true).html('<option value="">Select District</option>');
-        $('#city').prop('disabled', true).html('<option value="">Select City</option>');
+        $('#district').html('<option value="">Select District</option>');
+        $('#city').html('<option value="">Select City</option>');
 
         if (!stateId) return;
 
         $.post("{{ route('ajax.districts') }}", {
             _token: "{{ csrf_token() }}",
             state_id: stateId
-        }, function (response) {
+        }, function (districts) {
 
-            $('#district').prop('disabled', false);
-
-            $.each(response, function (i, item) {
+            $.each(districts, function (i, district) {
+                let selected = district.id == oldDistrict ? 'selected' : '';
                 $('#district').append(
-                    `<option value="${item.id}">${item.district_name}</option>`
+                    `<option value="${district.id}" ${selected}>${district.district_name}</option>`
                 );
             });
+
+            if (oldDistrict) loadCities(oldDistrict);
         });
-    });
+    }
 
-    // ================= DISTRICT → CITIES =================
-    $('#district').on('change', function () {
+    /* ================= CITIES ================= */
+    function loadCities(districtId) {
 
-        let districtId = $(this).val();
-
-        $('#city').prop('disabled', true).html('<option value="">Select City</option>');
+        $('#city').html('<option value="">Select City</option>');
 
         if (!districtId) return;
 
         $.post("{{ route('ajax.cities') }}", {
             _token: "{{ csrf_token() }}",
             district_id: districtId
-        }, function (response) {
+        }, function (cities) {
 
-            $('#city').prop('disabled', false);
-
-            $.each(response, function (i, item) {
+            $.each(cities, function (i, city) {
+                let selected = city.id == oldCity ? 'selected' : '';
                 $('#city').append(
-                    `<option value="${item.id}">${item.city_name}</option>`
+                    `<option value="${city.id}" ${selected}>${city.city_name}</option>`
                 );
             });
         });
+    }
+
+    /* ================= CHANGE EVENTS ================= */
+    $('#state').change(function () {
+        oldState = $(this).val();
+        oldDistrict = null;
+        oldCity = null;
+        loadDistricts(oldState);
     });
+
+    $('#district').change(function () {
+        oldDistrict = $(this).val();
+        oldCity = null;
+        loadCities(oldDistrict);
+    });
+
+    /* ================= FORM VALIDATION ================= */
+    $('form').on('submit', function (e) {
+
+        let valid = true;
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        function error(el, msg) {
+            el.addClass('is-invalid');
+            el.after(`<div class="invalid-feedback">${msg}</div>`);
+            valid = false;
+        }
+
+        if (!$('#state').val())    error($('#state'), 'Please select a state.');
+        if (!$('#district').val()) error($('#district'), 'Please select a district.');
+        if (!$('#city').val())     error($('#city'), 'Please select a city.');
+
+        let area = $('input[name="area_name"]');
+        if (!area.val()) error(area, 'Please enter the area name.');
+        else if (area.val().length > 255) error(area, 'Area name must not exceed 255 characters.');
+
+        let common = $('input[name="common_stdiciar_name"]');
+        if (!common.val()) error(common, 'Please enter the common standard name.');
+        else if (common.val().length > 255) error(common, 'Common standard name must not exceed 255 characters.');
+
+        let lat = $('input[name="latitude"]');
+        if (!lat.val()) error(lat, 'Latitude is required.');
+        else if (isNaN(lat.val())) error(lat, 'Latitude must be numeric.');
+
+        let lng = $('input[name="longitude"]');
+        if (!lng.val()) error(lng, 'Longitude is required.');
+        else if (isNaN(lng.val())) error(lng, 'Longitude must be numeric.');
+
+        if (!valid) e.preventDefault();
+    });
+
+    // 
+        function clearError(element) {
+        element.removeClass('is-invalid');
+        element.next('.invalid-feedback').remove();
+    }
+
+    // Text inputs
+    $('input[type="text"]').on('input', function () {
+        clearError($(this));
+    });
+
+    // Select dropdowns
+    $('select').on('change', function () {
+        clearError($(this));
+    });
+
 
 });
 </script>
+
 @endsection

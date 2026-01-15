@@ -70,17 +70,22 @@
                                             </form>
                                         </td>
                                         <td class="d-flex">
-    <a href="{{ route('area.edit', base64_encode($area->id)) }}"
-       class="btn btn-sm btn-primary mr-2">
-        <i class="mdi mdi-square-edit-outline"></i>
-    </a>
+                                            <a href="{{ route('area.view', base64_encode($area->id)) }}"
+                                            class="btn btn-sm btn-primary mr-2"
+                                            title="View">
+                                                <i class="mdi mdi-eye-outline"></i>
+                                            </a>
+                                            <a href="{{ route('area.edit', base64_encode($area->id)) }}"
+                                            class="btn btn-sm btn-primary mr-2">
+                                                <i class="mdi mdi-square-edit-outline"></i>
+                                            </a>
 
-    <button type="button"
-            class="btn btn-sm btn-danger delete-btn"
-            data-id="{{ base64_encode($area->id) }}">
-        <i class="mdi mdi-trash-can-outline"></i>
-    </button>
-</td>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger delete-btn"
+                                                    data-id="{{ base64_encode($area->id) }}">
+                                                <i class="mdi mdi-trash-can-outline"></i>
+                                            </button>
+                                        </td>
 
                                           {{-- <td class="d-flex">
                                             <a href="{{ route('area.edit', base64_encode($area->id)) }}" 
@@ -135,24 +140,7 @@ $('.toggle-status').change(function () {
 
 });
 
-/* ================= DELETE ================= */
-$('.delete-btn').click(function () {
 
-    let id = $(this).data('id');
-
-    if (!confirm('Are you sure you want to delete this area?')) return;
-
-    $.post("{{ route('area.delete') }}", {
-        _token: "{{ csrf_token() }}",
-        id: id
-    }, function (response) {
-        toastr.success(response.message);
-        location.reload();
-    }).fail(function () {
-        toastr.error('Delete failed');
-    });
-
-});
 </script>
 @endsection
 

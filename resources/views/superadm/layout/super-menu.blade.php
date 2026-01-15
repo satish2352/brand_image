@@ -46,18 +46,10 @@
             </a>
         </li>
 
-        <li
+        {{-- <li
             class="nav-item has-sub
-            {{ request()->is('area/list*') || request()->is('illumination/list*') ? 'active open' : '' }}">
+            {{ request()->is('area/list*') || request()->is('illumination/list*') ? 'active open' : '' }}"> --}}
 
-        <li
-            class="nav-item
-            {{ request()->is('home-slider/list') || request()->is('home-slider/add') ? 'active' : '' }}">
-            <a href="{{ route('homeslider.list') }}">
-                <i class="mdi mdi-image-multiple"></i>
-                <span>Home Slider</span>
-            </a>
-        </li>
 
         <li
             class="nav-item {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active' : '' }}">
@@ -68,6 +60,14 @@
             </a>
 
             <ul class="submenu">
+                <li
+                    class="nav-item
+                    {{ request()->is('home-slider/list') || request()->is('home-slider/add') ? 'active' : '' }}">
+                    <a href="{{ route('homeslider.list') }}">
+                        <i class="mdi mdi-image-multiple"></i>
+                        <span>Home Slider</span>
+                    </a>
+                </li>
                 <li
                     class="nav-item {{ request()->is('city/list') || request()->is('city/add') || request()->is('city/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('city.list') }}">
@@ -162,7 +162,7 @@
                 <span>Contact Us</span>
             </a>
         </li>
-        <li class="nav-item {{ request()->is('user-payment/list') }}">
+        <li class="nav-item {{ request()->is('user-payment/list') || request()->is('user-payment/details/*') ? 'active' : '' }}">
             <a href="{{ route('user-payment.list') }}">
                 <i class="mdi mdi-account-key"></i>
                 <span>User Payment</span>
@@ -204,12 +204,41 @@
                 </li>
             </ul>
         </li>
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="{{ route('admin.logout') }}">
+                <i class="mdi mdi-logout"></i>
+                <span>Logout</span>
+            </a>
+        </li> --}}
+        <li class="nav-item">
+            <a href="javascript:void(0)"
+            class="logout-btn">
                 <i class="mdi mdi-logout"></i>
                 <span>Logout</span>
             </a>
         </li>
 
+
     </ul>
 </nav>
+
+<script>
+$(document).on('click', '.logout-btn', function (e) {
+    e.preventDefault();
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Are you sure you want to logout?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#b0302a',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Logout',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{{ route('admin.logout') }}";
+        }
+    });
+});
+</script>
