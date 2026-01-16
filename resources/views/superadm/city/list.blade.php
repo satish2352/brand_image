@@ -122,7 +122,7 @@
 
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "This city record will be deleted!",
+                    text: "Do you really want to delete this record?",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, delete it!',

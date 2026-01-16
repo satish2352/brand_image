@@ -87,7 +87,7 @@
                                             title="View">
                                                 <i class="mdi mdi-eye-outline"></i>
                                             </a> --}}
-                                            <a href="javascript:void(0);" class="btn btn-sm btn-primary mr-2 view-area"
+                                            <a href="javascript:void(0);" class="btn btn-sm btn-success mr-2 view-area"
                                                 data-id="{{ base64_encode($area->id) }}" title="View">
                                                 <i class="mdi mdi-eye-outline"></i>
                                             </a>
@@ -164,6 +164,8 @@
 
 
     @section('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
         <script>
             /* ========= VIEW AREA IN MODAL ========= */
             $('.view-area').click(function() {
@@ -197,6 +199,43 @@
                     toastr.error('Failed to update status');
                 });
 
+            });
+        </script>
+        <script>
+            $(document).on('click', '.delete-btn', function() {
+                let id = $(this).data('id');
+
+                Swal.fire({
+                    title: 'Are You Sure?',
+                    text: "Do you really want to delete this record?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.post("{{ route('area.delete') }}", {
+                            _token: "{{ csrf_token() }}",
+                            id: id
+                        }, function(response) {
+                            if (response.status) {
+                                Swal.fire(
+                                    'Deleted!',
+                                    response.message,
+                                    'success'
+                                );
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                Swal.fire('Error', 'Failed to delete', 'error');
+                            }
+                        }).fail(function() {
+                            Swal.fire('Error', 'Delete request failed', 'error');
+                        });
+
+                    }
+                })
             });
         </script>
     @endsection

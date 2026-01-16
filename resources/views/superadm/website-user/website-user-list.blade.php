@@ -82,8 +82,8 @@
             let form = $(this).closest("form");
 
             Swal.fire({
-                title: "Are you sure?",
-                text: "This user will be deleted!",
+                title: 'Are You Sure?',
+                text: 'Do you really want to delete this record?',
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#28a745",

@@ -7,9 +7,14 @@
             <div class="card">
                 <div class="card-body">
 
-                    <div class="mb-3 d-flex justify-content-end">
-                        <a href="{{ route('radius.create') }}" class="btn btn-add">Add Radius</a>
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Radius List</h4>
+                        <a href="{{ route('radius.create') }}" class="btn btn-success">
+                            Add Radius
+                        </a>
                     </div>
+
+
 
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}</div>
@@ -141,8 +146,8 @@
             let form = $(this).closest('form');
 
             Swal.fire({
-                title: "Delete?",
-                text: "This radius will be deleted!",
+                title: 'Are You Sure?',
+                text: 'Do you really want to delete this record?',
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#28a745",

@@ -18,7 +18,7 @@
                     @endif
 
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped datatable">
+                        <table class="table table-bordered table-striped datatables">
                             <thead>
                                 <tr>
                                     <th>Sr. No</th>
@@ -117,8 +117,8 @@
                 let id = $(this).data('id');
 
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'This illumination will be deleted',
+                    title: 'Are You Sure?',
+                    text: 'Do you really want to delete this record?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, delete'

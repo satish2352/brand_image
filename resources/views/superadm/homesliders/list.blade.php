@@ -113,8 +113,8 @@
             let id = $(this).data('id');
 
             Swal.fire({
-                title: 'Delete Slider?',
-                text: 'This action cannot be undone!',
+                title: 'Are You Sure?',
+                text: 'Do you really want to delete this record?',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
