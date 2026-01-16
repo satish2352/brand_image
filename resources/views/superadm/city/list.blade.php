@@ -115,20 +115,43 @@
             });
 
             /* ================= DELETE ================= */
+            /* ================= DELETE WITH SWEET ALERT ================= */
             $('.delete-btn').click(function() {
 
                 let id = $(this).data('id');
 
-                if (!confirm('Are you sure you want to delete this city?')) return;
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you really want to delete this record?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post("{{ route('city.delete') }}", {
+                            _token: "{{ csrf_token() }}",
+                            id: id
+                        }, function(response) {
 
-                $.post("{{ route('city.delete') }}", {
-                    _token: "{{ csrf_token() }}",
-                    id: id
-                }, function(response) {
-                    toastr.success(response.message);
-                    location.reload();
-                }).fail(function() {
-                    toastr.error('Delete failed');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+
+                            setTimeout(() => location.reload(), 1500);
+
+                        }).fail(function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Delete failed!'
+                            });
+                        });
+                    }
                 });
 
             });

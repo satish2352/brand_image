@@ -12,7 +12,7 @@
                         @csrf
 
                         <div class="form-group">
-                            <label>Radius (e.g. 5km-10km) <span class="text-danger">*</span></label>
+                            <label>Radius (e.g. 1km) <span class="text-danger">*</span></label>
                             <input type="text" name="radius" class="form-control" value="{{ old('radius') }}">
                             @error('radius')
                                 <span class="text-danger">{{ $message }}</span>

@@ -52,7 +52,7 @@
 
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('city.list') }}" class="btn btn-secondary mr-3">Cancel</a>
-                            <button type="submit" class="btn btn-bg">Update City</button>
+                            <button type="submit" class="btn btn-success">Update City</button>
                         </div>
 
                     </form>

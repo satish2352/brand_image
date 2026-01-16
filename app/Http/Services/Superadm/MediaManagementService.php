@@ -51,7 +51,7 @@ class MediaManagementService
                 'price',
                 // 'vendor_name',
                 'vendor_id',
-
+                'video_link',
 
             ]);
 
@@ -79,7 +79,7 @@ class MediaManagementService
             ];
 
             foreach ($optionalFields as $field) {
-                if ($request->filled($field)) {
+                if ($request->has($field)) {
                     $mediaData[$field] = $request->$field;
                 }
             }

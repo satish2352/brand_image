@@ -141,8 +141,8 @@
                 let id = $(this).data('id');
 
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: 'This vendor will be deleted',
+                    title: 'Are You Sure?',
+                    text: 'Do you really want to delete this record?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',

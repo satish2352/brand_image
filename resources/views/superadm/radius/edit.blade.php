@@ -14,7 +14,7 @@
                         <input type="hidden" name="id" value="{{ $data->id }}">
 
                         <div class="form-group">
-                            <label>Radius (e.g. 5km-10km) <span class="text-danger">*</span></label>
+                            <label>Radius (e.g. 1km) <span class="text-danger">*</span></label>
                             <input type="text" name="radius" class="form-control"
                                 value="{{ old('radius', $data->radius) }}">
                             @error('radius')
