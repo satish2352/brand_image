@@ -7,11 +7,68 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                display: none;
-            } */
+                                                                                                                display: none;
+                                                                                                            } */
         #wallWrapSection,
         #radiusSection {
             display: none;
+        }
+
+        /* Inputs and textarea get red border on error */
+        input.error,
+        textarea.error {
+            border-color: #dc3545 !important;
+        }
+
+        /* Keep dropdown normal - NO red color */
+        select.error {
+            border-color: #ced4da !important;
+            /* default Bootstrap border */
+            background-color: #fff !important;
+        }
+
+        /* Error text styling */
+        label.error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .form-control .text-danger {
+            min-height: 38px;
+            display: initial;
+            color: black !important;
+        }
+
+        #imagePreview {
+            display: flex;
+            flex-wrap: nowrap;
+            /* stay in one line */
+            gap: 10px;
+            overflow-x: auto;
+            /* horizontal scroll */
+            overflow-y: hidden;
+            max-width: 100%;
+            padding-bottom: 8px;
+            scrollbar-width: thin;
+            /* Firefox */
+        }
+
+        .preview-img-box {
+            width: 120px;
+            height: 120px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            flex-shrink: 0;
+            /* <<< THIS IS IMPORTANT */
+        }
+
+
+        .preview-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 @endsection
@@ -32,7 +89,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('media.store') }}" enctype="multipart/form-data">
+            <form id="mediaForm" method="POST" action="{{ route('media.store') }}" enctype="multipart/form-data">
                 @csrf
 
                 {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
@@ -43,7 +100,7 @@
                 <div class="row">
                     {{-- ================= AREA (ONLY ONE DROPDOWN) ================= --}}
                     <div class="col-md-6 mb-3">
-                        <label>Area <span class="text-danger">*</span></label>
+                        <label>Area <span class="">*</span></label>
                         <select id="area" name="area_id" class="form-control @error('area_id') is-invalid @enderror">
                             <option value="">Select Area</option>
                         </select>
@@ -448,7 +505,7 @@
     @enderror
 </div> --}}
                     <div class="col-md-3 mb-4">
-                        <label>Images</label>
+                        <label>Images<span class="text-danger">*</span></label>
 
                         <input type="file" name="images[]" id="images" multiple
                             class="form-control
@@ -682,6 +739,175 @@
                 });
             });
 
+
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
+    <script>
+        $(document).ready(function() {
+
+            $("#mediaForm").validate({
+                ignore: [], // validate hidden fields too (vendor, geo from dropdown)
+                rules: {
+                    area_id: {
+                        required: true
+                    },
+                    category_id: {
+                        required: true
+                    },
+
+                    width: {
+                        required: true,
+                        number: true,
+                        min: 0.1
+                    },
+                    height: {
+                        required: true,
+                        number: true,
+                        min: 0.1
+                    },
+
+                    latitude: {
+                        required: true,
+                        number: true,
+                        range: [-90, 90]
+                    },
+                    longitude: {
+                        required: true,
+                        number: true,
+                        range: [-180, 180]
+                    },
+
+                    price: {
+                        required: true,
+                        number: true,
+                        min: 1
+                    },
+                    vendor_id: {
+                        required: true
+                    },
+
+                    "images[]": {
+                        required: true,
+                        extension: "jpg|jpeg|png|webp",
+                        filesize: 1048576 // 1MB
+                    },
+
+                    // HOARDINGS
+                    media_title: {
+                        required: function() {
+                            return $('#billboardsId').is(':visible');
+                        }
+                    },
+                    facing: {
+                        required: function() {
+                            return $('#billboardsId').is(':visible');
+                        }
+                    },
+                    illumination_id: {
+                        required: function() {
+                            return $('#billboardsId').is(':visible');
+                        }
+                    },
+                    area_type: {
+                        required: function() {
+                            return $('#billboardsId').is(':visible');
+                        }
+                    },
+                    address: {
+                        required: function() {
+                            return $('#billboardsId').is(':visible');
+                        }
+                    },
+
+                    // MALL
+                    mall_name: {
+                        required: function() {
+                            return $('#mallMedia').is(':visible');
+                        }
+                    },
+                    media_format: {
+                        required: function() {
+                            return $('#mallMedia').is(':visible');
+                        }
+                    },
+
+                    // AIRPORT
+                    airport_name: {
+                        required: function() {
+                            return $('#airportBranding').is(':visible');
+                        }
+                    },
+                    zone_type: {
+                        required: function() {
+                            return $('#airportBranding').is(':visible');
+                        }
+                    },
+                    media_type: {
+                        required: function() {
+                            return $('#airportBranding').is(':visible');
+                        }
+                    },
+
+                    // TRANSIT
+                    transit_type: {
+                        required: function() {
+                            return $('#transmitMedia').is(':visible');
+                        }
+                    },
+                    branding_type: {
+                        required: function() {
+                            return $('#transmitMedia').is(':visible');
+                        }
+                    },
+                    vehicle_count: {
+                        required: function() {
+                            return $('#transmitMedia').is(':visible');
+                        },
+                        number: true,
+                        min: 1
+                    },
+
+                    // OFFICE BRANDING
+                    building_name: {
+                        required: function() {
+                            return $('#officeBranding').is(':visible');
+                        }
+                    },
+                    wall_length: {
+                        required: function() {
+                            return $('#officeBranding').is(':visible');
+                        }
+                    }
+                },
+                messages: {
+                    area_id: "Please select an area",
+                    category_id: "Please select a category",
+                    vendor_id: "Please select a vendor",
+                    "images[]": {
+                        required: "Please upload at least 1 image",
+                        extension: "Only JPG, JPEG, PNG, WEBP allowed",
+                    }
+                },
+                errorClass: "text-danger",
+                submitHandler: function(form) {
+                    form.submit();
+                }
+            });
+
+
+            // Custom size validator
+            $.validator.addMethod('filesize', function(value, element, limit) {
+                let valid = true;
+                $.each($(element)[0].files, function(idx, file) {
+                    if (file.size > limit) {
+                        valid = false;
+                    }
+                });
+                return valid;
+            }, 'Each file size must be less than 1MB');
 
         });
     </script>
