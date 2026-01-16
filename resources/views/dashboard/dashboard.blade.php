@@ -18,7 +18,7 @@
                                         <div class="d-flex flex-row">
                                             <div
                                                 class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
-                                              <i class="mdi mdi-account-key mdi-36px icon-padding"></i>
+                                                <i class="mdi mdi-account-key mdi-36px icon-padding"></i>
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
@@ -54,13 +54,13 @@
 
                         <!-- Plants Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
+                            <a href="{{ route('category.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-plants ">
                                         <div class="d-flex flex-row">
                                             <div
                                                 class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
-                                               <i class="mdi mdi-factory mdi-36px icon-padding"></i>
+                                                <i class="mdi mdi-factory mdi-36px icon-padding"></i>
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
@@ -72,39 +72,15 @@
                                 </div>
                             </a>
                         </div>
-
-
-                          <!-- Plants Card -->
+                        <!-- Plants Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
-                                <div class="card shadow-sm card-radius h-80">
-                                    <div class="card-body bg-projects">
-                                        <div class="d-flex flex-row">
-                                            <div
-                                                class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
-                                                <i class="mdi mdi-clipboard-text mdi-36px icon-padding"></i>
-                                            </div>
-                                            <div class="ml-2 align-self-center">
-                                                <h3 class="mb-0 font-weight-light-new new-font-size">
-                                                    Facing Direction <strong>{{ $allFacingDirection }}</strong>
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-
-                          <!-- Plants Card -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
+                            <a href="{{ route('illumination.list') }}" class="text-decoration-none text-dark">
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-department">
                                         <div class="d-flex flex-row">
                                             <div
                                                 class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
-                                               <i class="mdi mdi-domain mdi-36px icon-padding"></i>
+                                                <i class="mdi mdi-domain mdi-36px icon-padding"></i>
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h3 class="mb-0 font-weight-light-new new-font-size">
@@ -169,7 +145,8 @@
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-department">
                                         <div class="d-flex flex-row">
-                                            <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                            <div
+                                                class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
                                                 <i class="mdi mdi-cash mdi-36px icon-padding"></i>
                                             </div>
                                             <div class="ml-2 align-self-center">
@@ -190,7 +167,8 @@
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-department">
                                         <div class="d-flex flex-row">
-                                            <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                            <div
+                                                class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
                                                 <i class="mdi mdi-chart-line mdi-36px icon-padding"></i>
                                             </div>
                                             <div class="ml-2 align-self-center">
@@ -211,7 +189,8 @@
                                 <div class="card shadow-sm card-radius h-80">
                                     <div class="card-body bg-department">
                                         <div class="d-flex flex-row">
-                                            <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                            <div
+                                                class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
                                                 <i class="mdi mdi-bullhorn mdi-36px icon-padding"></i>
                                             </div>
                                             <div class="ml-2 align-self-center">
@@ -238,7 +217,8 @@
                                     <div class="card shadow-sm card-radius h-80">
                                         <div class="card-body bg-department">
                                             <div class="d-flex flex-row">
-                                                <div class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
+                                                <div
+                                                    class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
                                                     <i class="mdi mdi-monitor-multiple mdi-36px icon-padding"></i>
                                                 </div>
                                                 <div class="ml-2 align-self-center">
