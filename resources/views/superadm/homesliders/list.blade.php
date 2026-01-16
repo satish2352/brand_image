@@ -12,7 +12,7 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Id</th>
+                        <th>Sr. No.</th>
                         <th>Desktop</th>
                         <th>Mobile</th>
                         <th>Status</th>
