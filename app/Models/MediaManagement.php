@@ -44,6 +44,7 @@ class MediaManagement extends Model
         'area_auto',
         'radius_id',
         'area_type',
+        'video_link',
         'is_active',
         'is_deleted',
     ];
@@ -57,5 +58,4 @@ class MediaManagement extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
-
 }

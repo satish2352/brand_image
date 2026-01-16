@@ -1,60 +1,72 @@
 @extends('superadm.layout.master')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
+    <style>
+        #areaModalContent label {
+            font-weight: 600;
+            color: #444;
+        }
 
-                {{-- HEADER --}}
-                <div class="d-flex justify-content-between mb-3">
-                    <h4>Area List</h4>
-                    <a href="{{ route('area.create') }}" class="btn btn-add">
-                        Add Area
-                    </a>
-                </div>
+        #areaModalContent strong {
+            color: #000;
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
 
-                {{-- FLASH MESSAGES --}}
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show">
-                        {{ session('success') }}
+                    {{-- HEADER --}}
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Area List</h4>
+                        <a href="{{ route('area.create') }}" class="btn btn-add">
+                            Add Area
+                        </a>
                     </div>
-                @endif
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        {{ session('error') }}
-                    </div>
-                @endif
+                    {{-- FLASH MESSAGES --}}
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
-                {{-- TABLE --}}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped datatables">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Sr.No.</th>
-                                <th>State</th>
-                                <th>District</th>
-                                <th>City</th>
-                                <th>Area Name</th>
-                                <th>Latitude</th>
-                                <th>Longitude</th>
-                                <th>Status</th>
-                                 <th>Action</th>
-                            </tr>
-                        </thead>
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
-                        <tbody>
-                            @forelse ($areas as $key => $area)
+                    {{-- TABLE --}}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped datatables">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>{{ $key + 1 }}</td>
-                                    <td>{{ $area->state_name }}</td>
-                                    <td>{{ $area->district_name }}</td>
-                                    <td>{{ $area->city_name }}</td>
-                                    <td>{{ $area->area_name }}</td>
-                                     <td>{{ $area->latitude }}</td>
-                                      <td>{{ $area->longitude }}</td>
-                                     <td>
+                                    <th>Sr.No.</th>
+                                    <th>State</th>
+                                    <th>District</th>
+                                    <th>City</th>
+                                    <th>Area Name</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @forelse ($areas as $key => $area)
+                                    <tr>
+                                        <td>{{ $key + 1 }}</td>
+                                        <td>{{ $area->state_name }}</td>
+                                        <td>{{ $area->district_name }}</td>
+                                        <td>{{ $area->city_name }}</td>
+                                        <td>{{ $area->area_name }}</td>
+                                        <td>{{ $area->latitude }}</td>
+                                        <td>{{ $area->longitude }}</td>
+                                        <td>
                                             <form action="{{ route('area.updatestatus') }}" method="POST"
                                                 class="d-inline-block delete-form">
                                                 @csrf
@@ -70,24 +82,29 @@
                                             </form>
                                         </td>
                                         <td class="d-flex">
-                                            <a href="{{ route('area.view', base64_encode($area->id)) }}"
+                                            {{-- <a href="{{ route('area.view', base64_encode($area->id)) }}"
                                             class="btn btn-sm btn-primary mr-2"
                                             title="View">
                                                 <i class="mdi mdi-eye-outline"></i>
+                                            </a> --}}
+                                            <a href="javascript:void(0);" class="btn btn-sm btn-primary mr-2 view-area"
+                                                data-id="{{ base64_encode($area->id) }}" title="View">
+                                                <i class="mdi mdi-eye-outline"></i>
                                             </a>
+
+
                                             <a href="{{ route('area.edit', base64_encode($area->id)) }}"
-                                            class="btn btn-sm btn-primary mr-2">
+                                                class="btn btn-sm btn-primary mr-2">
                                                 <i class="mdi mdi-square-edit-outline"></i>
                                             </a>
 
-                                            <button type="button"
-                                                    class="btn btn-sm btn-danger delete-btn"
-                                                    data-id="{{ base64_encode($area->id) }}">
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                                data-id="{{ base64_encode($area->id) }}">
                                                 <i class="mdi mdi-trash-can-outline"></i>
                                             </button>
                                         </td>
 
-                                          {{-- <td class="d-flex">
+                                        {{-- <td class="d-flex">
                                             <a href="{{ route('area.edit', base64_encode($area->id)) }}" 
                                             class="btn btn-sm btn-primary mr-2" 
                                             data-bs-toggle="tooltip" 
@@ -106,42 +123,81 @@
                                                 </button>
                                             </form>
                                         </td> --}}
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center">
-                                        No areas found
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="9" class="text-center">
+                                            No areas found
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW AREA MODAL -->
+    <div class="modal fade" id="viewAreaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">Area Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+
+                <div class="modal-body" id="areaModalContent" style="padding:20px;">
+                    <p class="text-center">Loading...</p>
                 </div>
 
             </div>
         </div>
     </div>
-</div>
-@section('scripts')
-<script>
-/* ================= STATUS TOGGLE ================= */
-$('.toggle-status').change(function () {
-
-    let id = $(this).data('id');
-
-    $.post("{{ route('area.updatestatus') }}", {
-        _token: "{{ csrf_token() }}",
-        id: id
-    }, function (response) {
-        toastr.success(response.message);
-    }).fail(function () {
-        toastr.error('Failed to update status');
-    });
-
-});
 
 
-</script>
-@endsection
 
+    @section('scripts')
+        <script>
+            /* ========= VIEW AREA IN MODAL ========= */
+            $('.view-area').click(function() {
+                let id = $(this).data('id');
+
+                $('#areaModalContent').html('<p class="text-center">Loading...</p>');
+                $('#viewAreaModal').modal('show');
+
+                let url = "{{ route('area.view', ':id') }}";
+                url = url.replace(':id', id);
+
+                $.get(url, function(response) {
+                    $('#areaModalContent').html(response);
+                }).fail(function() {
+                    $('#areaModalContent').html('<p class="text-danger">Failed to load details</p>');
+                });
+            });
+        </script>
+        <script>
+            /* ================= STATUS TOGGLE ================= */
+            $('.toggle-status').change(function() {
+
+                let id = $(this).data('id');
+
+                $.post("{{ route('area.updatestatus') }}", {
+                    _token: "{{ csrf_token() }}",
+                    id: id
+                }, function(response) {
+                    toastr.success(response.message);
+                }).fail(function() {
+                    toastr.error('Failed to update status');
+                });
+
+            });
+        </script>
+    @endsection
 @endsection
