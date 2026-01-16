@@ -4,21 +4,32 @@
 
 @section('content')
 
-    <!-- breadcrumb-section -->
-    <div class="breadcrumb-section breadcrumb-bg">
+<!-- breadcrumb-section -->
+<!-- <div class="breadcrumb-section breadcrumb-bg">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 offset-lg-2 text-center">
                     <div class="breadcrumb-text">
-                        <p>Read the Details</p>
+                        <p>Read the Details</p>media-details
                         <h1>Dashboard</h1>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- end breadcrumb section -->
+    </div> -->
+<!-- end breadcrumb section -->
+<div class="container-fluid about-banner-img g-0">
+    <div class="row">
+        <!-- Desktop Image -->
+        <div class="col-md-12 d-none d-md-block">
+            <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid">
+        </div>
 
+        <!-- Mobile Image -->
+        <div class="col-md-12 d-block d-md-none">
+            <img src="{{ asset('assets/img/mobile_campain_page.png') }}" alt="About Banner" class="img-fluid">
+        </div>
+    </div>
     <div class="dashboard-wrapper container my-5">
         <div class="row g-4">
 
@@ -69,4 +80,4 @@
     </div>
 
 
-@endsection
+    @endsection
