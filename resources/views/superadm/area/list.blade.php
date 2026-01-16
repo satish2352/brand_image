@@ -141,7 +141,7 @@
     </div>
 
     <!-- VIEW AREA MODAL -->
-    <div class="modal fade" id="viewAreaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade pt-4" id="viewAreaModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
 

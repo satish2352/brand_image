@@ -14653,3 +14653,6 @@ input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::after {
 .btn-success{
   background-color: #008f97 !important;
 }
+.text-color-bg{
+  color: #000 !important;
+}
