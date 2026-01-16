@@ -74,7 +74,7 @@
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
                                     </div>
-                                    <div class="col-6 mb-3">
+                                    <div class="col-md-6 mb-3">
                                         <textarea name="remark" class="form-control" rows="5" placeholder="Requirements/Specifications">{{ old('remark') }}</textarea>
                                         @error('remark')
                                             <small class="text-danger">{{ $message }}</small>
@@ -82,10 +82,11 @@
                                     </div>
                                 </div>
                                 <!-- SUBMIT -->
-                                <div class="row">
-                                    <div class="col-12">
+                                <div class="row d-flex justify-content-end ">
+                                    <div class="col-6">
                                         <input type="submit" value="Submit" class="boxed-btn">
                                     </div>
+                                 
                                 </div>
 
                             </form>

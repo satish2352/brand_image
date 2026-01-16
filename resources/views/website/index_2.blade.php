@@ -118,7 +118,7 @@
             </div>
 
             <!-- Feature 3 -->
-            <div class="col-lg-4 col-md-12 banner-below-section">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-chart-line"></i>
@@ -597,7 +597,7 @@
                 <a href="{{ route('website.about') }}" class="about-btn">Know More</a>
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-lg-5">
                 <div class="stats-grid">
 
                     <div class="stat-card">
