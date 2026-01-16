@@ -287,7 +287,7 @@
 
 
                         {{-- CALENDAR --}}
-                        <form id="bookingForm" method="POST" action="{{ route('admin.booking.store') }}">
+                        <form id="bookingForm" method="POST" action="{{ route('admin.booking.store') }}" novalidate>
 
 
                             {{-- <form method="POST" action="{{ route('admin.booking.store') }}"> --}}
@@ -372,23 +372,104 @@
     </div>
 
     <script>
-        document.querySelector('form').addEventListener('submit', function(e) {
+        // document.querySelector('form').addEventListener('submit', function(e) {
 
-            const name = document.querySelector('[name="signup_name"]').value.trim();
-            const email = document.querySelector('[name="signup_email"]').value.trim();
-            const mobile = document.querySelector('[name="signup_mobile_number"]').value.trim();
+        //     const name = document.querySelector('[name="signup_name"]').value.trim();
+        //     const email = document.querySelector('[name="signup_email"]').value.trim();
+        //     const mobile = document.querySelector('[name="signup_mobile_number"]').value.trim();
 
-            if (!name || !email || !mobile) {
-                alert('Please fill Name, Email and Mobile Number');
-                e.preventDefault();
-                return;
-            }
+        //     if (!name || !email || !mobile) {
+        //         alert('Please fill Name, Email and Mobile Number');
+        //         e.preventDefault();
+        //         return;
+        //     }
 
-            if (!/^\d{10,12}$/.test(mobile)) {
-                alert('Mobile number must be 10 to 12 digits');
-                e.preventDefault();
-            }
-        });
+        //     if (!/^\d{10,12}$/.test(mobile)) {
+        //         alert('Mobile number must be 10 to 12 digits');
+        //         e.preventDefault();
+        //     }
+        // });
+
+            /* ================= REGEX ================= */
+    const nameRegex   = /^[A-Za-z\s]+$/;
+    const mobileRegex = /^[6-9][0-9]{9}$/;
+    const emailRegex  = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+    /* ================= LIVE INPUT RESTRICTION ================= */
+
+    // Full Name → only letters & space
+    $('input[name="signup_name"]').on('input', function () {
+        this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+        clearError($(this));
+    });
+
+    // Mobile → only digits
+    $('input[name="signup_mobile_number"]').on('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        clearError($(this));
+    });
+
+    // Email → clear error while typing
+    $('input[name="signup_email"]').on('input', function () {
+        clearError($(this));
+    });
+
+    /* ================= CLEAR ERROR ================= */
+    function clearError(el) {
+        el.removeClass('is-invalid');
+        el.closest('.mb-3, .col-md-6')
+          .find('.invalid-feedback')
+          .remove();
+    }
+
+    /* ================= FORM SUBMIT VALIDATION ================= */
+    $('#bookingForm').on('submit.validation', function (e) {
+
+        let valid = true;
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        function error(el, msg) {
+            el.addClass('is-invalid');
+            el.after(`<div class="invalid-feedback">${msg}</div>`);
+            valid = false;
+        }
+
+        /* ===== Full Name ===== */
+        let name = $('input[name="signup_name"]');
+        if (!name.val()) {
+            error(name, 'Full name is required');
+        } else if (!nameRegex.test(name.val())) {
+            error(name, 'Full name must contain only letters');
+        }
+
+        /* ===== Email ===== */
+        let email = $('input[name="signup_email"]');
+        if (!email.val()) {
+            error(email, 'Email is required');
+        } else if (!emailRegex.test(email.val())) {
+            error(email, 'Enter a valid email (example@domain.co)');
+        }
+
+        /* ===== Mobile ===== */
+        let mobile = $('input[name="signup_mobile_number"]');
+        if (!mobile.val()) {
+            error(mobile, 'Mobile number is required');
+        } else if (!mobileRegex.test(mobile.val())) {
+            error(mobile, 'Mobile must be 10 digits and start with 6, 7, 8, or 9');
+        }
+
+        /* ===== Booking Date Check ===== */
+        if (!$('#from_date').val() || !$('#to_date').val()) {
+            $('#dateError').removeClass('d-none');
+            valid = false;
+        }
+
+        if (!valid) {
+            e.preventDefault();
+            return false;
+        }
+    });
     </script>
 
 

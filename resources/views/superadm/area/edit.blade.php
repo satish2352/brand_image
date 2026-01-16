@@ -210,6 +210,83 @@ $(document).ready(function () {
             clearError($(this));
         });
 
+            /* ================= VALIDATION PATCH (DO NOT TOUCH AJAX) ================= */
+
+    const onlyLetters    = /[^a-zA-Z\s]/g;
+    const onlyNumbersDot = /[^0-9.]/g;
+
+    /* ===== LIVE INPUT RESTRICTION (NO ERROR MSG) ===== */
+
+    // Area Name → letters only
+    $('input[name="area_name"]').on('input', function () {
+        this.value = this.value.replace(onlyLetters, '');
+    });
+
+    // Latitude & Longitude → numbers + dot only
+    $('input[name="latitude"], input[name="longitude"]').on('input', function () {
+        this.value = this.value.replace(onlyNumbersDot, '');
+    });
+
+    /* ===== CLEAR ERROR ONLY FOR CURRENT FIELD ===== */
+    function clearError(el) {
+        el.removeClass('is-invalid');
+        el.closest('.form-group, .col-md-6').find('.invalid-feedback').remove();
+    }
+
+    $('input, select').on('input change', function () {
+        clearError($(this));
+    });
+
+    /* ===== FORM SUBMIT VALIDATION (AJAX SAFE) ===== */
+    $('form').on('submit.validation', function (e) {
+
+        let valid = true;
+
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        function error(el, msg) {
+            el.addClass('is-invalid');
+            el.after(`<div class="invalid-feedback">${msg}</div>`);
+            valid = false;
+        }
+
+        // State / District / City
+        if (!$('#state').val())    error($('#state'), 'Please select a state.');
+        if (!$('#district').val()) error($('#district'), 'Please select a district.');
+        if (!$('#city').val())     error($('#city'), 'Please select a city.');
+
+        // Area Name
+        let area = $('input[name="area_name"]');
+        if (!area.val()) {
+            error(area, 'Please enter the area name.');
+        } else if (area.val().length > 255) {
+            error(area, 'Area name must not exceed 255 characters.');
+        }
+
+        // Common Name
+        let common = $('input[name="common_stdiciar_name"]');
+        if (!common.val()) {
+            error(common, 'Please enter the common standard name.');
+        } else if (common.val().length > 255) {
+            error(common, 'Common standard name must not exceed 255 characters.');
+        }
+
+        // Latitude
+        let lat = $('input[name="latitude"]');
+        if (!lat.val()) {
+            error(lat, 'Latitude is required.');
+        }
+
+        // Longitude
+        let lng = $('input[name="longitude"]');
+        if (!lng.val()) {
+            error(lng, 'Longitude is required.');
+        }
+
+        if (!valid) e.preventDefault();
+    });
+
 
 });
 </script>

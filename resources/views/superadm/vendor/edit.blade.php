@@ -175,6 +175,87 @@
                 loadCities($(this).val());
             });
 
+                    /* ================= REGEX ================= */
+    const onlyLettersSpace = /[^a-zA-Z\s]/g;
+    const onlyDigits       = /[^0-9]/g;
+    const mobileRegex      = /^[6-9][0-9]{9}$/;
+    const emailRegex       = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+    /* ================= LIVE INPUT RESTRICTION ================= */
+
+    // Vendor Name → only letters & space
+    $('input[name="vendor_name"]').on('input', function () {
+        this.value = this.value.replace(onlyLettersSpace, '');
+        clearError($(this));
+    });
+
+    // Mobile → only digits
+    $('input[name="mobile"]').on('input', function () {
+        this.value = this.value.replace(onlyDigits, '');
+        clearError($(this));
+    });
+
+    // Email → clear error while typing
+    $('input[name="email"]').on('input', function () {
+        clearError($(this));
+    });
+
+    /* ================= CLEAR ERROR (CURRENT FIELD ONLY) ================= */
+    function clearError(el) {
+        el.removeClass('is-invalid');
+        el.closest('.mb-3, .form-group')
+          .find('.invalid-feedback')
+          .remove();
+    }
+
+    /* ================= FORM SUBMIT VALIDATION ================= */
+    $('form').on('submit.vendorValidation', function (e) {
+
+        let valid = true;
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        function error(el, msg) {
+            el.addClass('is-invalid');
+            el.after(`<div class="invalid-feedback">${msg}</div>`);
+            valid = false;
+        }
+
+        /* ===== Vendor Name ===== */
+        let vendorName = $('input[name="vendor_name"]');
+        if (!vendorName.val()) {
+            error(vendorName, 'Vendor name is required');
+        } else if (vendorName.val().length > 255) {
+            error(vendorName, 'Vendor name must not exceed 255 characters');
+        }
+
+        /* ===== Mobile ===== */
+        let mobile = $('input[name="mobile"]');
+        if (!mobile.val()) {
+            error(mobile, 'Mobile number is required');
+        } else if (!mobileRegex.test(mobile.val())) {
+            error(mobile, 'Mobile number must be 10 digits and start with 6, 7, 8, or 9');
+        }
+
+        /* ===== Email ===== */
+        let email = $('input[name="email"]');
+        if (!email.val()) {
+            error(email, 'Email is required');
+        } else if (!emailRegex.test(email.val())) {
+            error(email, 'Enter a valid email (example@domain.co)');
+        }
+
+        /* ===== Address ===== */
+        let address = $('textarea[name="address"]');
+        if (!address.val()) {
+            error(address, 'Address is required');
+        } else if (address.val().length < 5) {
+            error(address, 'Address must be at least 5 characters');
+        }
+
+        if (!valid) e.preventDefault();
+    });
+
         });
     </script>
 

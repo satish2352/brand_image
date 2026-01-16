@@ -140,6 +140,79 @@
                 loadCities(selectedDistrict);
             });
 
+    const onlyLetters    = /[^a-zA-Z\s]/g;
+    const onlyNumbersDot = /[^0-9.]/g;
+
+    /* ===== LIVE INPUT RESTRICTION ===== */
+
+    // City Name → letters only
+    $('input[name="city_name"]').on('input', function () {
+        this.value = this.value.replace(onlyLetters, '');
+    });
+
+    // Latitude & Longitude → numbers + dot
+    $('input[name="latitude"], input[name="longitude"]').on('input', function () {
+        this.value = this.value.replace(onlyNumbersDot, '');
+    });
+
+    /* ===== CLEAR ERROR (ONLY CURRENT FIELD) ===== */
+    function clearError(el) {
+        el.removeClass('is-invalid');
+        el.closest('.form-group, .col-md-6')
+          .find('.invalid-feedback').remove();
+    }
+
+    $('input, select').on('input change', function () {
+        clearError($(this));
+    });
+
+    /* ===== FORM SUBMIT VALIDATION ===== */
+    $('form').on('submit.cityValidation', function (e) {
+
+        let valid = true;
+
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        function error(el, msg) {
+            el.addClass('is-invalid');
+            el.after(`<div class="invalid-feedback">${msg}</div>`);
+            valid = false;
+        }
+
+        // State
+        if (!$('#state').val()) {
+            error($('#state'), 'Please select a state.');
+        }
+
+        // District
+        if (!$('#district').val()) {
+            error($('#district'), 'Please select a district.');
+        }
+
+        // City Name
+        let city = $('input[name="city_name"]');
+        if (!city.val()) {
+            error(city, 'Please enter the city name.');
+        } else if (city.val().length > 255) {
+            error(city, 'City name must not exceed 255 characters.');
+        }
+
+        // Latitude
+        let lat = $('input[name="latitude"]');
+        if (!lat.val()) {
+            error(lat, 'Latitude is required.');
+        }
+
+        // Longitude
+        let lng = $('input[name="longitude"]');
+        if (!lng.val()) {
+            error(lng, 'Longitude is required.');
+        }
+
+        if (!valid) e.preventDefault();
+    });
+
         });
     </script>
 @endsection
