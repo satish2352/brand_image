@@ -30,7 +30,25 @@
                                 </div>
                             </a>
                         </div>
-
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <a href="{{ route('city.list') }}" class="text-decoration-none text-dark">
+                                <div class="card shadow-sm card-radius h-80">
+                                    <div class="card-body bg-role">
+                                        <div class="d-flex flex-row">
+                                            <div
+                                                class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
+                                                <i class="mdi mdi-account-key mdi-36px icon-padding"></i>
+                                            </div>
+                                            <div class="ml-2 align-self-center">
+                                                <h3 class="mb-0 font-weight-light-new new-font-size">
+                                                    City <strong>{{ $allcity }}</strong>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                         <!-- Designations Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
                             <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
@@ -51,7 +69,25 @@
                                 </div>
                             </a>
                         </div>
-
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <a href="{{ route('vendor.list') }}" class="text-decoration-none text-dark">
+                                <div class="card shadow-sm card-radius h-80">
+                                    <div class="card-body bg-role">
+                                        <div class="d-flex flex-row">
+                                            <div
+                                                class="round round-lg text-white d-inline-block text-center rounded-circle bg-dashboard-info">
+                                                <i class="mdi mdi-account-key mdi-36px icon-padding"></i>
+                                            </div>
+                                            <div class="ml-2 align-self-center">
+                                                <h3 class="mb-0 font-weight-light-new new-font-size">
+                                                    Vendor <strong>{{ $allvendor }}</strong>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                         <!-- Plants Card -->
                         <div class="col-lg-3 col-md-6 mb-4">
                             <a href="{{ route('category.list') }}" class="text-decoration-none text-dark">
