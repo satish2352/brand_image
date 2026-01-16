@@ -477,7 +477,7 @@ a.boxed-btn, a.bordered-btn, a.cart-btn {
 }
 
 .breadcrumb-bg {
-  background-image: url(../img/about.png);
+  background-image: url(../img/campaindetail.png);
 }
 
 .breadcrumb-text p {
@@ -1607,8 +1607,8 @@ input[type="submit"] {
 }
 
 .carousel-img {
-    height: calc(100vh - 90px);
-    object-fit: cover;
+    /* height: calc(100vh - 90px);
+    object-fit: cover; */
 }
 
 @media (max-width: 768px) {

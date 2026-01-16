@@ -64,12 +64,12 @@
 
                                 <div class="col-sm-6 mb-2">
                                     <strong>From Date:</strong><br>
-                                    {{ $row->from_date ?? '-' }}
+                                    {{ $row->from_date ? \Carbon\Carbon::parse($row->from_date)->format('d-m-Y') : '-' }}
                                 </div>
 
                                 <div class="col-sm-6 mb-2">
                                     <strong>To Date:</strong><br>
-                                    {{ $row->to_date ?? '-' }}
+                                    {{ $row->to_date ? \Carbon\Carbon::parse($row->to_date)->format('d-m-Y') : '-' }}
                                 </div>
                             </div>
 

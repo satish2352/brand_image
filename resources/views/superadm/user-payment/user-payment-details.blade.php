@@ -53,7 +53,7 @@
                         <p>
                             <strong>Total Amount:</strong>
                             <span class="text-success fw-bold fs-5">
-                                ₹{{ number_format($order->total_amount, 2) }}
+                                ₹{{ number_format($order->grand_total, 2) }}
                             </span>
                         </p>
                     </div>
@@ -72,15 +72,16 @@
                 <table class="table table-hover table-bordered mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>#</th>
+                            <th>Sr. No.</th>
                             <th>Media Title</th>
                             <th>Size</th>
                             <th>Location</th>
                             <th>From Date</th>
                             <th>To Date</th>
                             <th class="text-end">Price (₹)</th>
-                            <th class="text-center">Qty</th>
-                            <th class="text-end">Total (₹)</th>
+                            {{-- <th class="text-center">Qty</th> --}}
+                            <th class="text-end">GST (₹)</th>
+                            <th class="text-end">Final Total (₹)</th>
                         </tr>
                     </thead>
 
@@ -88,7 +89,10 @@
                         @php $grandTotal = 0; @endphp
 
                         @forelse($order->items as $key => $item)
-                            @php $grandTotal += $item->total; @endphp
+                            {{-- @php $grandTotal += $item->total; @endphp --}}
+                                @php
+                                    $grandTotal += $order->grand_total;
+                                @endphp
                             <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>
@@ -102,11 +106,13 @@
                                 <td>
                                     {{ $item->to_date ? date('d-m-Y', strtotime($item->to_date)) : '-' }}
                                 </td>
-                                <td class="text-end">{{ number_format($item->price, 2) }}</td>
-                                <td class="text-center">{{ $item->qty }}</td>
-                                <td class="text-end fw-semibold">
+                                <td class="text-end">{{ number_format($order->total_amount, 2) }}</td>
+                                <td class="text-end">{{ number_format($order->gst_amount, 2) }}</td>
+                                <td class="text-end">{{ number_format($order->grand_total, 2) }}</td>
+                                {{-- <td class="text-center">{{ $item->qty }}</td> --}}
+                                {{-- <td class="text-end fw-semibold">
                                     {{ number_format($item->total, 2) }}
-                                </td>
+                                </td> --}}
                             </tr>
                         @empty
                             <tr>

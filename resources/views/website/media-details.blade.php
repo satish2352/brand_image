@@ -215,7 +215,7 @@
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
             <div class="col-md-12">
-                <img src="{{ asset('assets/img/about.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
             </div>
         </div>
     </div>
@@ -228,19 +228,40 @@
                     <div class="card shadow-sm border-0 p-3">
 
                         {{-- MAIN IMAGE --}}
-                        <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
+                        {{-- <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
                             <img class="main-media-image" id="mainMediaImage"
                                 src="{{ config('fileConstants.IMAGE_VIEW') . $media->images[0]->images }}">
+                        </div> --}}
+                        @php
+                            $mainImage = $media->images->first();
+                        @endphp
+                        <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
+                            <img class="main-media-image" id="mainMediaImage"
+                            src="{{ $mainImage 
+                                    ? config('fileConstants.IMAGE_VIEW') . $mainImage->images 
+                                    : asset('assets/img/no-image.jpg') }}">
                         </div>
 
                         {{-- THUMBNAILS --}}
-                        <div class="media-thumbs-bottom">
+                        {{-- <div class="media-thumbs-bottom">
                             @foreach ($media->images as $k => $img)
                                 <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
                                     class="thumb-img {{ $k == 0 ? 'active' : '' }}"
                                     onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
                             @endforeach
-                        </div>
+                        </div> --}}
+                        @if($media->images->count())
+                            <div class="media-thumbs-bottom">
+                                @foreach ($media->images as $k => $img)
+                                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
+                                        class="thumb-img {{ $k == 0 ? 'active' : '' }}"
+                                        onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-muted mt-2">No images available</p>
+                        @endif
+
 
                     </div>
                 </div>
@@ -356,7 +377,7 @@
     </script>
 
 
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
 
             let bookedRanges = @json($bookedRanges ?? []);
@@ -420,6 +441,83 @@
             });
 
             // Final submit validation
+            form.addEventListener('submit', function(e) {
+                if (!fromInput.value || !toInput.value) {
+                    e.preventDefault();
+                    errorBox.classList.remove('d-none');
+                }
+            });
+
+        });
+    </script> --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            let bookedRanges = @json($bookedRanges ?? []);
+
+            const form = document.querySelector('form[action="{{ route('cart.add.with.date') }}"]');
+            const fromInput = document.getElementById('from_date');
+            const toInput = document.getElementById('to_date');
+            const errorBox = document.getElementById('dateError');
+            const addBtn = document.getElementById('addToCartBtn');
+
+            const MIN_DAYS = 15;
+
+            // Convert merged date ranges to single-day array
+            function expandRanges(ranges) {
+                let days = [];
+                ranges.forEach(r => {
+                    let current = new Date(r.from_date);
+                    let end = new Date(r.to_date);
+                    while (current <= end) {
+                        days.push(flatpickr.formatDate(current, "Y-m-d"));
+                        current.setDate(current.getDate() + 1);
+                    }
+                });
+                return days;
+            }
+
+            let disabledDates = expandRanges(bookedRanges);
+
+            flatpickr("#booking_range", {
+                mode: "range",
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                inline: true,
+                static: true,
+
+                disable: disabledDates,
+
+                onDayCreate: function(_, __, ___, dayElem) {
+                    const date = flatpickr.formatDate(dayElem.dateObj, "Y-m-d");
+                    if (disabledDates.includes(date)) {
+                        dayElem.classList.add('booked-date');
+                    }
+                },
+
+                onChange: function(selectedDates) {
+                    addBtn.disabled = true;
+                    errorBox.classList.add('d-none');
+
+                    if (selectedDates.length !== 2) return;
+
+                    const start = selectedDates[0];
+                    const end = selectedDates[1];
+
+                    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+                    if (diffDays < MIN_DAYS) {
+                        errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
+                        errorBox.classList.remove('d-none');
+                        return;
+                    }
+
+                    fromInput.value = flatpickr.formatDate(start, "Y-m-d");
+                    toInput.value = flatpickr.formatDate(end, "Y-m-d");
+                    addBtn.disabled = false;
+                }
+            });
+
             form.addEventListener('submit', function(e) {
                 if (!fromInput.value || !toInput.value) {
                     e.preventDefault();

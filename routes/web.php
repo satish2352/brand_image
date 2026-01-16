@@ -77,6 +77,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('update/{encodedId}', [AreaController::class, 'update'])->name('area.update');
         Route::post('delete', [AreaController::class, 'delete'])->name('area.delete');
         Route::post('update-status', [AreaController::class, 'updateStatus'])->name('area.updatestatus');
+        Route::get('/area/view/{id}', [AreaController::class, 'view'])->name('area.view');
     });
     /* CITY MANAGEMENT */
     Route::prefix('city')->group(function () {

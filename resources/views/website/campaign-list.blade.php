@@ -115,7 +115,7 @@
                                                 <th>From</th>
                                                 <th>To</th>
                                                 <th>Days</th>
-                                                <th>Date</th>
+                                                <th>campaign Date</th>
                                                 <th>Details</th>
                                             </tr>
                                         </thead>
@@ -128,8 +128,11 @@
                                                     <td>{{ $row->media_title ?? '-' }}</td>
                                                     <td>{{ $row->width }} × {{ $row->height }}</td>
                                                     <td>₹ {{ number_format($row->total_price, 2) }}</td>
-                                                    <td>{{ $row->from_date ?? '-' }}</td>
-                                                    <td>{{ $row->to_date ?? '-' }}</td>
+                                                    <td>{{ $row->from_date ? \Carbon\Carbon::parse($row->from_date)->format('d-m-Y') : '-' }}
+                                                    </td>
+                                                    <td>{{ $row->to_date ? \Carbon\Carbon::parse($row->to_date)->format('d-m-Y') : '-' }}
+                                                    </td>
+
                                                     <td>{{ $row->total_days ?? '-' }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($row->campaign_date)->format('d M Y') }}
                                                     </td>

@@ -42,7 +42,7 @@
                                         <td>
                                             {{ $row->to_date ? date('d-m-Y', strtotime($row->to_date)) : '-' }}
                                         </td>
-                                        <td>{{ number_format($row->total_amount, 2) }}</td>
+                                        <td>{{ number_format($row->grand_total, 2) }}</td>
                                         {{-- <td>
                                     
                                         {{ $row->payment_status }}
@@ -69,7 +69,8 @@
                                                 <span class="badge badge-pending">Pending</span>
                                             @endif
                                         </td>
-                                        <td>{{ date('d-m-Y H:i', strtotime($row->created_at)) }}</td>
+                                        {{-- <td>{{ date('d-m-Y H:i', strtotime($row->created_at)) }}</td> --}}
+                                        <td>{{ $row->created_at ? date('d-m-Y', strtotime($row->created_at)) : '-' }}</td>
                                         <td>
                                             <a href="{{ route('user-payment.details', base64_encode($row->id)) }}"
                                                 class="btn btn-sm btn-info">

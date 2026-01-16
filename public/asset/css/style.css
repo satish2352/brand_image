@@ -1228,7 +1228,7 @@ pre {
   .table td {
     padding: 0.75rem;
     vertical-align: top;
-    border-top: 1px solid #f3f1f1; }
+    border-top: 1px solid #f3f1f1 !important; }
   .table thead th {
     vertical-align: bottom;
     border-bottom: 2px solid #f3f1f1; }
@@ -12473,7 +12473,8 @@ sidebar navigation
   .sidebar-nav > ul > li > a.active i, .sidebar-nav > ul > li > a:hover i {
     color: #cb3426; }
   .sidebar-nav > ul > li > a i {
-    width: 45px;
+    /* width: 45px; */
+    width: 30px;
     height: 27px;
     font-size: 21px;
     line-height: 27px;

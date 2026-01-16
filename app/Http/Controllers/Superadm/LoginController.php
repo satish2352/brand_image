@@ -71,15 +71,15 @@ class LoginController extends Controller
             ->first();
 
         if (!$user) {
-            return back()->with('error', 'User not found, contact admin');
+            return back()->with('error', 'Admin user not found. Contact the administrator for assistance.');
         }
 
         if ($user->is_active == 0) {
-            return back()->with('error', 'User account is deactivated');
+            return back()->with('error', 'This user account is deactivated. Contact the administrator for assistance.');
         }
 
         if (!Hash::check($req->superpassword, $user->password)) {
-            return back()->with('error', 'User credentials not matching');
+            return back()->with('error', 'User credentials not matching. Contact the administrator for assistance.');
         }
 
         /* ---------------- SESSION ---------------- */

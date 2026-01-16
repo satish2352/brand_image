@@ -332,7 +332,7 @@
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
             <div class="col-md-12">
-                <img src="{{ asset('assets/img/cart.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/addtocart.png') }}" alt="About Banner" class="img-fluid">
             </div>
         </div>
     </div>
@@ -347,13 +347,13 @@
         </a> --}}
         </div>
         @if (session('error'))
-            <div class="alert alert-danger text-center fw-bold py-2 mb-3">
+            <div class="alert alert-danger alert-dismissible text-center fw-bold py-2 mb-3">
                 {{ session('error') }}
             </div>
         @endif
 
         @if (session('success'))
-            <div class="alert alert-success text-center fw-bold py-2 mb-3">
+            <div class="alert alert-success alert-dismissible text-center fw-bold py-2 mb-3">
                 {{ session('success') }}
             </div>
         @endif
