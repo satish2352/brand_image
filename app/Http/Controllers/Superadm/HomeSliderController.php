@@ -46,20 +46,20 @@ class HomeSliderController extends Controller
 
                 if ($request->hasFile('desktop_image')) {
                     [$w, $h] = getimagesize($request->file('desktop_image'));
-                    if ($w != 1924 || $h != 761) {
+                    if ($w != 2000 || $h != 600) {
                         $validator->errors()->add(
                             'desktop_image',
-                            'Desktop image size must be exactly 1924 x 761 pixels'
+                            'Desktop image size must be exactly 2000 x 600 pixels'
                         );
                     }
                 }
 
                 if ($request->hasFile('mobile_image')) {
                     [$w, $h] = getimagesize($request->file('mobile_image'));
-                    if ($w != 1360 || $h != 1055) {
+                    if ($w != 2000 || $h != 900) {
                         $validator->errors()->add(
                             'mobile_image',
-                            'Mobile image size must be exactly 1360 x 1055 pixels'
+                            'Mobile image size must be exactly 2000 x 900 pixels'
                         );
                     }
                 }
@@ -93,69 +93,66 @@ class HomeSliderController extends Controller
     }
 
     public function edit($encodedId)
-{
-    $id = base64_decode($encodedId);
-    $slider = $this->service->find($id);
+    {
+        $id = base64_decode($encodedId);
+        $slider = $this->service->find($id);
 
-    return view('superadm.homesliders.edit', compact('slider'));
-}
-
-public function update(Request $request, $encodedId)
-{
-    $id = base64_decode($encodedId);
-
-    $rules = [
-        'desktop_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
-        'mobile_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
-    ];
-
-    $messages = [
-        'desktop_image.max' => 'Desktop image size must be less than 1 MB',
-        'mobile_image.max'  => 'Mobile image size must be less than 1 MB',
-    ];
-
-    Validator::make($request->all(), $rules, $messages)
-        ->after(function ($validator) use ($request) {
-
-            if ($request->hasFile('desktop_image')) {
-                [$w, $h] = getimagesize($request->file('desktop_image'));
-                if ($w != 1924 || $h != 761) {
-                    $validator->errors()->add(
-                        'desktop_image',
-                        'Desktop image must be exactly 1924 × 761 pixels'
-                    );
-                }
-            }
-
-            if ($request->hasFile('mobile_image')) {
-                [$w, $h] = getimagesize($request->file('mobile_image'));
-                if ($w != 1360 || $h != 1055) {
-                    $validator->errors()->add(
-                        'mobile_image',
-                        'Mobile image must be exactly 1360 × 1055 pixels'
-                    );
-                }
-            }
-
-        })->validate();
-
-    $data = [];
-
-    if ($request->hasFile('desktop_image')) {
-        $data['desktop_image'] =
-            uploadImage($request->desktop_image, config('fileConstants.IMAGE_ADD'));
+        return view('superadm.homesliders.edit', compact('slider'));
     }
 
-    if ($request->hasFile('mobile_image')) {
-        $data['mobile_image'] =
-            uploadImage($request->mobile_image, config('fileConstants.IMAGE_ADD'));
+    public function update(Request $request, $encodedId)
+    {
+        $id = base64_decode($encodedId);
+
+        $rules = [
+            'desktop_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
+            'mobile_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
+        ];
+
+        $messages = [
+            'desktop_image.max' => 'Desktop image size must be less than 1 MB',
+            'mobile_image.max'  => 'Mobile image size must be less than 1 MB',
+        ];
+
+        Validator::make($request->all(), $rules, $messages)
+            ->after(function ($validator) use ($request) {
+
+                if ($request->hasFile('desktop_image')) {
+                    [$w, $h] = getimagesize($request->file('desktop_image'));
+                    if ($w != 2000 || $h != 600) {
+                        $validator->errors()->add(
+                            'desktop_image',
+                            'Desktop image must be exactly 2000 × 600 pixels'
+                        );
+                    }
+                }
+
+                if ($request->hasFile('mobile_image')) {
+                    [$w, $h] = getimagesize($request->file('mobile_image'));
+                    if ($w != 2000 || $h != 900) {
+                        $validator->errors()->add(
+                            'mobile_image',
+                            'Mobile image must be exactly 2000 × 900 pixels'
+                        );
+                    }
+                }
+            })->validate();
+
+        $data = [];
+
+        if ($request->hasFile('desktop_image')) {
+            $data['desktop_image'] =
+                uploadImage($request->desktop_image, config('fileConstants.IMAGE_ADD'));
+        }
+
+        if ($request->hasFile('mobile_image')) {
+            $data['mobile_image'] =
+                uploadImage($request->mobile_image, config('fileConstants.IMAGE_ADD'));
+        }
+
+        $this->service->update($id, $data);
+
+        return redirect()->route('homeslider.list')
+            ->with('success', 'Slider updated successfully');
     }
-
-    $this->service->update($id, $data);
-
-    return redirect()->route('homeslider.list')
-        ->with('success', 'Slider updated successfully');
-}
-
-
 }

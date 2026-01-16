@@ -145,7 +145,7 @@
         <li class="nav-item {{ request()->is('admin-campaing/list') ? 'active' : '' }}">
             <a href="{{ route('admin-campaing.list') }}">
                 <i class="mdi mdi-account-key"></i>
-                <span>Camping List</span>
+                <span>Campaign List</span>
             </a>
         </li>
         <li
@@ -162,7 +162,8 @@
                 <span>Contact Us</span>
             </a>
         </li>
-        <li class="nav-item {{ request()->is('user-payment/list') || request()->is('user-payment/details/*') ? 'active' : '' }}">
+        <li
+            class="nav-item {{ request()->is('user-payment/list') || request()->is('user-payment/details/*') ? 'active' : '' }}">
             <a href="{{ route('user-payment.list') }}">
                 <i class="mdi mdi-account-key"></i>
                 <span>User Payment</span>
@@ -211,8 +212,7 @@
             </a>
         </li> --}}
         <li class="nav-item">
-            <a href="javascript:void(0)"
-            class="logout-btn">
+            <a href="javascript:void(0)" class="logout-btn">
                 <i class="mdi mdi-logout"></i>
                 <span>Logout</span>
             </a>
@@ -223,22 +223,22 @@
 </nav>
 
 <script>
-$(document).on('click', '.logout-btn', function (e) {
-    e.preventDefault();
+    $(document).on('click', '.logout-btn', function(e) {
+        e.preventDefault();
 
-    Swal.fire({
-        title: 'Are you sure?',
-        text: 'Are you sure you want to logout?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#b0302a',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, Logout',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "{{ route('admin.logout') }}";
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Are you sure you want to logout?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#b0302a',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Logout',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('admin.logout') }}";
+            }
+        });
     });
-});
 </script>

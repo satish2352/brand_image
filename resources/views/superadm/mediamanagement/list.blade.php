@@ -20,7 +20,7 @@
                     @endif
 
                     {{-- TABLE --}}
-                    <div class="table">
+                    <div class="table-responsive">
                         <form method="GET" class="mb-3">
                             <div class="row">
 
@@ -226,79 +226,78 @@
             </div>
         </div>
     </div>
-@section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @section('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    /* ================= STATUS TOGGLE ================= */
-    $(document).on('change', '.toggle-status', function () {
+        <script>
+            /* ================= STATUS TOGGLE ================= */
+            $(document).on('change', '.toggle-status', function() {
 
-        let id = $(this).data('id');
+                let id = $(this).data('id');
 
-        $.post("{{ route('media.status') }}", {
-            _token: "{{ csrf_token() }}",
-            id: id
-        }, function (response) {
-            toastr.success(response.message);
-        }).fail(function () {
-            toastr.error('Failed to update status');
-        });
-
-    });
-
-    /* ================= DELETE (FIXED) ================= */
-    $(document).on('click', '.delete-btn', function () {
-
-        let id = $(this).data('id');
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This media will be permanently deleted.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-
-            if (!result.isConfirmed) return;
-
-            $.ajax({
-                url: "{{ route('media.delete') }}",
-                type: "POST",
-                data: {
+                $.post("{{ route('media.status') }}", {
                     _token: "{{ csrf_token() }}",
                     id: id
-                },
-                success: function (response) {
+                }, function(response) {
+                    toastr.success(response.message);
+                }).fail(function() {
+                    toastr.error('Failed to update status');
+                });
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted!',
-                        text: 'Media deleted successfully.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-
-                    // Remove row without reload
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1200);
-                },
-                error: function () {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Failed!',
-                        text: 'Delete failed. Please try again.'
-                    });
-                }
             });
 
-        });
+            /* ================= DELETE (FIXED) ================= */
+            $(document).on('click', '.delete-btn', function() {
 
-    });
-</script>
-@endsection
+                let id = $(this).data('id');
 
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This media will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: "{{ route('media.delete') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            id: id
+                        },
+                        success: function(response) {
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Media deleted successfully.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+
+                            // Remove row without reload
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1200);
+                        },
+                        error: function() {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed!',
+                                text: 'Delete failed. Please try again.'
+                            });
+                        }
+                    });
+
+                });
+
+            });
+        </script>
+    @endsection
 @endsection
