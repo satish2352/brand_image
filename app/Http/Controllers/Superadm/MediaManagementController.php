@@ -130,7 +130,7 @@ class MediaManagementController extends Controller
                     // 'facing_id' => 'required',
                     'facing' => 'required',
                     'illumination_id' => 'required',
-                    // 'radius_id' => 'required',
+
                     // 'minimum_booking_days' => 'required|integer|min:1',
                     'area_type' => 'required',
                     'address' => 'required',
@@ -174,7 +174,7 @@ class MediaManagementController extends Controller
             //  Wall Wrap
             case str_contains($slug, 'wall'):
                 $rules += [
-                    // 'radius_id' => 'required',
+
                     // 'area_auto' => 'required|numeric|min:1',
                 ];
                 break;
@@ -277,7 +277,7 @@ class MediaManagementController extends Controller
                     // 'facing_id' => 'required',
                     'facing' => 'required',
                     'illumination_id' => 'required',
-                    // 'radius_id' => 'required',
+
                     // 'minimum_booking_days' => 'required|integer|min:1',
                     'area_type' => 'required',
                     'address' => 'required',

@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                display: none;
-            } */
+                        display: none;
+                    } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -95,7 +95,7 @@
                     </div>
 
                     <div class="col-md-4 mb-3">
-                        <label>Media Title *</label>
+                        <label>Media Title <span class="text-danger">*</span></label>
                         <input type="text" name="media_title" value="{{ old('media_title', $media->media_title) }}"
                             class="form-control @error('media_title') is-invalid @enderror">
                     </div>
@@ -144,7 +144,7 @@
 
 
                     <div class="col-md-4 mb-3">
-                        <label>Illumination *</label>
+                        <label>Illumination <span class="text-danger">*</span></label>
                         <select name="illumination_id" class="form-control @error('illumination_id') is-invalid @enderror">
                             @foreach ($illuminations as $ill)
                                 <option value="{{ $ill->id }}"
@@ -163,7 +163,7 @@
                 </div> --}}
 
                     <div class="col-md-4 mb-3">
-                        <label>Address *</label>
+                        <label>Address <span class="text-danger">*</span></label>
                         <textarea name="address" class="form-control">{{ old('address', $media->address) }}</textarea>
                     </div>
                 </div>
