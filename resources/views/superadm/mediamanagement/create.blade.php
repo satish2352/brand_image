@@ -70,6 +70,37 @@
             height: 100%;
             object-fit: cover;
         }
+
+        /* ===== REMOVE RED BORDER FROM SELECT & FILE INPUT ===== */
+
+        /* Select dropdown - never red */
+        select.error,
+        select.is-invalid {
+            border-color: #ced4da !important;
+            background-image: none !important;
+        }
+
+        /* File input - never red */
+        input[type="file"].error,
+        input[type="file"].is-invalid {
+            border-color: #ced4da !important;
+            box-shadow: none !important;
+        }
+
+        /* Keep error text RED */
+        label.error,
+        .invalid-feedback {
+            color: #dc3545 !important;
+            font-size: 13px;
+        }
+
+        /* Normal inputs keep red border */
+        input.error:not([type="file"]),
+        textarea.error {
+            border-color: #dc3545 !important;
+        }
+
+        /*  */
     </style>
 @endsection
 @section('content')
@@ -526,7 +557,19 @@
                             </div>
                         @enderror
 
-                        <div id="imagePreview" class="d-flex flex-wrap mt-2"></div>
+                        <div id="imagePreview" class="d-flex flex-wrap mt-2" style="
+                            display: -webkit-inline-box !important;
+                            gap: 8px;
+                            overflow-x: auto;
+                            overflow-y: hidden;
+                            width: 100%;
+                            max-width: 100%;
+                            height: 90px;             
+                            padding: 5px;
+                            border: 1px dashed #ddd;
+                            border-radius: 6px;
+                            background: #fafafa;
+                        "></div>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label>360 View Link </label>
@@ -750,6 +793,19 @@
 
             $("#mediaForm").validate({
                 ignore: [], // validate hidden fields too (vendor, geo from dropdown)
+                errorElement: "label",
+                errorClass: "error text-danger",
+
+                highlight: function(element) {
+                    // Only input & textarea should turn red
+                    if ($(element).is("input") && element.type !== "file" || $(element).is("textarea")) {
+                        $(element).addClass("error");
+                    }
+                },
+
+                unhighlight: function(element) {
+                    $(element).removeClass("error is-invalid");
+                },
                 rules: {
                     area_id: {
                         required: true

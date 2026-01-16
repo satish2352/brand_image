@@ -25,7 +25,7 @@
 
     /* Active state */
     .nav-item.active .sidebar-link {
-        background-color: #b0302a;
+        background-color: #008f97;
         /* same as active menu */
         color: #fff;
     }
@@ -52,7 +52,7 @@
 
 
         <li
-            class="nav-item {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active' : '' }}">
+            class="nav-item has-sub {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active open' : '' }}">
             <a href="#">
                 <i class="mdi mdi-file-chart"></i>
                 <span>Master</span>
@@ -61,50 +61,49 @@
 
             <ul class="submenu">
                 <li
-                    class="nav-item
-                    {{ request()->is('home-slider/list') || request()->is('home-slider/add') ? 'active' : '' }}">
+                    class="{{ request()->is('home-slider/list') || request()->is('home-slider/add') ? 'active' : '' }}">
                     <a href="{{ route('homeslider.list') }}">
                         <i class="mdi mdi-image-multiple"></i>
                         <span>Home Slider</span>
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->is('city/list') || request()->is('city/add') || request()->is('city/edit/*') ? 'active' : '' }}">
+                    class="{{ request()->is('city/list') || request()->is('city/add') || request()->is('city/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('city.list') }}">
                         <i class="mdi mdi-domain"></i>
                         <span>City</span>
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active' : '' }}">
+                    class="{{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('area.list') }}">
                         <i class="mdi mdi-domain"></i>
                         <span>Area</span>
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->is('illumination/list') || request()->is('illumination/add') || request()->is('illumination/edit/*') ? 'active' : '' }}">
+                    class="{{ request()->is('illumination/list') || request()->is('illumination/add') || request()->is('illumination/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('illumination.list') }}">
                         <i class="mdi mdi-store"></i>
                         <span>Illumination</span>
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->is('category/list') || request()->is('category/add') || request()->is('category/edit/*') ? 'active' : '' }}">
+                    class="{{ request()->is('category/list') || request()->is('category/add') || request()->is('category/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('category.list') }}">
                         <i class="mdi mdi-domain"></i>
                         <span>Category</span>
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->is('radius/list') || request()->is('radius/add') || request()->is('radius/edit/*') ? 'active' : '' }}">
+                    class="{{ request()->is('radius/list') || request()->is('radius/add') || request()->is('radius/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('radius.list') }}">
                         <i class="mdi mdi-radius"></i>
                         <span>Radius</span>
                     </a>
                 </li>
                 <li
-                    class="nav-item {{ request()->is('vendor/list') || request()->is('vendor/add') || request()->is('vendor/edit/*') ? 'active' : '' }}">
+                    class="{{ request()->is('vendor/list') || request()->is('vendor/add') || request()->is('vendor/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('vendor.list') }}">
                         <i class="mdi mdi-store"></i>
                         <span>Vendor</span>

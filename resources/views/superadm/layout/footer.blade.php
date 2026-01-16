@@ -78,7 +78,7 @@
 <!-- footer -->
 <!-- ============================================================== -->
 <footer class="footer">
-    © {{ date('Y') }} Brand Image
+    © {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.
 </footer>
 <!-- ============================================================== -->
 <!-- End footer -->
