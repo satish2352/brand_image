@@ -3207,7 +3207,7 @@ table.order-details tbody td {
 /* COMMON RIBBON */
 .media-badge {
   position: absolute;
-  top: 18px;
+  top: 25px;
   left: -45px;
   /* 🔥 left cross */
   width: 180px;

@@ -291,8 +291,9 @@
 
                         <p class="blog-meta">
                             <i class="fas fa-map-marker-alt"></i>
-                            {{ $media->area_name }}, {{ $media->city_name }}
+                            {{ $media->city_name }}, {{ \Illuminate\Support\Str::limit($media->area_name, 25, '...') }}
                         </p>
+
 
                         <div class="media-price">
                             ₹ {{ number_format($media->price, 2) }}
