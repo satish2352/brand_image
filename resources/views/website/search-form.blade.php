@@ -159,7 +159,7 @@
                 <div class="col-lg-3 col-md-4 col-sm-6">
                     <label class="form-label">Town</label>
                     <select name="city_id" id="city_id" class="form-select">
-                        <option value="">Select City</option>
+                        <option value="">Select Town</option>
                     </select>
                 </div>
 
