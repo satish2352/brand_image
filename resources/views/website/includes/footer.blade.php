@@ -30,7 +30,9 @@
 
             <!-- Quick Links -->
             <div class="col-lg-2 col-md-6 footer-col footer-links-wrap">
-                <h5 class="footer-title text-center">Quick Links</h5>
+                <h5 class="footer-title text-center">Quick Links
+                    <div class="foterhr mx-auto"></div>
+                </h5>
 
                 <ul class="footer-links footer-icon-list footer-links-center">
                     <li class="{{ request()->routeIs('website.home') ? 'active' : '' }}">
@@ -47,7 +49,10 @@
 
             <!-- Services -->
             <div class="col-lg-4 col-md-6 footer-col footer-services-wrap">
-                <h5 class="footer-title text-center">Services</h5>
+                <h5 class="footer-title text-center">Services
+                    <div class="foterhr mx-auto"></div>
+
+                </h5>
 
                 <ul class="footer-links footer-icon-list footer-services no-anchor">
                     <li><span class="icon">›</span> Traditional OOH</li>
@@ -61,8 +66,11 @@
             </div>
 
             <!-- Contact -->
-            <div class="col-lg-3 col-md-6 footer-col">
-                <h5 class="footer-title">Contact Us</h5>
+            <div class="col-lg-3 col-md-6 footer-col footer-services-wrap">
+                <h5 class="footer-title">Contact Us
+                    <div class="foterhr mx-auto"></div>
+
+                </h5>
 
                 <ul class="footer-contact">
                     <li>
