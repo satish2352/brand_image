@@ -6,9 +6,9 @@
             <div class="card">
                 <div class="card-body">
 
-                    <div class="mb-3 d-flex justify-content-end">
+                    {{-- <div class="mb-3 d-flex justify-content-end">
                         <a href="{{ route('category.create') }}" class="btn btn-warning btn-add">Add Category</a>
-                    </div>
+                    </div> --}}
 
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show" id="success-alert">
