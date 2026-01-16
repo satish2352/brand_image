@@ -13,6 +13,8 @@ use App\Models\{
     Illumination,
     ContactUs,
     Order,
+    City,
+    Vendor
 };
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +33,8 @@ class DashboardController extends Controller
 
             $allSessions = $req->session()->all();
             $allArea = Area::where('is_deleted', 0)->count();
+            $allcity = City::where('is_deleted', 0)->count();
+            $allvendor = Vendor::where('is_deleted', 0)->count();
             $allMediaManagement = MediaManagement::where('is_deleted', 0)->count();
             $allCategory = Category::where('is_deleted', 0)->count();
             $allFacingDirection = FacingDirection::where('is_deleted', 0)->count();
@@ -95,6 +99,8 @@ class DashboardController extends Controller
 
             return view('dashboard.dashboard', compact(
                 'allArea',
+                'allcity',
+                'allvendor',
                 'allMediaManagement',
                 'allCategory',
                 'allFacingDirection',

@@ -118,7 +118,7 @@
             </div>
 
             <!-- Feature 3 -->
-            <div class="col-lg-4 col-md-12 banner-below-section">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-chart-line"></i>
@@ -291,8 +291,9 @@
 
                         <p class="blog-meta">
                             <i class="fas fa-map-marker-alt"></i>
-                            {{ $media->area_name }}, {{ $media->city_name }}
+                            {{ $media->city_name }}, {{ \Illuminate\Support\Str::limit($media->area_name, 25, '...') }}
                         </p>
+
 
                         <div class="media-price">
                             ₹ {{ number_format($media->price, 2) }}
@@ -597,7 +598,7 @@
                 <a href="{{ route('website.about') }}" class="about-btn">Know More</a>
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-lg-5">
                 <div class="stats-grid">
 
                     <div class="stat-card">

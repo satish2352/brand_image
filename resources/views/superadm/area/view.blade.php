@@ -1,84 +1,45 @@
-@extends('superadm.layout.master')
+<style>
+    #areaModalContent label {
+        font-weight: 600;
+        color: #444;
+    }
+</style>
+<div class="container-fluid p-3">
 
-@section('content')
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="card shadow-sm">
-            <div class="card-body">
-
-                <h4 class="mb-4">View Area</h4>
-
-                {{-- STATE --}}
-                <div class="form-group mb-3">
-                    <label>State</label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ $area->state_name }}"
-                           readonly>
-                </div>
-
-                {{-- DISTRICT --}}
-                <div class="form-group mb-3">
-                    <label>District</label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ $area->district_name }}"
-                           readonly>
-                </div>
-
-                {{-- CITY --}}
-                <div class="form-group mb-3">
-                    <label>City</label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ $area->city_name }}"
-                           readonly>
-                </div>
-
-                {{-- AREA NAME --}}
-                <div class="form-group mb-3">
-                    <label>Area Name</label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ $area->area_name }}"
-                           readonly>
-                </div>
-
-                {{-- COMMON NAME --}}
-                <div class="form-group mb-3">
-                    <label>Common State District City Area Name</label>
-                    <input type="text"
-                           class="form-control"
-                           value="{{ $area->common_stdiciar_name }}"
-                           readonly>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label>Latitude</label>
-                        <input type="text"
-                               class="form-control"
-                               value="{{ $area->latitude }}"
-                               readonly>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label>Longitude</label>
-                        <input type="text"
-                               class="form-control"
-                               value="{{ $area->longitude }}"
-                               readonly>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-end">
-                    <a href="{{ route('area.list') }}" class="btn btn-secondary">
-                        Back
-                    </a>
-                </div>
-
-            </div>
-        </div>
+    <div class="row mb-2">
+        <label class="col-sm-4 font-weight-bold">State</label>
+        <div class="col-sm-8 text-color-bg">{{ $area->state_name }}</div>
     </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-4 font-weight-bold">District</label>
+        <div class="col-sm-8 text-color-bg">{{ $area->district_name }}</div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-4 font-weight-bold">City</label>
+        <div class="col-sm-8 text-color-bg">{{ $area->city_name }}</div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-4 font-weight-bold">Area Name</label>
+        <div class="col-sm-8 text-color-bg">{{ $area->area_name }}</div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-4 font-weight-bold">Common STDICAR Name</label>
+        <div class="col-sm-8 text-color-bg">{{ $area->common_stdiciar_name }}</div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-4 font-weight-bold">Latitude</label>
+        <div class="col-sm-8 text-color-bg">{{ $area->latitude }}</div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-4 font-weight-bold">Longitude</label>
+        <div class="col-sm-8 text-color-bg">{{ $area->longitude }}</div>
+    </div>
+
+
 </div>
-@endsection

@@ -795,7 +795,7 @@ Header .navbar-custom {
 
 @media(max-width: 575px) {
     .services-section {
-        padding: 70px 0;
+        padding: 10px 0;
     }
 }
 
@@ -1850,6 +1850,11 @@ Header .navbar-custom {
     .dashboard-sidebar {
         position: static;
     }
+
+    .mission_img {
+        margin: 30px !important;
+    }
+
 }
 
 @media (max-width: 575px) {
@@ -2392,4 +2397,10 @@ Header .navbar-custom {
     .footer-brand p {
         margin: 20px 0px 20px 0;
     }
+}
+.foterhr{
+    width: 100px;
+    background: #ffa000 ;
+    height: 1.2px;
+    margin-top: 7px;
 }

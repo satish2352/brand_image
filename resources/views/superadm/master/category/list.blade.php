@@ -6,6 +6,10 @@
             <div class="card">
                 <div class="card-body">
 
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Category List</h4>
+                    </div>
+
                     {{-- <div class="mb-3 d-flex justify-content-end">
                         <a href="{{ route('category.create') }}" class="btn btn-warning btn-add">Add Category</a>
                     </div> --}}

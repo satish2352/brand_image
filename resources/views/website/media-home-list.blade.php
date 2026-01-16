@@ -6,7 +6,8 @@
         $height = (float) ($media->height ?? 0);
         $sqft = $width * $height;
     @endphp
-    <div class="col-lg-4 col-md-6 mb-5">
+    {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
+    <div class="col-12 col-md-6 mb-4">
         <div class="single-latest-news">
             <div class="latest-news-bg"
                 style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">

@@ -91,22 +91,22 @@
             // Desktop
             $('#desktop_image').on('change', function() {
                 validateImage(this, {
-                    width: 1924,
-                    height: 761,
+                    width: 2000,
+                    height: 600,
                     error: '#desktop_error',
                     sizeError: 'Desktop image size must be less than 1 MB',
-                    dimensionError: 'Desktop image size must be exactly 1924 x 761 pixels'
+                    dimensionError: 'Desktop image size must be exactly 2000 x 600 pixels'
                 });
             });
 
             // Mobile
             $('#mobile_image').on('change', function() {
                 validateImage(this, {
-                    width: 1360,
-                    height: 1055,
+                    width: 2000,
+                    height: 900,
                     error: '#mobile_error',
                     sizeError: 'Mobile image size must be less than 1 MB',
-                    dimensionError: 'Mobile image size must be exactly 1360 x 1055 pixels'
+                    dimensionError: 'Mobile image size must be exactly 2000 x 900 pixels'
                 });
             });
 

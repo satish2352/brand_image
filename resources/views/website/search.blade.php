@@ -84,7 +84,7 @@
     @endif
 
     {{-- SEARCH RESULTS --}}
-    @if ($mediaList->count())
+    {{-- @if ($mediaList->count())
         <div class="container mt-4">
             <div class="row" id="media-container">
                 @include('website.media-home-list', ['mediaList' => $mediaList])
@@ -98,7 +98,33 @@
         <div class="container mt-4 text-center">
             <h5>No media found for selected filters</h5>
         </div>
+    @endif --}}
+    @if ($mediaList->count())
+        <div class="container mt-4">
+            <div class="row">
+
+                {{-- LEFT: Media Cards --}}
+                <div class="col-lg-6 col-md-6 col-sm-12" style="height:78vh; overflow-y:auto;">
+                    <div class="row" id="media-container">
+                        @include('website.media-home-list', ['mediaList' => $mediaList])
+                    </div>
+                </div>
+
+
+                {{-- RIGHT: Google Map --}}
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div id="map" style="height:78vh; width:100%; border-radius:10px;"></div>
+                </div>
+
+            </div>
+        </div>
+
+        {{-- Lazy Loader --}}
+        <div class="text-center my-4 d-none" id="lazy-loader">
+            <span class="spinner-border text-warning"></span>
+        </div>
     @endif
+
     <script>
         let page = 1;
         let loading = false;
@@ -133,7 +159,7 @@
                         if ($.trim(html) === '') {
 
                             if (lazyTriggered) {
-                                loader.html('No more media');
+                                loader.html(''); //No more media
                             } else {
                                 loader.addClass('d-none');
                             }
@@ -157,3 +183,41 @@
 
 
 @endsection
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    function initLeafletMap() {
+        let defaultLat = {{ $mediaList[0]->latitude ?? 19.997453 }};
+        let defaultLng = {{ $mediaList[0]->longitude ?? 73.789803 }};
+
+        let map = L.map('map').setView([defaultLat, defaultLng], 12);
+
+        // Load free OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        @foreach ($mediaList as $m)
+            L.marker([{{ $m->latitude }}, {{ $m->longitude }}])
+                .addTo(map)
+                .bindPopup(`
+    <div style="text-align:center;">
+        <img src="{{ config('fileConstants.IMAGE_VIEW') . $m->first_image }}" 
+             style="width:100%;max-width:150px;border-radius:6px;margin-bottom:5px;">
+
+        <a href="{{ route('website.media-details', base64_encode($m->id)) }}" 
+           style="font-weight:bold; text-decoration:none; color:#007bff;"
+          >
+            {{ $m->media_title }}
+        </a><br>
+
+        <span style="color:#555;">{{ $m->area_name }}</span>
+    </div>
+`);
+        @endforeach
+    }
+
+    window.onload = initLeafletMap;
+</script>

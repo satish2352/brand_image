@@ -4,31 +4,31 @@
 
 @section('content')
 
-    <style>
-        /* Parent active style */
-        .dashboard-sidebar>ul>li.active>a {
-            background: linear-gradient(90deg, #ffb300, #ff9800);
-            color: #000;
-        }
+<style>
+    /* Parent active style */
+    .dashboard-sidebar>ul>li.active>a {
+        background: linear-gradient(90deg, #ffb300, #ff9800);
+        color: #000;
+    }
 
-        /* ONLY child active highlight */
-        .dashboard-sidebar ul ul a.active {
-            background: linear-gradient(90deg, #ffb300, #ff9800);
-            color: #000;
-        }
+    /* ONLY child active highlight */
+    .dashboard-sidebar ul ul a.active {
+        background: linear-gradient(90deg, #ffb300, #ff9800);
+        color: #000;
+    }
 
-        .sidebar-menu li.active a {
-            background: transparent;
-        }
-    </style>
+    .sidebar-menu li.active a {
+        background: transparent;
+    }
+</style>
 
-    @php
-        $isCampaignPage = request()->routeIs('campaign.list');
-        $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
-    @endphp
+@php
+$isCampaignPage = request()->routeIs('campaign.list');
+$campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
+@endphp
 
-    <!-- breadcrumb-section -->
-    <div class="breadcrumb-section breadcrumb-bg">
+<!-- breadcrumb-section -->
+<!-- <div class="breadcrumb-section breadcrumb-bg">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 offset-lg-2 text-center">
@@ -39,9 +39,20 @@
                 </div>
             </div>
         </div>
-    </div>
-    <!-- end breadcrumb section -->
+    </div> -->
+<!-- end breadcrumb section -->
+<div class="container-fluid about-banner-img g-0">
+    <div class="row">
+        <!-- Desktop Image -->
+        <div class="col-md-12 d-none d-md-block">
+            <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid">
+        </div>
 
+        <!-- Mobile Image -->
+        <div class="col-md-12 d-block d-md-none">
+            <img src="{{ asset('assets/img/mobile_campain_page.png') }}" alt="About Banner" class="img-fluid">
+        </div>
+    </div>
     <div class="dashboard-wrapper container my-5">
         <div class="row g-4">
 
@@ -55,13 +66,13 @@
                         <a href="{{ route('dashboard.home') }}">
                             <i class="bi bi-speedometer2"></i> Dashboard
                         </a>
-                    </li> --}}
+                        </li> --}}
 
                         {{-- <li class="{{ request()->routeIs('campaign.list') ? 'active' : '' }}">
                         <a href="{{ route('campaign.list') }}">
                             <i class="bi bi-megaphone"></i> Campaign List
                         </a>
-                    </li> --}}
+                        </li> --}}
                         <li class="{{ request()->routeIs('campaign.*') ? 'active' : '' }}">
                             <a data-bs-toggle="collapse" href="#campaignMenu" role="button">
                                 <i class="bi bi-megaphone"></i> Campaign List
@@ -96,7 +107,7 @@
                         <a href="{{ route('dashboard.profile') }}">
                             <i class="bi bi-person"></i> Update Details
                         </a>
-                    </li> --}}
+                        </li> --}}
                     </ul>
                 </div>
             </div>
@@ -111,4 +122,4 @@
         </div>
     </div>
 
-@endsection
+    @endsection
