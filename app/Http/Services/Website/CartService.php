@@ -102,6 +102,31 @@ class CartService
         $fromDate = Carbon::parse($from);
         $toDate   = Carbon::parse($to);
 
+
+        $userId = auth('website')->id();
+        $sessionId = session()->getId();
+
+        // 🔸 CHECK if already in CART with overlapping dates
+        $exists = DB::table('cart_items')
+            ->where('media_id', $mediaId)
+            ->where(function ($q) use ($userId, $sessionId) {
+                $q->where('user_id', $userId)
+                    ->orWhere('session_id', $sessionId);
+            })
+            ->where(function ($q) use ($from, $to) {
+                $q->whereBetween('from_date', [$from, $to])
+                    ->orWhereBetween('to_date', [$from, $to])
+                    ->orWhere(function ($q2) use ($from, $to) {
+                        $q2->where('from_date', '<=', $from)
+                            ->where('to_date', '>=', $to);
+                    });
+            })
+            ->exists();
+
+        if ($exists) {
+            throw new \Exception('Media already added in cart for selected dates');
+        }
+
         // 🔒 BLOCK already BOOKED dates (order_items only)
         $alreadyBooked = DB::table('order_items')
             ->where('media_id', $mediaId)
