@@ -20,7 +20,7 @@
                     @endif
 
                     {{-- TABLE --}}
-                    <div class="table-responsive">
+                    <div class="table">
                         <form method="GET" class="mb-3">
                             <div class="row">
 
@@ -105,7 +105,7 @@
                                     <input type="date" name="to_date" class="form-control"
                                         value="{{ request('to_date') }}">
                                 </div>
-                                <div class="col-md-6 d-flex align-items-end justify-content-center">
+                                <div class="col-md-6 d-flex align-items-end">
                                     <button class="btn btn-success m-2">Filter</button>
                                     <a href="{{ route('media.list') }}" class="btn btn-secondary m-2">Reset</a>
                                 </div>
@@ -225,77 +225,79 @@
             </div>
         </div>
     </div>
-    @section('scripts')
-        <script>
-            /* ================= STATUS TOGGLE ================= */
-            $('.toggle-status').change(function() {
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                let id = $(this).data('id');
+<script>
+    /* ================= STATUS TOGGLE ================= */
+    $(document).on('change', '.toggle-status', function () {
 
-                $.post("{{ route('media.status') }}", {
+        let id = $(this).data('id');
+
+        $.post("{{ route('media.status') }}", {
+            _token: "{{ csrf_token() }}",
+            id: id
+        }, function (response) {
+            toastr.success(response.message);
+        }).fail(function () {
+            toastr.error('Failed to update status');
+        });
+
+    });
+
+    /* ================= DELETE (FIXED) ================= */
+    $(document).on('click', '.delete-btn', function () {
+
+        let id = $(this).data('id');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This media will be permanently deleted.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+
+            if (!result.isConfirmed) return;
+
+            $.ajax({
+                url: "{{ route('media.delete') }}",
+                type: "POST",
+                data: {
                     _token: "{{ csrf_token() }}",
                     id: id
-                }, function(response) {
-                    toastr.success(response.message);
-                }).fail(function() {
-                    toastr.error('Failed to update status');
-                });
+                },
+                success: function (response) {
 
-            });
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Media deleted successfully.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
 
-            /* ================= DELETE ================= */
-            $('.delete-btn').click(function() {
-
-                let id = $(this).data('id');
-
-                if (!confirm('Are you sure you want to delete this media?')) return;
-
-                $.post("{{ route('media.delete') }}", {
-                    _token: "{{ csrf_token() }}",
-                    id: id
-                }, function(response) {
-                    toastr.success(response.message);
-                    location.reload();
-                }).fail(function() {
-                    toastr.error('Delete failed');
-                });
-
-            });
-        </script>
-        <script>
-            $(document).ready(function() {
-
-                function loadCities(districtId, selectedCity = '') {
-                    $('#city_id').html('<option value="">All</option>');
-
-                    if (!districtId) return;
-
-                    let url = `{{ route('media.getCities', ':id') }}`.replace(':id', districtId);
-
-                    $.get(url, function(data) {
-                        data.forEach(function(city) {
-                            $('#city_id').append(
-                                `<option value="${city.id}">${city.city_name}</option>`
-                            );
-                        });
-
-                        if (selectedCity) {
-                            $('#city_id').val(selectedCity);
-                        }
+                    // Remove row without reload
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1200);
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed!',
+                        text: 'Delete failed. Please try again.'
                     });
                 }
-
-                $('#district_id').change(function() {
-                    loadCities($(this).val(), '');
-                });
-
-                var savedDistrict = "{{ request('district_id') }}";
-                var savedCity = "{{ request('city_id') }}";
-
-                if (savedDistrict) {
-                    loadCities(savedDistrict, savedCity);
-                }
             });
-        </script>
-    @endsection
+
+        });
+
+    });
+</script>
+@endsection
+
 @endsection

@@ -8,12 +8,12 @@
 
                 <h4 class="mb-4">Edit Area</h4>
 
-                <form action="{{ route('area.update', $encodedId) }}" method="POST">
+                <form action="{{ route('area.update', $encodedId) }}" method="POST" novalidate>
                     @csrf
 
                     {{-- STATE --}}
                     <div class="form-group mb-3">
-                        <label>State *</label>
+                        <label>State <span class="text-danger">*</span></label>
                         <select id="state" name="state_id" class="form-control">
                             <option value="{{ $area->state_id }}">{{ $area->state_name }}</option>
                         </select>
@@ -21,7 +21,7 @@
 
                     {{-- DISTRICT --}}
                     <div class="form-group mb-3">
-                        <label>District *</label>
+                        <label>District <span class="text-danger">*</span></label>
                         <select id="district" name="district_id" class="form-control">
                             <option value="{{ $area->district_id }}">{{ $area->district_name }}</option>
                         </select>
@@ -29,7 +29,7 @@
 
                     {{-- CITY --}}
                     <div class="form-group mb-3">
-                        <label>City *</label>
+                        <label>City <span class="text-danger">*</span></label>
                         <select id="city" name="city_id" class="form-control">
                             <option value="{{ $area->city_id }}">{{ $area->city_name }}</option>
                         </select>
@@ -37,7 +37,7 @@
 
                     {{-- AREA NAME --}}
                     <div class="form-group mb-3">
-                        <label>Area Name *</label>
+                        <label>Area Name <span class="text-danger">*</span></label>
                         <input type="text"
                                name="area_name"
                                class="form-control"
@@ -46,7 +46,7 @@
 
                     {{-- COMMON NAME --}}
                     <div class="form-group mb-4">
-                        <label>Common State District City Area Name *</label>
+                        <label>Common State District City Area Name <span class="text-danger">*</span></label>
                         <input type="text"
                                name="common_stdiciar_name"
                                class="form-control"
@@ -153,6 +153,63 @@ $(document).ready(function () {
         selectedCity = null;
         loadCities(selectedDistrict);
     });
+
+    // validation
+
+        $('form').attr('novalidate', true);
+
+    $('form').on('submit', function (e) {
+
+        let valid = true;
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        function error(el, msg) {
+            el.addClass('is-invalid');
+            el.after(`<div class="invalid-feedback">${msg}</div>`);
+            valid = false;
+        }
+
+        if (!$('#state').val())    error($('#state'), 'Please select a state.');
+        if (!$('#district').val()) error($('#district'), 'Please select a district.');
+        if (!$('#city').val())     error($('#city'), 'Please select a city.');
+
+        let area = $('input[name="area_name"]');
+        if (!area.val()) error(area, 'Please enter the area name.');
+        else if (area.val().length > 255) error(area, 'Area name must not exceed 255 characters.');
+
+        let common = $('input[name="common_stdiciar_name"]');
+        if (!common.val()) error(common, 'Please enter the common standard name.');
+        else if (common.val().length > 255) error(common, 'Common standard name must not exceed 255 characters.');
+
+        let lat = $('input[name="latitude"]');
+        if (!lat.val()) error(lat, 'Latitude is required.');
+        else if (isNaN(lat.val())) error(lat, 'Latitude must be numeric.');
+
+        let lng = $('input[name="longitude"]');
+        if (!lng.val()) error(lng, 'Longitude is required.');
+        else if (isNaN(lng.val())) error(lng, 'Longitude must be numeric.');
+
+        if (!valid) e.preventDefault();
+    });
+    
+    // 
+
+        function clearError(element) {
+        element.removeClass('is-invalid');
+        element.next('.invalid-feedback').remove();
+        }
+
+        // Text inputs
+        $('input[type="text"]').on('input', function () {
+            clearError($(this));
+        });
+
+        // Select dropdowns
+        $('select').on('change', function () {
+            clearError($(this));
+        });
+
 
 });
 </script>

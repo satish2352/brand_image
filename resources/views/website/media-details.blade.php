@@ -228,19 +228,40 @@
                     <div class="card shadow-sm border-0 p-3">
 
                         {{-- MAIN IMAGE --}}
-                        <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
+                        {{-- <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
                             <img class="main-media-image" id="mainMediaImage"
                                 src="{{ config('fileConstants.IMAGE_VIEW') . $media->images[0]->images }}">
+                        </div> --}}
+                        @php
+                            $mainImage = $media->images->first();
+                        @endphp
+                        <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
+                            <img class="main-media-image" id="mainMediaImage"
+                            src="{{ $mainImage 
+                                    ? config('fileConstants.IMAGE_VIEW') . $mainImage->images 
+                                    : asset('assets/img/no-image.jpg') }}">
                         </div>
 
                         {{-- THUMBNAILS --}}
-                        <div class="media-thumbs-bottom">
+                        {{-- <div class="media-thumbs-bottom">
                             @foreach ($media->images as $k => $img)
                                 <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
                                     class="thumb-img {{ $k == 0 ? 'active' : '' }}"
                                     onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
                             @endforeach
-                        </div>
+                        </div> --}}
+                        @if($media->images->count())
+                            <div class="media-thumbs-bottom">
+                                @foreach ($media->images as $k => $img)
+                                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
+                                        class="thumb-img {{ $k == 0 ? 'active' : '' }}"
+                                        onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-muted mt-2">No images available</p>
+                        @endif
+
 
                     </div>
                 </div>
@@ -318,6 +339,7 @@
                         </form>
 
                     </div>
+                    
                 </div>
 
             </div>

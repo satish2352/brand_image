@@ -36,8 +36,10 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td>{{ $user->mobile_number }}</td>
-                                        <td>{{ $user->organisation }}</td>
-                                        <td>{{ $user->gst }}</td>
+                                        {{-- <td>{{ $user->organisation }}</td>
+                                        <td>{{ $user->gst }}</td> --}}
+                                        <td>{{ $user->organisation ?? 'NA' }}</td>
+                                        <td>{{ $user->gst ?? 'NA' }}</td>
 
 
                                         <td>

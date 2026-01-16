@@ -95,16 +95,18 @@
     </div>
 
     <!-- Bottom Bar -->
-    <div class="footer-bottom">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-12 text-center">
-                    <p class="footer-bottom-line">© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.
-                    </p>
+    <a href="https://sumagoinfotech.com/home" target="_blank" style="text-decoration: none; color: inherit;">
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-12 text-center">
+                        <p class="footer-bottom-line">© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </a>
+
 </footer>
 
 <!-- end footer -->
@@ -149,7 +151,7 @@
     });
 </script>
 
-{{--  --}}
+{{-- --}}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 

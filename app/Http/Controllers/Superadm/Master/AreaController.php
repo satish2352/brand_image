@@ -214,4 +214,17 @@ class AreaController extends Controller
                 ->get()
         );
     }
+
+    public function view($encodedId)
+{
+    try {
+        $id = base64_decode($encodedId);
+        $area = $this->areaService->getAreaById($id);
+
+        return view('superadm.area.view', compact('area'));
+    } catch (Exception $e) {
+        return redirect()->route('area.list')->with('error', 'Area not found');
+    }
+}
+
 }

@@ -67,6 +67,9 @@
             /* dark soft-ui text */
             font-weight: 500;
         }
+        .input-group .form-control:not(:last-child){
+            border-right: 1px solid #d2d6da;
+        }
     </style>
 
 </head>
@@ -108,7 +111,7 @@
                                     <form class="form-horizontal form-material" method="POST" id="loginform"
                                         action="{{ route('superlogin') }}">
                                         @csrf
-                                        <label style="color:#fff">User name</label>
+                                        <label style="color:#000">User name</label>
                                         <div class="mb-3">
                                             <input type="text" id="superemail" name="superemail" value=""
                                                 class="form-control" placeholder="User" aria-label="user"
@@ -117,7 +120,7 @@
                                                 <span class="text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
-                                        <label style="color:#fff">Password</label>
+                                        <label style="color:#000">Password</label>
                                         <div class="mb-3">
                                             <div class="input-group input-group-outline">
                                                 <input type="password" id="superpassword" name="superpassword"
@@ -141,8 +144,8 @@
                                             @enderror
                                         </div>
                                         <div class="text-center">
-                                            <button type="submit" class="btn bg-gradient-info w-100 mt-4 mb-0">Sign
-                                                in</button>
+                                            <button type="submit" class="btn bg-gradient-info w-100 mt-4 mb-0">Login
+                                                </button>
                                         </div>
                                     </form>
                                 </div>

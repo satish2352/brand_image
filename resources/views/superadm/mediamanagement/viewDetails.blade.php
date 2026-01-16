@@ -37,7 +37,9 @@
                     <th>Price</th>
                     <td>₹ {{ $media->price ? number_format($media->price, 2) : '-' }}</td>
 
-                    <th>Minimum Booking Days</th>
+                    <th></th>
+                    <td></td>
+                    {{-- <th>Minimum Booking Days</th> --}}
                     {{-- <td>{{ $media->minimum_booking_days ?? '-' }}</td> --}}
                 </tr>
             </table>
@@ -184,7 +186,7 @@
             <h6 class="mt-4">Images</h6>
             <div class="row">
                 @forelse($media->images as $img)
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-2 mb-3">
                         <img src="{{ config('fileConstants.IMAGE_VIEW') . $img['image'] }}" class="img-fluid rounded"
                             style="height:150px; object-fit:cover;">
                     </div>

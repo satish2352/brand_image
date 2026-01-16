@@ -78,7 +78,7 @@
 <!-- footer -->
 <!-- ============================================================== -->
 <footer class="footer">
-    © {{ date('Y') }} Alf Engineering
+    © {{ date('Y') }} Brand Image
 </footer>
 <!-- ============================================================== -->
 <!-- End footer -->
@@ -193,6 +193,36 @@
             $('#error-alert').fadeOut('slow');
         }, 5000);
     });
+</script>
+
+<script>
+$(document).ready(function () {
+
+    if ($('.alert-dismissible').length) {
+
+        setTimeout(function () {
+            $('.alert-dismissible').fadeOut(500, function () {
+                $(this).remove();
+            });
+        }, 5000); // 5 seconds
+    }
+
+});
+</script>
+
+<script>
+$(document).ready(function () {
+
+    if ($('.alert-success').length) {
+
+        setTimeout(function () {
+            $('.alert-success').fadeOut(500, function () {
+                $(this).remove();
+            });
+        }, 5000); // 5 seconds
+    }
+
+});
 </script>
 
 {{-- for brand image --}}
