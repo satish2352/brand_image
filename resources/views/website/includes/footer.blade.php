@@ -136,8 +136,8 @@
             },
 
             navigation: {
-                nextEl: ".hoarding-slider .swiper-button-prev",
-                prevEl: ".hoarding-slider .swiper-button-next",
+                nextEl: ".swiper-btn-prev",
+                prevEl: ".swiper-btn-next",
             },
 
             breakpoints: {

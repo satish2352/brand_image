@@ -172,7 +172,7 @@
 
                                 <h4 class="auth-title">Login to Continue</h4>
 
-                                <form method="POST" id="loginForm">
+                                <form method="POST" id="loginForm" novalidate>
                                     @csrf
 
                                     <div class="mb-3">
@@ -203,7 +203,7 @@
 
                                 <h4 class="auth-title">Create Your Account</h4>
 
-                                <form id="signupForm">
+                                <form id="signupForm" novalidate>
                                     @csrf
 
                                     <div class="mb-3">
@@ -218,7 +218,7 @@
 
                                     <div class="mb-3">
                                         <label>Mobile Number <span class="text-danger">*</span></label>
-                                        <input type="text" name="signup_mobile_number" class="form-control">
+                                        <input type="text" name="signup_mobile_number" class="form-control" maxlength="10" inputmode="numeric" autocomplete="off">
                                     </div>
 
                                     <div class="mb-3">
@@ -228,7 +228,7 @@
 
                                     <div class="mb-3">
                                         <label>GST (optional)</label>
-                                        <input type="text" name="signup_gst" class="form-control">
+                                        <input type="text" name="signup_gst" maxlength="15" class="form-control">
                                     </div>
 
                                     <div class="mb-3">
@@ -318,6 +318,28 @@
     <script>
         $(document).ready(function() {
 
+            const nameRegex   = /^[A-Za-z\s]{2,50}$/;  
+            const mobileRegex = /^[6-9][0-9]{9}$/; 
+            const emailRegex  = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
+            $('input[name="signup_name"]').on('input', function () {
+                this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+            });
+
+            $('input[name="signup_mobile_number"]').on('input', function () {
+                this.value = this.value
+                    .replace(/[^0-9]/g, '')   // block letters
+                    .substring(0, 10);        // max 10 digits
+            });
+
+            $('input[name="signup_gst"]').on('input', function () {
+                this.value = this.value
+                    .toUpperCase()                 // auto uppercase
+                    .replace(/[^0-9A-Z]/g, '')     // only A–Z & 0–9
+                    .substring(0, 15);             // GST = 15 chars
+            });
+
             /* ---------- SWITCH TABS ---------- */
 
             window.showSignup = function() {
@@ -345,10 +367,116 @@
 
 
             /* ---------------- LOGIN ---------------- */
-            $("#loginForm").on("submit", function(e) {
+            // $("#loginForm").on("submit", function(e) {
+            //     e.preventDefault();
+
+            //     $(".text-danger").remove();
+            //     showLoader();
+
+            //     $.ajax({
+            //         url: "{{ route('website.login') }}",
+            //         method: "POST",
+            //         data: $(this).serialize(),
+
+            //         success: function(res) {
+            //             hideLoader();
+
+            //             // if(res.status){
+            //             //     Swal.fire("Success!", res.message, "success")
+            //             //     .then(() => window.location.reload());
+            //             // } 
+            //             if (res.status) {
+
+            //                 let redirectUrl = sessionStorage.getItem('redirect_after_login');
+
+            //                 Swal.fire("Success!", res.message, "success").then(() => {
+
+            //                     if (redirectUrl) {
+            //                         sessionStorage.removeItem('redirect_after_login');
+            //                         window.location.href = redirectUrl; //  ADD TO CART
+            //                     } else {
+            //                         window.location.reload(); // normal login
+            //                     }
+
+            //                 });
+            //             } else {
+            //                 // Swal.fire("Error!", res.message, "error");
+            //                 $("#loginForm").prepend(
+            //                     `<div class="text-danger mb-2">${res.message}</div>`
+            //                 );
+            //             }
+            //         },
+
+            //         error: function(xhr) {
+            //             hideLoader();
+
+            //             // If validation error (422)
+            //             if (xhr.status === 422) {
+            //                 $("#authModal").modal("show");
+            //                 showLogin();
+
+            //                 let errors = xhr.responseJSON.errors;
+            //                 $.each(errors, function(field, msg) {
+            //                     $(`#loginForm [name="${field}"]`).after(
+            //                         `<span class="text-danger">${msg[0]}</span>`);
+            //                 });
+
+            //             } else {
+            //                 // Any other server/API/database error
+            //                 Swal.fire(
+            //                     "Oops!",
+            //                     "Something went wrong. Please try again!",
+            //                     "error"
+            //                 );
+            //             }
+            //         }
+
+            //         // error: function(xhr){
+            //         //     hideLoader();
+
+            //         //     $("#authModal").modal("show");
+            //         //     showLogin();
+
+            //         //     let errors = xhr.responseJSON.errors;
+            //         //     $.each(errors, function(field, msg){
+            //         //         $(`#loginForm [name="${field}"]`).after(`<span class="text-danger">${msg[0]}</span>`);
+            //         //     });
+            //         // }
+            //     });
+            // });
+
+            /* ================= LOGIN VALIDATION + AJAX ================= */
+            $("#loginForm").on("submit", function (e) {
                 e.preventDefault();
 
-                $(".text-danger").remove();
+                let valid = true;
+                $("#loginForm .text-danger").remove();
+
+                function error(el, msg) {
+                    el.after(`<span class="text-danger">${msg}</span>`);
+                    valid = false;
+                }
+
+                const email = $('[name="login_email"]');
+                const pass  = $('[name="login_password"]');
+
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+                // EMAIL
+                if (!email.val()) {
+                    error(email, "Email is required");
+                } else if (!emailRegex.test(email.val())) {
+                    error(email, "Enter valid email address");
+                }
+
+                // PASSWORD
+                if (!pass.val()) {
+                    error(pass, "Password is required");
+                }
+
+                if (!valid) return; // STOP HERE
+
+                // AJAX only if validation passes
                 showLoader();
 
                 $.ajax({
@@ -356,51 +484,37 @@
                     method: "POST",
                     data: $(this).serialize(),
 
-                    success: function(res) {
+                    success: function (res) {
                         hideLoader();
 
-                        // if(res.status){
-                        //     Swal.fire("Success!", res.message, "success")
-                        //     .then(() => window.location.reload());
-                        // } 
                         if (res.status) {
-
                             let redirectUrl = sessionStorage.getItem('redirect_after_login');
 
                             Swal.fire("Success!", res.message, "success").then(() => {
-
                                 if (redirectUrl) {
                                     sessionStorage.removeItem('redirect_after_login');
-                                    window.location.href = redirectUrl; //  ADD TO CART
+                                    window.location.href = redirectUrl;
                                 } else {
-                                    window.location.reload(); // normal login
+                                    window.location.reload();
                                 }
-
                             });
                         } else {
-                            // Swal.fire("Error!", res.message, "error");
                             $("#loginForm").prepend(
                                 `<div class="text-danger mb-2">${res.message}</div>`
                             );
                         }
                     },
 
-                    error: function(xhr) {
+                    error: function (xhr) {
                         hideLoader();
 
-                        // If validation error (422)
                         if (xhr.status === 422) {
-                            $("#authModal").modal("show");
-                            showLogin();
-
                             let errors = xhr.responseJSON.errors;
-                            $.each(errors, function(field, msg) {
-                                $(`#loginForm [name="${field}"]`).after(
-                                    `<span class="text-danger">${msg[0]}</span>`);
+                            $.each(errors, function (field, msg) {
+                                $(`#loginForm [name="${field}"]`)
+                                    .after(`<span class="text-danger">${msg[0]}</span>`);
                             });
-
                         } else {
-                            // Any other server/API/database error
                             Swal.fire(
                                 "Oops!",
                                 "Something went wrong. Please try again!",
@@ -408,20 +522,9 @@
                             );
                         }
                     }
-
-                    // error: function(xhr){
-                    //     hideLoader();
-
-                    //     $("#authModal").modal("show");
-                    //     showLogin();
-
-                    //     let errors = xhr.responseJSON.errors;
-                    //     $.each(errors, function(field, msg){
-                    //         $(`#loginForm [name="${field}"]`).after(`<span class="text-danger">${msg[0]}</span>`);
-                    //     });
-                    // }
                 });
             });
+
 
 
             /* ---------------- SIGNUP ---------------- */
@@ -474,13 +577,100 @@
             }
 
             /* ================= VERIFY ACCOUNT (SEND OTP) ================= */
-            $("#sendOtpBtn").click(function() {
+            // $("#sendOtpBtn").click(function() {
 
-                if ($(this).prop("disabled")) return;
+            //     if ($(this).prop("disabled")) return;
 
-                // $(".text-danger").remove();
+            //     // $(".text-danger").remove();
+            //     $("#signupForm .text-danger").remove();
+            //     $("#loginForm .text-danger").remove();
+            //     showLoader();
+
+            //     $.ajax({
+            //         url: "{{ route('website.signup') }}",
+            //         method: "POST",
+            //         data: $("#signupForm").serialize(),
+
+            //         success: function(res) {
+            //             hideLoader();
+
+            //             if (res.status) {
+            //                 $("#signupArea").hide();
+            //                 $("#otpArea").fadeIn();
+
+            //                 $("#otpEmail").val($("#signupEmail").val());
+
+            //                 startOtpTimer();
+            //             }
+            //         },
+
+            //         error: function(xhr) {
+            //             hideLoader();
+
+            //             if (xhr.status === 422) {
+            //                 let errors = xhr.responseJSON.errors;
+            //                 $.each(errors, function(field, msg) {
+            //                     $(`[name="${field}"]`)
+            //                         .after(
+            //                             `<span class="text-danger">${msg[0]}</span>`);
+            //                 });
+            //             }
+            //         }
+            //     });
+            // });
+
+            $("#sendOtpBtn").on("click", function (e) {
+                e.preventDefault();
+
+                let valid = true;
                 $("#signupForm .text-danger").remove();
-                $("#loginForm .text-danger").remove();
+
+                function error(el, msg) {
+                    el.after(`<span class="text-danger">${msg}</span>`);
+                    valid = false;
+                }
+
+                const name   = $('[name="signup_name"]');
+                const email  = $('[name="signup_email"]');
+                const mobile = $('[name="signup_mobile_number"]');
+                const pass   = $('[name="signup_password"]');
+                const gst = $('[name="signup_gst"]');
+
+                // FULL NAME
+                if (!name.val()) {
+                    error(name, "Full name is required");
+                } else if (!nameRegex.test(name.val())) {
+                    error(name, "Only letters allowed (e.g. Vivek S Patil)");
+                }
+
+                // EMAIL
+                if (!email.val()) {
+                    error(email, "Email is required");
+                } else if (!emailRegex.test(email.val())) {
+                    error(email, "Use valid email like gmail/yahoo (.co, .com)");
+                }
+
+                // MOBILE
+                if (!mobile.val()) {
+                    error(mobile, "Mobile number is required");
+                } else if (!mobileRegex.test(mobile.val())) {
+                    error(mobile, "10 digits only & must start with 6, 7, 8 or 9");
+                }
+
+                // PASSWORD
+                if (!pass.val()) {
+                    error(pass, "Password is required");
+                } else if (pass.val().length < 6) {
+                    error(pass, "Password must be minimum 6 characters");
+                }
+
+                if (gst.val() && !gstRegex.test(gst.val())) {
+                    error(gst, "Enter valid GST number (e.g. 27ABCDE1234F1Z5)");
+                }
+
+                if (!valid) return; // STOP HERE
+
+                // ✅ VALID → AJAX CALL
                 showLoader();
 
                 $.ajax({
@@ -488,28 +678,23 @@
                     method: "POST",
                     data: $("#signupForm").serialize(),
 
-                    success: function(res) {
+                    success: function (res) {
                         hideLoader();
-
                         if (res.status) {
                             $("#signupArea").hide();
                             $("#otpArea").fadeIn();
-
                             $("#otpEmail").val($("#signupEmail").val());
-
                             startOtpTimer();
                         }
                     },
 
-                    error: function(xhr) {
+                    error: function (xhr) {
                         hideLoader();
-
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-                            $.each(errors, function(field, msg) {
+                            $.each(errors, function (field, msg) {
                                 $(`[name="${field}"]`)
-                                    .after(
-                                        `<span class="text-danger">${msg[0]}</span>`);
+                                    .after(`<span class="text-danger">${msg[0]}</span>`);
                             });
                         }
                     }
@@ -572,7 +757,6 @@
                     }
                 });
             });
-
 
         });
     </script>

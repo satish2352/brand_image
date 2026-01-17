@@ -242,7 +242,7 @@
         {{-- Title --}}
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
-                <div class="section-title">
+                <div class="section-title hording-section-title">
                     <h3><span class="orange-text">Hoardings / Billboards</h3>
                     <p>Turn busy roads into powerful brand touchpoints with premium hoardings and billboard solutions.
                     </p>
@@ -251,6 +251,18 @@
         </div>
         {{-- ================= HOARDINGS SECTION ================= --}}
         {{-- <div class="row mb-4"> --}}
+
+        <div class="hoarding-slider-wrapper position-relative">
+
+            <!-- Custom Navigation -->
+            <div class="custom-swiper-nav">
+                <div class="swiper-btn swiper-btn-prev">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="swiper-btn swiper-btn-next">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
         <div class="swiper hoarding-slider mb-4">
             <div class="swiper-wrapper">
                 <?php
@@ -363,6 +375,7 @@
 
             @endif
             @endforeach
+        </div>
         </div>
 
         <!-- Arrows -->

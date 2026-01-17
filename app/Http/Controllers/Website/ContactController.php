@@ -40,6 +40,10 @@ class ContactController extends Controller
             'email'     => 'required|email|max:255',
             'address'   => 'required|string',
             'remark'    => 'required|string',
+            'g-recaptcha-response' => 'required|captcha',
+        ], [
+        'g-recaptcha-response.required' => 'Please verify that you are not a robot',
+        'g-recaptcha-response.captcha'  => 'Captcha verification failed, please try again',
         ]);
 
         try {
