@@ -140,6 +140,7 @@
                                 <th>Size (WxH)</th>
                                 <th>Total Bookings</th>
                                 <th>Booked Days</th>
+                                <th>Payment Mode</th>
                                 {{-- <th>Total Revenue (₹)</th> --}}
                                 <th>Amount (₹)</th>
                                 <th>GST (₹)</th>
@@ -148,6 +149,7 @@
                                 <th>User Name</th>
                                 <th>Total Bookings</th>
                                 <th>Booked Days</th>
+                                <th>Payment Mode</th>
                                 {{-- <th>Total Revenue (₹)</th> --}}
                                 <th>Amount (₹)</th>
                                 <th>GST (₹)</th>
@@ -170,6 +172,18 @@
                                             <i class="mdi mdi-eye"></i> {{ $row->total_bookings }}
                                         </button>
                                     </td>
+                                    {{-- PAYMENT MODE --}}
+
+                                    {{-- <td>
+                                        @if ($row->payment_status === 'PAID')
+                                            <span class="badge badge-success">ONLINE</span>
+                                        @elseif ($row->payment_status === 'ADMIN_BOOKED')
+                                            <span class="badge badge-warning">OFFLINE</span>
+                                        @else
+                                            <span class="badge badge-secondary">{{ $row->payment_status }}</span>
+                                        @endif
+                                    </td> --}}
+
                                     {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
                                     <td>₹ {{ number_format($row->total_amount, 2) }}</td>
                                     <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
@@ -185,6 +199,16 @@
                                     <td>{{ $row->width }} x {{ $row->height }}</td>
                                     <td>{{ $row->total_bookings }}</td>
                                     <td>{{ $row->booked_days }}</td>
+                                    <td>
+                                        @if ($row->payment_status === 'PAID')
+                                            <span class="badge badge-success">ONLINE</span>
+                                        @elseif ($row->payment_status === 'ADMIN_BOOKED')
+                                            <span class="badge badge-offline">OFFLINE (Admin Booked)</span>
+                                        @else
+                                            <span class="badge badge-secondary">{{ $row->payment_status }}</span>
+                                        @endif
+                                    </td>
+
                                     {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
                                     <td>₹ {{ number_format($row->total_amount, 2) }}</td>
                                     <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
@@ -199,6 +223,16 @@
                                         </button>
                                     </td>
                                     <td>{{ $row->booked_days }}</td>
+                                    <td>
+                                        @if ($row->payment_status === 'PAID')
+                                            <span class="badge badge-success">ONLINE</span>
+                                        @elseif ($row->payment_status === 'ADMIN_BOOKED')
+                                            <span class="badge badge-warning">OFFLINE</span>
+                                        @else
+                                            <span class="badge badge-secondary">{{ $row->payment_status }}</span>
+                                        @endif
+                                    </td>
+
                                     {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
                                     <td>₹ {{ number_format($row->total_amount, 2) }}</td>
                                     <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
@@ -301,6 +335,7 @@
                         <th>Media Title</th>
                         <th>Category</th>
                         <th>Booked Days</th>
+                          <th>Payment Mode</th>
                         <th>Amount (₹)</th>
                         <th>GST Amount (₹)</th>
                         <th>Final Total (₹)</th>
@@ -316,6 +351,7 @@
                     <td>${r.media_title}</td>
                     <td>${r.category_name}</td>
                     <td>${r.booked_days}</td>
+                      <td>${paymentBadge(r.payment_status)}</td>
                     <td>₹ ${parseFloat(r.total_amount).toFixed(2)}</td>
                     <td>₹ ${parseFloat(r.gst_amount).toFixed(2)}</td>
                     <td><strong>₹ ${parseFloat(r.grand_total).toFixed(2)}</strong></td>
@@ -360,6 +396,7 @@
                         <th>Category</th>
                         <th>From - To</th>
                         <th>Booked Days</th>
+                          <th>Payment Mode</th>
                         <th>Revenue (₹)</th>
                     </tr>
                 </thead>
@@ -373,6 +410,7 @@
                     <td>${r.category_name}</td>
                     <td>${r.from_date} → ${r.to_date}</td>
                     <td>${r.booked_days}</td>
+                   <td>${paymentBadge(r.payment_status)}</td>
                     <td>₹ ${parseFloat(r.price).toFixed(2)}</td>
                 </tr>`;
                     });
@@ -463,4 +501,16 @@
             Swal.close();
         }
     </script>
+    <script>
+        function paymentBadge(status) {
+            if (status === 'PAID') {
+                return '<span class="badge badge-success">ONLINE</span>';
+            }
+            if (status === 'ADMIN_BOOKED') {
+                return '<span class="badge badge-warning">OFFLINE</span>';
+            }
+            return '<span class="badge badge-secondary">' + status + '</span>';
+        }
+    </script>
+
 @endsection
