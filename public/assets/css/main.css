@@ -3233,3 +3233,48 @@ table.order-details tbody td {
   background: #28a745;
   /* green */
 }
+
+
+/* Hording billboard next pre btn css */
+
+.hoarding-slider {
+    position: relative;
+}
+
+.swiper-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.swiper-btn i {
+    font-size: 16px;
+    color: #000;
+}
+
+.swiper-btn:hover {
+    background: #f28123;
+}
+
+.swiper-btn:hover i {
+    color: #fff;
+}
+
+.hoarding-slider-wrapper {
+    position: relative;
+}
+
+.custom-swiper-nav {
+    position: absolute;
+    top: -70px;
+    right: 0;
+    display: flex;
+    gap: 12px;
+}

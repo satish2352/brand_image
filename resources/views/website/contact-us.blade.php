@@ -41,7 +41,7 @@
                     @endif
 
                     <div class="contact-form">
-                        <form method="POST" action="{{ route('contact.store') }}">
+                        <form method="POST" id="contactForm" action="{{ route('contact.store') }}" novalidate>
                             @csrf
                             {{-- MEDIA ID --}}
                             <input type="hidden" name="media_id" value="{{ $mediaId ?? '' }}">
@@ -76,24 +76,39 @@
                             <div class="row">
 
                                 <div class="col-md-6 mb-3">
-                                    <textarea name="address" class="form-control" rows="5" placeholder="Address">{{ old('address') }}</textarea>
+                                    <textarea name="address" class="form-control" rows="5" placeholder="Address" maxlength="200">{{ old('address') }}</textarea>
+                                    <small class="text-muted" id="addressCounter">0 / 200</small>
                                     @error('address')
                                     <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <textarea name="remark" class="form-control" rows="5" placeholder="Requirements/Specifications">{{ old('remark') }}</textarea>
+                                    <textarea name="remark" class="form-control" rows="5" placeholder="Requirements/Specifications" maxlength="200">{{ old('remark') }}</textarea>
+                                    <small class="text-muted" id="remarkCounter">0 / 200</small>
                                     @error('remark')
                                     <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
                             <!-- SUBMIT -->
-                            <div class="row d-flex justify-content-end ">
+                            {{-- <div class="row d-flex justify-content-end ">
                                 <div class="col-6">
                                     <input type="submit" value="Submit" class="boxed-btn">
                                 </div>
 
+                            </div> --}}
+                            <div class="row d-flex justify-content-end">
+                                <div class="col-md-6">
+                                    <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
+                                    </div>
+                                    @error('g-recaptcha-response')
+                                        <span class="text-danger"
+                                            style="font-size: 14px;">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-end">
+                                    <input type="submit" value="Submit" class="boxed-btn">
+                                </div>
                             </div>
 
                         </form>
@@ -160,5 +175,103 @@
         referrerpolicy="no-referrer-when-downgrade" class="embed-responsive-item"></iframe>
 </div>
 <!-- end google map section -->
+
+{{-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> --}}
+
+@section('scripts')
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<script>
+$(document).ready(function () {
+
+    const nameRegex   = /^[A-Za-z\s]+$/;
+    const mobileRegex = /^[6-9][0-9]{9}$/;
+    const emailRegex  = /^[^\s@]+@[a-zA-Z]+\.[a-zA-Z]{2,}$/;
+
+    /* ================= INPUT RESTRICTIONS ================= */
+    $('input[name="full_name"]').on('input', function () {
+        this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+        clearError($(this));
+    });
+
+    $('input[name="mobile_no"]').on('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);
+        clearError($(this));
+    });
+
+    $('input[name="email"], textarea').on('input', function () {
+        clearError($(this));
+    });
+
+    /* ================= COUNTERS ================= */
+    $('textarea').each(function () {
+        const counter = $(this).attr('name') === 'address'
+            ? $('#addressCounter')
+            : $('#remarkCounter');
+
+        $(this).on('input', function () {
+            counter.text(`${this.value.length} / 200`);
+        });
+    });
+
+    /* ================= CLEAR ERROR ================= */
+    function clearError(el) {
+        el.removeClass('is-invalid');
+        el.next('.text-danger').remove();
+    }
+
+    /* ================= SUBMIT ================= */
+    $('form').on('submit', function (e) {
+
+        e.preventDefault(); // 🔴 IMPORTANT
+
+        let valid = true;
+        $('.text-danger').remove();
+        $('.is-invalid').removeClass('is-invalid');
+
+        function error(el, msg) {
+            el.addClass('is-invalid');
+            el.after(`<small class="text-danger d-block">${msg}</small>`);
+            valid = false;
+        }
+
+        const name    = $('input[name="full_name"]');
+        const email   = $('input[name="email"]');
+        const mobile  = $('input[name="mobile_no"]');
+        const address = $('textarea[name="address"]');
+        const remark  = $('textarea[name="remark"]');
+
+        if (!name.val()) error(name, 'Full name is required');
+        else if (!nameRegex.test(name.val())) error(name, 'Only letters allowed');
+
+        if (!email.val()) error(email, 'Email is required');
+        else if (!emailRegex.test(email.val())) error(email, 'Enter valid email (example@gmail.com)');
+
+        if (!mobile.val()) error(mobile, 'Mobile number is required');
+        else if (!mobileRegex.test(mobile.val()))
+            error(mobile, '10 digits & start with 6,7,8 or 9');
+
+        if (!address.val()) error(address, 'Address is required');
+        if (!remark.val()) error(remark, 'Requirements are required');
+
+        /* ===== reCAPTCHA ===== */
+        if (typeof grecaptcha !== 'undefined') {
+            if (grecaptcha.getResponse().length === 0) {
+                $('.g-recaptcha').after(
+                    `<small class="text-danger d-block mt-1">
+                        Please verify that you are not a robot
+                    </small>`
+                );
+                valid = false;
+            }
+        }
+
+        if (valid) {
+            this.submit(); // ✅ ONLY HERE backend call
+        }
+    });
+});
+</script>
 
 @endsection
