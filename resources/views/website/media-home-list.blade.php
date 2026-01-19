@@ -20,23 +20,26 @@
                 @endif
             </div>
             <div class="news-text-box">
-                <h3>
+                <h3 style="font-size: 21px;">
                     <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                        {{ $media->media_title ?? $media->category_name }}
+                        {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
                     </a>
                 </h3>
-
-                <p class="blog-meta">
+                {{-- <p class="blog-meta">
+                    <strong>Media : </strong>
+                    {{ $media->category_name }}
+                </p> --}}
+                {{-- <p class="blog-meta">
                     <i class="fas fa-map-marker-alt"></i>
-                    {{ $media->area_name }}, {{ $media->city_name }}
-                </p>
-                <div class="col-6 mb-2">
-                    <strong>Size:</strong>
+                    {{ $media->common_area_name }}, {{ $media->city_name }}
+                </p> --}}
+                <div class="col-6 mb-2 d-flex">
+                    <strong>Size : </strong>
                     {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
 
                 </div>
-                <div class="col-6 mb-2">
-                    <strong>Total Area:</strong>
+                <div class="col-6 mb-2 d-flex">
+                    <strong>Area : </strong>
                     {{ number_format($sqft, 2) }} SQFT
                 </div>
                 <div class="media-price">

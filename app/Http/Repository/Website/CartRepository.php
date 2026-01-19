@@ -37,7 +37,9 @@ class CartRepository
                 'cart_items.from_date',
                 'cart_items.to_date',
                 'm.media_title',
+                'm.facing',
                 'a.area_name',
+                'a.common_stdiciar_name',
                 'c.category_name'
             )
 

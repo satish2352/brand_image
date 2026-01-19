@@ -35,14 +35,19 @@ class CheckoutController extends Controller
             return redirect('/')->with('error', 'Order not found');
         }
 
-        $items = \App\Models\OrderItem::where('order_id', $orderId)
+        $items = \App\Models\OrderItem::where('order_items.order_id', $orderId)
             ->join('media_management as m', 'm.id', '=', 'order_items.media_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->select(
                 'order_items.price',
                 'order_items.qty',
-                'm.media_title'
+                'm.media_title',
+                'm.facing',
+                'a.area_name'
             )
             ->get();
+
+
 
         //  GST CALCULATION
         $subTotal = $order->total_amount;

@@ -40,11 +40,12 @@ class HomeRepository
                 'm.facing',
                 'm.video_link',
                 'ct.category_name',
+                'a.area_name',
                 's.state_name as state_name',
                 'd.district_name as district_name',
                 'city.city_name as city_name',
                 'm.area_type',
-                'a.common_stdiciar_name as area_name',
+                'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price')
 
@@ -243,7 +244,8 @@ class HomeRepository
                 's.state_name as state_name',
                 'd.district_name as district_name',
                 'c.city_name as city_name',
-                'a.common_stdiciar_name as area_name',
+                'a.area_name as area_name',
+                'a.common_stdiciar_name as common_area_name',
                 'il.illumination_name',
                 // 'rm.radius',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())),2) as per_day_price')

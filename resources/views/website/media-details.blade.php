@@ -9,6 +9,15 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <style>
+        /* Disable hover color change for disabled dates */
+        .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.flatpickr-disabled:hover {
+            color: #979393 !important;
+            /* keep same disabled color */
+            background: transparent !important;
+            cursor: not-allowed;
+        }
+
         .card {
             border-radius: 12px;
         }
@@ -213,12 +222,12 @@
 
     {{-- ================= BREADCRUMB ================= --}}
     <!-- <div class="container-fluid about-banner-img g-0">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                                            </div>
-                                        </div>
-                                    </div> -->
+                                                                                <div class="row">
+                                                                                    <div class="col-md-12">
+                                                                                        <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div> -->
 
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
@@ -235,16 +244,16 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                Desktop Image
-                                                <div class="col-md-12 d-none d-md-block">
-                                                    <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                                                </div>
+                                                                                        Desktop Image
+                                                                                        <div class="col-md-12 d-none d-md-block">
+                                                                                            <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                                                        </div>
 
-                                                Mobile Image
-                                                <div class="col-md-12 d-block d-md-none">
-                                                    <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
-                                                </div>
-                                            </div> -->
+                                                                                        Mobile Image
+                                                                                        <div class="col-md-12 d-block d-md-none">
+                                                                                            <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
+                                                                                        </div>
+                                                                                    </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-150">
             <div class="container">
@@ -291,18 +300,18 @@
                     <div class="col-lg-5">
                         <div class="card shadow-sm border-0 p-4">
 
-                            <h3 class="fw-bold mb-2 detail-title">{{ $media->media_title }}</h3>
+                            <h3 class="fw-bold mb-2 detail-title">{{ $media->area_name }} {{ $media->facing }}</h3>
 
                             <p class="text-muted mb-2">
                                 <i class="fas fa-map-marker-alt text-danger"></i>
-                                {{ $media->area_name }}, {{ $media->city_name }}
+                                {{ $media->common_area_name }}, {{ $media->city_name }}
                             </p>
 
                             <hr>
 
                             <div class="row ">
-                                <div class="col-6 mb-2"><strong>Category:</strong> {{ $media->category_name }}</div>
-                                <div class="col-6 mb-2"><strong>Media Code:</strong> {{ $media->media_code }}</div>
+                                <div class="col-6 mb-2"><strong>Media Type:</strong> {{ $media->category_name }}</div>
+                                <div class="col-6 mb-2"><strong>Media Tilte:</strong> {{ $media->media_title }}</div>
 
                                 <div class="col-6 mb-2"><strong>Facing:</strong> {{ $media->facing }}</div>
                                 <div class="col-6 mb-2"><strong>Area Type:</strong> {{ $media->area_type }}</div>

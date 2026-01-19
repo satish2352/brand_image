@@ -100,7 +100,7 @@
         </div>
     @endif --}}
     @if ($mediaList->count())
-        <div class="container mt-4">
+        <div class="container-fluid mt-4">
             <div class="row">
 
                 {{-- LEFT: Media Cards --}}

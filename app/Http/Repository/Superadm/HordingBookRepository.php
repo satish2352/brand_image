@@ -45,8 +45,12 @@ class HordingBookRepository
                 'm.category_id',
                 'c.category_name',
                 'm.area_type',
+                'm.width',
+                'm.height',
+                'm.facing',
+                'a.area_name as area_name',
                 'city.city_name as city_name',
-                'a.common_stdiciar_name as area_name',
+                'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
                 DB::raw('(SELECT from_date FROM media_booked_date mbd 
@@ -257,7 +261,8 @@ class HordingBookRepository
                 's.state_name as state_name',
                 'd.district_name as district_name',
                 'c.city_name as city_name',
-                'a.common_stdiciar_name as area_name',
+                'a.area_name as area_name',
+                'a.common_stdiciar_name as common_area_name',
                 'il.illumination_name',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())),2) as per_day_price')
             ])
