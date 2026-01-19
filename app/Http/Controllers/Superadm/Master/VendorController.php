@@ -52,9 +52,15 @@ class VendorController extends Controller
         try {
             $this->service->store($validated);
             return redirect()->route('vendor.list')->with('success', 'Vendor added successfully');
-        } catch (Exception $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+        } 
+        catch (Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['vendor_code' => $e->getMessage()]);
         }
+        // catch (Exception $e) {
+        //     return back()->withInput()->with('error', $e->getMessage());
+        // }
     }
 
     public function edit($encodedId)
@@ -89,9 +95,15 @@ class VendorController extends Controller
         try {
             $this->service->update($id, $validated);
             return redirect()->route('vendor.list')->with('success', 'Vendor updated successfully');
-        } catch (Exception $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+        } 
+        catch (Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['vendor_code' => $e->getMessage()]);
         }
+        // catch (Exception $e) {
+        //     return back()->withInput()->with('error', $e->getMessage());
+        // }
     }
 
     public function updateStatus(Request $request)

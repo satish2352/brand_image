@@ -35,6 +35,17 @@
         outline: none;
         box-shadow: none;
     }
+
+
+
+    .nav-item.has-sub .submenu {
+    display: none;
+    }
+
+    .nav-item.has-sub.open .submenu {
+        display: block;
+    }
+
 </style>
 <nav class="sidebar-nav">
     <ul id="sidebarnav">
@@ -49,11 +60,19 @@
         {{-- <li
             class="nav-item has-sub
             {{ request()->is('area/list*') || request()->is('illumination/list*') ? 'active open' : '' }}"> --}}
-
+        @php
+            $masterRoutes = request()->is('home-slider/*')
+                || request()->is('city/*')
+                || request()->is('area/*')
+                || request()->is('illumination/*')
+                || request()->is('category/*')
+                || request()->is('radius/*')
+                || request()->is('vendor/*');
+        @endphp
 
         <li
-            class="nav-item has-sub {{ request()->is('area/list') || request()->is('area/add') || request()->is('area/edit/*') ? 'active open' : '' }}">
-            <a href="#">
+            class="nav-item has-sub {{ $masterRoutes ? 'active open' : '' }}">
+            <a href="javascript:void(0)" class="has-sub-toggle">
                 <i class="mdi mdi-file-chart"></i>
                 <span>Master</span>
                 <i class="mdi mdi-chevron-down float-end"></i>
@@ -239,5 +258,18 @@
                 window.location.href = "{{ route('admin.logout') }}";
             }
         });
+    });
+</script>
+
+<script>
+    $(document).on('click', '.has-sub-toggle', function (e) {
+        e.preventDefault();
+
+        let parent = $(this).closest('.has-sub');
+
+        // close other open submenus (optional)
+        $('.nav-item.has-sub').not(parent).removeClass('open');
+
+        parent.toggleClass('open');
     });
 </script>
