@@ -7,6 +7,9 @@
 
     <style>
         /* parent must be relative */
+        .font-weight-admin {
+            font-weight: 700 !important;
+        }
 
         .card {
             border-radius: 12px;
@@ -80,6 +83,15 @@
         .flatpickr-day.endRange {
             background: #28a745 !important;
             color: #fff !important;
+        }
+
+        /* Disable hover color change for disabled dates */
+        .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.flatpickr-disabled:hover {
+            color: #c1bfbf !important;
+            /* keep same disabled color */
+            background: transparent !important;
+            cursor: not-allowed;
         }
 
 
@@ -213,6 +225,8 @@
 
 
     {{-- ================= MEDIA DETAILS ================= --}}
+
+
     <div class="mt-150 mb-150">
         <div class="container-fluid">
 
@@ -247,25 +261,32 @@
 
                         <hr>
 
-                        <div class="row small">
-                            <div class="col-6 mb-2"><strong>Category:</strong> {{ $media->category_name }}</div>
-                            <div class="col-6 mb-2"><strong>Media Code:</strong> {{ $media->media_code }}</div>
-                            <div class="col-6 mb-2"><strong>Facing:</strong> {{ $media->facing }}</div>
-                            <div class="col-6 mb-2"><strong>Area Type:</strong> {{ $media->area_type }}</div>
-                            <div class="col-6 mb-2"><strong>Illumination:</strong> {{ $media->illumination_name }}</div>
+                        <div class="row ">
+                            <div class="col-6 mb-2 "><strong class="font-weight-admin">Category:</strong>
+                                {{ $media->category_name }}</div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Media Code:</strong>
+                                {{ $media->media_code }}
+                            </div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Facing:</strong> {{ $media->facing }}
+                            </div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Area Type:</strong>
+                                {{ $media->area_type }}
+                            </div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Illumination:</strong>
+                                {{ $media->illumination_name }}</div>
 
                             <div class="col-6 mb-2">
-                                <strong>Size:</strong>
+                                <strong class="font-weight-admin">Size:</strong>
                                 {{ number_format($width, 2) }} × {{ number_format($height, 2) }} ft
                             </div>
 
                             <div class="col-6 mb-2">
-                                <strong>Total Area:</strong>
+                                <strong class="font-weight-admin">Total Area:</strong>
                                 {{ number_format($sqft, 2) }} SQFT
                             </div>
 
                             <div class="col-12 mb-2">
-                                <strong>Address:</strong> {{ $media->address }}
+                                <strong class="font-weight-admin">Address:</strong> {{ $media->address }}
                             </div>
                         </div>
                         <hr>
@@ -390,86 +411,86 @@
         //     }
         // });
 
-            /* ================= REGEX ================= */
-    const nameRegex   = /^[A-Za-z\s]+$/;
-    const mobileRegex = /^[6-9][0-9]{9}$/;
-    const emailRegex  = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+        /* ================= REGEX ================= */
+        const nameRegex = /^[A-Za-z\s]+$/;
+        const mobileRegex = /^[6-9][0-9]{9}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
-    /* ================= LIVE INPUT RESTRICTION ================= */
+        /* ================= LIVE INPUT RESTRICTION ================= */
 
-    // Full Name → only letters & space
-    $('input[name="signup_name"]').on('input', function () {
-        this.value = this.value.replace(/[^A-Za-z\s]/g, '');
-        clearError($(this));
-    });
+        // Full Name → only letters & space
+        $('input[name="signup_name"]').on('input', function() {
+            this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+            clearError($(this));
+        });
 
-    // Mobile → only digits
-    $('input[name="signup_mobile_number"]').on('input', function () {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        clearError($(this));
-    });
+        // Mobile → only digits
+        $('input[name="signup_mobile_number"]').on('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            clearError($(this));
+        });
 
-    // Email → clear error while typing
-    $('input[name="signup_email"]').on('input', function () {
-        clearError($(this));
-    });
+        // Email → clear error while typing
+        $('input[name="signup_email"]').on('input', function() {
+            clearError($(this));
+        });
 
-    /* ================= CLEAR ERROR ================= */
-    function clearError(el) {
-        el.removeClass('is-invalid');
-        el.closest('.mb-3, .col-md-6')
-          .find('.invalid-feedback')
-          .remove();
-    }
-
-    /* ================= FORM SUBMIT VALIDATION ================= */
-    $('#bookingForm').on('submit.validation', function (e) {
-
-        let valid = true;
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
-
-        function error(el, msg) {
-            el.addClass('is-invalid');
-            el.after(`<div class="invalid-feedback">${msg}</div>`);
-            valid = false;
+        /* ================= CLEAR ERROR ================= */
+        function clearError(el) {
+            el.removeClass('is-invalid');
+            el.closest('.mb-3, .col-md-6')
+                .find('.invalid-feedback')
+                .remove();
         }
 
-        /* ===== Full Name ===== */
-        let name = $('input[name="signup_name"]');
-        if (!name.val()) {
-            error(name, 'Full name is required');
-        } else if (!nameRegex.test(name.val())) {
-            error(name, 'Full name must contain only letters');
-        }
+        /* ================= FORM SUBMIT VALIDATION ================= */
+        $('#bookingForm').on('submit.validation', function(e) {
 
-        /* ===== Email ===== */
-        let email = $('input[name="signup_email"]');
-        if (!email.val()) {
-            error(email, 'Email is required');
-        } else if (!emailRegex.test(email.val())) {
-            error(email, 'Enter a valid email (example@domain.co)');
-        }
+            let valid = true;
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
 
-        /* ===== Mobile ===== */
-        let mobile = $('input[name="signup_mobile_number"]');
-        if (!mobile.val()) {
-            error(mobile, 'Mobile number is required');
-        } else if (!mobileRegex.test(mobile.val())) {
-            error(mobile, 'Mobile must be 10 digits and start with 6, 7, 8, or 9');
-        }
+            function error(el, msg) {
+                el.addClass('is-invalid');
+                el.after(`<div class="invalid-feedback">${msg}</div>`);
+                valid = false;
+            }
 
-        /* ===== Booking Date Check ===== */
-        if (!$('#from_date').val() || !$('#to_date').val()) {
-            $('#dateError').removeClass('d-none');
-            valid = false;
-        }
+            /* ===== Full Name ===== */
+            let name = $('input[name="signup_name"]');
+            if (!name.val()) {
+                error(name, 'Full name is required');
+            } else if (!nameRegex.test(name.val())) {
+                error(name, 'Full name must contain only letters');
+            }
 
-        if (!valid) {
-            e.preventDefault();
-            return false;
-        }
-    });
+            /* ===== Email ===== */
+            let email = $('input[name="signup_email"]');
+            if (!email.val()) {
+                error(email, 'Email is required');
+            } else if (!emailRegex.test(email.val())) {
+                error(email, 'Enter a valid email (example@domain.co)');
+            }
+
+            /* ===== Mobile ===== */
+            let mobile = $('input[name="signup_mobile_number"]');
+            if (!mobile.val()) {
+                error(mobile, 'Mobile number is required');
+            } else if (!mobileRegex.test(mobile.val())) {
+                error(mobile, 'Mobile must be 10 digits and start with 6, 7, 8, or 9');
+            }
+
+            /* ===== Booking Date Check ===== */
+            if (!$('#from_date').val() || !$('#to_date').val()) {
+                $('#dateError').removeClass('d-none');
+                valid = false;
+            }
+
+            if (!valid) {
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
 
 
