@@ -285,6 +285,9 @@
                     @php
                     $isBillboard = (int) $media->category_id === 1;
                     $isBooked = (int) ($media->is_booked ?? 0);
+                    $width = (float) ($media->width ?? 0);
+                    $height = (float) ($media->height ?? 0);
+                    $sqft = $width * $height;
                     @endphp
                     <div class="latest-news-bg"
                         style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
@@ -303,9 +306,18 @@
 
                         <p class="blog-meta">
                             <i class="fas fa-map-marker-alt"></i>
-                            {{ $media->city_name }}, {{ \Illuminate\Support\Str::limit($media->area_name, 25, '...') }}
+                            {{ $media->area_name }}, {{ $media->city_name }}
                         </p>
 
+                        <div class="col-12 mb-2">
+                            <strong>Size:</strong>
+                            {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
+
+                        </div>
+                        <div class="col-12 mb-2">
+                            <strong>Total Area:</strong>
+                            {{ number_format($sqft, 2) }} SQFT
+                        </div>
 
                         <div class="media-price">
                             ₹ {{ number_format($media->price, 2) }}
@@ -313,7 +325,7 @@
                         </div>
 
                         {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
-                        <div class="media-map mt-4">
+                        <div class="media-map mt-4 d-flex align-items-center gap-3">
                             {{-- <a href="https://www.google.com/maps"> --}}
                             {{-- </a> --}}
 
@@ -322,6 +334,13 @@
                                 <img src="{{ asset('assets/img/map.png') }}" width="30">
                                 <span>View on Map</span>
                             </a>
+                            @if (!empty($media->video_link))
+                                <a href="{{ $media->video_link }}" target="_blank"
+                                    class="text-muted d-inline-flex align-items-center gap-1">
+                                    <img src="{{ asset('assets/img/360view.png') }}" width="30">
+                                    <span>360° View</span>
+                                </a>
+                            @endif
                         </div>
                         @php
                         $isBillboard = (int) $media->category_id === 1;
@@ -437,14 +456,13 @@
                         <small class="pricepermonth">/Month</small>
                     </div>
 
-                    <div class="media-map mt-4">
-                        {{-- <a href="https://www.google.com/maps" --}}
+                    {{-- <div class="media-map mt-4">
                         <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
                             target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
                             <img src="{{ asset('assets/img/map.png') }}" width="30">
                             <span>View on Map</span>
                         </a>
-                    </div>
+                    </div> --}}
                     @php
                     $isBillboard = (int) $media->category_id === 1;
                     $isBooked = (int) ($media->is_booked ?? 0);

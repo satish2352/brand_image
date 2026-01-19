@@ -19,7 +19,7 @@
                                 <div class="col-md-3">
                                     <label><b>Vendor</b></label>
                                     <select name="vendor_id" class="form-control">
-                                        <option value="">All</option>
+                                        <option value="">Select Vendor</option>
                                         @foreach ($vendors as $v)
                                             <option value="{{ $v->id }}"
                                                 {{ request('vendor_id') == $v->id ? 'selected' : '' }}>
@@ -32,7 +32,7 @@
                                 <div class="col-md-3">
                                     <label><b>Category</b></label>
                                     <select name="category_id" class="form-control">
-                                        <option value="">All</option>
+                                        <option value="">Select Category</option>
                                         @foreach ($categories as $c)
                                             <option value="{{ $c->id }}"
                                                 {{ request('category_id') == $c->id ? 'selected' : '' }}>
@@ -44,7 +44,7 @@
                                 <div class="col-md-3">
                                     <label><b>District</b></label>
                                     <select name="district_id" id="district_id" class="form-control">
-                                        <option value="">All</option>
+                                        <option value="">Select District</option>
                                         @foreach ($districts as $d)
                                             <option value="{{ $d->id }}"
                                                 {{ request('district_id') == $d->id ? 'selected' : '' }}>
@@ -57,13 +57,13 @@
                                 <div class="col-md-3">
                                     <label><b>City</b></label>
                                     <select name="city_id" id="city_id" class="form-control">
-                                        <option value="">All</option>
+                                        <option value="">Select City</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label><b>Year</b></label>
                                     <select name="year" class="form-control">
-                                        <option value="">All</option>
+                                        <option value="">Select Year</option>
                                         @foreach ($years as $y)
                                             <option value="{{ $y }}"
                                                 {{ request('year') == $y ? 'selected' : '' }}>
@@ -76,7 +76,7 @@
                                 <div class="col-md-3">
                                     <label><b>Month</b></label>
                                     <select name="month" class="form-control">
-                                        <option value="">All</option>
+                                        <option value="">Select Month</option>
                                         @foreach ($months as $num => $name)
                                             <option value="{{ $num }}"
                                                 {{ request('month') == $num ? 'selected' : '' }}>

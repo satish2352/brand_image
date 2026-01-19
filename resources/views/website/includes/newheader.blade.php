@@ -1,22 +1,24 @@
-{{-- <style>
-    .loader{
-    position: fixed;
-    inset: 0;
-
-    background: transparent !important;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-
-    z-index: 9999;
-
-    display: none;              /* IMPORTANT */
-    align-items: center;
+<style>
+.otp-box-wrapper {
+    display: flex;
+    gap: 10px;
     justify-content: center;
-
-    pointer-events: all;
 }
 
-</style> --}}
+.otp-box {
+    width: 45px;
+    height: 50px;
+    text-align: center;
+    font-size: 22px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.otp-box:focus {
+    border-color: #000;
+    outline: none;
+}
+</style>
 
 <!--PreLoader-->
 <div class="loader">
@@ -191,6 +193,13 @@
 
                                     <button type="submit" class="btn btn-dark w-100">Login</button>
 
+                                    <div class="social-login mt-4">
+                                        <a href="{{ route('auth.google.redirect') }}" class="google-btn">
+                                            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                                            Continue with Google
+                                        </a>
+                                    </div>
+
                                     <div class="auth-switch mt-3">
                                         Don't have an account?
                                         <a onclick="showSignup()">Sign Up</a>
@@ -262,9 +271,25 @@
                                     <input type="email" id="otpEmail" class="form-control" readonly>
                                 </div>
 
-                                <div class="mb-2">
+                                {{-- <div class="mb-2">
                                     <label>Enter OTP</label>
                                     <input type="text" id="otpInput" class="form-control">
+                                </div> --}}
+
+                                <div class="mb-2">
+                                    <label>Enter OTP</label>
+
+                                    <div class="otp-box-wrapper">
+                                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                                    </div>
+
+                                    <!-- hidden input to send combined OTP -->
+                                    <input type="hidden" id="otpInput">
                                 </div>
 
                                 <small class="text-muted">
@@ -273,7 +298,7 @@
 
                                 <div class="text-danger mt-2" id="otpError"></div>
 
-                                <button class="btn btn-dark w-100 mt-3" id="verifyOtpBtn">
+                                <button class="btn btn-dark w-100 mt-3" id="verifyOtpBtn" disabled>
                                     Verify OTP
                                 </button>
 
@@ -479,50 +504,56 @@
                 // AJAX only if validation passes
                 showLoader();
 
-                $.ajax({
-                    url: "{{ route('website.login') }}",
-                    method: "POST",
-                    data: $(this).serialize(),
+            $.ajax({
+                url: "{{ route('website.login') }}",
+                method: "POST",
+                data: $(this).serialize(),
 
-                    success: function (res) {
-                        hideLoader();
+                success: function (res) {
+                    hideLoader();
 
-                        if (res.status) {
-                            let redirectUrl = sessionStorage.getItem('redirect_after_login');
+                    if (res.status) {
+                        let redirectUrl = sessionStorage.getItem('redirect_after_login');
 
-                            Swal.fire("Success!", res.message, "success").then(() => {
-                                if (redirectUrl) {
-                                    sessionStorage.removeItem('redirect_after_login');
-                                    window.location.href = redirectUrl;
-                                } else {
-                                    window.location.reload();
-                                }
-                            });
-                        } else {
-                            $("#loginForm").prepend(
-                                `<div class="text-danger mb-2">${res.message}</div>`
-                            );
-                        }
-                    },
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Welcome!',
+                            text: 'Login successful. Start adding your outdoor media now.',
+                            confirmButtonText: 'Continue'
+                        }).then(() => {
+                            if (redirectUrl) {
+                                sessionStorage.removeItem('redirect_after_login');
+                                window.location.href = redirectUrl;
+                            } else {
+                                window.location.reload();
+                            }
+                        });
 
-                    error: function (xhr) {
-                        hideLoader();
-
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            $.each(errors, function (field, msg) {
-                                $(`#loginForm [name="${field}"]`)
-                                    .after(`<span class="text-danger">${msg[0]}</span>`);
-                            });
-                        } else {
-                            Swal.fire(
-                                "Oops!",
-                                "Something went wrong. Please try again!",
-                                "error"
-                            );
-                        }
+                    } else {
+                        $("#loginForm").prepend(
+                            `<div class="text-danger mb-2">${res.message}</div>`
+                        );
                     }
-                });
+                },
+
+                error: function (xhr) {
+                    hideLoader();
+
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        $.each(errors, function (field, msg) {
+                            $(`#loginForm [name="${field}"]`)
+                                .after(`<span class="text-danger">${msg[0]}</span>`);
+                        });
+                    } else {
+                        Swal.fire(
+                            "Oops!",
+                            "Something went wrong. Please try again!",
+                            "error"
+                        );
+                    }
+                }
+            });
             });
 
 
@@ -542,6 +573,18 @@
             // }
 
             /* ================= OTP TIMER ================= */
+            function validateOtp() {
+                const otp = $("#otpInput").val();
+
+                if (otp.length < 6) {
+                    $("#verifyOtpBtn").prop("disabled", true);
+                    return false;
+                }
+
+                $("#verifyOtpBtn").prop("disabled", false);
+                return true;
+            }
+
             function startOtpTimer() {
 
                 clearInterval(otpInterval); // safety
@@ -702,9 +745,15 @@
             });
 
             /* ================= VERIFY OTP ================= */
-            $("#verifyOtpBtn").click(function() {
+            $("#verifyOtpBtn").click(function () {
 
-                $("#otpError").text(""); // clear previous error
+                $("#otpError").text("");
+
+                if (!validateOtp()) {
+                    $("#otpError").text("OTP is required");
+                    return; // STOP AJAX
+                }
+
                 showLoader();
 
                 $.ajax({
@@ -726,8 +775,6 @@
                                 "success"
                             ).then(() => location.reload());
                         } else {
-                            hideLoader();
-                            //  THIS WILL SHOW BELOW OTP INPUT
                             $("#otpError").text(res.message);
                         }
                     }
@@ -737,7 +784,7 @@
             /* ================= RESEND OTP ================= */
             $("#resendOtpBtn").click(function() {
 
-                if (resendLocked) return; // ❌ block multiple clicks
+                if (resendLocked) return; // block multiple clicks
 
                 resendLocked = true;
                 $(this).prop("disabled", true);
@@ -757,6 +804,56 @@
                     }
                 });
             });
+
+            const otpBoxes = document.querySelectorAll(".otp-box");
+            const otpHiddenInput = document.getElementById("otpInput");
+
+            otpBoxes.forEach((box, index) => {
+
+                // ONLY NUMBERS
+                box.addEventListener("input", (e) => {
+                    box.value = box.value.replace(/[^0-9]/g, '');
+
+                    if (box.value && index < otpBoxes.length - 1) {
+                        otpBoxes[index + 1].focus();
+                    }
+
+                    updateOtpValue();
+                });
+
+                // BACKSPACE MOVE
+                box.addEventListener("keydown", (e) => {
+                    if (e.key === "Backspace" && !box.value && index > 0) {
+                        otpBoxes[index - 1].focus();
+                    }
+                });
+
+                // PASTE FULL OTP
+                box.addEventListener("paste", (e) => {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData("text").replace(/\D/g, '');
+
+                    pasteData.split('').forEach((digit, i) => {
+                        if (otpBoxes[i]) {
+                            otpBoxes[i].value = digit;
+                        }
+                    });
+
+                    updateOtpValue();
+                    otpBoxes[Math.min(pasteData.length, otpBoxes.length) - 1]?.focus();
+                });
+            });
+
+            // JOIN OTP INTO HIDDEN INPUT
+            function updateOtpValue() {
+                otpHiddenInput.value = Array.from(otpBoxes)
+                    .map(input => input.value)
+                    .join('');
+
+                validateOtp(); // 🔥 enable/disable button
+            }
+
+
 
         });
     </script>

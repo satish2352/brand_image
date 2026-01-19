@@ -14,32 +14,103 @@ use App\Mail\WebsiteOtpMail;
 class AuthController extends Controller
 {
     /* ===================== SIGNUP ===================== */
+    // public function signup(Request $req)
+    // {
+    //     $req->validate([
+    //         'signup_name' => 'required',
+    //         'signup_email' => 'required|email',
+    //         'signup_mobile_number' => 'required|digits:10',
+    //         // 'signup_organisation' => 'required',
+    //         'signup_password' => 'required|min:6',
+    //     ]);
+
+    //     // delete old unverified user (important)
+    //     WebsiteUser::where('email', $req->signup_email)
+    //         ->where('is_email_verified', 0)
+    //         ->delete();
+
+    //     $otp = rand(100000, 999999);
+
+    //     $user = WebsiteUser::create([
+    //         'name' => $req->signup_name,
+    //         'email' => $req->signup_email,
+    //         'mobile_number' => $req->signup_mobile_number,
+    //         // 'organisation' => $req->signup_organisation,
+    //         'password' => Hash::make($req->signup_password),
+    //         'otp' => $otp,
+    //         'otp_expires_at' => Carbon::now()->addMinute(2),
+    //         'is_email_verified' => 0,
+    //     ]);
+
+    //     Mail::to($user->email)->send(new WebsiteOtpMail($otp));
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'email' => $user->email,
+    //         'message' => 'OTP sent to your email'
+    //     ]);
+    // }
+
     public function signup(Request $req)
     {
         $req->validate([
             'signup_name' => 'required',
             'signup_email' => 'required|email',
             'signup_mobile_number' => 'required|digits:10',
-            // 'signup_organisation' => 'required',
             'signup_password' => 'required|min:6',
         ]);
 
-        // delete old unverified user (important)
-        WebsiteUser::where('email', $req->signup_email)
-            ->where('is_email_verified', 0)
-            ->delete();
+        // CHECK EXISTING USER
+        $existingUser = WebsiteUser::where('email', $req->signup_email)->first();
 
+        // ACCOUNT DELETED
+        if ($existingUser && $existingUser->is_deleted == 1) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Your account has been deleted by admin.'
+            ]);
+        }
+
+        // ALREADY VERIFIED
+        if ($existingUser && $existingUser->is_email_verified == 1) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This email is already registered. Please login.'
+            ]);
+        }
+
+        // NOT VERIFIED → RESEND OTP
+        if ($existingUser && $existingUser->is_email_verified == 0) {
+
+            $otp = rand(100000, 999999);
+
+            $existingUser->update([
+                'otp' => $otp,
+                'otp_expires_at' => Carbon::now()->addMinutes(2),
+            ]);
+
+            Mail::to($existingUser->email)->send(new WebsiteOtpMail($otp));
+
+            return response()->json([
+                'status' => true,
+                'email' => $existingUser->email,
+                'message' => 'OTP resent to your email'
+            ]);
+        }
+
+        // NEW USER
         $otp = rand(100000, 999999);
 
         $user = WebsiteUser::create([
             'name' => $req->signup_name,
             'email' => $req->signup_email,
             'mobile_number' => $req->signup_mobile_number,
-            // 'organisation' => $req->signup_organisation,
             'password' => Hash::make($req->signup_password),
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinute(2),
+            'otp_expires_at' => Carbon::now()->addMinutes(2),
             'is_email_verified' => 0,
+            'is_active' => 0,
+            'is_deleted' => 0,
         ]);
 
         Mail::to($user->email)->send(new WebsiteOtpMail($otp));
@@ -119,13 +190,37 @@ class AuthController extends Controller
         // GET USER
         $user = WebsiteUser::where('email', $req->login_email)->first();
 
-        // CHECK LOGIN
-        if (!$user || !Hash::check($req->login_password, $user->password)) {
+        // EMAIL NOT FOUND
+        if (!$user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Invalid email or password.'
+                'message' => 'You need to sign up first, and then you can log in.'
             ]);
         }
+
+        // ACCOUNT DELETED BY ADMIN
+        if ($user->is_deleted == 1) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Your account has been deleted by admin.'
+            ]);
+        }
+
+        // PASSWORD WRONG
+        if (!Hash::check($req->login_password, $user->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid password.'
+            ]);
+        }
+
+        // CHECK LOGIN
+        // if (!$user || !Hash::check($req->login_password, $user->password)) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'Invalid email or password.'
+        //     ]);
+        // }
 
         //  ACCOUNT INACTIVE CHECK ( MAIN FIX)
         if ($user->is_active == 0) {
