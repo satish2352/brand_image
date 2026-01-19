@@ -8,7 +8,9 @@
     <style>
         /* parent must be relative */
         .font-weight-admin {
+
             font-weight: 700 !important;
+
         }
 
         .card {
@@ -83,15 +85,6 @@
         .flatpickr-day.endRange {
             background: #28a745 !important;
             color: #fff !important;
-        }
-
-        /* Disable hover color change for disabled dates */
-        .flatpickr-day.flatpickr-disabled,
-        .flatpickr-day.flatpickr-disabled:hover {
-            color: #979393 !important;
-            /* keep same disabled color */
-            background: transparent !important;
-            cursor: not-allowed;
         }
 
 
@@ -225,8 +218,6 @@
 
 
     {{-- ================= MEDIA DETAILS ================= --}}
-
-
     <div class="mt-150 mb-150">
         <div class="container-fluid">
 
@@ -252,45 +243,39 @@
                              onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
                     @endforeach
                 </div> --}}
-                        <?php
-                        // dd($media);
-                        // die();
-                        ?>
                         <h3 class="fw-bold mb-1">{{ $media->area_name }} {{ $media->facing }}</h3>
 
                         <p class="text-muted mb-2">
                             <i class="fas fa-map-marker-alt text-danger"></i>
-                            {{ $media->common_area_name }}, {{ $media->city_name }}
+                            {{ $media->area_name }}, {{ $media->city_name }}
                         </p>
 
                         <hr>
 
                         <div class="row ">
-                            <div class="col-6 mb-2 "><strong class="font-weight-admin">Category:</strong>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Category:</strong>
                                 {{ $media->category_name }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Media Title:</strong>
-                                {{ $media->media_title }}
-                            </div>
+                                {{ $media->media_title }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Facing:</strong> {{ $media->facing }}
                             </div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Area Type:</strong>
-                                {{ $media->area_type }}
-                            </div>
+                                {{ $media->area_type }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Illumination:</strong>
                                 {{ $media->illumination_name }}</div>
 
                             <div class="col-6 mb-2">
-                                <strong class="font-weight-admin">Size:</strong>
+                                <strong>Size:</strong>
                                 {{ number_format($width, 2) }} × {{ number_format($height, 2) }} ft
                             </div>
 
                             <div class="col-6 mb-2">
-                                <strong class="font-weight-admin">Total Area:</strong>
+                                <strong>Total Area:</strong>
                                 {{ number_format($sqft, 2) }} SQFT
                             </div>
 
                             <div class="col-12 mb-2">
-                                <strong class="font-weight-admin">Address:</strong> {{ $media->address }}
+                                <strong>Address:</strong> {{ $media->address }}
                             </div>
                         </div>
                         <hr>
@@ -448,53 +433,53 @@
         }
 
         /* ================= FORM SUBMIT VALIDATION ================= */
-        $('#bookingForm').on('submit.validation', function(e) {
+        // $('#bookingForm').on('submit.validation', function(e) {
 
-            let valid = true;
-            $('.is-invalid').removeClass('is-invalid');
-            $('.invalid-feedback').remove();
+        //     let valid = true;
+        //     $('.is-invalid').removeClass('is-invalid');
+        //     $('.invalid-feedback').remove();
 
-            function error(el, msg) {
-                el.addClass('is-invalid');
-                el.after(`<div class="invalid-feedback">${msg}</div>`);
-                valid = false;
-            }
+        //     function error(el, msg) {
+        //         el.addClass('is-invalid');
+        //         el.after(`<div class="invalid-feedback">${msg}</div>`);
+        //         valid = false;
+        //     }
 
-            /* ===== Full Name ===== */
-            let name = $('input[name="signup_name"]');
-            if (!name.val()) {
-                error(name, 'Full name is required');
-            } else if (!nameRegex.test(name.val())) {
-                error(name, 'Full name must contain only letters');
-            }
+        //     /* ===== Full Name ===== */
+        //     let name = $('input[name="signup_name"]');
+        //     if (!name.val()) {
+        //         error(name, 'Full name is required');
+        //     } else if (!nameRegex.test(name.val())) {
+        //         error(name, 'Full name must contain only letters');
+        //     }
 
-            /* ===== Email ===== */
-            let email = $('input[name="signup_email"]');
-            if (!email.val()) {
-                error(email, 'Email is required');
-            } else if (!emailRegex.test(email.val())) {
-                error(email, 'Enter a valid email (example@domain.co)');
-            }
+        //     /* ===== Email ===== */
+        //     let email = $('input[name="signup_email"]');
+        //     if (!email.val()) {
+        //         error(email, 'Email is required');
+        //     } else if (!emailRegex.test(email.val())) {
+        //         error(email, 'Enter a valid email (example@domain.co)');
+        //     }
 
-            /* ===== Mobile ===== */
-            let mobile = $('input[name="signup_mobile_number"]');
-            if (!mobile.val()) {
-                error(mobile, 'Mobile number is required');
-            } else if (!mobileRegex.test(mobile.val())) {
-                error(mobile, 'Mobile must be 10 digits and start with 6, 7, 8, or 9');
-            }
+        //     /* ===== Mobile ===== */
+        //     let mobile = $('input[name="signup_mobile_number"]');
+        //     if (!mobile.val()) {
+        //         error(mobile, 'Mobile number is required');
+        //     } else if (!mobileRegex.test(mobile.val())) {
+        //         error(mobile, 'Mobile must be 10 digits and start with 6, 7, 8, or 9');
+        //     }
 
-            /* ===== Booking Date Check ===== */
-            if (!$('#from_date').val() || !$('#to_date').val()) {
-                $('#dateError').removeClass('d-none');
-                valid = false;
-            }
+        //     /* ===== Booking Date Check ===== */
+        //     if (!$('#from_date').val() || !$('#to_date').val()) {
+        //         $('#dateError').removeClass('d-none');
+        //         valid = false;
+        //     }
 
-            if (!valid) {
-                e.preventDefault();
-                return false;
-            }
-        });
+        //     if (!valid) {
+        //         e.preventDefault();
+        //         return false;
+        //     }
+        // });
     </script>
 
 
@@ -711,8 +696,34 @@
             });
         });
     </script>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Booking Successful 🎉',
+                text: "{{ session('success') }}",
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#28a745'
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Booking Failed ❌',
+                text: "{{ session('error') }}",
+                confirmButtonText: 'Try Again',
+                confirmButtonColor: '#dc3545'
+            });
+        </script>
+    @endif
+
+
+    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         @if (session('success'))
             <
@@ -739,8 +750,99 @@
         </script>
     @endif
 
-    </script>
+    </script> --}}
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+
     <script>
+        $(document).ready(function() {
+
+            /* ===== Custom Rules ===== */
+
+            $.validator.addMethod("letterswithspace", function(value, element) {
+                return this.optional(element) || /^[A-Za-z\s]+$/.test(value);
+            }, "Only letters and spaces allowed");
+
+            $.validator.addMethod("mobileIN", function(value, element) {
+                return this.optional(element) || /^[6-9][0-9]{9}$/.test(value);
+            }, "Enter a valid 10 digit mobile number");
+
+            /* ===== Validation ===== */
+
+            $("#bookingForm").validate({
+                ignore: [],
+                rules: {
+                    signup_name: {
+                        required: true,
+                        letterswithspace: true
+                    },
+                    signup_email: {
+                        required: true,
+                        email: true
+                    },
+                    signup_mobile_number: {
+                        required: true,
+                        mobileIN: true
+                    },
+                    from_date: {
+                        required: true
+                    },
+                    to_date: {
+                        required: true
+                    }
+                },
+                messages: {
+                    signup_name: {
+                        required: "Full name is required"
+                    },
+                    signup_email: {
+                        required: "Email is required",
+                        email: "Enter a valid email (example@mail.com)"
+                    },
+                    signup_mobile_number: {
+                        required: "Mobile number is required"
+                    },
+                    from_date: {
+                        required: "Please select booking dates"
+                    },
+                    to_date: {
+                        required: "Please select booking dates"
+                    }
+                },
+                errorElement: "div",
+                errorClass: "invalid-feedback",
+                highlight: function(element) {
+                    $(element).addClass("is-invalid");
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass("is-invalid");
+                },
+                errorPlacement: function(error, element) {
+                    element.closest(".mb-3, .col-md-6").append(error);
+                },
+                submitHandler: function(form) {
+
+                    Swal.fire({
+                        title: "Confirm Booking?",
+                        text: "Do you want to book this media for selected dates?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#28a745",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, Book Now"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit(); // ✅ FINAL SUBMIT
+                        }
+                    });
+
+                }
+            });
+
+        });
+    </script>
+
+    {{-- <script>
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault(); // stop normal submit
 
@@ -759,5 +861,5 @@
                 }
             });
         });
-    </script>
+    </script> --}}
 @endsection
