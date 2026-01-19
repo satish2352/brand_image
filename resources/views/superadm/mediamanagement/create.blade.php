@@ -129,16 +129,7 @@
                 <input type="hidden" name="city_id" id="city_id">
 
                 <div class="row">
-                    {{-- ================= AREA (ONLY ONE DROPDOWN) ================= --}}
-                    <div class="col-md-6 mb-3">
-                        <label>Area <span class="">*</span></label>
-                        <select id="area" name="area_id" class="form-control @error('area_id') is-invalid @enderror">
-                            <option value="">Select Area</option>
-                        </select>
-                        @error('area_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+
                     {{-- ================= BASIC INFO ================= --}}
                     <div class="col-md-6 mb-3">
                         <label>Category <span class="text-danger">*</span></label>
@@ -167,10 +158,10 @@
 
                             @foreach ($categories as $cat)
                                
-                               <option value="{{ $cat->id }}"
-    data-category="{{ \Illuminate\Support\Str::slug($cat->slug ?? $cat->category_name) }}">
-    {{ $cat->category_name }}
-</option>
+                                                        <option value="{{ $cat->id }}"
+                                data-category="{{ \Illuminate\Support\Str::slug($cat->slug ?? $cat->category_name) }}">
+                                {{ $cat->category_name }}
+                            </option>
 
 
                             @endforeach
@@ -179,6 +170,17 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    {{-- ================= AREA (ONLY ONE DROPDOWN) ================= --}}
+                    <div class="col-md-6 mb-3">
+                        <label>Area <span class="">*</span></label>
+                        <select id="area" name="area_id" class="form-control @error('area_id') is-invalid @enderror">
+                            <option value="">Select Area</option>
+                        </select>
+                        @error('area_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     {{-- ================= DIMENSIONS ================= --}}
                 </div>
                 <div class="row" id="billboardsId">
@@ -536,7 +538,7 @@
     @enderror
 </div> --}}
                     <div class="col-md-3 mb-4">
-                        <label>Images<span class="text-danger">*</span></label>
+                        <label>Images <small>(image size must be less then 1mb)</small><span class="text-danger">*</span></label>
 
                         <input type="file" name="images[]" id="images" multiple
                             class="form-control

@@ -25,8 +25,8 @@
             <form method="POST" action="{{ route('media.update', $encodedId) }}" enctype="multipart/form-data">
                 @csrf
                 {{-- <input type="hidden"
-       id="category_slug"
-       value="{{ $categories->where('id', $media->category_id)->first()->slug }}"> --}}
+                    id="category_slug"
+                    value="{{ $categories->where('id', $media->category_id)->first()->slug }}"> --}}
                 @php
                     $category = $categories->where('id', $media->category_id)->first();
                     $slug = \Illuminate\Support\Str::slug($category->slug ?? $category->category_name);
@@ -43,6 +43,19 @@
                 <input type="hidden" name="category_id" value="{{ $media->category_id }}">
 
                 <div class="row">
+
+                    {{-- CATEGORY --}}
+                    <div class="col-md-6 mb-3">
+                        <label>Category</label>
+                        <select class="form-control" disabled>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}" data-category="{{ $cat->slug }}"
+                                    {{ $media->category_id == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->category_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     {{-- AREA --}}
                     <div class="col-md-6 mb-3">
                         <label>Area <span class="text-danger">*</span></label>
@@ -59,18 +72,6 @@
                         @enderror
                     </div>
 
-                    {{-- CATEGORY --}}
-                    <div class="col-md-6 mb-3">
-                        <label>Category</label>
-                        <select class="form-control" disabled>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}" data-category="{{ $cat->slug }}"
-                                    {{ $media->category_id == $cat->id ? 'selected' : '' }}>
-                                    {{ $cat->category_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
 
                 {{-- ================= BILLBOARD ================= --}}

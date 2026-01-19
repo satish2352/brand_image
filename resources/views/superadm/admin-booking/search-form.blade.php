@@ -16,9 +16,9 @@
     <div class="card-body">
 
         {{-- 🔍 TITLE --}}
-        <h5 class="text-center fw-bold mb-4">
-            Discover Media Spaces Near You
-        </h5>
+        <h4 class="text-center fw-bold mb-4">
+            <b>Discover Media Spaces Near You</b>
+        </h4>
 
         <form method="POST" id="searchForm" action="{{ route('admin-booking.search') }}">
             @csrf

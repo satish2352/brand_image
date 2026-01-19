@@ -55,6 +55,19 @@
                 </tr>
             </table>
 
+            {{-- MEDIA INFO --}}
+            {{-- <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Media Code</label>
+                    <input type="text" class="form-control" value="{{ $media->media_code }}" disabled>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Media Title</label>
+                    <input type="text" class="form-control" value="{{ $media->media_title }}" disabled>
+                </div>
+            </div> --}}
+
             {{-- ================= LOCATION DETAILS ================= --}}
             <h6 class="mt-4">Location Details</h6>
             <table class="table table-bordered">

@@ -6,26 +6,18 @@
             <div class="card">
                 <div class="card-body">
 
-                    {{-- HEADER --}}
-                    <div class="d-flex justify-content-between mb-3">
-                        <h4>Media List</h4>
-                        <a href="{{ route('media.create') }}" class="btn btn-add">
-                            Add Media
-                        </a>
-                    </div>
-
                     {{-- FLASH --}}
                     @if (session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
 
                     {{-- TABLE --}}
-                    <div class="table-responsive">
+                    <div class="table">
                         <form method="GET" class="mb-3">
                             <div class="row">
 
                                 <div class="col-md-3">
-                                    <label>Vendor</label>
+                                    <label><b>Vendor</b></label>
                                     <select name="vendor_id" class="form-control">
                                         <option value="">All</option>
                                         @foreach ($vendors as $v)
@@ -38,7 +30,7 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label>Category</label>
+                                    <label><b>Category</b></label>
                                     <select name="category_id" class="form-control">
                                         <option value="">All</option>
                                         @foreach ($categories as $c)
@@ -50,7 +42,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label>District</label>
+                                    <label><b>District</b></label>
                                     <select name="district_id" id="district_id" class="form-control">
                                         <option value="">All</option>
                                         @foreach ($districts as $d)
@@ -63,13 +55,13 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label>City</label>
+                                    <label><b>City</b></label>
                                     <select name="city_id" id="city_id" class="form-control">
                                         <option value="">All</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label>Year</label>
+                                    <label><b>Year</b></label>
                                     <select name="year" class="form-control">
                                         <option value="">All</option>
                                         @foreach ($years as $y)
@@ -82,7 +74,7 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label>Month</label>
+                                    <label><b>Month</b></label>
                                     <select name="month" class="form-control">
                                         <option value="">All</option>
                                         @foreach ($months as $num => $name)
@@ -95,13 +87,13 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label>From</label>
+                                    <label><b>From</b></label>
                                     <input type="date" name="from_date" class="form-control"
                                         value="{{ request('from_date') }}">
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label>To</label>
+                                    <label><b>To</b></label>
                                     <input type="date" name="to_date" class="form-control"
                                         value="{{ request('to_date') }}">
                                 </div>
@@ -111,6 +103,15 @@
                                 </div>
                             </div>
                         </form>
+
+                        
+                    {{-- HEADER --}}
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Media List</h4>
+                        <a href="{{ route('media.create') }}" class="btn btn-add">
+                            Add Media
+                        </a>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped">
 
