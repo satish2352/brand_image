@@ -65,7 +65,7 @@
                 <div class="card-actions">
                     @if ($isBillboard)
                         @if ($isBooked === 0)
-                            <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                            <a href="{{ route('website.media-details', base64_encode($media->id)) }}#media-details"
                                 class="card-btn read">
                                 Read More →
                             </a>

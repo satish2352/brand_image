@@ -213,12 +213,12 @@
 
     {{-- ================= BREADCRUMB ================= --}}
     <!-- <div class="container-fluid about-banner-img g-0">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                        </div>
-                    </div>
-                </div> -->
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                            </div>
+                                        </div>
+                                    </div> -->
 
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
@@ -235,18 +235,18 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                            Desktop Image
-                            <div class="col-md-12 d-none d-md-block">
-                                <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                            </div>
+                                                Desktop Image
+                                                <div class="col-md-12 d-none d-md-block">
+                                                    <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                </div>
 
-                            Mobile Image
-                            <div class="col-md-12 d-block d-md-none">
-                                <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
-                            </div>
-                        </div> -->
+                                                Mobile Image
+                                                <div class="col-md-12 d-block d-md-none">
+                                                    <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
+                                                </div>
+                                            </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
-        <div class="mt-150 mb-150">
+        <div id="media-details" class="mt-150 mb-150">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-7">
@@ -300,7 +300,7 @@
 
                             <hr>
 
-                            <div class="row small">
+                            <div class="row ">
                                 <div class="col-6 mb-2"><strong>Category:</strong> {{ $media->category_name }}</div>
                                 <div class="col-6 mb-2"><strong>Media Code:</strong> {{ $media->media_code }}</div>
 
