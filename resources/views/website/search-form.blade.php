@@ -1,6 +1,6 @@
 <style>
     .bg-light {
-        background-color: rgb(202, 196, 196) !important;
+        background-color: rgb(233 225 225) !important;
     }
 
     .result-badge {
@@ -59,6 +59,17 @@
         cursor: pointer;
         -webkit-appearance: none;
     } */
+    /* Uniform height for all inputs & selects */
+    .media-search-card .form-select,
+    .media-search-card .form-control {
+        height: 44px;
+    }
+
+    /* Fix date input height */
+    .media-search-card input[type="date"] {
+        height: 44px;
+    }
+
     /* SLIDER WRAP */
     .range-slider-container {
         position: relative;
@@ -94,6 +105,10 @@
         cursor: pointer;
         border: 2px solid white;
         box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+        margin-top: -6px;
+        /* ⭐ PERFECT vertical centering */
+        z-index: 5;
+        position: relative;
     }
 
     .range-slider-fill {
@@ -130,7 +145,7 @@
                 </div>
 
                 <!-- State -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">State</label>
                     <select name="state_id" id="state_id" class="form-select">
                         <option value="">Select State</option>
@@ -148,7 +163,7 @@
                 </div>
 
                 <!-- District -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">District</label>
                     <select name="district_id" id="district_id" class="form-select">
                         <option value="">Select District</option>
@@ -156,7 +171,7 @@
                 </div>
 
                 <!-- City -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Town</label>
                     <select name="city_id" id="city_id" class="form-select">
                         <option value="">Select Town</option>
@@ -222,10 +237,10 @@
                             15 Days</option>
                     </select>
                 </div>
-                <div class="col-lg-4 col-md-4 col-sm-6" id="days_wrapper">
+                <div class="col-lg-2 col-md-4 col-sm-6" id="days_wrapper">
 
                     <!-- Budget Slider -->
-                    <div class="d-flex justify-content-between mt-2">
+                    <div class="d-flex justify-content-between">
                         <span id="minRangeLabel" style="font-weight:600">
                             ₹{{ number_format($filters['min_price'] ?? 0) }}
                         </span>
@@ -251,48 +266,41 @@
 
                 </div>
 
-
-                <!-- Buttons -->
-                {{-- <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
-                    <button type="button"
-                            class="btn btn-search"
+                <div class="row " style="padding-top:15px">
+                    <!-- Buttons -->
+                    <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+                        <button type="button" class="btn btn-search"
                             onclick="document.getElementById('searchForm').submit();">
-                        Search Media
-                    </button>
-                </div> --}}
-                <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
-                    <button type="button" class="btn btn-search"
-                        onclick="document.getElementById('searchForm').submit();">
-                        Search Media
-                    </button>
-                </div>
-
-                <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
-                    <button type="button" class="btn btn-clear" id="clearFilters">
-                        Clear Filters
-                    </button>
-                </div>
-
-                {{-- BEAUTIFUL COUNT DISPLAY --}}
-                @if (($filters['category_id'] ?? '') != '')
-                    @php $catName = $mediaList->first()->category_name ?? ''; @endphp
-
-                    <div class="col-lg-6 col-md-8 col-sm-12 d-flex align-items-center mt-2">
-                        @if ($mediaList->total() > 0)
-                            <div class="result-badge" style="margin-top: 32px">
-                                <span class="icon">📍</span>
-                                <span class="count">{{ $mediaList->total() }} Results</span>
-                                <span class="label">for {{ $catName }}</span>
-                            </div>
-                        @else
-                            <div class="result-badge no-result">
-                                <span class="icon">❌</span>
-                                <span class="count">No Results</span>
-                                <span class="label">for {{ $catName }}</span>
-                            </div>
-                        @endif
+                            Search Media
+                        </button>
                     </div>
-                @endif
+
+                    <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+                        <button type="button" class="btn btn-clear" id="clearFilters">
+                            Clear Filters
+                        </button>
+                    </div>
+                    @if (($filters['category_id'] ?? '') != '')
+                        @php $catName = $mediaList->first()->category_name ?? ''; @endphp
+
+                        <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center">
+                            @if ($mediaList->total() > 0)
+                                <div class="result-badge">
+                                    <span class="icon">📍</span>
+                                    <span class="count">{{ $mediaList->total() }} Results</span>
+                                    {{-- <span class="label">for {{ $catName }}</span> --}}
+                                </div>
+                            @else
+                                <div class="result-badge no-result">
+                                    <span class="icon">❌</span>
+                                    <span class="count">No Results</span>
+                                    <span class="label">for {{ $catName }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+
 
             </div>
         </form>
