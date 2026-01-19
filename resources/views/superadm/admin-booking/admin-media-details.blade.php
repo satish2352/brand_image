@@ -207,6 +207,26 @@
             background: linear-gradient(135deg, #f28123, #ff9f43);
             cursor: pointer;
         }
+
+        /* ===== AVAILABLE DATE HOVER ===== */
+        .flatpickr-day:not(.booked-date):not(.flatpickr-disabled):hover {
+            background: #218838 !important;
+            color: #fff !important;
+        }
+
+        /* ===== BOOKED DATE HOVER ===== */
+        .flatpickr-day.booked-date:hover {
+            background: #dc3545 !important;
+            /* same as normal */
+            color: #fff !important;
+            cursor: not-allowed;
+        }
+
+        /* ===== DISABLED DATE (NO HOVER) ===== */
+        .flatpickr-day.flatpickr-disabled:hover {
+            /* background: transparent !important; */
+            cursor: not-allowed;
+        }
     </style>
     @php
         $width = (float) $media->width;
@@ -553,13 +573,34 @@
                 //     });
                 // },
                 onDayCreate: function(dObj, dStr, fp, dayElem) {
+                    // const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
+
+                    // bookedRanges.forEach(range => {
+                    //     if (date >= range.from_date && date <= range.to_date) {
+                    //         dayElem.classList.add('booked-date');
+                    //     }
+                    // });
                     const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
+                    let isBooked = false;
 
                     bookedRanges.forEach(range => {
                         if (date >= range.from_date && date <= range.to_date) {
-                            dayElem.classList.add('booked-date');
+                            isBooked = true;
                         }
                     });
+
+                    // 🔴 BOOKED DATE
+                    if (isBooked) {
+                        dayElem.classList.add('booked-date');
+                        dayElem.setAttribute('title', 'Already Booked ❌');
+                        dayElem.style.cursor = 'not-allowed';
+                    }
+
+                    // 🟢 AVAILABLE DATE
+                    else if (!dayElem.classList.contains('flatpickr-disabled')) {
+                        dayElem.setAttribute('title', 'Available ✅');
+                        dayElem.style.cursor = 'pointer';
+                    }
                 },
 
                 onChange: function(selectedDates) {
