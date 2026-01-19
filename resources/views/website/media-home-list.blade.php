@@ -20,15 +20,15 @@
                 @endif
             </div>
             <div class="news-text-box">
-                <h3>
+                <h3 style="font-size: 21px;">
                     <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
                         {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
                     </a>
                 </h3>
-                <p class="blog-meta">
+                {{-- <p class="blog-meta">
                     <strong>Media : </strong>
                     {{ $media->category_name }}
-                </p>
+                </p> --}}
                 {{-- <p class="blog-meta">
                     <i class="fas fa-map-marker-alt"></i>
                     {{ $media->common_area_name }}, {{ $media->city_name }}

@@ -88,7 +88,7 @@
         /* Disable hover color change for disabled dates */
         .flatpickr-day.flatpickr-disabled,
         .flatpickr-day.flatpickr-disabled:hover {
-            color: #c1bfbf !important;
+            color: #979393 !important;
             /* keep same disabled color */
             background: transparent !important;
             cursor: not-allowed;
@@ -252,11 +252,15 @@
                              onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
                     @endforeach
                 </div> --}}
-                        <h3 class="fw-bold mb-1">{{ $media->media_title }}</h3>
+                        <?php
+                        // dd($media);
+                        // die();
+                        ?>
+                        <h3 class="fw-bold mb-1">{{ $media->area_name }} {{ $media->facing }}</h3>
 
                         <p class="text-muted mb-2">
                             <i class="fas fa-map-marker-alt text-danger"></i>
-                            {{ $media->area_name }}, {{ $media->city_name }}
+                            {{ $media->common_area_name }}, {{ $media->city_name }}
                         </p>
 
                         <hr>
@@ -264,8 +268,8 @@
                         <div class="row ">
                             <div class="col-6 mb-2 "><strong class="font-weight-admin">Category:</strong>
                                 {{ $media->category_name }}</div>
-                            <div class="col-6 mb-2"><strong class="font-weight-admin">Media Code:</strong>
-                                {{ $media->media_code }}
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Media Title:</strong>
+                                {{ $media->media_title }}
                             </div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Facing:</strong> {{ $media->facing }}
                             </div>

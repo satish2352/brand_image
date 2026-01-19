@@ -6,6 +6,15 @@
 @section('content')
 
     <style>
+        /* Disable hover color change for disabled dates */
+        .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.flatpickr-disabled:hover {
+            color: #979393 !important;
+            /* keep same disabled color */
+            background: transparent !important;
+            cursor: not-allowed;
+        }
+
         .cart-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(6px);
