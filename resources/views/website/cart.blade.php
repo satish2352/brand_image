@@ -331,18 +331,18 @@
     <!-- breadcrumb-section -->
 
     <div class="container-fluid about-banner-img g-0">
-    <div class="row">
-        <!-- Desktop Image -->
-        <div class="col-md-12 d-none d-md-block">
-            <img src="{{ asset('assets/img/addtocart.png') }}" alt="About Banner" class="img-fluid">
-        </div>
+        <div class="row">
+            <!-- Desktop Image -->
+            <div class="col-md-12 d-none d-md-block">
+                <img src="{{ asset('assets/img/addtocart.png') }}" alt="About Banner" class="img-fluid">
+            </div>
 
-        <!-- Mobile Image -->
-        <div class="col-md-12 d-block d-md-none">
-            <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
+            <!-- Mobile Image -->
+            <div class="col-md-12 d-block d-md-none">
+                <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
+            </div>
         </div>
     </div>
-</div>
 
     <!-- end breadcrumb section -->
 
@@ -417,11 +417,11 @@
                                 <div class="col-lg-6 col-md-6 col-sm-6">
                                     {{-- DETAILS --}}
                                     <div class="cart-info mt-2">
-                                        <h6>{{ $item->media_title ?? $item->category_name }}</h6>
+                                        <h6>{{ $item->area_name ?? $item->category_name }} {{ $item->facing }}</h6>
 
                                         {{-- <p class="text-muted"> --}}
                                         <p class="badge bg-light text-dark">
-                                            📍 {{ $item->area_name ?? 'N/A' }}
+                                            📍 {{ $item->common_stdiciar_name ?? 'N/A' }}
                                         </p>
 
                                         {{-- <p>

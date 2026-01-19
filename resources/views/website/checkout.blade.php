@@ -15,14 +15,15 @@
                 <table class="table table-bordered">
                     <thead class="table-light">
                         <tr>
-                            <th>Media</th>
+                            <th>Location</th>
                             <th class="text-end">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
+
                         @foreach ($items as $item)
                             <tr>
-                                <td>{{ $item->media_title }}</td>
+                                <td>{{ $item->area_name }} {{ $item->facing }}</td>
                                 <td class="text-end">₹ {{ number_format($item->price, 2) }}</td>
                             </tr>
                         @endforeach

@@ -105,7 +105,7 @@
         z-index: 2;
     }
 </style>
-<div class="container mt-5 mb-5">
+<div class="container-fluid mt-5 mb-5">
     <h3 class="text-center orange-text">Discover Media Spaces Near You</h3>
     <div class="media-search-card">
 
