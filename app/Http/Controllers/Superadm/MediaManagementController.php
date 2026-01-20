@@ -117,7 +117,7 @@ class MediaManagementController extends Controller
             'vendor_id' => 'required|integer|exists:vendors,id',
 
             'images'      => 'nullable|array|max:10',
-            'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024',
+            'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024|dimensions:width=500,height=600',
         ];
 
         switch (true) {
@@ -192,6 +192,7 @@ class MediaManagementController extends Controller
             'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
             'images.*.image' => 'Each file must be an image.',
             'images.*.max' => 'Each image must be less than 1MB.',
+            'images.*.dimensions' => 'Please upload each image with width 500px and height 600px.',
         ];
         $request->validate($rules, $messages);
 
@@ -444,7 +445,7 @@ class MediaManagementController extends Controller
             [
                 'media_id'   => 'required|integer',
                 'images'     => 'required|array|max:10',
-                'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024',
+                'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024|dimensions:width=500,height=600',
             ],
             [
                 'media_id.required' => 'Media ID is required.',
@@ -457,6 +458,7 @@ class MediaManagementController extends Controller
                 'images.*.image'  => 'Each file must be an image.',
                 'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
                 'images.*.max'    => 'Each image must be less than 1MB.',
+                'images.*.dimensions' => 'Please upload each image with width 500px and height 600px.',
             ]
         );
 

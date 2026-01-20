@@ -41,6 +41,9 @@
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Upload Images (upload image size must be less then 1mb) <span class="text-danger">*</span></label>
                         <input type="file" name="images[]" multiple class="form-control" accept="image/*">
+                        <label class="form-label fw-semibold">
+                            Upload Images (500×600 px)
+                        </label>
                     </div>
                 </div>
 

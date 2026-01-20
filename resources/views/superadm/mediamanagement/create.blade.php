@@ -544,6 +544,9 @@
                             class="form-control
             @error('images') is-invalid @enderror
             @error('images.*') is-invalid @enderror">
+                        <small>
+                            Upload Images (500×600 px)
+                        </small>
 
                         {{-- TOO MANY FILES --}}
                         @error('images')

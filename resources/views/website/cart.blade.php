@@ -30,14 +30,19 @@
             box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12);
         }
 
-        .cart-img-wrapper {
+        /* .cart-img-wrapper {
             display: flex;
             gap: 10px;
+        } */
+
+        .cart-img-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .cart-thumbs {
-            /* width: 70px; */
-            width: 50%;
+            width: 70px;
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -56,16 +61,19 @@
         }
 
         .cart-main-img {
+            width: 100%;
             border-radius: 14px;
             overflow: hidden;
             background: #f8f8f8;
+            cursor: zoom-in;
         }
 
         .cart-main-img img {
+            width: 100%;
+            height: auto;
             border-radius: 14px;
             transition: transform 0.4s ease;
         }
-
         .cart-main-img:hover img {
             transform: scale(1.08);
         }
@@ -336,6 +344,44 @@
             border-radius: 8px !important;
             width: 140px;
         }
+
+        /* THUMBNAILS CONTAINER */
+.cart-thumbs-horizontal {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+}
+
+/* SCROLLBAR (Chrome) */
+.cart-thumbs-horizontal::-webkit-scrollbar {
+    height: 6px;
+}
+
+.cart-thumbs-horizontal::-webkit-scrollbar-thumb {
+    background: #ffc107;
+    border-radius: 10px;
+}
+
+/* THUMB IMAGE */
+.cart-thumbs-horizontal img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    opacity: 0.7;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.cart-thumbs-horizontal img:hover,
+.cart-thumbs-horizontal img.active {
+    opacity: 1;
+    border-color: #ff9800;
+}
     </style>
 
     <!-- breadcrumb-section -->
@@ -400,26 +446,21 @@
                                     {{-- IMAGE SECTION --}}
                                     <div class="cart-img-wrapper">
 
-                                        {{-- THUMBNAILS --}}
-                                        <div class="cart-thumbs">
-                                            @foreach ($item->images as $key => $img)
-                                                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
-                                                    class="{{ $key === 0 ? 'active' : '' }}"
-                                                    onclick="changeCartImage(this, '{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
-                                            @endforeach
-                                        </div>
-
                                         {{-- MAIN IMAGE --}}
-                                        {{-- <div class="cart-main-img">
-                            <img
-                                src="{{ $firstImage ? config('fileConstants.IMAGE_VIEW') . $firstImage->images : '' }}"
-                                class="main-cart-image">
-                        </div> --}}
-                                        <div class="cart-main-img" onmousemove="zoomImage(event, this)"
+                                        <div class="cart-main-img"
+                                            onmousemove="zoomImage(event, this)"
                                             onmouseleave="resetZoom(this)">
-
                                             <img src="{{ $firstImage ? config('fileConstants.IMAGE_VIEW') . $firstImage->images : '' }}"
                                                 class="main-cart-image">
+                                        </div>
+
+                                        {{-- THUMBNAILS BELOW --}}
+                                        <div class="cart-thumbs-horizontal">
+                                            @foreach ($item->images as $key => $img)
+                                                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
+                                                    class="thumb-img {{ $key === 0 ? 'active' : '' }}"
+                                                    onclick="changeCartImage(this, '{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
+                                            @endforeach
                                         </div>
 
                                     </div>
