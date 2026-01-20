@@ -90,65 +90,85 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <!-- SUBMIT -->
-                                {{-- <div class="row d-flex justify-content-end ">
+                        </div>
+
+                        <!-- ROW 2 : MOBILE + ADDRESS -->
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <textarea name="address" class="form-control" rows="5" placeholder="Address" maxlength="200">{{ old('address') }}</textarea>
+                                <small class="text-muted" id="addressCounter">0 / 200</small>
+                                @error('address')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <textarea name="remark" class="form-control" rows="5" placeholder="Requirements/Specifications" maxlength="200">{{ old('remark') }}</textarea>
+                                <small class="text-muted" id="remarkCounter">0 / 300</small>
+                                @error('remark')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <!-- SUBMIT -->
+                        {{-- <div class="row d-flex justify-content-end ">
                                 <div class="col-6">
                                     <input type="submit" value="Submit" class="boxed-btn">
                                 </div>
 
                             </div> --}}
-                                <div class="row d-flex justify-content-end">
-                                    <div class="col-md-6">
-                                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
-                                        </div>
-                                        @error('g-recaptcha-response')
-                                            <span class="text-danger" style="font-size: 14px;">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="col-md-6 d-flex justify-content-end" style="padding: 10px;">
-                                        <input type="submit" value="Submit" class="boxed-btn">
-                                    </div>
+                        <div class="row d-flex justify-content-end">
+                            <div class="col-md-6">
+                                <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
                                 </div>
-
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RIGHT SIDE (UNCHANGED) -->
-                <div class="col-lg-4">
-                    <div class="contact-card dark-card">
-                        <div class="contact-form-wrap">
-                            <div class="contact-form-box">
-                                <h4><i class="fas fa-map"></i> Shop Address</h4>
-                                <p>Brand Image Media Pvt Ltd,
-                                    Office No-4, 1st Floor,
-                                    Sadashiv Motkari Sankul,
-                                    Sadashiv Nagar,Opp.Sagar
-                                    Sweet, Nashik - 422009.</p>
+                                @error('g-recaptcha-response')
+                                    <span class="text-danger" style="font-size: 14px;">{{ $message }}</span>
+                                @enderror
                             </div>
-
-                            <div class="contact-form-box">
-                                <h4><i class="far fa-clock"></i> Shop Hours</h4>
-                                <p>MON - FRIDAY: 8 to 9 PM <br> SAT - SUN: 10 to 8 PM</p>
-                            </div>
-
-                            <div class="contact-form-box">
-                                <h4><i class="fas fa-address-book"></i> Contact</h4>
-                                <p class="contact-us-page-detail">
-                                    Phone:
-                                    <a href="tel:+917770009506">+91 777 000 9506</a>
-                                    <br>
-                                    Email:
-                                    <a href="mailto:brandimage@gmail.com">brandimage@gmail.com</a>
-                                </p>
+                            <div class="col-md-6 d-flex justify-content-end" style="padding: 10px;">
+                                <input type="submit" value="Submit" class="boxed-btn">
                             </div>
                         </div>
+
+                        </form>
                     </div>
                 </div>
-
             </div>
+
+            <!-- RIGHT SIDE (UNCHANGED) -->
+            <div class="col-lg-4">
+                <div class="contact-card dark-card">
+                    <div class="contact-form-wrap">
+                        <div class="contact-form-box">
+                            <h4><i class="fas fa-map"></i> Shop Address</h4>
+                            <p>Brand Image Media Pvt Ltd,
+                                Office No-4, 1st Floor,
+                                Sadashiv Motkari Sankul,
+                                Sadashiv Nagar,Opp.Sagar
+                                Sweet, Nashik - 422009.</p>
+                        </div>
+
+                        <div class="contact-form-box">
+                            <h4><i class="far fa-clock"></i> Shop Hours</h4>
+                            <p>MON - FRIDAY: 8 to 9 PM <br> SAT - SUN: 10 to 8 PM</p>
+                        </div>
+
+                        <div class="contact-form-box">
+                            <h4><i class="fas fa-address-book"></i> Contact</h4>
+                            <p class="contact-us-page-detail">
+                                Phone:
+                                <a href="tel:+917770009506">+91 777 000 9506</a>
+                                <br>
+                                Email:
+                                <a href="mailto:brandimage@gmail.com">brandimage@gmail.com</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
+    </div>
     </div>
     <!-- end contact form -->
 
@@ -204,13 +224,39 @@
             });
 
             /* ================= COUNTERS ================= */
+            // $('textarea').each(function () {
+            //     const counter = $(this).attr('name') === 'address'
+            //         ? $('#addressCounter')
+            //         : $('#remarkCounter');
+
+            //     $(this).on('input', function () {
+            //         counter.text(`${this.value.length} / 200`);
+            //     });
+            // });
             $('textarea').each(function() {
-                const counter = $(this).attr('name') === 'address' ?
-                    $('#addressCounter') :
-                    $('#remarkCounter');
+
+                let maxLimit = 200;
+                let counter;
+
+                if ($(this).attr('name') === 'remark') {
+                    maxLimit = 300;
+                    counter = $('#remarkCounter');
+                } else if ($(this).attr('name') === 'address') {
+                    maxLimit = 200;
+                    counter = $('#addressCounter');
+                }
+
+                // Set maxlength attribute dynamically
+                $(this).attr('maxlength', maxLimit);
 
                 $(this).on('input', function() {
-                    counter.text(`${this.value.length} / 200`);
+
+                    // Stop extra typing (safety)
+                    if (this.value.length > maxLimit) {
+                        this.value = this.value.substring(0, maxLimit);
+                    }
+
+                    counter.text(`${this.value.length} / ${maxLimit}`);
                 });
             });
 
@@ -223,7 +269,7 @@
             /* ================= SUBMIT ================= */
             $('form').on('submit', function(e) {
 
-                e.preventDefault(); // 🔴 IMPORTANT
+                e.preventDefault(); // IMPORTANT
 
                 let valid = true;
                 $('.text-danger').remove();
@@ -268,7 +314,7 @@
                 }
 
                 if (valid) {
-                    this.submit(); // ✅ ONLY HERE backend call
+                    this.submit(); // ONLY HERE backend call
                 }
             });
         });

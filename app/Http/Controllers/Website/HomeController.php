@@ -37,7 +37,10 @@ class HomeController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('website.home', compact('mediaList', 'filters', 'sliders'));
+        // NEW (Other Media latest per category)
+        $otherMedia = $this->homeService->getLatestOtherMediaByCategory();
+
+        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)

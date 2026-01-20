@@ -37,4 +37,9 @@ class HomeService
             throw $e; // rethrow to controller
         }
     }
+
+    public function getLatestOtherMediaByCategory()
+    {
+        return $this->repo->getLatestOtherMediaByCategory();
+    }
 }

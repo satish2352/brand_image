@@ -131,7 +131,8 @@
         .media-main img {
             width: 100%;
             height: 420px;
-            object-fit: cover;
+            /* object-fit: cover; */
+            object-fit: inherit;
             transition: transform 0.35s ease;
         }
 
@@ -211,6 +212,9 @@
         .add-to-cart-btn:not(:disabled) {
             background: linear-gradient(135deg, #f28123, #ff9f43);
             cursor: pointer;
+        }
+        .details-contact-us:hover{
+            color: #fff;
         }
     </style>
     @php
@@ -344,6 +348,7 @@
 
 
 
+                            @if ((int) $media->category_id === 1)
                             {{-- CALENDAR --}}
                             <h6 class="fw-bold mt-1">Select Booking Dates</h6>
 
@@ -373,6 +378,16 @@
                                     </button>
                                 @endauth
                             </form>
+
+                            @else
+
+                                {{-- CONTACT US (NON-BILLBOARD) --}}
+                                <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}#contact-form"
+                                    class="add-to-cart-btn mt-4 details-contact-us">
+                                    <i class="fas fa-envelope"></i> Contact Us
+                                </a>
+
+                            @endif
 
                         </div>
 

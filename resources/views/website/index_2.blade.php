@@ -422,7 +422,7 @@
         {{-- ================= OTHER MEDIA SECTION ================= --}}
         <div class="row">
 
-            @foreach ($mediaList as $media)
+            @foreach ($otherMedia as $media)
             @if ($media->category_name !== 'Hoardings/Billboards')
 
             <div class="col-lg-4 col-md-6 mb-5">
@@ -507,6 +507,11 @@
                         </a> --}}
                         <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
                             Contact Us
+                        </a>
+
+                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                            class="card-btn read">
+                            Read More →
                         </a>
                         @endif
 
