@@ -131,7 +131,8 @@
         .media-main img {
             width: 100%;
             height: 420px;
-            object-fit: cover;
+            /* object-fit: cover; */
+            object-fit: inherit;
             transition: transform 0.35s ease;
         }
 
