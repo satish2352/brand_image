@@ -36,9 +36,9 @@
         }
 
         /* .cart-img-wrapper {
-                                        display: flex;
-                                        gap: 10px;
-                                    } */
+                                                                                            display: flex;
+                                                                                            gap: 10px;
+                                                                                        } */
 
         .cart-img-wrapper {
             display: flex;
@@ -71,6 +71,7 @@
             overflow: hidden;
             background: #f8f8f8;
             cursor: zoom-in;
+            box-shadow: 0 0 20px #ddd
         }
 
         .cart-main-img img {
@@ -78,6 +79,10 @@
             height: auto;
             border-radius: 14px;
             transition: transform 0.4s ease;
+        }
+
+        .cart-main-img:hover img {
+            transform: scale(1.08);
         }
 
         .cart-main-img:hover img {
@@ -296,61 +301,6 @@
             color: #000;
         }
 
-        .campaign-modal-body {
-            padding: 26px;
-        }
-
-        .campaign-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .campaign-label .required {
-            color: #ff9800;
-        }
-
-        .campaign-input {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1.5px solid #ddd;
-
-            font-size: 15px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .campaign-input:focus {
-            border-color: #ff9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
-        }
-
-        /* Booked dates */
-        .flatpickr-day.booked-date {
-            background: #dc3545 !important;
-            color: #fff !important;
-            border-radius: 50%;
-            cursor: not-allowed;
-        }
-
-        /* Selected range */
-        .flatpickr-day.inRange,
-        .flatpickr-day.startRange,
-        .flatpickr-day.endRange {
-            background: #28a745 !important;
-            color: #fff !important;
-        }
-
-        .update-date-btn {
-            padding: 4px 12px !important;
-            font-size: 13px !important;
-            border-radius: 8px !important;
-            width: 140px;
-        }
-
         /* THUMBNAILS CONTAINER */
         .cart-thumbs-horizontal {
             display: flex;
@@ -390,6 +340,9 @@
         }
     </style>
 
+
+    </style>
+
     <!-- breadcrumb-section -->
 
     <div class="container-fluid about-banner-img g-0">
@@ -413,7 +366,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3>My Cart</h3>
             {{-- <a href="{{ url('/') }}" class="btn btn-outline-secondary">
-            Continue Shopping
+        Continue Shopping
         </a> --}}
         </div>
         {{-- 🔔 AUTO-HIDE ALERTS --}}
@@ -445,19 +398,23 @@
                         $total = $item->price * $item->qty;
                         $grandTotal += $total;
                         $firstImage = $item->images->first();
+
+                        $width = (float) $item->width;
+                        $height = (float) $item->height;
+                        $sqft = $width * $height;
                     @endphp
 
 
-                    <div class="col-lg-12 mb-4">
+                    <div class="col-lg-6 mb-4">
                         <div class="cart-card ">
 
                             <div class="row">
-                                <div class="col-lg-5 col-md-5 col-sm-5">
+                                <div class="col-lg-12 col-md-5 col-sm-5">
                                     {{-- IMAGE SECTION --}}
                                     <div class="cart-img-wrapper">
 
                                         {{-- MAIN IMAGE --}}
-                                        <div class="cart-main-img" onmousemove="zoomImage(event, this)"
+                                        <div class="cart-main-img  single-product-img" onmousemove="zoomImage(event, this)"
                                             onmouseleave="resetZoom(this)">
                                             <img src="{{ $firstImage ? config('fileConstants.IMAGE_VIEW') . $firstImage->images : '' }}"
                                                 class="main-cart-image">
@@ -467,7 +424,7 @@
                                         <div class="cart-thumbs-horizontal">
                                             @foreach ($item->images as $key => $img)
                                                 <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
-                                                    class="thumb-img {{ $key === 0 ? 'active' : '' }}"
+                                                    class="thumb-img {{ $key === 0 ? 'active' : '' }}  single-product-img"
                                                     onclick="changeCartImage(this, '{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
                                             @endforeach
                                         </div>
@@ -482,9 +439,30 @@
                                         {{-- <p class="text-muted"> --}}
                                         <p class="text-muted mb-2">
                                             <i class="fas fa-map-marker-alt text-danger"></i>
-                                            {{ $item->common_stdiciar_name ?? 'N/A' }}
+                                            {{ $item->address ?? 'N/A' }}, {{ $item->city_name ?? 'N/A' }}
+                                        </p>
+                                        <p class="text-muted mb-2">
+                                            media title :
+                                            {{ $item->media_title ?? 'N/A' }}
+                                        </p>
+                                        <p class="text-muted mb-2">
+                                            area_type :
+                                            {{ $item->area_type ?? 'N/A' }}
                                         </p>
 
+                                        <p class="text-muted mb-2">
+                                            illumination :
+                                            {{ $item->illumination_name ?? 'N/A' }}
+                                        </p>
+                                        <div class="col-6 mb-2">
+                                            <strong>Size:</strong>
+                                            {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
+                                        </div>
+
+                                        <div class="col-6 mb-2">
+                                            <strong>Total Area:</strong>
+                                            {{ number_format($sqft, 2) }} SQFT
+                                        </div>
 
                                         @if ($item->from_date && $item->to_date)
                                             <p class="text-muted">
@@ -521,8 +499,8 @@
 
                                             {{-- <div class="cart-calendar"
          id="calendar_{{ $item->id }}"
-         data-media-id="{{ $item->media_id }}">
-    </div> --}}
+                                data-media-id="{{ $item->media_id }}">
+                        </div> --}}
                                             <div class="row">
 
                                                 <div class="cart-calendar" id="calendar_{{ $item->id }}"
@@ -542,6 +520,18 @@
                                                         class="btn btn-warning btn-sm mt-2 update-date-btn">
                                                         Add Dates
                                                     </button>
+                                                    {{-- <strong>Total: ₹ {{ number_format($total, 2) }}</strong> --}}
+                                                    <button type="button"
+                                                        class="btn btn-warning btn-sm mt-2 update-date-btn ms-2"
+                                                        style="background-color: #F28123;"
+                                                        onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
+                                                        - Remove
+                                                    </button>
+
+                                                    {{-- <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
+                                class="btn btn-warning btn-sm mt-2 update-date-btn ms-2" style="background-color: #F28123;">
+                                - Remove
+                                </a> --}}
                                                 </div>
 
                                             </div>
@@ -556,18 +546,7 @@
 
                                 {{-- FOOTER --}}
                                 <div class="col-lg-1 col-md-1 col-sm-1">
-                                    <div class="cart-footer">
-                                        {{-- <strong>Total: ₹ {{ number_format($total, 2) }}</strong> --}}
-                                        <button type="button" class="btn btn-outline-danger remove-btn btn-sm rounded-pill"
-                                            onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
 
-                                        {{-- <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
-                                            class="btn btn-outline-danger remove-btn btn-sm rounded-pill">
-                                            <i class="bi bi-trash"></i>
-                                        </a> --}}
-                                    </div>
                                 </div>
                             </div>
 
@@ -584,24 +563,24 @@
             Grand Total:
             <span class="text-success">
                 ₹ {{ number_format($grandTotal, 2) }}
-            </span>
-        </h5>
+</span>
+</h5>
 
-        <div>
-            <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
-                @csrf
-                <button class="btn btn-success">
-                    Proceed to Checkout
-                </button>
-            </form>
+<div>
+    <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
+        @csrf
+        <button class="btn btn-success">
+            Proceed to Checkout
+        </button>
+    </form>
 
-            <button class="btn btn-primary ms-2"
-                    data-bs-toggle="modal"
-                    data-bs-target="#campaignModal">
-                Create Campaign
-            </button>
-        </div>
-    </div> --}}
+    <button class="btn btn-primary ms-2"
+        data-bs-toggle="modal"
+        data-bs-target="#campaignModal">
+        Create Campaign
+    </button>
+</div>
+</div> --}}
 
             <div class="cart-summary mt-5">
                 <div class="row align-items-center">
@@ -625,29 +604,29 @@
                             Continue Shopping
                         </a>
 
-                        {{-- <button class="btn cart-btn cart-btn-dark ms-2"
+                        {{-- <button class="btn cart-btn cart-btn-dark ms-md-2"
                         data-bs-toggle="modal"
                         data-bs-target="#campaignModal">
                     Create Campaign
                 </button> --}}
-                        <button class="btn cart-btn cart-btn-dark ms-2" type="button" onclick="openCampaignModal()">
+                        <button class="btn cart-btn cart-btn-dark ms-md-2" type="button" onclick="openCampaignModal()">
                             Create Campaign
                         </button>
 
                         <form action="{{ route('checkout.create') }}" method="POST" class="d-inline"
                             onsubmit="return validateCartDates();">
                             @csrf
-                            <button class="btn cart-btn cart-btn-primary ms-2">
+                            <button class="btn cart-btn cart-btn-primary ms-md-2">
                                 Proceed to Checkout
                             </button>
                         </form>
 
                         {{-- <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button class="btn cart-btn cart-btn-primary ms-2">
-                        Proceed to Checkout
-                    </button>
-                </form> --}}
+            @csrf
+            <button class="btn cart-btn cart-btn-primary ms-2">
+                Proceed to Checkout
+            </button>
+            </form> --}}
 
                     </div>
                 </div>
@@ -667,30 +646,30 @@
                 Grand Total:
                 <span class="text-success">
                     ₹ {{ number_format($grandTotal, 2) }}
-                </span>
-            </h5>
-
-        
+</span>
+</h5>
 
 
 
-            <div class="text-end">
-            <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
-                @csrf
-                <button class="btn btn-success">
-                    Proceed to Checkout
-                </button>
-            </form>
 
-            <button class="btn btn-primary ms-2"
-                    data-bs-toggle="modal"
-                    data-bs-target="#campaignModal">
-                Create Campaign
-            </button>
-            </div>
-        </div>
 
-    </div> --}}
+<div class="text-end">
+    <form action="{{ route('checkout.create') }}" method="POST" class="d-inline">
+        @csrf
+        <button class="btn btn-success">
+            Proceed to Checkout
+        </button>
+    </form>
+
+    <button class="btn btn-primary ms-2"
+        data-bs-toggle="modal"
+        data-bs-target="#campaignModal">
+        Create Campaign
+    </button>
+</div>
+</div>
+
+</div> --}}
 
         @endif
     </div>

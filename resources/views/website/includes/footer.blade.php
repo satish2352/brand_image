@@ -39,10 +39,10 @@
                         <a href="{{ url('/') }}"><span class="icon">›</span> Home</a>
                     </li>
                     <li class="{{ request()->routeIs('website.about') ? 'active' : '' }}">
-                        <a href="{{ route('website.about') }}"><span class="icon">›</span> About</a>
+                        <a href="{{ route('website.about') }}"><span class="icon">›</span> About us</a>
                     </li>
                     <li class="{{ request()->routeIs('website.contact') ? 'active' : '' }}">
-                        <a href="{{ url('/contact-us') }}"><span class="icon">›</span> Contact</a>
+                        <a href="{{ url('/contact-us') }}"><span class="icon">›</span> Contact us</a>
                     </li>
                 </ul>
             </div>
