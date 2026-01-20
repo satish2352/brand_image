@@ -508,6 +508,11 @@
                         <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
                             Contact Us
                         </a>
+
+                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                            class="card-btn read">
+                            Read More →
+                        </a>
                         @endif
 
                     </div>

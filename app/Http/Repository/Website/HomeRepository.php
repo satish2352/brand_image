@@ -280,7 +280,7 @@ class HomeRepository
             '), 'mi.media_id', '=', 'm.id')
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
-            ->where('m.category_id', '!=', 1) // ❌ Billboards exclude
+            ->where('m.category_id', '!=', 1) // Billboards exclude
             ->whereIn('m.id', function ($q) {
                 $q->select(DB::raw('MAX(id)'))
                 ->from('media_management')
