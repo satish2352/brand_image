@@ -422,7 +422,7 @@
         {{-- ================= OTHER MEDIA SECTION ================= --}}
         <div class="row">
 
-            @foreach ($mediaList as $media)
+            @foreach ($otherMedia as $media)
             @if ($media->category_name !== 'Hoardings/Billboards')
 
             <div class="col-lg-4 col-md-6 mb-5">

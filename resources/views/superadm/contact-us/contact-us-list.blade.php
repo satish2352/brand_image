@@ -41,14 +41,14 @@
                                         <td>{{ $row->remark }}</td>
                                         <td>
                                             <a href="{{ route('contact-us.view', base64_encode($row->id)) }}"
-                                                class="btn btn-sm btn-info" title="View Details">
+                                                class="btn btn-sm btn-info mb-2" title="View Details">
                                                 <i class="fa fa-eye"></i>
                                             </a>
                                             <form action="{{ route('contact-us.delete') }}" method="POST"
                                                 class="d-inline-block delete-form">
                                                 @csrf
                                                 <input type="hidden" name="id" value="{{ base64_encode($row->id) }}">
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn mb-2"
                                                     title="Delete">
                                                     <i class="mdi mdi-trash-can-outline"></i>
                                                 </button>

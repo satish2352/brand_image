@@ -262,4 +262,47 @@ class HomeRepository
 
         return $media;
     }
+
+    public function getLatestOtherMediaByCategory()
+    {
+        return DB::table('media_management as m')
+            ->leftJoin('cities as city', 'city.id', '=', 'm.city_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
+            ->leftJoin('states as s', 's.id', '=', 'm.state_id')
+            ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
+            ->leftJoin(DB::raw('
+                (SELECT media_id, MIN(images) AS first_image
+                FROM media_images
+                WHERE is_deleted = 0 AND is_active = 1
+                GROUP BY media_id
+                ) mi
+            '), 'mi.media_id', '=', 'm.id')
+            ->where('m.is_deleted', 0)
+            ->where('m.is_active', 1)
+            ->where('m.category_id', '!=', 1) // ❌ Billboards exclude
+            ->whereIn('m.id', function ($q) {
+                $q->select(DB::raw('MAX(id)'))
+                ->from('media_management')
+                ->where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->where('category_id', '!=', 1)
+                ->groupBy('category_id');
+            })
+            ->select([
+                'm.id',
+                'm.media_title',
+                'm.price',
+                'm.category_id',
+                'ct.category_name',
+                'a.area_name',
+                'city.city_name',
+                'mi.first_image',
+                'm.latitude',
+                'm.longitude'
+            ])
+            ->orderBy('m.created_at', 'DESC')
+            ->get();
+    }
+
 }

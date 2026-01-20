@@ -112,9 +112,9 @@
                                                 <th>Media</th>
                                                 <th>Size</th>
                                                 <th>Total Price</th>
-                                                <th>From</th>
-                                                <th>To</th>
-                                                <th>Days</th>
+                                                <th>From Date</th>
+                                                <th>To Date</th>
+                                                <th>Booking Days</th>
                                                 <th>campaign Date</th>
                                                 <th>Details</th>
                                             </tr>

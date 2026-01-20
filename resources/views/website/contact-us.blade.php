@@ -84,7 +84,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <textarea name="remark" class="form-control" rows="5" placeholder="Requirements/Specifications" maxlength="200">{{ old('remark') }}</textarea>
-                                    <small class="text-muted" id="remarkCounter">0 / 200</small>
+                                    <small class="text-muted" id="remarkCounter">0 / 300</small>
                                     @error('remark')
                                     <small class="text-danger">{{ $message }}</small>
                                     @enderror
@@ -205,13 +205,39 @@ $(document).ready(function () {
     });
 
     /* ================= COUNTERS ================= */
+    // $('textarea').each(function () {
+    //     const counter = $(this).attr('name') === 'address'
+    //         ? $('#addressCounter')
+    //         : $('#remarkCounter');
+
+    //     $(this).on('input', function () {
+    //         counter.text(`${this.value.length} / 200`);
+    //     });
+    // });
     $('textarea').each(function () {
-        const counter = $(this).attr('name') === 'address'
-            ? $('#addressCounter')
-            : $('#remarkCounter');
+
+        let maxLimit = 200;
+        let counter;
+
+        if ($(this).attr('name') === 'remark') {
+            maxLimit = 300;
+            counter = $('#remarkCounter');
+        } else if ($(this).attr('name') === 'address') {
+            maxLimit = 200;
+            counter = $('#addressCounter');
+        }
+
+        // Set maxlength attribute dynamically
+        $(this).attr('maxlength', maxLimit);
 
         $(this).on('input', function () {
-            counter.text(`${this.value.length} / 200`);
+
+            // Stop extra typing (safety)
+            if (this.value.length > maxLimit) {
+                this.value = this.value.substring(0, maxLimit);
+            }
+
+            counter.text(`${this.value.length} / ${maxLimit}`);
         });
     });
 
@@ -224,7 +250,7 @@ $(document).ready(function () {
     /* ================= SUBMIT ================= */
     $('form').on('submit', function (e) {
 
-        e.preventDefault(); // 🔴 IMPORTANT
+        e.preventDefault(); // IMPORTANT
 
         let valid = true;
         $('.text-danger').remove();
@@ -268,7 +294,7 @@ $(document).ready(function () {
         }
 
         if (valid) {
-            this.submit(); // ✅ ONLY HERE backend call
+            this.submit(); // ONLY HERE backend call
         }
     });
 });

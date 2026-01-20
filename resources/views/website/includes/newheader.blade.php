@@ -191,7 +191,18 @@
                                         </div>
                                     </div>
 
-                                    <button type="submit" class="btn btn-dark w-100">Login</button>
+                                        <!-- Google reCAPTCHA -->
+                                    <div class="col-md-12 mt-3">
+                                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+
+                                        @error('g-recaptcha-response')
+                                            <span class="text-danger" style="font-size:14px;">
+                                                {{ $message }}
+                                            </span>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="btn btn-dark w-100 mt-3">Login</button>
 
                                     <div class="social-login mt-4">
                                         <a href="{{ route('auth.google.redirect') }}" class="google-btn">
@@ -315,7 +326,7 @@
         </div>
     </div>
 
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script>
         function showSignup() {
             document.getElementById('loginArea').style.display = 'none';
@@ -497,6 +508,14 @@
                 // PASSWORD
                 if (!pass.val()) {
                     error(pass, "Password is required");
+                }
+
+                // CAPTCHA
+                if (grecaptcha.getResponse().length === 0) {
+                    $(".g-recaptcha").after(
+                        `<span class="text-danger d-block mt-1">Please verify that you are not a robot</span>`
+                    );
+                    valid = false;
                 }
 
                 if (!valid) return; // STOP HERE
