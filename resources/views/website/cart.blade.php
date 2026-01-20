@@ -430,16 +430,12 @@
                                         <h6>{{ $item->area_name ?? $item->category_name }} {{ $item->facing }}</h6>
 
                                         {{-- <p class="text-muted"> --}}
-                                        <p class="badge bg-light text-dark">
-                                            📍 {{ $item->common_stdiciar_name ?? 'N/A' }}
+                                        <p class="text-muted mb-2">
+                                            <i class="fas fa-map-marker-alt text-danger"></i>
+                                            {{ $item->common_stdiciar_name ?? 'N/A' }}
                                         </p>
 
-                                        {{-- <p>
-                            📅
-                            {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
-                            →
-                            {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
-                        </p> --}}
+
                                         @if ($item->from_date && $item->to_date)
                                             <p class="text-muted">
                                                 📅
@@ -450,12 +446,12 @@
                                         @endif
 
                                         <div class="price-box mt-2">
-                                            <div class="text-muted small">Monthly Price</div>
+                                            <div class="text-muted ">Monthly Price</div>
                                             <div class="fw-bold text-success fs-6">
                                                 ₹ {{ number_format($item->price, 2) }}
                                             </div>
 
-                                            <div class="small text-muted">
+                                            <div class=" text-muted">
                                                 ₹ {{ number_format($item->per_day_price, 2) }} / day
                                             </div>
 
@@ -512,11 +508,15 @@
                                 <div class="col-lg-1 col-md-1 col-sm-1">
                                     <div class="cart-footer">
                                         {{-- <strong>Total: ₹ {{ number_format($total, 2) }}</strong> --}}
+                                        <button type="button" class="btn btn-outline-danger remove-btn btn-sm rounded-pill"
+                                            onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
 
-                                        <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
+                                        {{-- <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
                                             class="btn btn-outline-danger remove-btn btn-sm rounded-pill">
                                             <i class="bi bi-trash"></i>
-                                        </a>
+                                        </a> --}}
                                     </div>
                                 </div>
                             </div>
@@ -911,6 +911,26 @@
 
             const modal = new bootstrap.Modal(document.getElementById('campaignModal'));
             modal.show();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmRemove(url) {
+            Swal.fire({
+                title: 'Remove item?',
+                text: 'This media will be removed from your cart.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, remove it',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
         }
     </script>
 
