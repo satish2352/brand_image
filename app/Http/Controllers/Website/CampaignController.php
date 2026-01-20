@@ -43,7 +43,7 @@ class CampaignController extends Controller
             );
 
             return redirect()
-                ->route('campaign.list')
+                ->route('campaign.list', ['type' => 'active'])
                 ->with('success', 'Campaign created successfully');
         } catch (\Exception $e) {
             Log::error($e->getMessage());

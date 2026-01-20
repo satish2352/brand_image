@@ -1340,8 +1340,8 @@ input[type="submit"] {
 /* vivek */
 input[type="submit"]:hover {
   /* background-color: #051922; */
-  background: #051922;
-  color: #F28123;
+  background: #2b64b5;
+  color: #fff;
 }
 
 div.owl-controls,

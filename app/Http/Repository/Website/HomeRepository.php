@@ -234,7 +234,7 @@ class HomeRepository
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             // ->leftJoin('facing_direction as fd', 'fd.id', '=', 'm.facing_id')
-            ->leftJoin('illumination as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
             // ->leftJoin('radius_master as rm', 'rm.id', '=', 'm.radius_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)
@@ -280,7 +280,7 @@ class HomeRepository
             '), 'mi.media_id', '=', 'm.id')
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
-            ->where('m.category_id', '!=', 1) // ❌ Billboards exclude
+            ->where('m.category_id', '!=', 1) // Billboards exclude
             ->whereIn('m.id', function ($q) {
                 $q->select(DB::raw('MAX(id)'))
                 ->from('media_management')

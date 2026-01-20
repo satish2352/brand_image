@@ -131,7 +131,8 @@
         .media-main img {
             width: 100%;
             height: 420px;
-            object-fit: cover;
+            /* object-fit: cover; */
+            object-fit: inherit;
             transition: transform 0.35s ease;
         }
 
@@ -212,6 +213,9 @@
             background: linear-gradient(135deg, #f28123, #ff9f43);
             cursor: pointer;
         }
+        .details-contact-us:hover{
+            color: #fff;
+        }
     </style>
     @php
         $width = (float) $media->width;
@@ -222,12 +226,12 @@
 
     {{-- ================= BREADCRUMB ================= --}}
     <!-- <div class="container-fluid about-banner-img g-0">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12">
-                                                                                        <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div> -->
+                                                                                                <div class="row">
+                                                                                                    <div class="col-md-12">
+                                                                                                        <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div> -->
 
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
@@ -244,16 +248,16 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                                                        Desktop Image
-                                                                                        <div class="col-md-12 d-none d-md-block">
-                                                                                            <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                                                                                        </div>
+                                                                                                        Desktop Image
+                                                                                                        <div class="col-md-12 d-none d-md-block">
+                                                                                                            <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                                                                        </div>
 
-                                                                                        Mobile Image
-                                                                                        <div class="col-md-12 d-block d-md-none">
-                                                                                            <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
-                                                                                        </div>
-                                                                                    </div> -->
+                                                                                                        Mobile Image
+                                                                                                        <div class="col-md-12 d-block d-md-none">
+                                                                                                            <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
+                                                                                                        </div>
+                                                                                                    </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-150">
             <div class="container">
@@ -304,7 +308,7 @@
 
                             <p class="text-muted mb-2">
                                 <i class="fas fa-map-marker-alt text-danger"></i>
-                                {{ $media->common_area_name }}, {{ $media->city_name }}
+                                {{ $media->address }}, {{ $media->city_name }}
                             </p>
 
                             <hr>
@@ -330,22 +334,23 @@
                                     {{ number_format($sqft, 2) }} SQFT
                                 </div>
 
-
+                                <div class="col-6 mb-2">
+                                    <span class="price">₹ {{ number_format($media->price, 2) }}</span>
+                                    <span class="text-muted">/ month</span>
+                                    <div class="per-day">₹ {{ number_format($media->per_day_price, 2) }} / day</div>
+                                </div>
                                 {{-- <div class="col-6 mb-2"><strong>Size:</strong> {{ $media->width }} x {{ $media->height }}
             </div> --}}
-                                <div class="col-6 mb-2"><strong>Address:</strong> {{ $media->address }}</div>
+
                             </div>
 
                             <hr>
 
-                            <div class="mb-3">
-                                <span class="price">₹ {{ number_format($media->price, 2) }}</span>
-                                <span class="text-muted">/ month</span>
-                                <div class="per-day">₹ {{ number_format($media->per_day_price, 2) }} / day</div>
-                            </div>
 
+
+                            @if ((int) $media->category_id === 1)
                             {{-- CALENDAR --}}
-                            <h6 class="fw-bold mt-4">Select Booking Dates</h6>
+                            <h6 class="fw-bold mt-1">Select Booking Dates</h6>
 
                             <form method="POST" action="{{ route('cart.add.with.date') }}" id="addToCartForm">
 
@@ -373,6 +378,16 @@
                                     </button>
                                 @endauth
                             </form>
+
+                            @else
+
+                                {{-- CONTACT US (NON-BILLBOARD) --}}
+                                <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}#contact-form"
+                                    class="add-to-cart-btn mt-4 details-contact-us">
+                                    <i class="fas fa-envelope"></i> Contact Us
+                                </a>
+
+                            @endif
 
                         </div>
 

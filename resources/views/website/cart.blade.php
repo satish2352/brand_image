@@ -36,7 +36,8 @@
         }
 
         .cart-thumbs {
-            width: 70px;
+            /* width: 70px; */
+            width: 50%;
             display: flex;
             flex-direction: column;
             gap: 6px;

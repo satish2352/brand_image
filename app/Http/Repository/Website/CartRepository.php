@@ -48,13 +48,13 @@ class CartRepository
             ->orderBy('cart_items.id', 'DESC')
             ->get();
 
-        // 🔥 Fetch multiple images
+        // Fetch multiple images
         $mediaIds = $items->pluck('media_id')->unique();
 
         $images = DB::table('media_images')
             ->whereIn('media_id', $mediaIds)
-            // ->where('is_deleted', 0)
-            // ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
             ->orderBy('id')
             ->get()
             ->groupBy('media_id');
