@@ -15,6 +15,11 @@
             cursor: not-allowed;
         }
 
+        .text-muted {
+            color: #474f53 !important;
+            font-size: 15px !important;
+        }
+
         .cart-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(6px);
@@ -31,9 +36,9 @@
         }
 
         /* .cart-img-wrapper {
-                    display: flex;
-                    gap: 10px;
-                } */
+                                        display: flex;
+                                        gap: 10px;
+                                    } */
 
         .cart-img-wrapper {
             display: flex;
@@ -426,6 +431,9 @@
         @if ($items->isEmpty())
             <div class="text-center py-5">
                 <h5>Your cart is empty</h5>
+                <a href="{{ route('website.search') }}" class="btn cart-btn cart-btn-primary">
+                    Continue Shopping
+                </a>
             </div>
         @else
             <div class="row">
