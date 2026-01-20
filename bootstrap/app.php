@@ -1,5 +1,6 @@
 <?php
 
+
 // Add this block right at the top, before anything else.
 if (!defined('CURL_SSLVERSION_TLSv1_2')) {
     define('CURL_SSLVERSION_TLSv1_2', 6);
@@ -8,11 +9,6 @@ if (!defined('CURL_SSLVERSION_TLSv1_2')) {
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\SuperAdmin;
-use App\Http\Middleware\WebsiteAuth;
-use App\Http\Middleware\AuthBoth;
-
-// use App\Http\Middleware\WebsiteAuth;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,7 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
+
     ->withMiddleware(function (Middleware $middleware) {
+
+        // ✅ GLOBAL middleware (runs on every request)
+        $middleware->append(
+            \App\Http\Middleware\ComingSoonMiddleware::class
+        );
+
+        // ✅ Middleware aliases (unchanged)
         $middleware->alias([
             'SuperAdmin'   => \App\Http\Middleware\SuperAdmin::class,
             'website.auth' => \App\Http\Middleware\WebsiteAuth::class,
@@ -30,4 +34,37 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();
+
+// Add this block right at the top, before anything else.
+// if (!defined('CURL_SSLVERSION_TLSv1_2')) {
+//     define('CURL_SSLVERSION_TLSv1_2', 6);
+// }
+
+// use Illuminate\Foundation\Application;
+// use Illuminate\Foundation\Configuration\Exceptions;
+// use Illuminate\Foundation\Configuration\Middleware;
+// use App\Http\Middleware\SuperAdmin;
+// use App\Http\Middleware\WebsiteAuth;
+// use App\Http\Middleware\AuthBoth;
+
+// // use App\Http\Middleware\WebsiteAuth;
+
+// return Application::configure(basePath: dirname(__DIR__))
+//     ->withRouting(
+//         web: __DIR__ . '/../routes/web.php',
+//         commands: __DIR__ . '/../routes/console.php',
+//         health: '/up',
+//     )
+//     ->withMiddleware(function (Middleware $middleware) {
+//         $middleware->alias([
+//             'SuperAdmin'   => \App\Http\Middleware\SuperAdmin::class,
+//             'website.auth' => \App\Http\Middleware\WebsiteAuth::class,
+//             'auth.both'    => \App\Http\Middleware\AuthBoth::class,
+//         ]);
+//     })
+
+//     ->withExceptions(function (Exceptions $exceptions): void {
+//         //
+//     })->create();

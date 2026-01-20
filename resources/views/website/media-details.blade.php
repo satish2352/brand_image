@@ -268,8 +268,7 @@ $sqft = $width * $height;
                                                                                                     <div class="col-md-12">
                                                                                                         <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
                                                                                                     </div>
-                                                                                                </div>
-                                                                                            </div> -->
+                                                                                                </div> -->
 
 <div class="container-fluid about-banner-img g-0">
     <div class="row">

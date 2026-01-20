@@ -30,10 +30,10 @@
         box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12);
     }
 
-    /* .cart-img-wrapper {
-            display: flex;
-            gap: 10px;
-        } */
+        /* .cart-img-wrapper {
+                    display: flex;
+                    gap: 10px;
+                } */
 
     .cart-img-wrapper {
         display: flex;
@@ -69,12 +69,16 @@
         box-shadow: 0 0 20px #ddd
     }
 
-    .cart-main-img img {
-        width: 100%;
-        height: auto;
-        border-radius: 14px;
-        transition: transform 0.4s ease;
-    }
+        .cart-main-img img {
+            width: 100%;
+            height: auto;
+            border-radius: 14px;
+            transition: transform 0.4s ease;
+        }
+
+        .cart-main-img:hover img {
+            transform: scale(1.08);
+        }
 
     .cart-main-img:hover img {
         transform: scale(1.08);
@@ -291,6 +295,44 @@
     .campaign-close:hover {
         color: #000;
     }
+        /* THUMBNAILS CONTAINER */
+        .cart-thumbs-horizontal {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
+        }
+
+        /* SCROLLBAR (Chrome) */
+        .cart-thumbs-horizontal::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .cart-thumbs-horizontal::-webkit-scrollbar-thumb {
+            background: #ffc107;
+            border-radius: 10px;
+        }
+
+        /* THUMB IMAGE */
+        .cart-thumbs-horizontal img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            opacity: 0.7;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .cart-thumbs-horizontal img:hover,
+        .cart-thumbs-horizontal img.active {
+            opacity: 1;
+            border-color: #ff9800;
+        }
+    </style>
 
     .campaign-modal-body {
         padding: 26px;
@@ -411,24 +453,25 @@
         {{-- <a href="{{ url('/') }}" class="btn btn-outline-secondary">
         Continue Shopping
         </a> --}}
-    </div>
-    @if (session('error'))
-    <div class="alert alert-danger alert-dismissible text-center fw-bold py-2 mb-3">
-        {{ session('error') }}
-    </div>
-    @endif
+        </div>
+        {{-- 🔔 AUTO-HIDE ALERTS --}}
+        @if (session('error'))
+            <div class="alert alert-danger text-center fw-bold py-2 mb-3 auto-hide-alert">
+                {{ session('error') }}
+            </div>
+        @endif
 
-    @if (session('success'))
-    <div class="alert alert-success alert-dismissible text-center fw-bold py-2 mb-3">
-        {{ session('success') }}
-    </div>
-    @endif
-    @if ($items->isEmpty())
-    <div class="text-center py-5">
-        <h5>Your cart is empty</h5>
-    </div>
-    @else
-    <div class="row">
+        @if (session('success'))
+            <div class="alert alert-success text-center fw-bold py-2 mb-3 auto-hide-alert">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if ($items->isEmpty())
+            <div class="text-center py-5">
+                <h5>Your cart is empty</h5>
+            </div>
+        @else
+            <div class="row">
 
         @php $grandTotal = 0; @endphp
 
