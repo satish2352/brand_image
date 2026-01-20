@@ -252,7 +252,7 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Password *</label>
+                                        <label>Password <span class="text-danger">*</span></label>
                                         <div class="password-wrapper">
                                             <input type="password" name="signup_password"
                                                 class="form-control password-field">
@@ -288,7 +288,7 @@
                                 </div> --}}
 
                                 <div class="mb-2">
-                                    <label>Enter OTP</label>
+                                    <label>Enter OTP <span class="text-danger">*</span></label>
 
                                     <div class="otp-box-wrapper">
                                         <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
@@ -308,6 +308,10 @@
                                 </small>
 
                                 <div class="text-danger mt-2" id="otpError"></div>
+
+                                <div class="alert alert-success py-2 d-none" id="otpSuccessMsg">
+                                    New OTP has been sent successfully.
+                                </div>
 
                                 <button class="btn btn-dark w-100 mt-3" id="verifyOtpBtn" disabled>
                                     Verify OTP
@@ -638,6 +642,20 @@
                 }, 1000);
             }
 
+            function clearOtpInputs() {
+                const otpBoxes = document.querySelectorAll(".otp-box");
+
+                otpBoxes.forEach(box => box.value = '');
+
+                document.getElementById("otpInput").value = '';
+
+                $("#verifyOtpBtn").prop("disabled", true);
+                $("#otpError").text('');
+
+                // focus first box
+                otpBoxes[0]?.focus();
+            }
+
             /* ================= VERIFY ACCOUNT (SEND OTP) ================= */
             // $("#sendOtpBtn").click(function() {
 
@@ -732,7 +750,7 @@
 
                 if (!valid) return; // STOP HERE
 
-                // ✅ VALID → AJAX CALL
+                // VALID → AJAX CALL
                 showLoader();
 
                 $.ajax({
@@ -800,6 +818,17 @@
                 });
             });
 
+            function showOtpSuccessMessage(message = "New OTP has been sent successfully.") {
+                const msgBox = $("#otpSuccessMsg");
+
+                msgBox.text(message).removeClass("d-none");
+
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    msgBox.addClass("d-none");
+                }, 5000);
+            }
+
             /* ================= RESEND OTP ================= */
             $("#resendOtpBtn").click(function() {
 
@@ -819,7 +848,9 @@
 
                     success: function() {
                         hideLoader();
-                        startOtpTimer(); // 🔁 restart 2 min
+                        clearOtpInputs();   // CLEAR OLD OTP
+                        startOtpTimer(); // restart 2 min
+                        showOtpSuccessMessage();   // show success msg
                     }
                 });
             });

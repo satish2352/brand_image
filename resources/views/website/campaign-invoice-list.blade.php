@@ -29,7 +29,7 @@
             <table class="table table-bordered text-center align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>#</th>
+                        <th>Sr. No.</th>
                         <th>Campaign</th>
                         <th>Order No</th>
                         <th>Total Amount</th>
