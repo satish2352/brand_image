@@ -80,6 +80,9 @@ class CampaignRepository
         $data = DB::table('cart_items as ci')
             ->join('campaign as c', 'c.id', '=', 'ci.campaign_id')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+            ->join('areas as a', 'm.area_id', '=', 'a.id')
+            ->join('cities as cit', 'm.city_id', '=', 'cit.id')
+            ->join('illuminations as li', 'm.illumination_id', '=', 'li.id')
             ->leftJoin('media_images as mi', function ($join) {
                 $join->on('mi.media_id', '=', 'm.id')
                     ->where('mi.is_deleted', 0);
@@ -88,12 +91,16 @@ class CampaignRepository
                 'c.campaign_name',
                 'ci.price',
                 'ci.qty',
+                'a.area_name',
+                'cit.city_name',
+                'li.illumination_name',
                 'ci.created_at',
                 'ci.total_price',
                 'ci.total_days',
                 'ci.from_date',
                 'ci.to_date',
                 'm.media_title',
+                'm.facing',
                 'm.width',
                 'm.height',
                 DB::raw('GROUP_CONCAT(mi.images) as images')
@@ -106,12 +113,16 @@ class CampaignRepository
                 'c.campaign_name',
                 'ci.price',
                 'ci.qty',
+                'a.area_name',
+                'cit.city_name',
+                'li.illumination_name',
                 'ci.total_price',
                 'ci.total_days',
                 'ci.from_date',
                 'ci.to_date',
                 'ci.created_at',
                 'm.media_title',
+                'm.facing',
                 'm.width',
                 'm.height'
             )

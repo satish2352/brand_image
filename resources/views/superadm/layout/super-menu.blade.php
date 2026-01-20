@@ -39,13 +39,12 @@
 
 
     .nav-item.has-sub .submenu {
-    display: none;
+        display: none;
     }
 
     .nav-item.has-sub.open .submenu {
         display: block;
     }
-
 </style>
 <nav class="sidebar-nav">
     <ul id="sidebarnav">
@@ -61,17 +60,17 @@
             class="nav-item has-sub
             {{ request()->is('area/list*') || request()->is('illumination/list*') ? 'active open' : '' }}"> --}}
         @php
-            $masterRoutes = request()->is('home-slider/*')
-                || request()->is('city/*')
-                || request()->is('area/*')
-                || request()->is('illumination/*')
-                || request()->is('category/*')
-                || request()->is('radius/*')
-                || request()->is('vendor/*');
+            $masterRoutes =
+                request()->is('home-slider/*') ||
+                request()->is('city/*') ||
+                request()->is('area/*') ||
+                request()->is('illumination/*') ||
+                request()->is('category/*') ||
+                request()->is('radius/*') ||
+                request()->is('vendor/*');
         @endphp
 
-        <li
-            class="nav-item has-sub {{ $masterRoutes ? 'active open' : '' }}">
+        <li class="nav-item has-sub {{ $masterRoutes ? 'active open' : '' }}">
             <a href="javascript:void(0)" class="has-sub-toggle">
                 <i class="mdi mdi-file-chart"></i>
                 <span>Master</span>
@@ -79,8 +78,7 @@
             </a>
 
             <ul class="submenu">
-                <li
-                    class="{{ request()->is('home-slider/list') || request()->is('home-slider/add') ? 'active' : '' }}">
+                <li class="{{ request()->is('home-slider/list') || request()->is('home-slider/add') ? 'active' : '' }}">
                     <a href="{{ route('homeslider.list') }}">
                         <i class="mdi mdi-image-multiple"></i>
                         <span>Home Slider</span>
@@ -194,14 +192,13 @@
             </a>
         </li> --}}
         <li
-            class="nav-item has-sub
-            {{ request()->is('reports/revenue*') || request()->is('reports/media*') ? 'active open' : '' }}">
-
-            <a href="#">
+            class="nav-item has-sub {{ request()->is('reports/revenue*') || request()->is('reports/media*') ? 'active open' : '' }}">
+            <a href="javascript:void(0)" class="has-sub-toggle">
                 <i class="mdi mdi-file-chart"></i>
                 <span>Reports</span>
                 <i class="mdi mdi-chevron-down float-end"></i>
             </a>
+
 
             <ul class="submenu">
                 <li class="{{ request()->is('reports/media*') ? 'active' : '' }}">
@@ -262,7 +259,7 @@
 </script>
 
 <script>
-    $(document).on('click', '.has-sub-toggle', function (e) {
+    $(document).on('click', '.has-sub-toggle', function(e) {
         e.preventDefault();
 
         let parent = $(this).closest('.has-sub');

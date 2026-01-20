@@ -55,7 +55,22 @@
         @endforeach
 
     </div>
+    <style>
+        .carousel-control-prev,
+        .carousel-control-next {
+            top: 50%;
+            bottom: unset;
+            transform: translateY(-50%);
+            height: 500px;
+            align-items: center;
+        }
 
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            filter: invert(1) opacity(1);
+            background: none !important;
+        }
+    </style>
     {{-- CONTROLS --}}
     <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
         data-bs-slide="prev">
@@ -263,138 +278,138 @@
                     <i class="fas fa-chevron-right"></i>
                 </div>
             </div>
-        <div class="swiper hoarding-slider mb-4">
-            <div class="swiper-wrapper">
-                <?php
-                // dd($mediaList);
-                // die();
-                ?>
-                @php
-                $latestFive = $mediaList->where('category_id', 1)->sortByDesc('created_at')->take(5);
-                @endphp
-                @foreach ($latestFive as $media)
-                @if ($media->category_id === 1)
-
-                {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
-                <div class="swiper-slide">
-                    <div class="single-latest-news">
-
-                        {{-- <div class="latest-news-bg"
-                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-                    </div> --}}
+            <div class="swiper hoarding-slider mb-4">
+                <div class="swiper-wrapper">
+                    <?php
+                    // dd($mediaList);
+                    // die();
+                    ?>
                     @php
-                    $isBillboard = (int) $media->category_id === 1;
-                    $isBooked = (int) ($media->is_booked ?? 0);
-                    $width = (float) ($media->width ?? 0);
-                    $height = (float) ($media->height ?? 0);
-                    $sqft = $width * $height;
+                    $latestFive = $mediaList->where('category_id', 1)->sortByDesc('created_at')->take(5);
                     @endphp
-                    <div class="latest-news-bg"
-                        style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                    @foreach ($latestFive as $media)
+                    @if ($media->category_id === 1)
 
-                        @if ($isBooked === 1)
-                        <span class="media-badge booked">Booked</span>
-                        @else
-                        <span class="media-badge available">Available</span>
-                        @endif
+                    {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
+                    <div class="swiper-slide">
+                        <div class="single-latest-news">
 
-                    </div>
+                            {{-- <div class="latest-news-bg"
+                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                        </div> --}}
+                        @php
+                        $isBillboard = (int) $media->category_id === 1;
+                        $isBooked = (int) ($media->is_booked ?? 0);
+                        $width = (float) ($media->width ?? 0);
+                        $height = (float) ($media->height ?? 0);
+                        $sqft = $width * $height;
+                        @endphp
+                        <div class="latest-news-bg"
+                            style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
 
-                    <div class="news-text-box">
-
-                        <h3>{{ $media->media_title ?? $media->category_name }}</h3>
-
-                        <p class="blog-meta">
-                            <i class="fas fa-map-marker-alt"></i>
-                            {{ $media->area_name }}, {{ $media->city_name }}
-                        </p>
-
-                        <div class="col-12 mb-2">
-                            <strong>Size:</strong>
-                            {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
+                            @if ($isBooked === 1)
+                            <span class="media-badge booked">Booked</span>
+                            @else
+                            <span class="media-badge available">Available</span>
+                            @endif
 
                         </div>
-                        <div class="col-12 mb-2">
-                            <strong>Total Area:</strong>
-                            {{ number_format($sqft, 2) }} SQFT
-                        </div>
 
-                        <div class="media-price">
-                            ₹ {{ number_format($media->price, 2) }}
-                            <small class="pricepermonth">/Month</small>
-                        </div>
+                        <div class="news-text-box">
 
-                        {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
-                        <div class="media-map mt-4 d-flex align-items-center gap-3">
-                            {{-- <a href="https://www.google.com/maps"> --}}
-                            {{-- </a> --}}
+                            <h3>{{ $media->media_title ?? $media->category_name }}</h3>
 
-                            <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
-                                target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-                                <img src="{{ asset('assets/img/map.png') }}" width="30">
-                                <span>View on Map</span>
-                            </a>
-                            @if (!empty($media->video_link))
+                            <p class="blog-meta">
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ $media->area_name }}, {{ $media->city_name }}
+                            </p>
+
+                            <div class="col-12 mb-2">
+                                <strong>Size:</strong>
+                                {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
+
+                            </div>
+                            <div class="col-12 mb-2">
+                                <strong>Total Area:</strong>
+                                {{ number_format($sqft, 2) }} SQFT
+                            </div>
+
+                            <div class="media-price">
+                                ₹ {{ number_format($media->price, 2) }}
+                                <small class="pricepermonth">/Month</small>
+                            </div>
+
+                            {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
+                            <div class="media-map mt-4 d-flex align-items-center gap-3">
+                                {{-- <a href="https://www.google.com/maps"> --}}
+                                {{-- </a> --}}
+
+                                <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
+                                    target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
+                                    <img src="{{ asset('assets/img/map.png') }}" width="30">
+                                    <span>View on Map</span>
+                                </a>
+                                @if (!empty($media->video_link))
                                 <a href="{{ $media->video_link }}" target="_blank"
                                     class="text-muted d-inline-flex align-items-center gap-1">
                                     <img src="{{ asset('assets/img/360view.png') }}" width="30">
                                     <span>360° View</span>
                                 </a>
-                            @endif
+                                @endif
+                            </div>
+                            @php
+                            $isBillboard = (int) $media->category_id === 1;
+                            $isBooked = (int) ($media->is_booked ?? 0);
+                            @endphp
+
+                            <div class="card-actions">
+
+                                {{-- ================= BILLBOARDS ================= --}}
+                                @if ($isBillboard)
+                                @if ($isBooked === 0)
+                                {{-- READ MORE --}}
+                                <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                    class="card-btn read">
+                                    Read More →
+                                </a>
+
+                                {{-- ADD TO CART --}}
+                                @auth('website')
+                                <a href="{{ route('cart.add', base64_encode($media->id)) }}"
+                                    class="btn card-btn cart">
+                                    Add to Cart
+                                </a>
+                                @else
+                                <button class="btn card-btn cart" data-bs-toggle="modal"
+                                    data-bs-target="#authModal"
+                                    onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+                                    Add to Cart
+                                </button>
+                                @endauth
+                                @else
+                                {{-- BOOKED → ONLY READ MORE --}}
+                                <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                    class="card-btn read">
+                                    Read More →
+                                </a>
+                                @endif
+
+                                {{-- ================= OTHER MEDIA ================= --}}
+                                @else
+                                <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
+                                    Contact Us
+                                </a>
+                                @endif
+
+                            </div>
+
                         </div>
-                        @php
-                        $isBillboard = (int) $media->category_id === 1;
-                        $isBooked = (int) ($media->is_booked ?? 0);
-                        @endphp
-
-                        <div class="card-actions">
-
-                            {{-- ================= BILLBOARDS ================= --}}
-                            @if ($isBillboard)
-                            @if ($isBooked === 0)
-                            {{-- READ MORE --}}
-                            <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                                class="card-btn read">
-                                Read More →
-                            </a>
-
-                            {{-- ADD TO CART --}}
-                            @auth('website')
-                            <a href="{{ route('cart.add', base64_encode($media->id)) }}"
-                                class="btn card-btn cart">
-                                Add to Cart
-                            </a>
-                            @else
-                            <button class="btn card-btn cart" data-bs-toggle="modal"
-                                data-bs-target="#authModal"
-                                onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-                                Add to Cart
-                            </button>
-                            @endauth
-                            @else
-                            {{-- BOOKED → ONLY READ MORE --}}
-                            <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                                class="card-btn read">
-                                Read More →
-                            </a>
-                            @endif
-
-                            {{-- ================= OTHER MEDIA ================= --}}
-                            @else
-                            <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
-                                Contact Us
-                            </a>
-                            @endif
-
-                        </div>
-
                     </div>
                 </div>
-            </div>
 
-            @endif
-            @endforeach
-        </div>
+                @endif
+                @endforeach
+            </div>
         </div>
 
         <!-- Arrows -->
@@ -458,72 +473,72 @@
 
                     {{-- <div class="media-map mt-4">
                         <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
-                            target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-                            <img src="{{ asset('assets/img/map.png') }}" width="30">
-                            <span>View on Map</span>
-                        </a>
-                    </div> --}}
-                    @php
-                    $isBillboard = (int) $media->category_id === 1;
-                    $isBooked = (int) ($media->is_booked ?? 0);
-                    @endphp
+                    target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
+                    <img src="{{ asset('assets/img/map.png') }}" width="30">
+                    <span>View on Map</span>
+                    </a>
+                </div> --}}
+                @php
+                $isBillboard = (int) $media->category_id === 1;
+                $isBooked = (int) ($media->is_booked ?? 0);
+                @endphp
 
-                    <div class="card-actions">
+                <div class="card-actions">
 
-                        {{-- ================= BILLBOARDS ================= --}}
-                        @if ($isBillboard)
-                        @if ($isBooked === 0)
-                        {{-- READ MORE --}}
-                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                            class="card-btn read">
-                            Read More →
-                        </a>
+                    {{-- ================= BILLBOARDS ================= --}}
+                    @if ($isBillboard)
+                    @if ($isBooked === 0)
+                    {{-- READ MORE --}}
+                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                        class="card-btn read">
+                        Read More →
+                    </a>
 
-                        {{-- ADD TO CART --}}
-                        @auth('website')
-                        <a href="{{ route('cart.add', base64_encode($media->id)) }}"
-                            class="btn card-btn cart">
-                            Add to Cart
-                        </a>
-                        @else
-                        <button class="btn card-btn cart" data-bs-toggle="modal"
-                            data-bs-target="#authModal"
-                            onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-                            Add to Cart
-                        </button>
-                        @endauth
-                        @else
-                        {{-- BOOKED → ONLY READ MORE --}}
-                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                            class="card-btn read">
-                            Read More →
-                        </a>
-                        @endif
+                    {{-- ADD TO CART --}}
+                    @auth('website')
+                    <a href="{{ route('cart.add', base64_encode($media->id)) }}"
+                        class="btn card-btn cart">
+                        Add to Cart
+                    </a>
+                    @else
+                    <button class="btn card-btn cart" data-bs-toggle="modal"
+                        data-bs-target="#authModal"
+                        onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+                        Add to Cart
+                    </button>
+                    @endauth
+                    @else
+                    {{-- BOOKED → ONLY READ MORE --}}
+                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                        class="card-btn read">
+                        Read More →
+                    </a>
+                    @endif
 
-                        {{-- ================= OTHER MEDIA ================= --}}
-                        @else
-                        {{-- <a href="{{ route('contact.create') }}" class="card-btn contact">
+                    {{-- ================= OTHER MEDIA ================= --}}
+                    @else
+                    {{-- <a href="{{ route('contact.create') }}" class="card-btn contact">
+                    Contact Us
+                    </a> --}}
+                    <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
                         Contact Us
-                        </a> --}}
-                        <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
-                            Contact Us
-                        </a>
+                    </a>
 
-                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                            class="card-btn read">
-                            Read More →
-                        </a>
-                        @endif
-
-                    </div>
+                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                        class="card-btn read">
+                        Read More →
+                    </a>
+                    @endif
 
                 </div>
+
             </div>
         </div>
-
-        @endif
-        @endforeach
     </div>
+
+    @endif
+    @endforeach
+</div>
 
 </div>
 </div>

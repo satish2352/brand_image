@@ -47,7 +47,8 @@ class CampaignService
     public function getCampaignDetailsByCartItem($userId, $cartItemId)
     {
         $data_output = $this->repo->getCampaignDetailsByCartItem($userId, $cartItemId);
-
+        // dd($data_output);
+        // die();
         return $data_output;
     }
 
@@ -110,6 +111,4 @@ class CampaignService
                 $pptPath
             ));
     }
-
-
 }

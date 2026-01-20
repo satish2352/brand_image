@@ -26,6 +26,8 @@ class CartRepository
             ->join('media_management as m', 'm.id', '=', 'cart_items.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('cities as cit', 'cit.id', '=', 'm.city_id')
             ->select(
                 'cart_items.id',
                 'cart_items.media_id',
@@ -36,8 +38,14 @@ class CartRepository
                 'cart_items.qty',
                 'cart_items.from_date',
                 'cart_items.to_date',
+                'il.illumination_name',
+                'cit.city_name as city_name',
                 'm.media_title',
+                'm.address',
                 'm.facing',
+                'm.width',
+                'm.height',
+                'm.area_type',
                 'a.area_name',
                 'a.common_stdiciar_name',
                 'c.category_name'
