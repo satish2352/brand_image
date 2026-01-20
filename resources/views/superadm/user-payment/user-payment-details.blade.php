@@ -8,13 +8,19 @@
         }
 
         p {
-            font-size: 18px;
+            font-size: 16px;
         }
 
-        th td {
-            font-size: 18px;
+        th,
+        td {
+            font-size: 15px;
+        }
+
+        .txt-color {
+            color: #fff;
         }
     </style>
+
     <div class="container-fluid">
 
         {{-- 🔙 Back Button --}}
@@ -24,10 +30,10 @@
             </a>
         </div>
 
-        {{-- 🧾 Order Summary --}}
+        {{-- 🧾 Order Details --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header order-header">
-                <h5 class="mb-0 order-header">Order Details</h5>
+                <h5 class="mb-0 txt-color">Order Details</h5>
             </div>
 
             <div class="card-body">
@@ -44,8 +50,7 @@
 
                         <p>
                             <strong>Payment Status:</strong>
-                            <span class="badge 
-                            {{ $order->payment_status == 'PAID' }}">
+                            <span class="badge bg-success txt-color">
                                 {{ $order->payment_status }}
                             </span>
                         </p>
@@ -65,11 +70,11 @@
         {{-- 📦 Ordered Items --}}
         <div class="card shadow-sm">
             <div class="card-header order-header">
-                <h5 class="mb-0 order-header">Ordered Items</h5>
+                <h5 class="mb-0 txt-color">Ordered Items</h5>
             </div>
 
             <div class="card-body p-0">
-                <table class="table table-hover table-bordered mb-0 align-middle">
+                <table class="table table-bordered table-hover mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Sr. No.</th>
@@ -79,8 +84,7 @@
                             <th>From Date</th>
                             <th>To Date</th>
                             <th class="text-end">Price (₹)</th>
-                            {{-- <th class="text-center">Qty</th> --}}
-                            <th class="text-end">GST (₹)</th>
+                            <th class="text-end">GST (18%) (₹)</th>
                             <th class="text-end">Final Total (₹)</th>
                         </tr>
                     </thead>
@@ -88,39 +92,31 @@
                     <tbody>
                         @php $grandTotal = 0; @endphp
 
-                        @forelse($order->items as $key => $item)
-                            {{-- @php $grandTotal += $item->total; @endphp --}}
-                                @php
-                                    $grandTotal += $order->grand_total;
-                                @endphp
+                        @foreach ($order->items as $key => $item)
+                            @php
+                                $grandTotal += $item->final_total;
+                            @endphp
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td>
-                                    <strong>{{ $item->media_title ?? '-' }}</strong>
-                                </td>
+                                <td><strong>{{ $item->media_title }}</strong></td>
                                 <td>{{ $item->width }} × {{ $item->height }}</td>
-                                <td>{{ $item->address ?? '-' }}</td>
-                                <td>
-                                    {{ $item->from_date ? date('d-m-Y', strtotime($item->from_date)) : '-' }}
+                                <td>{{ $item->address }}</td>
+                                <td>{{ date('d-m-Y', strtotime($item->from_date)) }}</td>
+                                <td>{{ date('d-m-Y', strtotime($item->to_date)) }}</td>
+
+                                <td class="text-end">
+                                    {{ number_format($item->item_total, 2) }}
                                 </td>
-                                <td>
-                                    {{ $item->to_date ? date('d-m-Y', strtotime($item->to_date)) : '-' }}
+
+                                <td class="text-end">
+                                    {{ number_format($item->gst_amount, 2) }}
                                 </td>
-                                <td class="text-end">{{ number_format($order->total_amount, 2) }}</td>
-                                <td class="text-end">{{ number_format($order->gst_amount, 2) }}</td>
-                                <td class="text-end">{{ number_format($order->grand_total, 2) }}</td>
-                                {{-- <td class="text-center">{{ $item->qty }}</td> --}}
-                                {{-- <td class="text-end fw-semibold">
-                                    {{ number_format($item->total, 2) }}
-                                </td> --}}
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted">
-                                    No items found for this order
+
+                                <td class="text-end fw-bold">
+                                    {{ number_format($item->final_total, 2) }}
                                 </td>
                             </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
 
                     <tfoot class="table-secondary">
@@ -131,20 +127,10 @@
                             </th>
                         </tr>
                     </tfoot>
+
                 </table>
             </div>
         </div>
 
     </div>
-
-    {{-- 🎨 Inline UI polish --}}
-    <style>
-        .card-header h5 {
-            font-weight: 600;
-        }
-
-        p {
-            margin-bottom: 0.4rem;
-        }
-    </style>
 @endsection
