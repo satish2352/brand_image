@@ -1590,7 +1590,7 @@ pre {
 
 .table-dark {
   color: #fff;
-  background-color: #343a40; }
+  background-color: #0f80f2; }
   .table-dark th,
   .table-dark td,
   .table-dark thead th {
@@ -14655,4 +14655,8 @@ input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::after {
 }
 .text-color-bg{
   color: #000 !important;
+}
+
+.table-campaign {
+  background-color: linear-gradient(90deg, #ffb300, #ff9800) !important;
 }
