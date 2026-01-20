@@ -20,6 +20,7 @@
 
         .card {
             border-radius: 12px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
         }
 
         .calendar-wrapper {
@@ -213,7 +214,8 @@
             background: linear-gradient(135deg, #f28123, #ff9f43);
             cursor: pointer;
         }
-        .details-contact-us:hover{
+
+        .details-contact-us:hover {
             color: #fff;
         }
     </style>
@@ -226,12 +228,12 @@
 
     {{-- ================= BREADCRUMB ================= --}}
     <!-- <div class="container-fluid about-banner-img g-0">
-                                                                                                <div class="row">
-                                                                                                    <div class="col-md-12">
-                                                                                                        <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                                                                    <div class="row">
+                                                                                                        <div class="col-md-12">
+                                                                                                            <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                                                                        </div>
                                                                                                     </div>
-                                                                                                </div>
-                                                                                            </div> -->
+                                                                                                </div> -->
 
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
@@ -248,16 +250,16 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                                                                        Desktop Image
-                                                                                                        <div class="col-md-12 d-none d-md-block">
-                                                                                                            <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                                                                                                        </div>
+                                                                                                            Desktop Image
+                                                                                                            <div class="col-md-12 d-none d-md-block">
+                                                                                                                <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
+                                                                                                            </div>
 
-                                                                                                        Mobile Image
-                                                                                                        <div class="col-md-12 d-block d-md-none">
-                                                                                                            <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
-                                                                                                        </div>
-                                                                                                    </div> -->
+                                                                                                            Mobile Image
+                                                                                                            <div class="col-md-12 d-block d-md-none">
+                                                                                                                <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
+                                                                                                            </div>
+                                                                                                        </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-150">
             <div class="container">
@@ -349,38 +351,36 @@
 
 
                             @if ((int) $media->category_id === 1)
-                            {{-- CALENDAR --}}
-                            <h6 class="fw-bold mt-1">Select Booking Dates</h6>
+                                {{-- CALENDAR --}}
+                                <h6 class="fw-bold mt-1">Select Booking Dates</h6>
 
-                            <form method="POST" action="{{ route('cart.add.with.date') }}" id="addToCartForm">
+                                <form method="POST" action="{{ route('cart.add.with.date') }}" id="addToCartForm">
 
-                                @csrf
-                                <input type="hidden" name="media_id" value="{{ base64_encode($media->id) }}">
-                                <input type="hidden" name="from_date" id="from_date">
-                                <input type="hidden" name="to_date" id="to_date">
+                                    @csrf
+                                    <input type="hidden" name="media_id" value="{{ base64_encode($media->id) }}">
+                                    <input type="hidden" name="from_date" id="from_date">
+                                    <input type="hidden" name="to_date" id="to_date">
 
-                                <div class="calendar-wrapper mt-2">
-                                    <input type="text" id="booking_range" class="d-none">
-                                </div>
+                                    <div class="calendar-wrapper mt-2">
+                                        <input type="text" id="booking_range" class="d-none">
+                                    </div>
 
-                                <div class="text-danger small mt-2 d-none" id="dateError">
-                                    Please select booking dates
-                                </div>
+                                    <div class="text-danger small mt-2 d-none" id="dateError">
+                                        Please select booking dates
+                                    </div>
 
-                                @auth('website')
-                                    <button type="submit" class="add-to-cart-btn mt-4" id="addToCartBtn" disabled>
-                                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                                    </button>
-                                @else
-                                    <button type="button" class="add-to-cart-btn mt-4" data-bs-toggle="modal"
-                                        data-bs-target="#authModal">
-                                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                                    </button>
-                                @endauth
-                            </form>
-
+                                    @auth('website')
+                                        <button type="submit" class="add-to-cart-btn mt-4" id="addToCartBtn" disabled>
+                                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                                        </button>
+                                    @else
+                                        <button type="button" class="add-to-cart-btn mt-4" data-bs-toggle="modal"
+                                            data-bs-target="#authModal">
+                                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                                        </button>
+                                    @endauth
+                                </form>
                             @else
-
                                 {{-- CONTACT US (NON-BILLBOARD) --}}
                                 <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}#contact-form"
                                     class="add-to-cart-btn mt-4 details-contact-us">

@@ -108,7 +108,8 @@
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-md-12 text-center">
-                        <p class="footer-bottom-line">© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.</p>
+                        <p class="footer-bottom-line">© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights
+                            reserved.</p>
                     </div>
                 </div>
             </div>
@@ -237,6 +238,22 @@
 
     window.addEventListener('load', swapCarouselImages);
     window.addEventListener('resize', swapCarouselImages);
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.auto-hide-alert');
+
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.6s ease';
+                alert.style.opacity = '0';
+
+                setTimeout(() => {
+                    alert.remove();
+                }, 600);
+            }, 5000); // ⏱ 5 seconds
+        });
+    });
 </script>
 
 <!-- jquery -->

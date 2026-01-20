@@ -31,9 +31,9 @@
         }
 
         /* .cart-img-wrapper {
-            display: flex;
-            gap: 10px;
-        } */
+                    display: flex;
+                    gap: 10px;
+                } */
 
         .cart-img-wrapper {
             display: flex;
@@ -74,6 +74,7 @@
             border-radius: 14px;
             transition: transform 0.4s ease;
         }
+
         .cart-main-img:hover img {
             transform: scale(1.08);
         }
@@ -346,42 +347,42 @@
         }
 
         /* THUMBNAILS CONTAINER */
-.cart-thumbs-horizontal {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 6px;
-    scrollbar-width: thin;
-}
+        .cart-thumbs-horizontal {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
+        }
 
-/* SCROLLBAR (Chrome) */
-.cart-thumbs-horizontal::-webkit-scrollbar {
-    height: 6px;
-}
+        /* SCROLLBAR (Chrome) */
+        .cart-thumbs-horizontal::-webkit-scrollbar {
+            height: 6px;
+        }
 
-.cart-thumbs-horizontal::-webkit-scrollbar-thumb {
-    background: #ffc107;
-    border-radius: 10px;
-}
+        .cart-thumbs-horizontal::-webkit-scrollbar-thumb {
+            background: #ffc107;
+            border-radius: 10px;
+        }
 
-/* THUMB IMAGE */
-.cart-thumbs-horizontal img {
-    width: 70px;
-    height: 70px;
-    object-fit: cover;
-    border-radius: 10px;
-    cursor: pointer;
-    opacity: 0.7;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-}
+        /* THUMB IMAGE */
+        .cart-thumbs-horizontal img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            opacity: 0.7;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
 
-.cart-thumbs-horizontal img:hover,
-.cart-thumbs-horizontal img.active {
-    opacity: 1;
-    border-color: #ff9800;
-}
+        .cart-thumbs-horizontal img:hover,
+        .cart-thumbs-horizontal img.active {
+            opacity: 1;
+            border-color: #ff9800;
+        }
     </style>
 
     <!-- breadcrumb-section -->
@@ -410,14 +411,15 @@
             Continue Shopping
         </a> --}}
         </div>
+        {{-- 🔔 AUTO-HIDE ALERTS --}}
         @if (session('error'))
-            <div class="alert alert-danger alert-dismissible text-center fw-bold py-2 mb-3">
+            <div class="alert alert-danger text-center fw-bold py-2 mb-3 auto-hide-alert">
                 {{ session('error') }}
             </div>
         @endif
 
         @if (session('success'))
-            <div class="alert alert-success alert-dismissible text-center fw-bold py-2 mb-3">
+            <div class="alert alert-success text-center fw-bold py-2 mb-3 auto-hide-alert">
                 {{ session('success') }}
             </div>
         @endif
@@ -447,8 +449,7 @@
                                     <div class="cart-img-wrapper">
 
                                         {{-- MAIN IMAGE --}}
-                                        <div class="cart-main-img"
-                                            onmousemove="zoomImage(event, this)"
+                                        <div class="cart-main-img" onmousemove="zoomImage(event, this)"
                                             onmouseleave="resetZoom(this)">
                                             <img src="{{ $firstImage ? config('fileConstants.IMAGE_VIEW') . $firstImage->images : '' }}"
                                                 class="main-cart-image">
