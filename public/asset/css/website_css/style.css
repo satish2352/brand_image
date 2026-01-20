@@ -2404,3 +2404,7 @@ Header .navbar-custom {
     height: 1.2px;
     margin-top: 7px;
 }
+
+.table-campaign {
+  background-color: linear-gradient(90deg, #ffb300, #ff9800) !important;
+}

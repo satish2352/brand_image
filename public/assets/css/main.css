@@ -1340,8 +1340,8 @@ input[type="submit"] {
 /* vivek */
 input[type="submit"]:hover {
   /* background-color: #051922; */
-  background: #051922;
-  color: #F28123;
+  background: #2b64b5;
+  color: #fff;
 }
 
 div.owl-controls,
@@ -3238,43 +3238,44 @@ table.order-details tbody td {
 /* Hording billboard next pre btn css */
 
 .hoarding-slider {
-    position: relative;
+  position: relative;
 }
 
 .swiper-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #ffffff;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .swiper-btn i {
-    font-size: 16px;
-    color: #000;
+  font-size: 16px;
+  color: #000;
 }
 
 .swiper-btn:hover {
-    background: #f28123;
+  background: #f28123;
 }
 
 .swiper-btn:hover i {
-    color: #fff;
+  color: #fff;
 }
 
 .hoarding-slider-wrapper {
-    position: relative;
+  position: relative;
 }
 
 .custom-swiper-nav {
-    position: absolute;
-    top: -70px;
-    right: 0;
-    display: flex;
-    gap: 12px;
+  position: absolute;
+  top: -70px;
+  right: 0;
+  display: flex;
+  gap: 12px;
 }
+

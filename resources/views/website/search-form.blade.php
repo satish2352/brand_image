@@ -294,7 +294,7 @@
                                 <div class="result-badge no-result">
                                     <span class="icon">❌</span>
                                     <span class="count">No Results</span>
-                                    <span class="label">for {{ $catName }}</span>
+                                    {{-- <span class="label">for {{ $catName }}</span> --}}
                                 </div>
                             @endif
                         </div>
@@ -470,7 +470,7 @@
     });
 </script>
 
-<script>
+{{-- <script>
     $(document).ready(function() {
 
         function toggleFields(categoryId, clearValues = false) {
@@ -511,7 +511,80 @@
         // 🔥 Page load → KEEP values
         toggleFields($('select[name="category_id"]').val(), false);
     });
+</script> --}}
+<script>
+    $(document).ready(function() {
+
+        function toggleCategoryFilters() {
+            let categoryId = $('select[name="category_id"]').val();
+
+            // ❌ Hide everything by default
+            $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
+                .hide()
+                .find('select, input')
+                .prop('disabled', true);
+
+            // 🟢 Category 1 → show ALL
+            if (categoryId == 1) {
+                $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
+                    .show()
+                    .find('select, input')
+                    .prop('disabled', false);
+            }
+
+            // 🟡 Category 2 → show ONLY radius
+            else if (categoryId == 2) {
+                $('#radius_wrapper')
+                    .show()
+                    .find('select')
+                    .prop('disabled', false);
+            }
+        }
+
+        // 🔥 On category change
+        $('select[name="category_id"]').on('change', toggleCategoryFilters);
+
+        // 🔥 On page load
+        toggleCategoryFilters();
+    });
 </script>
+
+<script>
+    $(document).ready(function() {
+
+        const allowedCategories = [1, 2];
+
+        function toggleRadius() {
+            let categoryId = parseInt($('select[name="category_id"]').val());
+
+            let hasCity = $('#city_id').val();
+            let hasArea = $('#area_id').val();
+
+            if (
+                !allowedCategories.includes(categoryId) ||
+                !hasCity ||
+                hasArea
+            ) {
+                $('#radius_id')
+                    .prop('disabled', true)
+                    .addClass('bg-light');
+            } else {
+                $('#radius_id')
+                    .prop('disabled', false)
+                    .removeClass('bg-light');
+            }
+        }
+
+        // 🔥 EVENTS (THIS IS IMPORTANT)
+        $('select[name="category_id"]').on('change', toggleRadius);
+        $('#city_id').on('change', toggleRadius);
+        $('#area_id').on('change', toggleRadius);
+
+        // 🔥 Page load
+        toggleRadius();
+    });
+</script>
+
 <script>
     $(document).ready(function() {
 
