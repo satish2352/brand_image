@@ -431,6 +431,7 @@
 
                         </div>
                     </div>
+
                     <div class="col-lg-4 col-md-6 col-sm-6">
 
 
@@ -454,28 +455,21 @@
                         </div>
 
                         <!-- 🔴 ERROR MESSAGE (ABOVE BUTTON) -->
-                        <small class="text-danger cart-date-error d-none mt-2">
-                            Please select booking dates
-                        </small>
+
 
                         <!-- 🟡 SMALL UPDATE BUTTON -->
                         <div class="d-flex justify-content-start">
+
+
                             <button type="button"
                                 class="btn btn-warning btn-sm mt-2 update-date-btn">
                                 Add Dates
                             </button>
+                             <small class="text-danger cart-date-error d-none mt-2 ms-5">
+                                Please select booking dates
+                            </small>
                             {{-- <strong>Total: ₹ {{ number_format($total, 2) }}</strong> --}}
-                            <button type="button"
-                                class="btn btn-warning btn-sm mt-2 update-date-btn ms-2"
-                                style="background-color: #F28123;"
-                                onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
-                                - Remove
-                            </button>
 
-                            {{-- <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
-                            class="btn btn-warning btn-sm mt-2 update-date-btn ms-2" style="background-color: #F28123;">
-                            - Remove
-                            </a> --}}
                         </div>
 
                     </div>
@@ -486,60 +480,79 @@
 
 
                 </div>
-               <div class="col-lg-4 col-md-1 col-sm-1">
-    <div class="cart-info mt-2">
-        <h6>{{ $item->area_name ?? $item->category_name }} {{ $item->facing }}</h6>
+                <div class="col-lg-4 col-md-1 col-sm-1">
+                    <div class=" d-flex justify-content-end"> <button type="button"
+                            class="btn btn-danger btn-sm mt-2 update-date-btn ms-2"
+                            style="background-color: #f13939;"
+                            onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
 
-        <p class="text-muted mb-2">
-            <i class="fas fa-map-marker-alt text-danger"></i>
-            {{ $item->address ?? 'N/A' }}, {{ $item->city_name ?? 'N/A' }}
-        </p>
+                        </button>
 
-        <div class="row">
-            <div class="col-6 mb-2"><strong>Media Title:</strong></div>
-            <div class="col-6 mb-2">{{ $item->media_title ?? 'N/A' }}</div>
+                        {{-- <a href="{{ route('cart.remove', base64_encode($item->id)) }}"
+                        class="btn btn-danger btn-sm mt-2 update-date-btn ms-2" style="background-color: #f13939;">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
 
-            <div class="col-6 mb-2"><strong>Area Type:</strong></div>
-            <div class="col-6 mb-2">{{ $item->area_type ?? 'N/A' }}</div>
+                        </a> --}}
+                    </div>
+                    <div class="cart-info mt-2">
+                        <h6>{{ $item->area_name ?? $item->category_name }} {{ $item->facing }}</h6>
 
-            <div class="col-6 mb-2"><strong>Illumination:</strong></div>
-            <div class="col-6 mb-2">{{ $item->illumination_name ?? 'N/A' }}</div>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-map-marker-alt text-danger"></i>
+                            {{ $item->address ?? 'N/A' }}, {{ $item->city_name ?? 'N/A' }}
+                        </p>
 
-            <div class="col-6 mb-2"><strong>Size:</strong></div>
-            <div class="col-6 mb-2">{{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft</div>
+                        <div class="row">
+                            <div class="col-6 mb-2"><strong>Media Title</strong></div>
+                            <div class="col-6 mb-2"> : {{ $item->media_title ?? 'N/A' }}</div>
 
-            <div class="col-6 mb-2"><strong>Total Area:</strong></div>
-            <div class="col-6 mb-2">{{ number_format($sqft, 2) }} SQFT</div>
-        </div>
+                            <div class="col-6 mb-2"><strong>Area Type</strong></div>
+                            <div class="col-6 mb-2"> : {{ $item->area_type ?? 'N/A' }}</div>
 
-        @if ($item->from_date && $item->to_date)
-        <p class="text-muted mt-1">
-            <strong>Date:</strong>
-            {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
-            →
-            {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
-        </p>
-        @endif
+                            <div class="col-6 mb-2"><strong>Illumination</strong></div>
+                            <div class="col-6 mb-2"> : {{ $item->illumination_name ?? 'N/A' }}</div>
 
-        <div class="price-box mt-2">
-            <div class="text-muted">Monthly Price</div>
-            <div class="fw-bold text-success fs-6">
-                ₹ {{ number_format($item->price, 2) }}
-            </div>
+                            <div class="col-6 mb-2"><strong>Size</strong></div>
+                            <div class="col-6 mb-2"> : {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft</div>
 
-            <div class="text-muted">
-                ₹ {{ number_format($item->per_day_price, 2) }} / day
-            </div>
+                            <div class="col-6 mb-2"><strong>Total Area</strong></div>
+                            <div class="col-6 mb-2"> : {{ number_format($sqft, 2) }} SQFT</div>
 
-            <div class="mt-2 fw-bold fs-5">
-                Total:
-                <span class="text-success">
-                    ₹ {{ number_format($item->total_price, 2) }}
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
+                            <div class="col-6 mb-2"><strong>Monthly Price</strong></div>
+                            <div class="col-6 mb-2"> : ₹ {{ number_format($item->price, 2) }}</div>
+                            <div class="col-6 mb-2"><strong></strong></div>
+                            <div class="col-6 mb-2"> ₹ {{ number_format($item->per_day_price, 2) }} / day</div>
+                        </div>
+
+                        @if ($item->from_date && $item->to_date)
+                        <p class="text-muted mt-1">
+                            <strong>Date:</strong>
+                            {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
+                            →
+                            {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
+                        </p>
+                        @endif
+
+                        <div class="price-box mt-2">
+                            <div class="text-muted"></div>
+                            <div class="fw-bold text-success fs-6">
+
+                            </div>
+
+                            <div class="text-muted">
+
+                            </div>
+
+                            <div class="mt-2 fw-bold fs-5">
+                                Total:
+                                <span class="text-success">
+                                    ₹ {{ number_format($item->total_price, 2) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
