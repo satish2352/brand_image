@@ -6,6 +6,60 @@
             padding: 6px 12px;
             font-size: 14px;
         }
+
+        /* Revenue Tabs */
+    .revenue-tabs {
+        gap: 12px;
+    }
+
+    .revenue-tabs .nav-link {
+        background: #f4f6f9;
+        color: #555;
+        border-radius: 10px;
+        padding: 10px 14px;
+        min-width: 150px;
+        text-align: left;
+        transition: all 0.25s ease;
+        border: 1px solid #e2e6ea;
+        text-align: center;
+    }
+
+    .revenue-tabs .nav-link i {
+        font-size: 22px;
+        display: block;
+        margin-bottom: 4px;
+        color: #6c757d;
+    }
+
+    .revenue-tabs .nav-link span {
+        font-weight: 600;
+        display: block;
+    }
+
+    .revenue-tabs .nav-link small {
+        font-size: 12px;
+        color: #888;
+    }
+
+    .revenue-tabs .nav-link:hover {
+        background: #e9f2ff;
+        transform: translateY(-1px);
+    }
+
+    .revenue-tabs .nav-link.active {
+        /* background: linear-gradient(135deg, #5b6cff, #6a5cff); */
+        background: linear-gradient(135deg, #008f97, #00aab3);
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(91,108,255,0.25);
+        border: none;
+        text-align: center;
+    }
+
+    .revenue-tabs .nav-link.active i,
+    .revenue-tabs .nav-link.active small {
+        color: #fff;
+    }
+
     </style>
 
     <div class="card">
@@ -14,7 +68,8 @@
             <h4 class="mb-3">Revenue Report</h4>
 
             {{-- TABS --}}
-            <ul class="nav nav-tabs mb-3">
+            {{-- <ul class="nav nav-tabs mb-3"> --}}
+            <ul class="nav nav-pills revenue-tabs mb-4">
 
                 {{-- MEDIA --}}
                 <li class="nav-item">
@@ -74,11 +129,18 @@
                     </select>
                 </div>
 
+                @php
+                    $searchPlaceholder = match($type) {
+                        'media' => 'Search media',
+                        'user'  => 'Search user',
+                        default => 'Search'
+                    };
+                @endphp
                 @if ($type !== 'date')
                     <div class="col-md-3">
                         <label class="form-label">Search</label>
                         <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                            placeholder="Search media / user">
+                            placeholder="{{ $searchPlaceholder }}">
                     </div>
                 @endif
 
@@ -94,6 +156,11 @@
 
             <div class="d-flex justify-content-between mb-3">
                 <h4></h4>
+                {{-- <h4 class="mb-3">
+                    <strong>
+                        {{ ucfirst($type) }}-wise Revenue Report
+                    </strong>
+                </h4> --}}
 
                 <div class="dropdown">
                     <button class="btn btn-success dropdown-toggle" type="button" data-toggle="dropdown">

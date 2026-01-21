@@ -402,3 +402,8 @@ input:checked + .slider:before {
     background-color: #008f97;
     color: #fff;
 }
+
+/* export pdf excel btn fropdown */
+.dropdown-menu.show{
+    left: -42px !important;
+}

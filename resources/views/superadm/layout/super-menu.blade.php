@@ -203,19 +203,22 @@
             <ul class="submenu">
                 <li class="{{ request()->is('reports/media*') ? 'active' : '' }}">
                     <a href="{{ route('reports.media.utilisation') }}">
+                        <i class="mdi mdi-monitor-dashboard"></i>
                         Media Utilisation
                     </a>
                 </li>
 
                 <li class="{{ request()->is('reports/revenue*') ? 'active' : '' }}">
                     <a href="{{ route('reports.revenue.index') }}">
+                        <i class="mdi mdi-currency-inr"></i>
                         Revenue Report
                     </a>
                 </li>
 
                 <li class="{{ request()->is('reports/revenue-graph') ? 'active' : '' }}">
                     <a href="{{ route('reports.revenue.graph') }}">
-                        📊 Revenue Graph
+                        <i class="mdi mdi-chart-line"></i>
+                        Revenue Graph
                     </a>
                 </li>
             </ul>
