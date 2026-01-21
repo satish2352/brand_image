@@ -12,7 +12,7 @@
         }
 
         .invoice-card {
-            width: 210mm;
+            width: 240mm;
             background: #fff;
             padding: 18mm;
             font-family: Arial, sans-serif;
@@ -107,7 +107,21 @@
                 display: none !important;
             }
 
+            @page {
+                size: A4;
+                margin: 8mm;   /* change from default to small */
+            }
+
+            /* FULL WIDTH USAGE */
+            .invoice-wrapper {
+                justify-content: flex-start;
+                padding: 0;
+            }
+
             .invoice-card {
+                width: 100%;
+                margin: 0;
+                padding: 6mm;   /* earlier 18mm was too much */
                 box-shadow: none;
             }
         }
@@ -143,6 +157,66 @@
                 display: none !important;
             }
         }
+
+        .meta-line {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .meta-label {
+            width: 60px; 
+            font-weight: bold;
+        }
+
+        .meta-colon {
+            width: 10px;
+            font-weight: bold;
+        }
+
+        .meta-value {
+            flex: 1;
+        }
+        /* REMOVE borders from empty left area */
+        .no-border {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        /* Summary rows */
+        .summary-row td {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Label column */
+        .summary-label {
+            text-align: right;
+            background: #fafafa;
+            border-left: 1px solid #000;
+        }
+
+        /* Value column */
+        .summary-value {
+            text-align: center;
+            background: #fafafa;
+        }
+
+        /* Grand Total emphasis (NOT full width) */
+        .grand-total-row .summary-label,
+        .grand-total-row .summary-value {
+            background: #eaf7ee;
+            font-size: 15px;
+            font-weight: 700;
+            border-top: 2px solid #000;
+        }
+
+        /* Space between items & totals */
+        .tbody-spacer td {
+            height: 18px;        /* adjust space here */
+            border: none !important;
+            background: transparent;
+        }
     </style>
 
     <div class="invoice-wrapper">
@@ -158,13 +232,34 @@
             {{-- META --}}
             <div class="invoice-meta">
                 <div>
-                    <p><b>Location:</b> {{ $items->first()->common_stdiciar_name }}</p>
+                    {{-- <p><b>Location:</b> {{ $items->first()->common_stdiciar_name }}</p>
                     <p><b>Status:</b> <span class="badge-paid">PAID</span></p>
                     <p>
                         <b>Date:</b> {{ now()->format('d M Y') }}
                         &nbsp;&nbsp;
-                        <b>Campaignname:</b> {{ $items->first()->campaign_name ?? '-' }}
-                    </p>
+                        <b>Campaign name:</b> {{ $items->first()->campaign_name ?? '-' }}
+                    </p> --}}
+                        <p class="meta-line">
+                            <span class="meta-label">Location</span>
+                            <span class="meta-colon">:</span>
+                            <span class="meta-value">{{ $items->first()->common_stdiciar_name }}</span>
+                        </p>
+
+                        <p class="meta-line">
+                            <span class="meta-label">Status</span>
+                            <span class="meta-colon">:</span>
+                            <span class="meta-value"><span class="badge-paid">PAID</span></span>
+                        </p>
+
+                        <p class="meta-line">
+                            <span class="meta-label">Date</span>
+                            <span class="meta-colon">:</span>
+                            <span class="meta-value">
+                                {{ now()->format('d M Y') }}
+                                &nbsp;&nbsp;&nbsp;
+                                <b>Campaign name:</b> {{ $items->first()->campaign_name ?? '-' }}
+                            </span>
+                        </p>
                 </div>
 
                 <div class="user-details">
@@ -212,7 +307,35 @@
                             <td>₹ {{ number_format($item->price, 2) }}</td>
                         </tr>
                     @endforeach
+
+                        {{-- SPACE ROW --}}
+                    <tr class="tbody-spacer">
+                        <td colspan="7"></td>
+                    </tr>
                 </tbody>
+                <tfoot>
+                    @php
+                        $order = $items->first();
+                    @endphp
+                    <tr class="summary-row">
+                        <td colspan="5" class="no-border"></td>
+                        <td class="summary-label">Subtotal</td>
+                        <td class="summary-value">₹ {{ number_format($order->total_amount, 2) }}</td>
+                    </tr>
+
+                    <tr class="summary-row">
+                        <td colspan="5" class="no-border"></td>
+                        <td class="summary-label">GST (18%)</td>
+                        <td class="summary-value">₹ {{ number_format($order->gst_amount, 2) }}</td>
+                    </tr>
+
+                    <tr class="grand-total-row">
+                        <td colspan="5" class="no-border"></td>
+                        <td class="summary-label">Grand Total</td>
+                        <td class="summary-value">₹ {{ number_format($order->grand_total, 2) }}</td>
+                    </tr>
+                </tfoot>
+
             </table>
 
             {{-- TOTAL --}}
@@ -232,7 +355,7 @@
 </tr>
 </table>
 </div> --}}
-            @php
+            {{-- @php
                 $order = $items->first();
             @endphp
             <div class="invoice-total">
@@ -250,7 +373,7 @@
                         <td>₹ {{ number_format($order->grand_total, 2) }}</td>
                     </tr>
                 </table>
-            </div>
+            </div> --}}
 
             {{-- ACTIONS --}}
             <div class="invoice-actions">

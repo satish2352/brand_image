@@ -1,98 +1,190 @@
 @extends('superadm.layout.master')
 
 @section('content')
-    <div class="card shadow-sm">
-        <div class="card-body">
 
-            <h4 class="mb-4">Contact Details</h4>
+<style>
+.info-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
 
-            {{-- ================= BASIC DETAILS ================= --}}
-            <h6>Basic Details</h6>
-            <table class="table table-bordered">
-                <tr>
-                    <th width="25%">Category</th>
-                    <td width="25%">{{ $contact->category_name ?? '-' }}</td>
+.info-card-header {
+    background: #00929c;
+    color: #fff;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 16px;
+}
 
-                    <th width="25%">Vendor Name</th>
-                    <td width="25%">{{ $contact->vendor_name ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <th>Full Name</th>
-                    <td>{{ $contact->full_name ?? '-' }}</td>
+.info-card-body {
+    padding: 20px;
+}
 
-                    <th>Mobile</th>
-                    <td>{{ $contact->mobile_no ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <th>Email</th>
-                    <td>{{ $contact->email ?? '-' }}</td>
+.info-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
 
-                    <th>Price / Budget</th>
-                    <td>{{ $contact->budget ?? '-' }}</td>
-                </tr>
-            </table>
+.info-col {
+    width: 50%;
+    padding: 6px 0;
+}
 
-            {{-- ================= LOCATION DETAILS ================= --}}
-            <h6 class="mt-4">Location Details</h6>
-            <table class="table table-bordered">
-                <tr>
-                    <th width="25%">State</th>
-                    <td width="25%">{{ $contact->state_name ?? '-' }}</td>
+.info-label {
+    font-size: 13px;
+    color: #777;
+}
 
-                    <th width="25%">District</th>
-                    <td width="25%">{{ $contact->district_name ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <th>City</th>
-                    <td>{{ $contact->city_name ?? '-' }}</td>
+.info-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: #222;
+}
 
-                    <th>Area</th>
-                    <td>{{ $contact->area_name ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <th>Address</th>
-                    <td colspan="3">{{ $contact->address ?? '-' }}</td>
-                </tr>
-            </table>
+@media(max-width:768px){
+    .info-col { width:100%; }
+}
 
-            {{-- ================= DIMENSIONS ================= --}}
-            <h6 class="mt-4">Dimensions</h6>
-            <table class="table table-bordered">
-                <tr>
-                    <th width="25%">Width (ft)</th>
-                    <td width="25%">{{ $contact->width ?? '-' }}</td>
+.image-card img {
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: 0.3s;
+}
 
-                    <th width="25%">Height (ft)</th>
-                    <td width="25%">{{ $contact->height ?? '-' }}</td>
-                </tr>
-            </table>
+.image-card img:hover {
+    transform: scale(1.05);
+}
+</style>
 
-            {{-- ================= REMARK ================= --}}
-            <h6 class="mt-4">Remark / Message</h6>
-            <table class="table table-bordered">
-                <tr>
-                    <th width="25%">Remark</th>
-                    <td colspan="3">{{ $contact->remark ?? '-' }}</td>
-                </tr>
-            </table>
+<a href="{{ route('contact-us.list') }}" class="btn btn-outline-secondary mb-4">
+    ← Back to List
+</a>
 
-            {{-- ================= IMAGES ================= --}}
-            <h6 class="mt-4">Images</h6>
-            <div class="row">
-                @forelse($contact->images ?? [] as $img)
-                    <div class="col-md-3 mb-3">
-                        <img src="{{ config('fileConstants.IMAGE_VIEW') . $img }}" class="img-fluid rounded"
-                            style="height:150px; object-fit:cover;">
-                    </div>
-                @empty
-                    <p class="text-muted ms-2">No images available.</p>
-                @endforelse
+<div class="info-card">
+    <div class="info-card-header">Basic Details</div>
+    <div class="info-card-body">
+
+        <div class="info-row">
+            <div class="info-col">
+                <div class="info-label">Category</div>
+                <div class="info-value">{{ $contact->category_name ?? '-' }}</div>
             </div>
 
-            <a href="{{ route('contact-us.list') }}" class="btn btn-secondary mt-3">
-                Back
-            </a>
+            <div class="info-col">
+                <div class="info-label">Vendor Name</div>
+                <div class="info-value">{{ $contact->vendor_name ?? '-' }}</div>
+            </div>
+        </div>
 
+        <div class="info-row">
+            <div class="info-col">
+                <div class="info-label">Full Name</div>
+                <div class="info-value">{{ $contact->full_name ?? '-' }}</div>
+            </div>
+
+            <div class="info-col">
+                <div class="info-label">Mobile</div>
+                <div class="info-value">{{ $contact->mobile_no ?? '-' }}</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-col">
+                <div class="info-label">Email</div>
+                <div class="info-value">{{ $contact->email ?? '-' }}</div>
+            </div>
+
+            <div class="info-col">
+                <div class="info-label">Budget</div>
+                <div class="info-value">{{ $contact->budget ?? '-' }}</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="info-card">
+    <div class="info-card-header">Location Details</div>
+    <div class="info-card-body">
+
+        <div class="info-row">
+            <div class="info-col">
+                <div class="info-label">State</div>
+                <div class="info-value">{{ $contact->state_name ?? '-' }}</div>
+            </div>
+
+            <div class="info-col">
+                <div class="info-label">District</div>
+                <div class="info-value">{{ $contact->district_name ?? '-' }}</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-col">
+                <div class="info-label">City</div>
+                <div class="info-value">{{ $contact->city_name ?? '-' }}</div>
+            </div>
+
+            <div class="info-col">
+                <div class="info-label">Area</div>
+                <div class="info-value">{{ $contact->area_name ?? '-' }}</div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <div class="info-col" style="width:100%">
+                <div class="info-label">Address</div>
+                <div class="info-value">{{ $contact->address ?? '-' }}</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="info-card">
+    <div class="info-card-header">Dimensions</div>
+    <div class="info-card-body">
+
+        <div class="info-row">
+            <div class="info-col">
+                <div class="info-label">Width (ft)</div>
+                <div class="info-value">{{ $contact->width ?? '-' }}</div>
+            </div>
+
+            <div class="info-col">
+                <div class="info-label">Height (ft)</div>
+                <div class="info-value">{{ $contact->height ?? '-' }}</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="info-card">
+    <div class="info-card-header">Requirements / Specifications</div>
+    <div class="info-card-body">
+        <p class="mb-0">{{ $contact->remark ?? '-' }}</p>
+    </div>
+</div>
+
+<div class="info-card">
+    <div class="info-card-header">Images</div>
+    <div class="info-card-body">
+        <div class="row">
+            @forelse($contact->images ?? [] as $img)
+                <div class="col-md-3 col-sm-6 mb-3 image-card">
+                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $img }}" class="img-fluid">
+                </div>
+            @empty
+                <p class="text-muted">No images available</p>
+            @endforelse
         </div>
     </div>
+</div>
+
 @endsection

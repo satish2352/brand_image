@@ -12,4 +12,8 @@ class WebsiteUser extends Authenticatable
     ];
 
     protected $hidden = ['password'];
+
+    protected $casts = [
+        'otp_expires_at' => 'datetime',
+    ];
 }

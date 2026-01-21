@@ -76,6 +76,74 @@
         .total-table .bold {
             font-weight: bold;
         }
+
+        .meta-line {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 6px;
+        }
+
+        .meta-label {
+            width: 60px; 
+            font-weight: bold;
+        }
+
+        .meta-colon {
+            width: 10px;
+            font-weight: bold;
+        }
+
+        .meta-value {
+            flex: 1;
+        }
+        /* REMOVE borders from empty left area */
+        .no-border {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        /* Summary rows */
+        .summary-row td {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Label column */
+        .summary-label {
+            text-align: right;
+            background: #fafafa;
+            border-left: 1px solid #000;
+        }
+
+        /* Value column */
+        .summary-value {
+            text-align: center;
+            background: #fafafa;
+        }
+
+        /* Grand Total emphasis (NOT full width) */
+        .grand-total-row .summary-label,
+        .grand-total-row .summary-value {
+            background: #eaf7ee;
+            font-size: 14px;
+            font-weight: 700;
+            border-top: 2px solid #000;
+        }
+
+        .summary-row .summary-label,
+        .summary-row .summary-value{
+            background: #eaf7ee;
+            font-size: 12px;
+            font-weight: 700;
+            /* border-top: 2px solid #000; */
+        }
+
+        /* Space between items & totals */
+        .tbody-spacer td {
+            height: 18px;        /* adjust space here */
+            border: none !important;
+            background: transparent;
+        }
     </style>
 </head>
 
@@ -96,7 +164,7 @@
     </table>
 
     <!-- INFO -->
-    <table class="info-table">
+    {{-- <table class="info-table">
         <tr>
             <td width="60%">
                 <b>Location:</b> {{ $order->common_stdiciar_name }}<br><br>
@@ -106,9 +174,47 @@
 
                 <b>Date:</b> {{ now()->format('d M Y') }}
                 &nbsp;&nbsp;
-                <b>Campaignname:</b> {{ $order->campaign_name ?? '-' }}
+                <b>Campaign name:</b> {{ $order->campaign_name ?? '-' }}
             </td>
 
+            <td width="22%" style="line-height:0.8; word-break:break-word;">
+                <b>Issued To:</b><br><br>
+
+                Name: {{ auth('website')->user()->name }}<br><br>
+                Mobile No: {{ auth('website')->user()->mobile_number ?? '-' }}<br><br>
+                Email: {{ auth('website')->user()->email }}
+            </td>
+        </tr>
+    </table> --}}
+
+    <table class="info-table">
+        <tr>
+            <!-- LEFT META -->
+            <td width="60%">
+                <table width="100%">
+                    <tr>
+                        <td width="45"><b>Location</b></td>
+                        <td width="10">:</td>
+                        <td>{{ $order->common_stdiciar_name }}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Status</b></td>
+                        <td>:</td>
+                        <td><span class="badge">PAID</span></td>
+                    </tr>
+                    <tr>
+                        <td><b>Date</b></td>
+                        <td>:</td>
+                        <td>
+                            {{ now()->format('d M Y') }}
+                            &nbsp;&nbsp;
+                            <b>Campaign name:</b> {{ $order->campaign_name ?? '-' }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <!-- RIGHT (ISSUED TO – UNCHANGED) -->
             <td width="22%" style="line-height:0.8; word-break:break-word;">
                 <b>Issued To:</b><br><br>
 
@@ -148,15 +254,39 @@
                     <td>
                         {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
                     </td>
-                    <td>₹ {{ number_format($item->price, 2) }}</td>
-                    <td>₹ {{ number_format($item->price, 2) }}</td>
+                    <td>₹{{ number_format($item->price, 2) }}</td>
+                    <td>₹{{ number_format($item->price, 2) }}</td>
                 </tr>
             @endforeach
+
+            {{-- SPACE ROW --}}
+            <tr class="tbody-spacer">
+                <td colspan="7"></td>
+            </tr>
         </tbody>
+        <tfoot>
+            <tr class="summary-row">
+                <td colspan="5" class="no-border"></td>
+                <td class="summary-label">Subtotal</td>
+                <td class="summary-value">₹{{ number_format($order->total_amount, 2) }}</td>
+            </tr>
+
+            <tr class="summary-row">
+                <td colspan="5" class="no-border"></td>
+                <td class="summary-label">GST (18%)</td>
+                <td class="summary-value">₹{{ number_format($order->gst_amount, 2) }}</td>
+            </tr>
+
+            <tr class="grand-total-row">
+                <td colspan="5" class="no-border"></td>
+                <td class="summary-label">Grand Total</td>
+                <td class="summary-value">₹{{ number_format($order->grand_total, 2) }}</td>
+            </tr>
+        </tfoot>
     </table>
 
     <!-- TOTAL -->
-    <table class="total-table">
+    {{-- <table class="total-table">
         <tr>
             <td>Subtotal</td>
             <td>₹ {{ number_format($order->total_amount, 2) }}</td>
@@ -169,7 +299,7 @@
             <td>Total</td>
             <td>₹ {{ number_format($order->grand_total, 2) }}</td>
         </tr>
-    </table>
+    </table> --}}
 
 </body>
 

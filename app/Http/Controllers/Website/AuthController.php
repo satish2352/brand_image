@@ -135,8 +135,25 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => 'User not found']);
         }
 
-        if (Carbon::now()->gt($user->otp_expires_at)) {
-            return response()->json(['status' => false, 'message' => 'OTP expired']);
+        // OTP ALREADY USED / NOT GENERATED
+        if (!$user->otp || !$user->otp_expires_at) {
+            return response()->json([
+                'status' => false,
+                'message' => 'OTP expired. Please request a new OTP.'
+            ]);
+        }
+
+        // if (Carbon::now()->gt($user->otp_expires_at)) {
+        //     return response()->json(['status' => false, 'message' => 'OTP expired']);
+        // }
+
+        $graceSeconds = 5;
+
+        if (Carbon::now()->gt($user->otp_expires_at->addSeconds($graceSeconds))) {
+            return response()->json([
+                'status' => false,
+                'message' => 'OTP expired'
+            ]);
         }
 
         if ($user->otp !== $req->otp) {

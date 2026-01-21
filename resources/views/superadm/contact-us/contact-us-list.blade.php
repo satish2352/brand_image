@@ -33,7 +33,7 @@
                                 @foreach ($contacts as $key => $row)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $row->category_name }}</td>
+                                        <td>{{ $row->category_name ?: 'Direct Enquiry' }}</td>
                                         <td>{{ $row->full_name }}</td>
                                         <td>{{ $row->mobile_no }}</td>
                                         <td>{{ $row->email }}</td>

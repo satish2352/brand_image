@@ -86,7 +86,10 @@ public function index(Request $request)
     $mediaList = DB::table('media_management')
         ->where('is_deleted', 0)
         ->where('is_active', 1)
+        ->whereNotNull('media_title')
+        ->where('media_title', '!=', '')
         ->select('id', 'media_title')
+        ->orderBy('media_title')
         ->get();
 
     $categories = DB::table('category')

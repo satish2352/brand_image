@@ -14,7 +14,7 @@
 
                     {{-- HEADER --}}
                     <div class="d-flex justify-content-between mb-3">
-                        <h4>Media Utilisation Report</h4>
+                        <h4><b>Media Utilisation Report</b></h4>
                     </div>
 
                     {{-- FILTERS --}}
@@ -22,7 +22,7 @@
 
                         {{-- Year --}}
                         <div class="col-md-2">
-                            <label class="form-label mb-1">Year</label>
+                            <label class="form-label mb-1"><b>Year</b></label>
                             <select name="year" class="form-control">
                                 <option value="">Select Year</option>
                                 @for ($y = 2025; $y <= now()->year; $y++)
@@ -38,7 +38,7 @@
 
                         {{-- Month --}}
                         <div class="col-md-2">
-                            <label class="form-label mb-1">Month</label>
+                            <label class="form-label mb-1"><b>Month</b></label>
                             <select name="month" class="form-control">
                                 <option value="">Select Month</option>
                                 @foreach (range(1, 12) as $m)
@@ -51,21 +51,21 @@
 
                         {{-- From Date --}}
                         <div class="col-md-2">
-                            <label class="form-label mb-1">From Date</label>
+                            <label class="form-label mb-1"><b>From Date</b></label>
                             <input type="date" id="from_date" name="from_date" value="{{ request('from_date') }}"
                                 class="form-control">
                         </div>
 
                         {{-- To Date --}}
                         <div class="col-md-2">
-                            <label class="form-label mb-1">To Date</label>
+                            <label class="form-label mb-1"><b>To Date</b></label>
                             <input type="date" id="to_date" name="to_date" value="{{ request('to_date') }}"
                                 class="form-control" disabled>
                         </div>
 
                         {{-- Media --}}
                         <div class="col-md-2">
-                            <label class="form-label mb-1">Media</label>
+                            <label class="form-label mb-1"><b>Media</b></label>
                             <select name="media_id" class="form-control">
                                 <option value="">All Media</option>
                                 @foreach ($mediaList as $m)
@@ -93,7 +93,7 @@
 
                         {{-- Search --}}
                         <div class="col-md-4 mt-2">
-                            <label class="form-label mb-1">Search</label>
+                            <label class="form-label mb-1"><b>Search</b></label>
                             <input type="text" name="search" value="{{ request('search') }}" class="form-control"
                                 placeholder="Search media / user">
                         </div>
