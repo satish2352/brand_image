@@ -15,7 +15,9 @@ class UserPaymentService
 
     public function list()
     {
-        return $this->repo->list();
+        $data_output =  $this->repo->list();
+
+        return $data_output;
     }
     public function getOrderDetails($orderId)
     {

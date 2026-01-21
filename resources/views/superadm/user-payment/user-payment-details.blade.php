@@ -41,8 +41,8 @@
 
                     <div class="col-md-6">
                         <p><strong>User Name:</strong> {{ $order->name }}</p>
-                        <p><strong>Email:</strong> {{ $order->email }}</p>
-                        <p><strong>Mobile:</strong> {{ $order->mobile_number }}</p>
+                        <p><strong>Email Id:</strong> {{ $order->email }}</p>
+                        <p><strong>Mobile No.:</strong> {{ $order->mobile_number }}</p>
                     </div>
 
                     <div class="col-md-6">
