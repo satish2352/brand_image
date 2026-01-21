@@ -79,7 +79,7 @@
         {{-- PAY BUTTON --}}
         <div class="d-flex justify-content-end">
             <button id="payBtn" class="btn btn-success btn-lg">
-                Pay ₹ {{ number_format($grandTotal, 2) }} with Razorpay
+                Pay ₹ {{ number_format($grandTotal, 2) }}
             </button>
 
         </div>

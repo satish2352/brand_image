@@ -19,6 +19,18 @@
 
     <!-- DataTables-->
     <style>
+        .login-gradient {
+            background: linear-gradient(135deg,
+                    #eef2f7 0%,
+                    #f6f3ff 50%,
+                    #fdfbff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+
         .input-group input.form-control {
             padding-right: 40px;
             /* space for the icon */
@@ -49,13 +61,23 @@
             /* 🔥 key line */
         }
 
-        .login-card {
+        /* .login-card {
             background: #ffffff;
             border-radius: 12px;
             padding: 30px 25px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
             max-width: 600px;
             margin: auto;
+        } */
+        .login-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 14px;
+            padding: 36px 32px;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.12),
+                0 5px 15px rgba(0, 0, 0, 0.08);
+            max-width: 420px;
+            width: 100%;
         }
 
         .login-card .card-header img {
@@ -67,7 +89,8 @@
             /* dark soft-ui text */
             font-weight: 500;
         }
-        .input-group .form-control:not(:last-child){
+
+        .input-group .form-control:not(:last-child) {
             border-right: 1px solid #d2d6da;
         }
     </style>
@@ -85,21 +108,25 @@
     </div>
     <main class="main-content  mt-0">
         <section>
-            <div class="page-header min-vh-75" style="padding-bottom: 40px; margin: 0px;">
-                <div class="container-fluid">
+            <div class="page-header min-vh-75">
+                <div class="container-fluid px-0">
 
                     <div class="row">
-                        <div class="col-sm-6 login-bg d-none d-sm-block">
+                        <div class="col-sm-6 login-bg d-none d-sm-block px-0">
                             <img src="{{ asset('asset/theamoriginalalf/images/loginbg.jpeg') }}" alt="Login Image">
                         </div>
 
 
 
-                        <div class="col-sm-6 d-flex flex-column mx-auto">
+                        <div class="col-sm-6 d-flex flex-column login-gradient">
                             <div class="card login-card">
                                 <div class="card-header pb-0 text-left bg-transparent text-center">
-                                    <img src="{{ asset('asset/theamoriginalalf/images/logo.png') }}"
-                                        style="width: 329px;">
+                                    {{-- <img src="{{ asset('asset/theamoriginalalf/images/logo.png') }}"
+                                        style="width: 329px;"> --}}
+
+                                    <h3 style="font-weight:600; color:#344767; margin-bottom:20px;">
+                                        Admin Login
+                                    </h3>
                                 </div>
 
                                 <div class="card-body">
@@ -111,10 +138,10 @@
                                     <form class="form-horizontal form-material" method="POST" id="loginform"
                                         action="{{ route('superlogin') }}">
                                         @csrf
-                                        <label style="color:#000">User name</label>
+                                        <label style="color:#000">Email Id</label>
                                         <div class="mb-3">
                                             <input type="text" id="superemail" name="superemail" value=""
-                                                class="form-control" placeholder="User" aria-label="user"
+                                                class="form-control" placeholder="Enter Email Id" aria-label="user"
                                                 aria-describedby="email-addon">
                                             @error('superemail')
                                                 <span class="text-danger">{{ $message }}</span>
@@ -145,7 +172,7 @@
                                         </div>
                                         <div class="text-center">
                                             <button type="submit" class="btn bg-gradient-info w-100 mt-4 mb-0">Login
-                                                </button>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>

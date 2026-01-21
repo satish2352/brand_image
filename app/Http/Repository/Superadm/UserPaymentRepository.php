@@ -73,9 +73,13 @@ class UserPaymentRepository
                 'mm.width',
                 'mm.height',
                 'mm.address',
-                DB::raw('(oi.price * oi.qty) as total')
+
+                DB::raw('(oi.price * oi.qty) as item_total'),
+                DB::raw('(oi.price * oi.qty * 0.18) as gst_amount'),
+                DB::raw('((oi.price * oi.qty) + (oi.price * oi.qty * 0.18)) as final_total')
             )
             ->get();
+
 
         $order->items = $items;
 
