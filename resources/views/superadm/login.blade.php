@@ -67,7 +67,8 @@
             /* dark soft-ui text */
             font-weight: 500;
         }
-        .input-group .form-control:not(:last-child){
+
+        .input-group .form-control:not(:last-child) {
             border-right: 1px solid #d2d6da;
         }
     </style>
@@ -85,8 +86,8 @@
     </div>
     <main class="main-content  mt-0">
         <section>
-            <div class="page-header min-vh-75" style="padding-bottom: 40px; margin: 0px;">
-                <div class="container-fluid">
+            <div class="page-header min-vh-75">
+                <div class="container-fluid px-0">
 
                     <div class="row">
                         <div class="col-sm-6 login-bg d-none d-sm-block">
@@ -145,7 +146,7 @@
                                         </div>
                                         <div class="text-center">
                                             <button type="submit" class="btn bg-gradient-info w-100 mt-4 mb-0">Login
-                                                </button>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
