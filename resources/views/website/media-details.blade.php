@@ -259,6 +259,17 @@
 $width = (float) $media->width;
 $height = (float) $media->height;
 $sqft = $width * $height;
+$isBillboard = (int) $media->category_id === 1;
+
+// category table
+$CATEGORY = [
+    'HOARDING' => 1,
+    'WALL'     => 2, // Digital Wall Painting / Wall Painting
+    'AIRPORT'  => 3,
+    'TRANSIT'  => 4,
+    'OFFICE'   => 5,
+    'WRAP'     => 6,
+];
 @endphp
 
 
@@ -345,41 +356,166 @@ $sqft = $width * $height;
 
                 <p class="text-muted mb-2">
                     <i class="fas fa-map-marker-alt text-danger"></i>
-                    {{ $media->address }}, {{ $media->city_name }}
+                    @if(!empty($media->address))
+                        {{ $media->address }}, {{ $media->city_name }}
+                    @else
+                        {{ $media->city_name }}
+                    @endif
                 </p>
 
                 <hr>
 
-                <div class="row ">
-                    <div class="col-6 mb-2"><strong>Media Type:</strong> {{ $media->category_name }}</div>
-                    <div class="col-6 mb-2"><strong>Media Tilte:</strong> {{ $media->media_title }}</div>
+                {{-- <div class="row">
+                    <div class="col-6 mb-2">
+                        <strong>Media Type:</strong> {{ $media->category_name }}
+                    </div>
 
-                    <div class="col-6 mb-2"><strong>Facing:</strong> {{ $media->facing }}</div>
-                    <div class="col-6 mb-2"><strong>Area Type:</strong> {{ $media->area_type }}</div>
+                    @if(!empty($media->media_title))
+                        <div class="col-6 mb-2">
+                            <strong>Media Title:</strong> {{ $media->media_title }}
+                        </div>
+                    @endif
 
-                    {{-- <div class="col-6 mb-2"><strong>Radius:</strong> {{ $media->radius }} KM
+                    @if(!empty($media->facing))
+                        <div class="col-6 mb-2">
+                            <strong>Facing:</strong> {{ $media->facing }}
+                        </div>
+                    @endif
+
+                    @if(!empty($media->area_type))
+                        <div class="col-6 mb-2">
+                            <strong>Area Type:</strong> {{ ucfirst($media->area_type) }}
+                        </div>
+                    @endif
+
+                    <div class="col-6 mb-2">
+                        <strong>Size:</strong>
+                        {{ number_format($width,2) }} x {{ number_format($height,2) }} ft
+                    </div>
+
+                    <div class="col-6 mb-2">
+                        <strong>Total Area:</strong>
+                        {{ number_format($sqft,2) }} SQFT
+                    </div>
+
+                    <div class="col-6 mb-2">
+                        <span class="price">₹ {{ number_format($media->price,2) }}</span>
+                        <span class="text-muted">/ month</span>
+
+                        @if($isBillboard)
+                            <div class="per-day">
+                                ₹ {{ number_format($media->per_day_price,2) }} / day
+                            </div>
+                        @endif
+                    </div>
                 </div> --}}
-                <div class="col-6 mb-2"><strong>Illumination:</strong> {{ $media->illumination_name }}
-                </div>
-                <div class="col-6 mb-2">
-                    <strong>Size:</strong>
-                    {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
-                </div>
 
-                <div class="col-6 mb-2">
-                    <strong>Total Area:</strong>
-                    {{ number_format($sqft, 2) }} SQFT
-                </div>
+                <div class="row">
 
-                <div class="col-6 mb-2">
-                    <span class="price">₹ {{ number_format($media->price, 2) }}</span>
-                    <span class="text-muted">/ month</span>
-                    <div class="per-day">₹ {{ number_format($media->per_day_price, 2) }} / day</div>
-                </div>
-                {{-- <div class="col-6 mb-2"><strong>Size:</strong> {{ $media->width }} x {{ $media->height }}
-            </div> --}}
+                    {{-- ================= COMMON FIELDS ================= --}}
 
-        </div>
+                    <div class="col-6 mb-2">
+                        <strong>Category Media Type:</strong> {{ $media->category_name }}
+                    </div>
+
+                    @if(!empty($media->media_title))
+                        <div class="col-6 mb-2">
+                            <strong>Media Title:</strong> {{ $media->media_title }}
+                        </div>
+                    @endif
+
+                    @if(!empty($media->facing))
+                        <div class="col-6 mb-2">
+                            <strong>Facing:</strong> {{ $media->facing }}
+                        </div>
+                    @endif
+
+                    @if(!empty($media->area_type))
+                        <div class="col-6 mb-2">
+                            <strong>Area Type:</strong> {{ ucfirst($media->area_type) }}
+                        </div>
+                    @endif
+
+                    <div class="col-6 mb-2">
+                        <strong>Size:</strong>
+                        {{ number_format($width,2) }} x {{ number_format($height,2) }} ft
+                    </div>
+
+                    <div class="col-6 mb-2">
+                        <strong>Total Area:</strong>
+                        {{ number_format($sqft,2) }} SQFT
+                    </div>
+
+                    {{-- ================= CATEGORY SPECIFIC FIELDS ================= --}}
+
+                    {{-- WALL PAINTING --}}
+                    @if($media->category_id === $CATEGORY['WALL'])
+                        @if(!empty($media->address))
+                            <div class="col-12 mb-2">
+                                <strong>Address:</strong> {{ $media->address }}
+                            </div>
+                        @endif
+                    @endif
+
+                    {{-- AIRPORT BRANDING --}}
+                    @if($media->category_id === $CATEGORY['AIRPORT'])
+                        <div class="col-6 mb-2">
+                            <strong>Airport:</strong> {{ $media->airport_name ?? '-' }}
+                        </div>
+                        <div class="col-6 mb-2">
+                            <strong>Zone:</strong> {{ $media->zone_type ?? '-' }}
+                        </div>
+                        <div class="col-6 mb-2">
+                            <strong>Media Type:</strong> {{ $media->media_type ?? '-' }}
+                        </div>
+                    @endif
+
+                    {{-- TRANSIT MEDIA --}}
+                    @if($media->category_id === $CATEGORY['TRANSIT'])
+                        <div class="col-6 mb-2">
+                            <strong>Transit Type:</strong> {{ $media->transit_type ?? '-' }}
+                        </div>
+                        <div class="col-6 mb-2">
+                            <strong>Branding Type:</strong> {{ $media->branding_type ?? '-' }}
+                        </div>
+                        <div class="col-6 mb-2">
+                            <strong>Vehicle Count:</strong> {{ $media->vehicle_count ?? '-' }}
+                        </div>
+                    @endif
+
+                    {{-- OFFICE BRANDING --}}
+                    @if($media->category_id === $CATEGORY['OFFICE'])
+                        <div class="col-6 mb-2">
+                            <strong>Building Name:</strong> {{ $media->building_name ?? '-' }}
+                        </div>
+                        <div class="col-6 mb-2">
+                            <strong>Branding Type:</strong> {{ $media->wall_length ?? '-' }}
+                        </div>
+                    @endif
+
+                    {{-- WALL WRAP --}}
+                    @if($media->category_id === $CATEGORY['WRAP'])
+                        @if(!empty($media->address))
+                            <div class="col-12 mb-2">
+                                <strong>Location:</strong> {{ $media->address }}
+                            </div>
+                        @endif
+                    @endif
+
+                    {{-- ================= PRICE (ALWAYS LAST) ================= --}}
+
+                    <div class="col-12 mt-2">
+                        <span class="price">₹ {{ number_format($media->price,2) }}</span>
+                        <span class="text-muted">/ month</span>
+
+                        @if($isBillboard)
+                            <div class="per-day">
+                                ₹ {{ number_format($media->per_day_price,2) }} / day
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
 
         <hr>
 

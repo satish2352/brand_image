@@ -35,4 +35,21 @@ class WebsiteUserController extends Controller
 			'message' => 'Status updated successfully'
 		]);
 	}
+
+	public function view(Request $request)
+	{
+		$id = base64_decode($request->id);
+		$user = $this->service->getById($id);
+
+		if (!$user) {
+			return response()->json([
+				'status' => false,
+				'message' => 'User not found'
+			], 404);
+		}
+
+		return response()->json($user);
+	}
+
+
 }

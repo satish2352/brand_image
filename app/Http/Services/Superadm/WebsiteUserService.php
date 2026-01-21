@@ -26,4 +26,9 @@ class WebsiteUserService
     {
         return $this->repo->toggleStatus($id);
     }
+
+    public function getById($id)
+    {
+        return $this->repo->getById($id);
+    }
 }

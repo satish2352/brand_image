@@ -340,7 +340,7 @@
                             </div>
 
                             {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
-                            <div class="media-map mt-4 d-flex align-items-center gap-3">
+                            <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
                                 {{-- <a href="https://www.google.com/maps"> --}}
                                 {{-- </a> --}}
 
@@ -439,6 +439,11 @@
 
             @foreach ($otherMedia as $media)
             @if ($media->category_name !== 'Hoardings/Billboards')
+                @php
+                    $width = (float) ($media->width ?? 0);
+                    $height = (float) ($media->height ?? 0);
+                    $sqft = $width * $height;
+                @endphp
 
             <div class="col-lg-4 col-md-6 mb-5">
                 <div class="single-latest-news">
@@ -459,17 +464,30 @@
 
                 <div class="news-text-box">
 
-                    <h3>{{ $media->media_title ?? $media->category_name }}</h3>
+                    {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
+                    <h3 style="font-size: 21px;">
+                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
+                            {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
+                        </a>
+                    </h3>
 
                     <p class="blog-meta">
                         <i class="fas fa-map-marker-alt"></i>
                         {{ $media->area_name }}, {{ $media->city_name }}
                     </p>
 
-                    <div class="media-price">
-                        ₹ {{ number_format($media->price, 2) }}
-                        <small class="pricepermonth">/Month</small>
-                    </div>
+                <div class="col-6 mb-2 d-flex">
+                    <strong>Size : </strong>
+                    {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
+
+                </div>
+                <div class="col-6 mb-2 d-flex">
+                    <strong>Area : </strong>
+                    {{ number_format($sqft, 2) }} SQFT
+                </div>
+                <div class="media-price">
+                    ₹ {{ number_format($media->price, 2) }}
+                </div>
 
                     {{-- <div class="media-map mt-4">
                         <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
