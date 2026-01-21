@@ -48,7 +48,8 @@ class ContactUsRepository
 
                 // MEDIA
                 'm.media_title as media_name',
-                'm.media_type',
+                'm.media_title',
+                'm.media_code',
                 'm.width',
                 'm.height',
                 'm.price',

@@ -19,6 +19,32 @@
     <link href="{{ asset('asset/css/colors/blue.css') }}" id="theme" rel="stylesheet">
     <link href="{{ asset('asset/css/satish.css') }}" id="theme" rel="stylesheet">
     <script src="{{ asset('asset/plugins/jquery/jquery-3.6.0.min.js') }}"></script>
+
+    <style>
+        .scroll-sidebar{
+            overflow: auto !important;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+            height: 100dvh !important;
+        }
+        .scroll-sidebar::-webkit-scrollbar {
+            width: 6px; 
+        }
+
+        .scroll-sidebar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .scroll-sidebar::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 10px;
+        }
+
+        .scroll-sidebar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
 </head>
 
 <body class="fix-header fix-sidebar card-no-border">
