@@ -36,9 +36,9 @@
         }
 
         /* .cart-img-wrapper {
-                                                                                                display: flex;
-                                                                                                gap: 10px;
-                                                                                            } */
+                                                                                                        display: flex;
+                                                                                                        gap: 10px;
+                                                                                                    } */
 
         .cart-img-wrapper {
             display: flex;
