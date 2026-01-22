@@ -2025,8 +2025,9 @@ Header .navbar-custom {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    transform: translateY(-50%);
+    /* transform: translateY(-50%); */
     pointer-events: none;
+    position: relative;
 }
 
 .testimonial-card .nav-arrows .arrow {
@@ -2396,13 +2397,14 @@ Header .navbar-custom {
         margin: 20px 0px 20px 0;
     }
 }
-.foterhr{
+
+.foterhr {
     width: 100px;
-    background: #ffa000 ;
+    background: #ffa000;
     height: 1.2px;
     margin-top: 7px;
 }
 
 .table-campaign {
-  background-color: linear-gradient(90deg, #ffb300, #ff9800) !important;
+    background-color: linear-gradient(90deg, #ffb300, #ff9800) !important;
 }
