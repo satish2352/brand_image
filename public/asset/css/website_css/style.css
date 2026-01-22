@@ -2021,7 +2021,6 @@ Header .navbar-custom {
 
 .testimonial-card .nav-arrows {
     position: absolute;
-    top: 50%;
     left: 0;
     width: 100%;
     display: flex;
@@ -2079,7 +2078,6 @@ Header .navbar-custom {
 .nav-arrows {
     display: flex;
     justify-content: space-between;
-    margin-top: 30px;
 }
 
 .nav-arrows .arrow {

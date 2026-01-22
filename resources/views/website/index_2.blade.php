@@ -292,7 +292,7 @@
 
                     {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
                     <div class="swiper-slide">
-                        <div class="single-latest-news">
+                        <div class="single-latest-news mx-lg-4">
 
                             {{-- <div class="latest-news-bg"
                                     style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
@@ -634,22 +634,14 @@
                 </h2>
 
                 <p>
-                    Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising
-                    agency that specializes in assisting clients in reaching their target
-                    audiences through innovative and customized solutions.
-                </p>
+                    Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising agency that specializes in assisting clients in reaching their target audiences through innovative and customized solutions. With our team of experienced professionals, we take great pride in our ability to comprehend your specific needs and offer creative services that can truly make a difference. </p>
 
-                <p>
-                    With over 12 years of valuable experience in Printing, Branding,
-                    Advertising, and Events, we have gained extensive knowledge and
-                    expertise in executing successful campaigns that deliver measurable
-                    results.
-                </p>
+                <p>With over 12 years of valuable experience in the field of Printing, Branding, Advertising, and Events, we have gained extensive knowledge and expertise in executing successful campaigns. Our agency, Brand Image Advertising, has been recognized with prestigious awards for our compelling advertising campaigns ...</p>
 
                 <a href="{{ route('website.about') }}" class="about-btn">Know More</a>
             </div>
 
-            <div class="col-lg-5">
+            <div class="col-lg-5 ms-lg-5">
                 <div class="stats-grid">
 
                     <div class="stat-card">
