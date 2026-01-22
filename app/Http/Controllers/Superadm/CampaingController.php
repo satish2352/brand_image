@@ -41,7 +41,7 @@ class CampaingController extends Controller
 			->where('campaign_id', $campaignId)
 			->values();       // index reset
 
-		// मग Blade मध्ये foreach वापरा
+
 		return view('superadm.campaing.details', compact('campaigns'));
 	}
 
@@ -111,6 +111,7 @@ class CampaingController extends Controller
 		/** 3️⃣ Create Order **/
 		$orderId = DB::table('orders')->insertGetId([
 			'user_id'        => $request->user_id,
+			'campaign_id'    => $request->campaign_id,
 			'order_no'       => 'ORD-' . time(),
 			'total_amount'   => $totalAmount,
 			'gst_amount'     => $gstAmount,

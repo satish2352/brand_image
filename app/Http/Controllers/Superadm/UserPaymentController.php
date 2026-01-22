@@ -17,6 +17,7 @@ class UserPaymentController extends Controller
     public function index()
     {
         $payments = $this->service->list();
+
         return view('superadm.user-payment.user-payment-list', compact('payments'));
     }
 
