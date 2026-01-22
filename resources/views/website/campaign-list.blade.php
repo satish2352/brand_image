@@ -15,7 +15,7 @@
         </div>
 
         {{-- SEARCH --}}
-        <form method="GET" action="{{ route('campaign.list') }}" class="row g-2 mb-4">
+        <form method="GET" action="{{ url()->current() }}" class="row g-2 mb-4">
             <div class="col-lg-4 col-md-6">
                 <input type="text" name="campaign_name" class="form-control" placeholder="Search Campaign Name"
                     value="{{ request('campaign_name') }}">
@@ -47,9 +47,22 @@
 
                     <div class="accordion-item mb-3 shadow-lg ">
 
-                        <span class="badge {{ $type === 'past' ? 'bg-secondary' : 'bg-success' }} float-end m-2 me-4">
-                            {{ $type === 'past' ? 'Completed' : 'Running' }}
+                        <span
+                            class="badge
+    @if ($type === 'open') bg-success
+    @elseif($type === 'booked') bg-warning
+    @else bg-secondary @endif
+    float-end m-2 me-4">
+
+                            @if ($type === 'open')
+                                Running
+                            @elseif($type === 'booked')
+                                Booked
+                            @else
+                                Completed
+                            @endif
                         </span>
+
                         {{-- HEADER --}}
                         <h2 class="accordion-header" id="heading{{ $campaignId }}">
 
@@ -95,17 +108,22 @@
                                     <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
                                         method="POST">
                                         @csrf
-                                        {{-- <button type="submit" class="btn btn-primary btn-sm">
-                                        Place Order
-                                    </button> --}}
-                                        @if ($type === 'active')
-                                            <button class="btn btn-primary btn-sm">Place Order</button>
+
+                                        @if ($type === 'open')
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                Place Order
+                                            </button>
+                                        @elseif ($type === 'booked')
+                                            <button class="btn btn-warning btn-sm" disabled>
+                                                Already Booked
+                                            </button>
                                         @else
                                             <button class="btn btn-secondary btn-sm" disabled>
                                                 Campaign Closed
                                             </button>
                                         @endif
                                     </form>
+
                                 </div>
                                 <style>
                                     .table-bordered> :not(caption)>*>* {

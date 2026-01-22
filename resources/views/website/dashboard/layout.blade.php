@@ -29,17 +29,17 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
 
     <!-- breadcrumb-section -->
     <!-- <div class="breadcrumb-section breadcrumb-bg">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-8 offset-lg-2 text-center">
-                            <div class="breadcrumb-text">
-                                <p>Read the Details</p>
-                                <h1>Dashboard</h1>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8 offset-lg-2 text-center">
+                                <div class="breadcrumb-text">
+                                    <p>Read the Details</p>
+                                    <h1>Dashboard</h1>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div> -->
+                </div> -->
     <!-- end breadcrumb section -->
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
@@ -95,18 +95,14 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
                         </ul> --}}
                         <ul class="sidebar-menu">
 
-                            {{-- Campaign List Parent --}}
                             <li class="{{ request()->routeIs('campaigns.*') ? 'active' : '' }}">
-                                <a data-bs-toggle="collapse" href="#campaignMenu" role="button"
-                                    aria-expanded="{{ request()->routeIs('campaigns.*') ? 'true' : 'false' }}">
-                                    <i class="bi bi-megaphone"></i>
-                                    Campaign List
+                                <a data-bs-toggle="collapse" href="#campaignMenu">
+                                    <i class="bi bi-megaphone"></i> Campaign List
                                 </a>
 
                                 <ul class="collapse ps-3 mt-3 {{ request()->routeIs('campaigns.*') ? 'show' : '' }}"
                                     id="campaignMenu">
 
-                                    {{-- ACTIVE --}}
                                     <li>
                                         <a href="{{ route('campaigns.open') }}"
                                             class="{{ request()->routeIs('campaigns.open') ? 'active' : '' }}">
@@ -114,7 +110,6 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
                                         </a>
                                     </li>
 
-                                    {{-- BOOKED --}}
                                     <li>
                                         <a href="{{ route('campaigns.booked') }}"
                                             class="{{ request()->routeIs('campaigns.booked') ? 'active' : '' }}">
@@ -122,7 +117,6 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
                                         </a>
                                     </li>
 
-                                    {{-- PAST --}}
                                     <li>
                                         <a href="{{ route('campaigns.past') }}"
                                             class="{{ request()->routeIs('campaigns.past') ? 'active' : '' }}">
@@ -133,15 +127,14 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
                                 </ul>
                             </li>
 
-                            {{-- PAYMENT HISTORY --}}
                             <li class="{{ request()->routeIs('campaign.payment.history') ? 'active' : '' }}">
                                 <a href="{{ route('campaign.payment.history') }}">
-                                    <i class="bi bi-receipt"></i>
-                                    Payment History
+                                    <i class="bi bi-receipt"></i> Payment History
                                 </a>
                             </li>
 
                         </ul>
+
 
                     </div>
                 </div>
