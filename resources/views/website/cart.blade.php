@@ -36,9 +36,9 @@
         }
 
         /* .cart-img-wrapper {
-                                                                                                        display: flex;
-                                                                                                        gap: 10px;
-                                                                                                    } */
+                                                                                                                    display: flex;
+                                                                                                                    gap: 10px;
+                                                                                                                } */
 
         .cart-img-wrapper {
             display: flex;
@@ -709,9 +709,9 @@
                         <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
-                    <div class="campaign-modal-body">
-                        <input type="text" name="campaign_name" class="campaign-input" placeholder="Campaign name"
-                            required>
+                    <div class="campaign-modal-body px-4">
+                        <input type="text" name="campaign_name" class="campaign-input form-control "
+                            placeholder="Campaign name" required>
                     </div>
 
                     <div class="campaign-modal-footer">
