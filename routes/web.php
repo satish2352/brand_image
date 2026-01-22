@@ -132,6 +132,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::get('list', [WebsiteUserController::class, 'index'])->name('website-user.list');
         Route::post('delete', [WebsiteUserController::class, 'delete'])->name('website-user.delete');
         Route::post('toggle-status', [WebsiteUserController::class, 'toggleStatus'])->name('website-user.toggle-status');
+        Route::post('view', [WebsiteUserController::class, 'view'])->name('website-user.view');
     });
     Route::prefix('contact-us')->group(function () {
         Route::get('list', [ContactUsController::class, 'index'])->name('contact-us.list');
@@ -261,15 +262,27 @@ Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.
 Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp');
 Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp');
 
-Route::middleware('auth:website')->prefix('user/dashboard')->group(function () {
-    Route::get('/', function () {
-        return view('website.dashboard.index');
-    })->name('dashboard.home');
-    Route::get('/profile', function () {
-        return view('website.dashboard.profile');
-    })->name('dashboard.profile');
-});
-Route::middleware('auth:website')->group(function () {
+
+// Route::middleware('auth:website')->prefix('user/dashboard')->group(function () {
+//     Route::get('/', function () {
+//         return view('website.dashboard.index');
+//     })->name('dashboard.home');
+//     Route::get('/profile', function () {
+//         return view('website.dashboard.profile');
+//     })->name('dashboard.profile');
+// });
+Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function () {
+
+    Route::prefix('user/dashboard')->group(function () {
+        Route::get('/', function () {
+            return view('website.dashboard.index');
+        })->name('dashboard.home');
+
+        Route::get('/profile', function () {
+            return view('website.dashboard.profile');
+        })->name('dashboard.profile');
+    });
+
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::get('/cart/add/{mediaId}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
@@ -277,8 +290,13 @@ Route::middleware('auth:website')->group(function () {
     Route::post('cart/add-with-date', [CartController::class, 'addWithDate'])->name('cart.add.with.date')->middleware('auth:website');
     Route::post('/cart/update-dates', [CartController::class, 'updateDates'])->name('cart.update.dates')->middleware('auth:website');
     Route::get('/cart/booked-dates/{mediaId}', [CartController::class, 'getBookedDates'])->name('cart.booked.dates');
-});
-Route::middleware(['web'])->group(function () {
+
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])->name('checkout.create');
+    Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
+    Route::post('/payment/success', [CheckoutController::class, 'success'])->name('payment.success');
+    Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+
     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
     Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
     Route::get('/campaign-export-excel/{campaignId}', [CampaignController::class, 'exportExcel'])->name('campaign.export.excel');
@@ -288,19 +306,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])->name('campaign.payment.history');
     Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])->name('campaign.invoice.payments')->middleware('auth:website');
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
-});
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-// Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder'])
-//     ->name('checkout.create');
-Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])->name('checkout.create');
-// ->middleware('auth:website');
-Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
-Route::post('/payment/success', [CheckoutController::class, 'success'])->name('payment.success');
-// Route::get('/payment/thank-you', function () {
-//     return view('website.payment-success');
-// })->name('payment.thankyou');
-Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
-Route::middleware(['web'])->group(function () {
+
     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
     // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
     //     ->name('campaign.list');
@@ -314,6 +320,42 @@ Route::middleware(['web'])->group(function () {
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
     Route::get('invoice/download/{id}', [PaymentHistoryController::class, 'downloadInvoice'])->name('invoice.download');
 });
+// Route::middleware(['web'])->group(function () {
+//     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
+//     Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
+//     Route::get('/campaign-export-excel/{campaignId}', [CampaignController::class, 'exportExcel'])->name('campaign.export.excel');
+//     Route::get('/campaign-export-ppt/{campaignId}', [CampaignController::class, 'exportPpt'])->name('campaign.export.ppt');
+//     Route::post('/checkout/campaign/{campaignId}', [CheckoutController::class, 'placeCampaignOrder'])->name('checkout.campaign');
+//     Route::get('/campaign/details/{cart_item_id}', [CampaignController::class, 'viewDetails'])->name('campaign.details');
+//     Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])->name('campaign.payment.history');
+//     Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])->name('campaign.invoice.payments')->middleware('auth:website');
+//     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
+// });
+// Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+// Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder'])
+//     ->name('checkout.create');
+// Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])->name('checkout.create');
+// ->middleware('auth:website');
+// Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
+// Route::post('/payment/success', [CheckoutController::class, 'success'])->name('payment.success');
+// Route::get('/payment/thank-you', function () {
+//     return view('website.payment-success');
+// })->name('payment.thankyou');
+// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+// Route::middleware(['web'])->group(function () {
+//     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
+//     // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
+//     //     ->name('campaign.list');
+//     Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
+//     Route::get('/campaign-export-excel/{campaignId}', [CampaignController::class, 'exportExcel'])->name('campaign.export.excel');
+//     Route::get('/campaign-export-ppt/{campaignId}', [CampaignController::class, 'exportPpt'])->name('campaign.export.ppt');
+//     Route::post('/checkout/campaign/{campaignId}', [CheckoutController::class, 'placeCampaignOrder'])->name('checkout.campaign');
+//     Route::get('/campaign/details/{cart_item_id}', [CampaignController::class, 'viewDetails'])->name('campaign.details');
+//     Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])->name('campaign.payment.history');
+//     Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])->name('campaign.invoice.payments')->middleware('auth:website');
+//     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
+//     Route::get('invoice/download/{id}', [PaymentHistoryController::class, 'downloadInvoice'])->name('invoice.download');
+// });
 // Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
 Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');

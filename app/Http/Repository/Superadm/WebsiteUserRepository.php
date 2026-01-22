@@ -30,4 +30,12 @@ class WebsiteUserRepository
                 'is_active' => $user->is_active ? 0 : 1
             ]);
     }
+
+    public function getById($id)
+    {
+        return DB::table('website_users')
+            ->where('id', $id)
+            ->first();
+    }
+
 }

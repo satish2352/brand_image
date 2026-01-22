@@ -133,7 +133,7 @@ class MediaManagementRepository
             ->leftJoin('cities as ct', 'ct.id', '=', 'mm.city_id')
             ->leftJoin('areas as ar', 'ar.id', '=', 'mm.area_id')
             ->leftJoin('category as cat', 'cat.id', '=', 'mm.category_id')
-            ->leftJoin('facing_direction as fd', 'fd.id', '=', 'mm.facing_id')
+            ->leftJoin('vendors as vd', 'vd.id', '=', 'mm.vendor_id')
             ->leftJoin('illumination as il', 'il.id', '=', 'mm.illumination_id')
             ->leftJoin('radius_master as rm', 'rm.id', '=', 'mm.radius_id')
             ->leftJoin('media_images as mi', function ($join) {
@@ -150,7 +150,7 @@ class MediaManagementRepository
                 'dt.district_name',
                 'ct.city_name',
                 'ar.area_name',
-                'fd.facing_name',
+                'vd.vendor_name',
                 'il.illumination_name',
                 'rm.radius',
                 'mi.id as image_id',
