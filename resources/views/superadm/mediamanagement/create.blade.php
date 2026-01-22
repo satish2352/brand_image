@@ -7,8 +7,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                                                                                                display: none;
-                                                                                                            } */
+                                                                                                                                                display: none;
+                                                                                                                                            } */
         #wallWrapSection,
         #radiusSection {
             display: none;
@@ -131,7 +131,7 @@
                 <div class="row">
 
                     {{-- ================= BASIC INFO ================= --}}
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Category <span class="text-danger">*</span></label>
                         @php use Illuminate\Support\Str; @endphp
 
@@ -171,7 +171,7 @@
                         @enderror
                     </div>
                     {{-- ================= AREA (ONLY ONE DROPDOWN) ================= --}}
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area <span class="">*</span></label>
                         <select id="area" name="area_id" class="form-control @error('area_id') is-invalid @enderror">
                             <option value="">Select Area</option>
@@ -180,7 +180,25 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Vendor <span class="text-danger">*</span></label>
+                        <select name="vendor_id" id="vendor_id"
+                            class="form-control @error('vendor_id') is-invalid @enderror">
 
+                            <option value="">Select Vendor</option>
+
+                            @foreach ($vendors as $vendor)
+                                <option value="{{ $vendor->id }}" data-vendor-code="{{ $vendor->vendor_code }}"
+                                    {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
+                                    {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('vendor_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                     {{-- ================= DIMENSIONS ================= --}}
                 </div>
                 <div class="row" id="billboardsId">
@@ -470,7 +488,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Monthly Price <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="price" value="{{ old('price') }}"
                             class="form-control @error('price') is-invalid @enderror">
@@ -487,39 +505,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div> --}}
-                    <div class="col-md-3 mb-3">
-                        <label>Vendor <span class="text-danger">*</span></label>
 
-                        {{-- <select name="vendor_id"
-                        class="form-control @error('vendor_id') is-invalid @enderror">
-
-                        <option value="">Select Vendor</option>
-
-                        @foreach ($vendors as $vendor)
-                            <option value="{{ $vendor->id }}"
-                                {{ old('vendor_id') == $vendor->id ? 'selected' : '' }}>
-                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
-                            </option>
-                        @endforeach
-
-                    </select> --}}
-                        <select name="vendor_id" id="vendor_id"
-                            class="form-control @error('vendor_id') is-invalid @enderror">
-
-                            <option value="">Select Vendor</option>
-
-                            @foreach ($vendors as $vendor)
-                                <option value="{{ $vendor->id }}" data-vendor-code="{{ $vendor->vendor_code }}"
-                                    {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
-                                    {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        @error('vendor_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
 
                     {{-- <div class="col-md-3 mb-3" id="radiusSection">
     <label>Radius <span class="text-danger">*</span></label>
@@ -537,8 +523,9 @@
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
 </div> --}}
-                    <div class="col-md-3 mb-4">
-                        <label>Images <small>(image size must be less then 1mb)</small><span class="text-danger">*</span></label>
+                    <div class="col-md-4 mb-4">
+                        <label>Images <small>(image size must be less then 1mb)</small><span
+                                class="text-danger">*</span></label>
 
                         <input type="file" name="images[]" id="images" multiple
                             class="form-control
@@ -562,7 +549,8 @@
                             </div>
                         @enderror
 
-                        <div id="imagePreview" class="d-flex flex-wrap mt-2" style="
+                        <div id="imagePreview" class="d-flex flex-wrap mt-2"
+                            style="
                             display: -webkit-inline-box !important;
                             gap: 8px;
                             overflow-x: auto;
@@ -574,9 +562,10 @@
                             border: 1px dashed #ddd;
                             border-radius: 6px;
                             background: #fafafa;
-                        "></div>
+                        ">
+                        </div>
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>360 View Link </label>
                         <input type="text" name="video_link" value="{{ old('video_link') }}"
                             class="form-control @error('video_link') is-invalid @enderror">
@@ -803,7 +792,8 @@
 
                 highlight: function(element) {
                     // Only input & textarea should turn red
-                    if ($(element).is("input") && element.type !== "file" || $(element).is("textarea")) {
+                    if ($(element).is("input") && element.type !== "file" || $(element).is(
+                            "textarea")) {
                         $(element).addClass("error");
                     }
                 },

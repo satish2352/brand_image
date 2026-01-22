@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                        display: none;
-                    } */
+                                display: none;
+                            } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -45,7 +45,7 @@
                 <div class="row">
 
                     {{-- CATEGORY --}}
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Category</label>
                         <select class="form-control" disabled>
                             @foreach ($categories as $cat)
@@ -57,7 +57,7 @@
                         </select>
                     </div>
                     {{-- AREA --}}
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area <span class="text-danger">*</span></label>
                         <select name="area_id" class="form-control @error('area_id') is-invalid @enderror">
                             @foreach ($areas as $area)
@@ -71,7 +71,39 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Vendor <span class="text-danger">*</span></label>
 
+                        {{-- <select name="vendor_id"
+                        class="form-control @error('vendor_id') is-invalid @enderror">
+
+                        <option value="">Select Vendor</option>
+
+                        @foreach ($vendors as $vendor)
+                            <option value="{{ $vendor->id }}"
+                                {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
+                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
+                            </option>
+                        @endforeach
+
+                    </select> --}}
+                        <select name="vendor_id" id="vendor_id"
+                            class="form-control @error('vendor_id') is-invalid @enderror">
+
+                            <option value="">Select Vendor</option>
+
+                            @foreach ($vendors as $vendor)
+                                <option value="{{ $vendor->id }}" data-vendor-code="{{ $vendor->vendor_code }}"
+                                    {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
+                                    {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('vendor_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
                 {{-- ================= BILLBOARD ================= --}}
@@ -199,8 +231,8 @@
                 <div class="row" id="airportBranding">
                     <div class="col-md-4 mb-3">
                         <label>Airport Name *</label>
-                        <input type="text" name="airport_name" value="{{ old('airport_name', $media->airport_name) }}"
-                            class="form-control">
+                        <input type="text" name="airport_name"
+                            value="{{ old('airport_name', $media->airport_name) }}" class="form-control">
                     </div>
 
                     <div class="col-md-4 mb-3">
@@ -334,39 +366,7 @@
                         value="{{ old('vendor_name', $media->vendor_name) }}"
                         class="form-control">
                 </div> --}}
-                    <div class="col-md-3 mb-3">
-                        <label>Vendor <span class="text-danger">*</span></label>
 
-                        {{-- <select name="vendor_id"
-                        class="form-control @error('vendor_id') is-invalid @enderror">
-
-                        <option value="">Select Vendor</option>
-
-                        @foreach ($vendors as $vendor)
-                            <option value="{{ $vendor->id }}"
-                                {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
-                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
-                            </option>
-                        @endforeach
-
-                    </select> --}}
-                        <select name="vendor_id" id="vendor_id"
-                            class="form-control @error('vendor_id') is-invalid @enderror">
-
-                            <option value="">Select Vendor</option>
-
-                            @foreach ($vendors as $vendor)
-                                <option value="{{ $vendor->id }}" data-vendor-code="{{ $vendor->vendor_code }}"
-                                    {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
-                                    {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        @error('vendor_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-3 mb-3">
                         <label>360 View Link </label>
                         <input type="text" name="video_link" value="{{ old('video_link', $media->video_link) }}"

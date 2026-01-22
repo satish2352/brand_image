@@ -1,5 +1,12 @@
 @extends('superadm.layout.master')
 
+@php
+    use Illuminate\Support\Str;
+
+    // Create slug safely from category_name
+    $categorySlug = Str::slug($media->category_name ?? '');
+@endphp
+
 @section('styles')
     <style>
         #billboardsBasic,
@@ -20,10 +27,10 @@
 
             <h4 class="mb-4">Media Details</h4>
 
-            {{-- CATEGORY SLUG --}}
-            <input type="hidden" id="category_id" value="{{ $media->category_id }}">
+            {{-- Hidden category slug --}}
+            <input type="hidden" id="category_slug" value="{{ $categorySlug }}">
 
-            {{-- ================= COMMON BASIC DETAILS ================= --}}
+            {{-- ================= COMMON BASIC DETAILS (FOR ALL) ================= --}}
             <h6>Basic Details</h6>
             <table class="table table-bordered">
                 <tr>
@@ -36,15 +43,12 @@
                 <tr>
                     <th>Price</th>
                     <td>₹ {{ $media->price ? number_format($media->price, 2) : '-' }}</td>
-
                     <th></th>
                     <td></td>
-                    {{-- <th>Minimum Booking Days</th> --}}
-                    {{-- <td>{{ $media->minimum_booking_days ?? '-' }}</td> --}}
                 </tr>
             </table>
 
-            {{-- ================= BILLBOARD BASIC (MEDIA CODE / TITLE) ================= --}}
+            {{-- ================= BILLBOARD BASIC ================= --}}
             <table class="table table-bordered" id="billboardsBasic">
                 <tr>
                     <th>Media Code</th>
@@ -55,20 +59,7 @@
                 </tr>
             </table>
 
-            {{-- MEDIA INFO --}}
-            {{-- <div class="row mb-4">
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Media Code</label>
-                    <input type="text" class="form-control" value="{{ $media->media_code }}" disabled>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Media Title</label>
-                    <input type="text" class="form-control" value="{{ $media->media_title }}" disabled>
-                </div>
-            </div> --}}
-
-            {{-- ================= LOCATION DETAILS ================= --}}
+            {{-- ================= LOCATION (COMMON) ================= --}}
             <h6 class="mt-4">Location Details</h6>
             <table class="table table-bordered">
                 <tr>
@@ -94,7 +85,7 @@
                 </tr>
             </table>
 
-            {{-- ================= DIMENSIONS ================= --}}
+            {{-- ================= DIMENSIONS (COMMON) ================= --}}
             <h6 class="mt-4">Dimensions</h6>
             <table class="table table-bordered">
                 <tr>
@@ -106,16 +97,23 @@
                 </tr>
             </table>
 
-            {{-- ================= BILLBOARD DETAILS ================= --}}
+            {{-- ================= HOARDINGS ================= --}}
             <div id="billboardsId">
                 <h6 class="mt-4">Billboard Details</h6>
                 <table class="table table-bordered">
                     <tr>
                         <th>Facing</th>
-                        <td>{{ $media->facing_name ?? '-' }}</td>
+                        <td>{{ $media->facing ?? '-' }}</td>
 
                         <th>Illumination</th>
                         <td>{{ $media->illumination_name ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Area Type</th>
+                        <td>{{ ucfirst($media->area_type ?? '-') }}</td>
+
+                        <th>Address</th>
+                        <td>{{ $media->address ?? '-' }}</td>
                     </tr>
                 </table>
             </div>
@@ -134,7 +132,7 @@
                 </table>
             </div>
 
-            {{-- ================= AIRPORT BRANDING ================= --}}
+            {{-- ================= AIRPORT ================= --}}
             <div id="airportBranding">
                 <h6 class="mt-4">Airport Branding</h6>
                 <table class="table table-bordered">
@@ -152,7 +150,7 @@
                 </table>
             </div>
 
-            {{-- ================= TRANSIT MEDIA ================= --}}
+            {{-- ================= TRANSIT ================= --}}
             <div id="transmitMedia">
                 <h6 class="mt-4">Transit Media</h6>
                 <table class="table table-bordered">
@@ -170,7 +168,7 @@
                 </table>
             </div>
 
-            {{-- ================= OFFICE BRANDING ================= --}}
+            {{-- ================= OFFICE ================= --}}
             <div id="officeBranding">
                 <h6 class="mt-4">Office Branding</h6>
                 <table class="table table-bordered">
@@ -218,57 +216,29 @@
     <script>
         $(document).ready(function() {
 
-            const category = $('#category_id').val();
+            const category = $('#category_slug').val();
 
             function hideAll() {
-                $('#billboardsBasic').hide();
-                $('#billboardsId').hide();
-                $('#mallMedia').hide();
-                $('#airportBranding').hide();
-                $('#transmitMedia').hide();
-                $('#officeBranding').hide();
-                $('#wallWrap').hide();
+                $('#billboardsBasic, #billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap')
+                    .hide();
             }
 
             hideAll();
 
-            if (category === 'hoardings') {
+            // OTHER → only common fields
+            if (!category || category === 'other') {
+                return;
+            }
+
+            if (category.includes('hoardings')) {
                 $('#billboardsBasic').show();
                 $('#billboardsId').show();
-                return;
             }
-
-            if (category === 'digital-wall') {
-                return; // ONLY COMMON DETAILS
-            }
-
-            if (category === 'mall-media') {
-
-                $('#mallMedia').show();
-                return;
-            }
-
-            if (category === 'airport-branding') {
-
-                $('#airportBranding').show();
-                return;
-            }
-
-            if (category === 'transmit-media') {
-                $('#transmitMedia').show();
-                return;
-            }
-
-            if (category === 'office-branding') {
-                $('#officeBranding').show();
-                return;
-            }
-
-            if (category === 'wall-wrap') {
-                $('#wallWrap').show();
-                return;
-            }
-
+            if (category.includes('mall')) $('#mallMedia').show();
+            if (category.includes('airport')) $('#airportBranding').show();
+            if (category.includes('transmit')) $('#transmitMedia').show();
+            if (category.includes('office')) $('#officeBranding').show();
+            if (category.includes('wall')) $('#wallWrap').show();
         });
     </script>
 @endsection
