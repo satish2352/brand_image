@@ -250,18 +250,22 @@
                         @foreach ($categoryMediaCounts as $cat)
                             <div class="col-lg-3 col-md-6 mb-4">
                                 <a href="{{ route('media.list') }}" class="text-decoration-none text-dark">
-                                    <div class="card shadow-sm card-radius h-80">
-                                        <div class="card-body bg-department">
+                                    <div class="card shadow-sm card-radius h-100 w-100">
+                                        <div class="card-body bg-department d-flex align-items-center">
                                             <div class="d-flex flex-row">
                                                 <div
                                                     class="round round-lg text-white text-center rounded-circle bg-dashboard-info">
                                                     <i class="mdi mdi-monitor-multiple mdi-36px icon-padding"></i>
                                                 </div>
                                                 <div class="ml-2 align-self-center">
-                                                    <h4 class="mb-0 font-weight-bold">
+                                                    <h3 class="mb-0 font-weight-light-new new-font-size">
+                                                    {{ $cat->category_name }}
+                                                    <strong>{{ $cat->media_count }}</strong>
+                                                    </h3>
+                                                    {{-- <h4 class="mb-0 font-weight-bold">
                                                         {{ $cat->media_count }}
                                                     </h4>
-                                                    <small>{{ $cat->category_name }}</small>
+                                                    <small>{{ $cat->category_name }}</small> --}}
                                                 </div>
                                             </div>
                                         </div>

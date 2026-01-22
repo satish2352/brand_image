@@ -120,6 +120,36 @@
 
 <!-- end footer -->
 
+{{-- if admin deactive or delete user then run below --}}
+@if (session('auto_logout_message'))
+<script>
+    Swal.fire({
+        icon: 'warning',
+        title: 'Logged Out',
+        text: "{{ session('auto_logout_message') }}",
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+
+<script>
+$(document).ajaxError(function (event, xhr) {
+
+    if (xhr.status === 401 && xhr.responseJSON?.message) {
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Logged Out',
+            text: xhr.responseJSON.message,
+            confirmButtonText: 'OK'
+        }).then(() => {
+            window.location.href = "/";
+        });
+    }
+});
+</script>
+{{-- end --}}
+
 {{-- slider hording --}}
 
 <script>

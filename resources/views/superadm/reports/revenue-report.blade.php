@@ -538,8 +538,8 @@
                         hideLoader();
                         Swal.fire({
                             icon: 'success',
-                            title: 'Download Started',
-                            text: 'Your file is downloading',
+                            title: 'Download Completed',
+                            text: 'The file was downloaded successfully.',
                             timer: 1500,
                             showConfirmButton: false
                         });

@@ -45,7 +45,7 @@
                 <div class="media-price">
                     ₹ {{ number_format($media->price, 2) }}
                 </div>
-                <div class="media-map mt-4 d-flex align-items-center gap-3">
+                <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
 
                     {{-- View on Map --}}
                     <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"

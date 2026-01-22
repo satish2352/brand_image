@@ -3,6 +3,24 @@
 @section('title', 'Checkout')
 
 @section('content')
+
+    <!-- breadcrumb-section -->
+
+    <div class="container-fluid about-banner-img g-0">
+        <div class="row">
+            <!-- Desktop Image -->
+            <div class="col-md-12 d-none d-md-block">
+                <img src="{{ asset('assets/img/contactus1.png') }}" alt="About Banner" class="img-fluid">
+            </div>
+
+            <!-- Mobile Image -->
+            <div class="col-md-12 d-block d-md-none">
+                <img src="{{ asset('assets/img/contactusmobileview.png') }}" alt="About Banner" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    <!-- end breadcrumb section -->
+
     <div class="container my-5">
 
         <h3 class="mb-4">Checkout</h3>

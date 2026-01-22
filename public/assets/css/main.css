@@ -3245,7 +3245,7 @@ table.order-details tbody td {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #ffffff;
+  background: #f28123;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
@@ -3256,11 +3256,11 @@ table.order-details tbody td {
 
 .swiper-btn i {
   font-size: 16px;
-  color: #000;
+  color: #fff;
 }
 
 .swiper-btn:hover {
-  background: #f28123;
+  background: #2b64b5;
 }
 
 .swiper-btn:hover i {

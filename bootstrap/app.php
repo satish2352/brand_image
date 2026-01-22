@@ -19,16 +19,17 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withMiddleware(function (Middleware $middleware) {
 
-        // ✅ GLOBAL middleware (runs on every request)
+        // GLOBAL middleware (runs on every request)
         $middleware->append(
             \App\Http\Middleware\ComingSoonMiddleware::class
         );
 
-        // ✅ Middleware aliases (unchanged)
+        // Middleware aliases (unchanged)
         $middleware->alias([
             'SuperAdmin'   => \App\Http\Middleware\SuperAdmin::class,
             'website.auth' => \App\Http\Middleware\WebsiteAuth::class,
             'auth.both'    => \App\Http\Middleware\AuthBoth::class,
+            'check.website.user' => \App\Http\Middleware\CheckWebsiteUserStatus::class,
         ]);
     })
 

@@ -619,22 +619,29 @@ class RevenueReportController extends Controller
 
     public function exportExcel(Request $request)
     {
+        if (!$request->filled('report_type')) {
+            $request->merge(['report_type' => 'media']);
+        }
+
         $data = $this->exportQuery($request);
 
         if ($data->isEmpty()) {
             return response()->json(['status' => 'empty']);
         }
 
-        $type = $request->report_type ?? 'media';
-
         return Excel::download(
-            new \App\Exports\RevenueExport($data, $type),
+            new \App\Exports\RevenueExport($data, $request->report_type),
             'revenue_report.xlsx'
         );
     }
 
     public function exportPdf(Request $request)
     {
+        // FORCE DEFAULT REPORT TYPE
+        if (!$request->filled('report_type')) {
+            $request->merge(['report_type' => 'media']);
+        }
+
         $data = $this->exportQuery($request);
 
         if ($data->isEmpty()) {
@@ -645,10 +652,11 @@ class RevenueReportController extends Controller
             'superadm.reports.revenue-report-pdf',
             [
                 'reports' => $data,
-                'type'    => $request->report_type
+                'type'    => $request->report_type // now always 'media' by default
             ]
         )->setPaper('A4', 'landscape');
 
         return $pdf->download('revenue_report.pdf');
     }
+
 }
