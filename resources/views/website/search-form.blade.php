@@ -128,10 +128,10 @@
             @csrf
             <input type="hidden" name="clear" id="clearFlag">
 
-            <div class="row g-3">
+            <div class="row g-3 justify-content-between">
 
                 <!-- Category -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Category</label>
                     <select name="category_id" class="form-select">
                         <option value="">Select Category</option>
@@ -179,7 +179,7 @@
                 </div>
 
                 <!-- Area -->
-                <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Area</label>
                     <select name="area_id" id="area_id" class="form-select">
                         <option value="">Select Area</option>
@@ -275,7 +275,7 @@
                         </button>
                     </div>
 
-                    <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+                    <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto mt-3 ">
                         <button type="button" class="btn btn-clear" id="clearFilters">
                             Clear Filters
                         </button>
@@ -283,7 +283,7 @@
                     @if (($filters['category_id'] ?? '') != '')
                         @php $catName = $mediaList->first()->category_name ?? ''; @endphp
 
-                        <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center">
+                        <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
                             @if ($mediaList->total() > 0)
                                 <div class="result-badge">
                                     <span class="icon">📍</span>

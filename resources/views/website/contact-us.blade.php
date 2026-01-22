@@ -11,12 +11,12 @@
     <div class="row">
         <!-- Desktop Image -->
         <div class="col-md-12 d-none d-md-block">
-            <img src="{{ asset('assets/img/contactus1.png') }}" alt="About Banner" class="img-fluid">
+            <img src="{{ asset('assets/img/sads.png') }}" alt="About Banner" class="img-fluid">
         </div>
 
         <!-- Mobile Image -->
         <div class="col-md-12 d-block d-md-none">
-            <img src="{{ asset('assets/img/contactusmobileview.png') }}" alt="About Banner" class="img-fluid">
+            <img src="{{ asset('assets/img/rty1.png') }}" alt="About Banner" class="img-fluid">
         </div>
     </div>
 </div>
@@ -93,23 +93,7 @@
                     </div>
 
                     <!-- ROW 2 : MOBILE + ADDRESS -->
-                    <div class="row">
-
-                        <div class="col-md-6 mb-3">
-                            <textarea name="address" class="form-control" rows="5" placeholder="Address" maxlength="200">{{ old('address') }}</textarea>
-                            <small class="text-muted" id="addressCounter">0 / 200</small>
-                            @error('address')
-                            <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <textarea name="remark" class="form-control" rows="5" placeholder="Requirements/Specifications" maxlength="200">{{ old('remark') }}</textarea>
-                            <small class="text-muted" id="remarkCounter">0 / 300</small>
-                            @error('remark')
-                            <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </div>
-                    </div>
+                   
                     <!-- SUBMIT -->
                     {{-- <div class="row d-flex justify-content-end ">
                                 <div class="col-6">
