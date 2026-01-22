@@ -16,6 +16,7 @@
                                     <th>User Name</th>
                                     <th>Email</th>
                                     <th>Mobile</th>
+                                    <th>Campaign Name</th>
                                     <th>Order No</th>
                                     <th>From Date</th>
                                     <th>To Date</th>
@@ -34,6 +35,7 @@
                                         <td>{{ $row->name }}</td>
                                         <td>{{ $row->email }}</td>
                                         <td>{{ $row->mobile_number }}</td>
+                                        <td>{{ $row->campaign_name ?? '-' }}</td>
                                         <td>{{ $row->order_no }}</td>
                                         <td>
                                             {{ $row->from_date ? date('d-m-Y', strtotime($row->from_date)) : '-' }}

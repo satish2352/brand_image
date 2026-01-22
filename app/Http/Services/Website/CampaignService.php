@@ -43,6 +43,20 @@ class CampaignService
 
         return $data_output;
     }
+    public function getOpenCampaigns($userId, $request)
+    {
+        return $this->repo->fetchOpenCampaigns($userId, $request);
+    }
+
+    public function getBookedCampaigns($userId, $request)
+    {
+        return $this->repo->fetchBookedCampaigns($userId, $request);
+    }
+
+    public function getPastCampaigns($userId, $request)
+    {
+        return $this->repo->fetchPastCampaigns($userId, $request);
+    }
 
     public function getCampaignDetailsByCartItem($userId, $cartItemId)
     {

@@ -293,7 +293,8 @@ class MediaManagementService
     public function viewDetails($id)
     {
         $rows = $this->repo->getDetailsById($id);
-
+        // dd($rows);
+        // die();
         if ($rows->isEmpty()) {
             return null;
         }

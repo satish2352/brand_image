@@ -10,6 +10,7 @@ class UserPaymentRepository
     {
         return DB::table('orders as o')
             ->join('website_users as u', 'u.id', '=', 'o.user_id')
+            ->join('campaign as camp', 'camp.id', '=', 'o.campaign_id')
             ->leftJoin('order_items as oi', 'oi.order_id', '=', 'o.id')
             ->select(
                 'o.id',
@@ -20,6 +21,7 @@ class UserPaymentRepository
                 'o.payment_status',
                 'o.payment_id',
                 'o.created_at',
+                'camp.campaign_name',
                 'u.name',
                 'u.email',
                 'u.mobile_number',
@@ -36,6 +38,7 @@ class UserPaymentRepository
                 'o.payment_status',
                 'o.payment_id',
                 'o.created_at',
+                'camp.campaign_name',
                 'u.name',
                 'u.email',
                 'u.mobile_number'

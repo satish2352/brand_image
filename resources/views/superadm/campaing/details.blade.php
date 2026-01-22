@@ -32,7 +32,7 @@
                                     <th>From</th>
                                     <th>To</th>
                                     <th>Days</th>
-                                    <th>Price</th>
+                                    <th>Monthly Price</th>
                                     <th>Total</th>
                                     <th>Export</th>
                                     <th>Status</th>
@@ -55,7 +55,7 @@
                                             </a>
 
                                             <a href="{{ route('campaign.export.ppt', base64_encode($campaignId)) }}"
-                                                class="btn btn-warning btn-sm">
+                                                class="btn btn-success btn-sm">
                                                 Export PPT
                                             </a>
                                         </td>
@@ -82,6 +82,8 @@
                                                 <input type="hidden" name="price" value="{{ $item->price }}">
                                                 <input type="hidden" name="total_price" value="{{ $item->total_price }}">
                                                 <input type="hidden" name="total_days" value="{{ $item->total_days }}">
+                                                <input type="hidden" name="campaign_id" value="{{ $item->campaign_id }}">
+
 
 
                                                 <button type="submit" class="btn btn-primary btn-sm">Book</button>
