@@ -122,6 +122,8 @@
 
     .mission-desc {
         font-size: 16px;
+                    text-align: justify;
+
         line-height: 1.6;
     }
 
@@ -158,6 +160,7 @@
 
         .mission-desc {
             font-size: 15px;
+            text-align: justify;
         }
 
         .mission-card {
@@ -170,9 +173,10 @@
             margin-top: 10px;
         }
     }
-    .misiionsimg{
-        height: 50px;
-        width: 50px;
+
+    .misiionsimg {
+        height: 100px;
+        width: 100px;
     }
 </style>
 
@@ -192,21 +196,10 @@
             <div class="col-lg-6">
                 <div class="row g-4 align-items-center d-grid">
 
-                    <div class="col-md-12">
-                        <div class="mission-card">
-                            <img src="{{ asset('assets/img/36.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
-                            <div>
-                                <h5> Values</h5>
-                                <p class="mission-desc mb-0">
-                                    We value innovation, creativity, and strategic thinking, delivering impactful outdoor media solutions with integrity, transparency, and a strong focus on measurable results.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="col-md-12">
-                        <div class="mission-card"> 
-                            <img src="{{ asset('assets/img/35.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
+                        <div class="mission-card">
+                            <img src="{{ asset('assets/img/17.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
                             <div>
                                 <h5>Mission</h5>
                                 <p class="mission-desc mb-0">
@@ -218,11 +211,22 @@
 
                     <div class="col-md-12">
                         <div class="mission-card">
-                            <img src="{{ asset('assets/img/34.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
+                            <img src="{{ asset('assets/img/15.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
                             <div>
                                 <h5>Vision</h5>
                                 <p class="mission-desc mb-0">
                                     To become a trusted advertising partner by shaping powerful brand experiences through innovation, creativity, and technology while setting new standards for marketing excellence. </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mission-card">
+                            <img src="{{ asset('assets/img/16.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
+                            <div>
+                                <h5> Values</h5>
+                                <p class="mission-desc mb-0">
+                                    We value innovation, creativity, and strategic thinking, delivering impactful outdoor media solutions with integrity, transparency, and a strong focus on measurable results.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -372,7 +376,7 @@
                 <div class="info-card orange-card h-100 w-100 ">
 
                     <div class="content">
-                        <img src="{{ asset('assets/img/mvp1.png') }}" style="height: 70px; width:70px" class="mb-3" alt="">
+                        <img src="{{ asset('assets/img/13.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
 
                         <h5 class="title">Client Brief</h5>
                         <p>A client brief is a document that outlines the requirements and scope of a project or campaign as set forth by a client.</p>
@@ -387,7 +391,7 @@
                 <div class="info-card orange-card h-100 w-100 ">
 
                     <div class="content">
-                        <img src="{{ asset('assets/img/mvp2.png') }}" style="height: 70px; width:70px" class="mb-3" alt="">
+                        <img src="{{ asset('assets/img/12.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
 
                         <h5 class="title">Brainstorming</h5>
                         <p>Brainstorming is a general technique for coming up with an idea, but sometimes it's not good enough to just sit down and tell yourself you're going to brainstorm until you get an idea.</p>
@@ -401,7 +405,7 @@
                 <div class="info-card orange-card h-100 w-100">
 
                     <div class="content">
-                        <img src="{{ asset('assets/img/mvp3.png') }}" style="height: 70px; width:70px" class="mb-3" alt="">
+                        <img src="{{ asset('assets/img/14.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
 
                         <h5 class="title">Present</h5>
                         <p>Discuss the common demographics of the market, where people shop and how they spend, all of which you will use to justify your creative ideas.</p>
@@ -414,7 +418,7 @@
             <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5 pb-md-0 ">
                 <div class="info-card orange-card h-100 w-100">
                     <div class="content">
-                        <img src="{{ asset('assets/img/mvp4.png') }}" style="height: 70px; width:70px" class="mb-3" alt="">
+                        <img src="{{ asset('assets/img/11.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
 
                         <h5 class="title">Deliver</h5>
                         <p>The term Ad Delivery means the delivery of online advertisements or advertising-related services using Ad Reporting Data.</p>

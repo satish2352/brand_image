@@ -134,7 +134,7 @@
 
                         <div class="contact-form-box">
                             <h4><i class="far fa-clock"></i> Shop Hours</h4>
-                            <p>MON - FRIDAY: 8 to 9 PM <br> SAT - SUN: 10 to 8 PM</p>
+                            <p>MON - FRI: 9 to 8 PM <br> SAT - SUN: 10 to 7 PM</p>
                         </div>
 
                         <div class="contact-form-box">
