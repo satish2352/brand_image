@@ -310,7 +310,17 @@ Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function
     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
     // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
     //     ->name('campaign.list');
-    Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
+    // Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
+    // ================= CAMPAIGN LISTS =================
+    Route::get('/campaigns/open',   [CampaignController::class, 'openCampaigns'])
+        ->name('campaigns.open');
+
+    Route::get('/campaigns/booked', [CampaignController::class, 'bookedCampaigns'])
+        ->name('campaigns.booked');
+
+    Route::get('/campaigns/past',   [CampaignController::class, 'pastCampaigns'])
+        ->name('campaigns.past');
+
     Route::get('/campaign-export-excel/{campaignId}', [CampaignController::class, 'exportExcel'])->name('campaign.export.excel');
     Route::get('/campaign-export-ppt/{campaignId}', [CampaignController::class, 'exportPpt'])->name('campaign.export.ppt');
     Route::post('/checkout/campaign/{campaignId}', [CheckoutController::class, 'placeCampaignOrder'])->name('checkout.campaign');
