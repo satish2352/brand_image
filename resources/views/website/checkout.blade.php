@@ -10,12 +10,12 @@
         <div class="row">
             <!-- Desktop Image -->
             <div class="col-md-12 d-none d-md-block">
-                <img src="{{ asset('assets/img/contactus1.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/addtocart.png') }}" alt="About Banner" class="img-fluid">
             </div>
 
             <!-- Mobile Image -->
             <div class="col-md-12 d-block d-md-none">
-                <img src="{{ asset('assets/img/contactusmobileview.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
             </div>
         </div>
     </div>
