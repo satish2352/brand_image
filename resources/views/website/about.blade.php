@@ -405,7 +405,7 @@
                 <div class="info-card orange-card h-100 w-100">
 
                     <div class="content">
-                        <img src="{{ asset('assets/img/14.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
+                        <img src="{{ asset('assets/img/20.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
 
                         <h5 class="title">Present</h5>
                         <p>Discuss the common demographics of the market, where people shop and how they spend, all of which you will use to justify your creative ideas.</p>
