@@ -6,7 +6,36 @@
 @section('content')
 
     <style>
-        /* Disable hover color change for disabled dates */
+        /* .flatpickr-day.selected.startRange,
+            .flatpickr-day.selected.endRange {
+                background: #ff9800 !important;
+                color: #fff !important;
+            }
+
+          
+            .flatpickr-day.selected {
+                background: #ff9800 !important;
+                color: #fff !important;
+            }
+
+          
+            .flatpickr-day.inRange {
+                background: rgba(255, 152, 0, 0.35) !important;
+                color: #000 !important;
+            }
+
+            
+            .flatpickr-day.inRange:hover {
+                background: rgba(255, 152, 0, 0.5) !important;
+            }
+
+          
+            .flatpickr-day.flatpickr-disabled {
+                background: transparent !important;
+                color: #9a9a9a !important;
+                cursor: not-allowed;
+            } */
+
         .flatpickr-day.flatpickr-disabled,
         .flatpickr-day.flatpickr-disabled:hover {
             color: #979393 !important;
@@ -36,9 +65,9 @@
         }
 
         /* .cart-img-wrapper {
-                                                                                                                    display: flex;
-                                                                                                                    gap: 10px;
-                                                                                                                } */
+                                                                                                                                                display: flex;
+                                                                                                                                                gap: 10px;
+                                                                                                                                            } */
 
         .cart-img-wrapper {
             display: flex;
@@ -454,17 +483,18 @@
                                                 data-to-date="{{ $item->to_date }}">
                                             </div>
 
-                                            <!-- 🔴 ERROR MESSAGE (ABOVE BUTTON) -->
 
 
-                                            <!-- 🟡 SMALL UPDATE BUTTON -->
+
+
                                             <div class="d-flex justify-content-start">
 
 
                                                 <button type="button" class="btn btn-warning btn-sm mt-2 update-date-btn">
                                                     Add Dates
                                                 </button>
-                                                <small class="text-danger cart-date-error d-none mt-2 ms-5">
+                                                <small class="text-danger cart-date-error d-none mt-2 ms-5"
+                                                    style="font-size: 16px;">
                                                     Please select booking dates
                                                 </small>
                                                 {{-- <strong>Total: ₹ {{ number_format($total, 2) }}</strong> --}}

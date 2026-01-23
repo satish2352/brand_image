@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AdminCampaignExport;
 use Carbon\Carbon;
+use App\Http\Controllers\Website\CampaignController as WebsiteCampaignController;
 
 
 class CampaingController extends Controller
@@ -165,5 +166,19 @@ class CampaingController extends Controller
 			new AdminCampaignExport($campaignId),
 			'admin_campaign_' . $campaignId . '.xlsx'
 		);
+	}
+	public function exportPpt($campaignId)
+	{
+		/**
+		 * IMPORTANT:
+		 * - Website exportPpt already handles:
+		 *   - buffer cleaning
+		 *   - PPT creation
+		 *   - images
+		 *   - download response
+		 * - So we just delegate
+		 */
+
+		return app(WebsiteCampaignController::class)->exportPpt($campaignId);
 	}
 }

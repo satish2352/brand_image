@@ -100,9 +100,16 @@ class CartRepository
     // =================
     public function getBookedDatesByMedia($mediaId)
     {
-        return DB::table('order_items')
-            ->where('media_id', $mediaId)
-            ->select('from_date', 'to_date')
+        // return DB::table('order_items')
+        //     ->where('media_id', $mediaId)
+        //     ->select('from_date', 'to_date')
+        //     ->get();
+
+        return DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->where('oi.media_id', $mediaId)
+            ->where('o.payment_status', 'PAID')
+            ->select('oi.from_date', 'oi.to_date')
             ->get();
     }
 
@@ -113,16 +120,37 @@ class CartRepository
     }
 
     // 🔒 Check already booked dates
+    // public function isDateAlreadyBooked($mediaId, $from, $to)
+    // {
+    //     return DB::table('order_items as oi')
+    //         ->join('orders as o', 'o.id', '=', 'oi.order_id')
+    //         ->where('oi.media_id', $mediaId)
+    //         ->where('o.payment_status', 'PAID')
+
+    //         // DB::table('order_items')
+    //         ->where('media_id', $mediaId)
+    //         ->where(function ($q) use ($from, $to) {
+    //             $q->whereBetween('from_date', [$from, $to])
+    //                 ->orWhereBetween('to_date', [$from, $to])
+    //                 ->orWhere(function ($q2) use ($from, $to) {
+    //                     $q2->where('from_date', '<=', $from)
+    //                         ->where('to_date', '>=', $to);
+    //                 });
+    //         })
+    //         ->exists();
+    // }
     public function isDateAlreadyBooked($mediaId, $from, $to)
     {
-        return DB::table('order_items')
-            ->where('media_id', $mediaId)
+        return DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->where('oi.media_id', $mediaId)
+            ->where('o.payment_status', 'PAID') // 🔑 IMPORTANT
             ->where(function ($q) use ($from, $to) {
-                $q->whereBetween('from_date', [$from, $to])
-                    ->orWhereBetween('to_date', [$from, $to])
+                $q->whereBetween('oi.from_date', [$from, $to])
+                    ->orWhereBetween('oi.to_date', [$from, $to])
                     ->orWhere(function ($q2) use ($from, $to) {
-                        $q2->where('from_date', '<=', $from)
-                            ->where('to_date', '>=', $to);
+                        $q2->where('oi.from_date', '<=', $from)
+                            ->where('oi.to_date', '>=', $to);
                     });
             })
             ->exists();

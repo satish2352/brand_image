@@ -145,6 +145,11 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
     Route::get('admin-campaing/export-excel/{campaignId}', [CampaingController::class, 'exportExcel'])->name('admin.campaign.export.excel');
 
+    Route::get(
+        'admin-campaing/export-ppt/{campaignId}',
+        [CampaingController::class, 'exportPpt']
+    )->name('admin.campaign.export.ppt');
+
 
     Route::prefix('admin-campaing')->group(function () {
         Route::get('list', [CampaingController::class, 'index'])->name('admin-campaing.list');

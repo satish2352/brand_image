@@ -13,11 +13,14 @@
                         <th>User Name</th>
                         <th>Campaign Name</th>
                         <th>Date</th>
-
+                        <th>Export</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-
+                <?php
+                // dd($campaigns);
+                // die();
+                ?>
                 <tbody>
                     @foreach ($campaigns as $key => $row)
                         <tr>
@@ -27,6 +30,23 @@
                             <td>{{ \Carbon\Carbon::parse($row->created_at)->format('d M Y') }}</td>
 
 
+                            <td>
+                                <a href="{{ route('admin.campaign.export.excel', base64_encode($row->campaign_id)) }}"
+                                    class="btn btn-success btn-sm">
+                                    Export Excel
+                                </a>
+
+                                {{-- <a href="{{ route('campaign.export.excel', base64_encode($row->campaign_id)) }}"
+                                    class="btn btn-success btn-sm">
+                                    Export Excel
+                                </a>
+
+                               --}}
+                                <a href="{{ route('admin.campaign.export.ppt', base64_encode($row->campaign_id)) }}"
+                                    class="btn btn-success btn-sm">
+                                    Export PPT
+                                </a>
+                            </td>
                             <td>
                                 <a href="{{ route('admin.campaign.details', [
                                     'campaignId' => base64_encode($row->campaign_id),

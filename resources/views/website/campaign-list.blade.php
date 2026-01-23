@@ -157,10 +157,14 @@
                                         </thead>
 
                                         <tbody>
+                                            <?php
+                                            // dd($items);
+                                            // die();
+                                            ?>
                                             @foreach ($items as $index => $row)
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $row->common_stdiciar_name ?? '-' }}</td>
+                                                    <td>{{ $row->area_name ?? '-' }} {{ $row->facing ?? '-' }}</td>
                                                     <td>{{ $row->media_title ?? '-' }}</td>
                                                     <td>{{ $row->width }} × {{ $row->height }}</td>
                                                     <td>₹ {{ number_format($row->total_price, 2) }}</td>

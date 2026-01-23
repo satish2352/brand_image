@@ -23,7 +23,7 @@
 
     <div class="container my-5">
 
-        <h3 class="mb-4">Checkout</h3>
+        <h3 class="mb-4">Order Details</h3>
 
         {{-- ORDER ITEMS --}}
         <div class="card mb-4">
