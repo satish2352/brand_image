@@ -5,6 +5,7 @@ namespace App\Http\Repository\Website;
 use App\Models\Campaign;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CampaignRepository
 {
@@ -74,7 +75,75 @@ class CampaignRepository
             ->get()
             ->groupBy('campaign_id'); // ⭐ grouped campaign-wise
     }
+    private function baseQuery($userId, $request)
+    {
+        $query = DB::table('campaign as c')
+            ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
+            ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->where('c.user_id', $userId)
+            ->where('ci.cart_type', 'CAMPAIGN')
+            ->where('ci.status', 'ACTIVE');
 
+        if ($request->filled('campaign_name')) {
+            $query->where('c.campaign_name', 'like', '%' . $request->campaign_name . '%');
+        }
+
+        return $query->select(
+            'ci.id as cart_item_id',
+            'c.id as campaign_id',
+            'c.campaign_name',
+            'ci.total_price',
+            'ci.total_days',
+            'ci.from_date',
+            'ci.to_date',
+            'ci.created_at as campaign_date',
+            'm.media_title',
+            'm.width',
+            'm.height',
+            'a.common_stdiciar_name'
+        );
+    }
+
+
+    public function fetchOpenCampaigns($userId, $request)
+    {
+        return $this->baseQuery($userId, $request)
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('orders as o')
+                    ->whereColumn('o.campaign_id', 'c.id')
+                    ->where('o.is_deleted', 0);
+            })
+            ->whereDate('ci.to_date', '>=', now()->toDateString())
+            ->orderBy('c.id', 'DESC')
+            ->get()
+            ->groupBy('campaign_id');
+    }
+
+
+    public function fetchBookedCampaigns($userId, $request)
+    {
+        return $this->baseQuery($userId, $request)
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('orders as o')
+                    ->whereColumn('o.campaign_id', 'c.id')
+                    ->where('o.is_deleted', 0);
+            })
+            ->orderBy('c.id', 'DESC')
+            ->get()
+            ->groupBy('campaign_id');
+    }
+
+    public function fetchPastCampaigns($userId, $request)
+    {
+        return $this->baseQuery($userId, $request)
+            ->whereDate('ci.to_date', '<', now()->toDateString())
+            ->orderBy('c.id', 'DESC')
+            ->get()
+            ->groupBy('campaign_id');
+    }
     public function getCampaignDetailsByCartItem($userId, $cartItemId)
     {
         $data = DB::table('cart_items as ci')

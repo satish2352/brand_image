@@ -43,7 +43,7 @@ class CampaignController extends Controller
             );
 
             return redirect()
-                ->route('campaign.list', ['type' => 'active'])
+                ->route('campaigns.open')
                 ->with('success', 'Campaign created successfully');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -52,7 +52,46 @@ class CampaignController extends Controller
     }
 
 
+    public function openCampaigns(Request $request)
+    {
+        $campaigns = $this->campaignService->getOpenCampaigns(
+            Auth::guard('website')->id(),
+            $request
+        );
 
+        return view('website.campaign-list', [
+            'campaigns' => $campaigns,
+            'type'      => 'open',
+        ]);
+    }
+
+    // 🔵 BOOKED (Order placed)
+    public function bookedCampaigns(Request $request)
+    {
+        $campaigns = $this->campaignService->getBookedCampaigns(
+            Auth::guard('website')->id(),
+            $request
+        );
+
+        return view('website.campaign-list', [
+            'campaigns' => $campaigns,
+            'type'      => 'booked',
+        ]);
+    }
+
+    // ⚫ PAST (Expired)
+    public function pastCampaigns(Request $request)
+    {
+        $campaigns = $this->campaignService->getPastCampaigns(
+            Auth::guard('website')->id(),
+            $request
+        );
+
+        return view('website.campaign-list', [
+            'campaigns' => $campaigns,
+            'type'      => 'past',
+        ]);
+    }
 
     public function getCampaignList(Request $request)
     {
