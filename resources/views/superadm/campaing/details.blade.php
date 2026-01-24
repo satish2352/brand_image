@@ -32,8 +32,15 @@
                                     <th>From</th>
                                     <th>To</th>
                                     <th>Days</th>
+
+
+
+                                    <th>Days</th>
                                     <th>Monthly Price</th>
+                                    <th>Per Day</th>
                                     <th>Total</th>
+                                    <th>GST (18%)</th>
+                                    <th>Final</th>
 
                                     <th>Status</th>
                                     <th>Action</th>
@@ -46,8 +53,21 @@
                                         <td>{{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}</td>
                                         <td>{{ $item->total_days }}</td>
+                                        {{-- <td>{{ number_format($item->price, 2) }}</td>
+                                        <td>{{ number_format($item->total_price, 2) }}</td> --}}
+                                        <td>{{ $item->total_days }}</td>
                                         <td>{{ number_format($item->price, 2) }}</td>
+                                        <td>{{ number_format($item->per_day_price ?? $item->total_price / $item->total_days, 2) }}
+                                        </td>
                                         <td>{{ number_format($item->total_price, 2) }}</td>
+
+                                        @php
+                                            $gst = round($item->total_price * 0.18, 2);
+                                            $final = $item->total_price + $gst;
+                                        @endphp
+
+                                        <td>{{ number_format($gst, 2) }}</td>
+                                        <td><strong>{{ number_format($final, 2) }}</strong></td>
 
                                         <td>
                                             @if ($item->is_booked)
@@ -73,6 +93,9 @@
                                                 <input type="hidden" name="total_price" value="{{ $item->total_price }}">
                                                 <input type="hidden" name="total_days" value="{{ $item->total_days }}">
                                                 <input type="hidden" name="campaign_id" value="{{ $item->campaign_id }}">
+                                                <input type="hidden" name="per_day_price"
+                                                    value="{{ $item->per_day_price ?? 0 }}">
+
 
 
 

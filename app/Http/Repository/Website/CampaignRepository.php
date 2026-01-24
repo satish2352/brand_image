@@ -139,22 +139,61 @@ class CampaignRepository
     //         ->get()
     //         ->groupBy('campaign_id');
     // }
-
     public function fetchBookedCampaigns($userId, $request)
     {
-        return $this->baseQuery($userId, $request)
-            ->whereExists(function ($q) {
-                $q->select(DB::raw(1))
-                    ->from('order_items as oi')
-                    ->join('orders as o', 'o.id', '=', 'oi.order_id')
-                    ->whereColumn('oi.media_id', 'ci.media_id') // 🔑 media-level check
-                    ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED']) // ✅ FIX
-                    ->where('o.is_deleted', 0);
-            })
+        return DB::table('campaign as c')
+            ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
+            ->join('order_items as oi', 'oi.media_id', '=', 'ci.media_id')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->where('c.user_id', $userId)
+            ->where('ci.cart_type', 'CAMPAIGN')
+            ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+            ->where('o.is_deleted', 0)
+            ->select(
+                'ci.id as cart_item_id',
+                'c.id as campaign_id',
+                'c.campaign_name',
+
+                'ci.total_days',
+                'ci.price',
+                'ci.per_day_price',
+                'ci.total_price',
+
+                'o.gst_amount',
+                'o.grand_total',
+
+                'ci.from_date',
+                'ci.to_date',
+                'ci.created_at as campaign_date',
+
+                'm.media_title',
+                'm.width',
+                'm.height',
+                'a.area_name',
+                'm.facing'
+            )
             ->orderBy('c.id', 'DESC')
             ->get()
             ->groupBy('campaign_id');
     }
+
+    // public function fetchBookedCampaigns($userId, $request)
+    // {
+    //     return $this->baseQuery($userId, $request)
+    //         ->whereExists(function ($q) {
+    //             $q->select(DB::raw(1))
+    //                 ->from('order_items as oi')
+    //                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
+    //                 ->whereColumn('oi.media_id', 'ci.media_id') // 🔑 media-level check
+    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED']) // ✅ FIX
+    //                 ->where('o.is_deleted', 0);
+    //         })
+    //         ->orderBy('c.id', 'DESC')
+    //         ->get()
+    //         ->groupBy('campaign_id');
+    // }
 
     // public function fetchBookedCampaigns($userId, $request)
     // {

@@ -147,12 +147,24 @@
                                                 <th>Location</th>
                                                 <th>Media</th>
                                                 <th>Size</th>
-                                                <th>Total Price</th>
-                                                <th>From Date</th>
-                                                <th>To Date</th>
-                                                <th>Booking Days</th>
-                                                <th>campaign Date</th>
-                                                <th>Details</th>
+
+                                                @if ($type === 'booked')
+                                                    <th>Monthly Price</th>
+                                                    <th>Days</th>
+
+                                                    {{-- <th>Per Day</th> --}}
+                                                    <th>Total</th>
+                                                    <th>GST (18%)</th>
+                                                    <th>Final</th>
+                                                    <th>Details</th>
+                                                @else
+                                                    <th>Total Price</th>
+                                                    <th>From Date</th>
+                                                    <th>To Date</th>
+                                                    <th>Booking Days</th>
+                                                    <th>Campaign Date</th>
+                                                    <th>Details</th>
+                                                @endif
                                             </tr>
                                         </thead>
 
@@ -162,7 +174,7 @@
                                             // die();
                                             ?>
                                             @foreach ($items as $index => $row)
-                                                <tr>
+                                                {{-- <tr>
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $row->area_name ?? '-' }} {{ $row->facing ?? '-' }}</td>
                                                     <td>{{ $row->media_title ?? '-' }}</td>
@@ -182,19 +194,70 @@
                                                             View
                                                         </a>
                                                     </td>
+                                                </tr> --}}
+                                        <tbody>
+                                            @foreach ($items as $index => $row)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $row->area_name ?? '-' }} {{ $row->facing ?? '-' }}</td>
+                                                    <td>{{ $row->media_title ?? '-' }}</td>
+                                                    <td>{{ $row->width }} × {{ $row->height }}</td>
+
+                                                    @if ($type === 'booked')
+                                                        <td>₹ {{ number_format($row->price, 2) }}</td>
+                                                        <td>{{ $row->total_days }}</td>
+
+
+
+                                                        {{-- <td>₹ {{ number_format($row->per_day_price, 2) }}</td> --}}
+
+                                                        <td>₹ {{ number_format($row->total_price, 2) }}</td>
+
+                                                        <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
+
+                                                        <td>₹ {{ number_format($row->grand_total, 2) }}</td>
+                                                        <td>
+                                                            <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
+                                                                class="btn btn-outline-primary btn-sm">
+                                                                View
+                                                            </a>
+                                                        </td>
+                                                    @else
+                                                        <td>₹ {{ number_format($row->total_price, 2) }}</td>
+
+                                                        <td>{{ $row->from_date ? \Carbon\Carbon::parse($row->from_date)->format('d-m-Y') : '-' }}
+                                                        </td>
+
+                                                        <td>{{ $row->to_date ? \Carbon\Carbon::parse($row->to_date)->format('d-m-Y') : '-' }}
+                                                        </td>
+
+                                                        <td>{{ $row->total_days ?? '-' }}</td>
+
+                                                        <td>{{ \Carbon\Carbon::parse($row->campaign_date)->format('d M Y') }}
+                                                        </td>
+
+                                                        <td>
+                                                            <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
+                                                                class="btn btn-outline-primary btn-sm">
+                                                                View
+                                                            </a>
+                                                        </td>
+                                                    @endif
                                                 </tr>
                                             @endforeach
                                         </tbody>
-                                    </table>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
                 @endforeach
-
+                </tbody>
+                </table>
             </div>
-        @endif
+
+    </div>
+    </div>
+    </div>
+    @endforeach
+
+    </div>
+    @endif
 
     </div>
 
