@@ -317,7 +317,12 @@
 
                         <div class="news-text-box">
 
-                            <h3>{{ $media->media_title ?? $media->category_name }}</h3>
+                            {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
+                            <h3 style="font-size: 21px;">
+                                <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
+                                    {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
+                                </a>
+                            </h3>
 
                             <p class="blog-meta">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -538,7 +543,11 @@
                     {{-- <a href="{{ route('contact.create') }}" class="card-btn contact">
                     Contact Us
                     </a> --}}
-                    <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
+                    {{-- <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
+                        Contact Us
+                    </a> --}}
+                    <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}#contact-form"
+                        class="card-btn contact">
                         Contact Us
                     </a>
 

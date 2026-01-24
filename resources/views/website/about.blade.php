@@ -4,6 +4,80 @@
 
 @section('content')
 
+<style>
+    /* LEFT BLOCK */
+    .mission-left {
+        height: 500px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+
+    }
+
+
+
+    .mission-title {
+        font-size: 40px;
+        font-weight: 700;
+    }
+
+    .mission-desc {
+        font-size: 16px;
+        text-align: justify;
+        line-height: 1.6;
+    }
+
+    /* RIGHT CARDS */
+    .mission-card {
+        background: #fff;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .mission-card i {
+        font-size: 26px;
+        color: #ff8c00;
+        flex-shrink: 0;
+    }
+
+    /* MOBILE FIXES */
+    @media (max-width: 767px) {
+
+
+        .mission-left {
+            height: 220px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+
+        }
+
+
+        .mission-title {
+            font-size: 28px;
+        }
+
+        .mission-desc {
+            font-size: 17px;
+            text-align: justify;
+        }
+
+        .mission-card {
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+        }
+
+        .mission-card h5 {
+            margin-top: 10px;
+        }
+    }
+
+    .misiionsimg {
+        height: 100px;
+        width: 100px;
+    }
+</style>
+
 <!-- breadcrumb-section -->
 <div class="container-fluid about-banner-img g-0">
     <div class="row">
@@ -39,7 +113,7 @@
 
 
                 <p>
-                    Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising agency that specializes in assisting clients in reaching their target audiences through innovative and customized solutions. With our team of experienced professionals, we take great pride in our ability to comprehend your specific needs and offer creative services that can truly make a difference
+                    Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising agency that specializes in assisting clients in reaching their target audiences through innovative and customized solutions. With our team of experienced professionals, we take great pride in our ability to comprehend your specific needs and offer creative services that can truly make a difference.
                 </p>
 
                 <p>
@@ -105,81 +179,6 @@
     </div>
 </section>
 
-<style>
-    /* LEFT BLOCK */
-    .mission-left {
-        height: 500px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
-
-    }
-
-
-
-    .mission-title {
-        font-size: 40px;
-        font-weight: 700;
-    }
-
-    .mission-desc {
-        font-size: 16px;
-                    text-align: justify;
-
-        line-height: 1.6;
-    }
-
-    /* RIGHT CARDS */
-    .mission-card {
-        background: #fff;
-        padding: 20px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
-
-    .mission-card i {
-        font-size: 26px;
-        color: #ff8c00;
-        flex-shrink: 0;
-    }
-
-    /* MOBILE FIXES */
-    @media (max-width: 767px) {
-
-
-        .mission-left {
-            height: 220px !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
-
-        }
-
-
-        .mission-title {
-            font-size: 28px;
-        }
-
-        .mission-desc {
-            font-size: 15px;
-            text-align: justify;
-        }
-
-        .mission-card {
-            flex-direction: column;
-            text-align: center;
-            align-items: center;
-        }
-
-        .mission-card h5 {
-            margin-top: 10px;
-        }
-    }
-
-    .misiionsimg {
-        height: 100px;
-        width: 100px;
-    }
-</style>
-
 <section class="mission-section py-5">
     <div class="container">
         <div class="row g-4 align-items-center">
@@ -187,7 +186,7 @@
             <!-- LEFT -->
             <div class="col-lg-6">
 
-                <img src="{{ asset('assets/img/45.png') }}" class="img-fluid rounded-5 mission-left" alt="mission">
+                <img src="{{ asset('assets/img/45.png') }}" class="img-fluid rounded-5  d-flex justify-content-center" alt="mission">
 
 
             </div>
@@ -501,5 +500,46 @@
     // initial load
     renderTestimonial();
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const counters = document.querySelectorAll('.counter');
+
+    const speed = 200; // animation speed
+
+    const startCounter = (counter) => {
+        const target = +counter.getAttribute('data-target');
+        let count = 0;
+        const increment = target / speed;
+
+        const updateCount = () => {
+            count += increment;
+            if (count < target) {
+                counter.innerText = Math.ceil(count);
+                requestAnimationFrame(updateCount);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                startCounter(entry.target);
+                observer.unobserve(entry.target); // run only once
+            }
+        });
+    }, {
+        threshold: 0.5 // mobile ke liye important
+    });
+
+    counters.forEach(counter => {
+        observer.observe(counter);
+    });
+});
+</script>
+
 
 @endsection

@@ -465,9 +465,35 @@
             // safety sync on load
             $('#media_code_hidden').val($('#media_code').val());
 
-            $('#vendor_id').on('change', function() {
+            // $('#vendor_id').on('change', function() {
+
+            //     let selectedVendorId = $(this).val();
+
+            //     // vendor cleared
+            //     if (!selectedVendorId) {
+            //         $('#media_code').val('');
+            //         $('#media_code_hidden').val('');
+            //         return;
+            //     }
+
+            //     //  SAME vendor → restore original code (NO increment)
+            //     if (selectedVendorId == originalVendorId) {
+            //         $('#media_code').val(originalMediaCode);
+            //         $('#media_code_hidden').val(originalMediaCode);
+            //         return;
+            //     }
+
+            //     //  DIFFERENT vendor → generate NEW code
+            //     $.get("{{ url('media/next-code') }}/" + selectedVendorId, function(res) {
+            //         $('#media_code').val(res.media_code);
+            //         $('#media_code_hidden').val(res.media_code);
+            //     });
+            // });
+
+            $('#vendor_id').on('change', function () {
 
                 let selectedVendorId = $(this).val();
+                let categorySlug = ($('#category_slug').val() || '').toLowerCase();
 
                 // vendor cleared
                 if (!selectedVendorId) {
@@ -476,19 +502,33 @@
                     return;
                 }
 
-                //  SAME vendor → restore original code (NO increment)
+                // NOT HOARDINGS → no media code logic
+                if (!categorySlug.includes('hoardings')) {
+                    $('#media_code').val('');
+                    $('#media_code_hidden').val('');
+                    return;
+                }
+
+                // SAME vendor → keep old media code
                 if (selectedVendorId == originalVendorId) {
                     $('#media_code').val(originalMediaCode);
                     $('#media_code_hidden').val(originalMediaCode);
                     return;
                 }
 
-                //  DIFFERENT vendor → generate NEW code
-                $.get("{{ url('media/next-code') }}/" + selectedVendorId, function(res) {
+                // DIFFERENT vendor (HOARDINGS ONLY) → generate new code
+                $.get("{{ url('media/next-code') }}/" + selectedVendorId, function (res) {
                     $('#media_code').val(res.media_code);
                     $('#media_code_hidden').val(res.media_code);
                 });
             });
+
+            let categorySlug = ($('#category_slug').val() || '').toLowerCase();
+
+            if (!categorySlug.includes('hoardings')) {
+                $('#media_code').val('');
+                $('#media_code_hidden').val('');
+            }
 
         });
     </script>

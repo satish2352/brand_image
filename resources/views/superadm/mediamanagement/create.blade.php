@@ -110,7 +110,7 @@
         <div class="card-body">
             <h4 class="mb-4">Add Media</h4>
 
-            @if ($errors->any())
+            {{-- @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
@@ -118,7 +118,7 @@
                         @endforeach
                     </ul>
                 </div>
-            @endif
+            @endif --}}
 
             <form id="mediaForm" method="POST" action="{{ route('media.store') }}" enctype="multipart/form-data">
                 @csrf
@@ -725,6 +725,20 @@
             }
 
             let selectedCategory = $('#category_id').find(':selected').data('category');
+            showSection(selectedCategory);
+
+                $('#category_id').on('change', function () {
+
+                    let categorySlug = $(this).find(':selected').data('category');
+
+                    showSection(categorySlug);
+
+                    // Reset media code if not hoardings
+                    if (!categorySlug || !categorySlug.includes('hoardings')) {
+                        $('#media_code').val('');
+                        $('#media_code_hidden').val('');
+                    }
+                });
 
             //  FORCE OPEN SECTION IF VALIDATION ERROR EXISTS
             @if ($errors->any())
@@ -733,9 +747,9 @@
                 showSection(selectedCategory);
             @endif
 
-            $('#category_id').on('change', function() {
-                showSection($(this).find(':selected').data('category'));
-            });
+            // $('#category_id').on('change', function() {
+            //     showSection($(this).find(':selected').data('category'));
+            // });
         });
     </script>
 
@@ -758,22 +772,45 @@
 
             // 
 
-            $('#vendor_id').on('change', function() {
+            // $('#vendor_id').on('change', function() {
+
+            //     let vendorId = $(this).val();
+
+            //     if (!vendorId) {
+            //         $('#media_code').val('');
+            //         $('#media_code_hidden').val('');
+            //         return;
+            //     }
+
+            //     $.get("{{ url('media/next-code') }}/" + vendorId, function(res) {
+
+            //         $('#media_code').val(res.media_code);
+            //         $('#media_code_hidden').val(res.media_code);
+
+            //     });
+            // });
+
+            $('#vendor_id').on('change', function () {
 
                 let vendorId = $(this).val();
+                let categorySlug = $('#category_id').find(':selected').data('category');
 
-                if (!vendorId) {
-                    $('#media_code').val('');
-                    $('#media_code_hidden').val('');
-                    return;
+                // reset
+                $('#media_code').val('');
+                $('#media_code_hidden').val('');
+
+                // vendor not selected
+                if (!vendorId) return;
+
+                // ONLY HOARDINGS / BILLBOARDS
+                if (categorySlug && categorySlug.includes('hoardings')) {
+
+                    $.get("{{ url('media/next-code') }}/" + vendorId, function (res) {
+                        $('#media_code').val(res.media_code);
+                        $('#media_code_hidden').val(res.media_code);
+                    });
+
                 }
-
-                $.get("{{ url('media/next-code') }}/" + vendorId, function(res) {
-
-                    $('#media_code').val(res.media_code);
-                    $('#media_code_hidden').val(res.media_code);
-
-                });
             });
 
 

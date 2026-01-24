@@ -3041,6 +3041,12 @@ table.order-details tbody td {
   transition: all 0.3s ease;
 }
 
+/* Reserve space for errors */
+.error-space {
+    min-height: 18px;
+}
+
+
 .contact-form .boxed-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 25px rgba(242, 129, 35, 0.35);
@@ -3192,6 +3198,16 @@ table.order-details tbody td {
   }
 }
 
+@media(max-width: 768px) {
+  .brand-logo{
+    display: flex;
+    justify-content: center;
+  }
+  .premium-footer {
+    padding-top:28px !important;
+  }
+}
+
 /* =========================
    MEDIA STATUS BADGE
 ========================= */
@@ -3235,8 +3251,28 @@ table.order-details tbody td {
 
 /* Hording billboard next pre btn css */
 
+.hoarding-slider .swiper-slide {
+    height: auto;              /* Swiper default height override */
+    width: 100%;
+}
+
+.swiper{
+  padding: 1rem !important;
+}
+
+
 .hoarding-slider {
   position: relative;
+}
+
+@media(max-width: 786px) {
+  .swiper-btn {
+    width: 33px !important;
+    height: 33px !important;
+  }
+  .custom-swiper-nav {
+    top: -54px !important;
+  }
 }
 
 .swiper-btn {

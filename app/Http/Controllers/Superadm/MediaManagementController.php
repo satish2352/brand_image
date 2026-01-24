@@ -197,7 +197,7 @@ class MediaManagementController extends Controller
         $request->validate($rules, $messages);
 
         try {
-            $this->mediaService->store($request);
+            $this->mediaService->store($request, $slug);
 
             return redirect()
                 ->route('media.list')
@@ -323,7 +323,7 @@ class MediaManagementController extends Controller
         }
         $request->validate($rules);
         try {
-            $this->mediaService->update($id, $request);
+            $this->mediaService->update($id, $request, $slug);
 
             return redirect()
                 ->route('media.list')

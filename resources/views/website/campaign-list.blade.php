@@ -151,7 +151,7 @@
                                                 <th>From Date</th>
                                                 <th>To Date</th>
                                                 <th>Booking Days</th>
-                                                <th>campaign Date</th>
+                                                <th>Campaign Date</th>
                                                 <th>Details</th>
                                             </tr>
                                         </thead>

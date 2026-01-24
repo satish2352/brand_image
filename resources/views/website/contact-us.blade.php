@@ -100,36 +100,46 @@
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
                                         <input type="text" class="form-control" placeholder="Full Name" name="full_name">
+                                        <div class="error-space"></div>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <input type="email" class="form-control" placeholder="Email" name="email">
+                                        <div class="error-space"></div>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <input type="tel" class="form-control" placeholder="Mobile" name="mobile_no">
+                                        <div class="error-space"></div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <textarea name="address" class="form-control" rows="5" placeholder="Address"></textarea>
-                                        <small class="text-muted" id="addressCounter">0 / 200</small>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <div class="error-space"></div>
+                                            <small class="text-muted" id="addressCounter">0 / 200</small>
+                                        </div>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <textarea name="remark" class="form-control" rows="5" placeholder="Requirements"></textarea>
-                                        <small class="text-muted" id="remarkCounter">0 / 300</small>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <div class="error-space"></div>
+                                            <small class="text-muted" id="remarkCounter">0 / 300</small>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                                        {{-- <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div> --}}
+                                        <div id="contactCaptcha"></div>
                                     </div>
 
-                                    <div class="col-md-6 d-flex justify-content-end">
-                                        <input type="submit" value="Submit" class="boxed-btn">
+                                    <div class="col-md-6 d-flex justify-content-end align-items-center">
+                                        <input type="submit" id="submitBtn" value="Submit" class="boxed-btn">
                                     </div>
                                 </div>
                             </form>
@@ -218,6 +228,19 @@
 
 @section('scripts')
 
+    <script>
+        let contactCaptchaWidget = null;
+
+        function onloadCallback() {
+            contactCaptchaWidget = grecaptcha.render('contactCaptcha', {
+                'sitekey': '{{ env("RECAPTCHA_SITE_KEY") }}'
+            });
+        }
+    </script>
+
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
+
+
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <script>
@@ -282,7 +305,7 @@
             /* ================= CLEAR ERROR ================= */
             function clearError(el) {
                 el.removeClass('is-invalid');
-                el.next('.text-danger').remove();
+                el.closest('.mb-3').find('.error-space').html('');
             }
 
             /* ================= SUBMIT ================= */
@@ -291,12 +314,15 @@
                 e.preventDefault(); // IMPORTANT
 
                 let valid = true;
+                const submitBtn = $('#submitBtn');
                 $('.text-danger').remove();
                 $('.is-invalid').removeClass('is-invalid');
 
                 function error(el, msg) {
                     el.addClass('is-invalid');
-                    el.after(`<small class="text-danger d-block">${msg}</small>`);
+                    el.closest('.mb-3')
+                    .find('.error-space')
+                    .html(`<small class="text-danger">${msg}</small>`);
                     valid = false;
                 }
 
@@ -322,18 +348,32 @@
 
                 /* ===== reCAPTCHA ===== */
                 if (typeof grecaptcha !== 'undefined') {
-                    if (grecaptcha.getResponse().length === 0) {
-                        $('.g-recaptcha').after(
-                            `<small class="text-danger d-block mt-1">
-                        Please verify that you are not a robot
-                    </small>`
-                        );
+                    // if (grecaptcha.getResponse().length === 0) {
+                    //     $('.g-recaptcha').after(
+                    //         `<small class="text-danger d-block mt-1">
+                    //     Please verify that you are not a robot
+                    // </small>`
+                    //     );
+                    //     valid = false;
+                    // }
+                    if (grecaptcha.getResponse(contactCaptchaWidget).length === 0) {
+                        $('#contactCaptcha').after(`
+                            <small class="text-danger d-block mt-1">
+                                Please verify that you are not a robot
+                            </small>
+                        `);
                         valid = false;
                     }
                 }
 
                 if (valid) {
-                    this.submit(); // ONLY HERE backend call
+                    // BUTTON DISABLE + TEXT CHANGE
+                    submitBtn
+                        .val('Submitting...')
+                        .prop('disabled', true)
+                        .css('cursor', 'not-allowed');
+
+                    this.submit(); // backend call
                 }
             });
         });

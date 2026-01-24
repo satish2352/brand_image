@@ -61,13 +61,13 @@
 
                         <div class="col-sm-6">
                             <div class="row">
-                                <div class="col-4"><strong>facing</strong></div>
+                                <div class="col-4"><strong>Facing</strong></div>
                                 <div class="col-7"> : {{ $row->facing }}</div>
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="row">
-                                <div class="col-4"><strong> illumination</strong></div>
+                                <div class="col-4"><strong>Illumination</strong></div>
                                 <div class="col-7"> : {{ $row->illumination_name }}</div>
                             </div>
                         </div>

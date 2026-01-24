@@ -286,6 +286,14 @@ $(document).ajaxError(function (event, xhr) {
     });
 </script>
 
+<script>
+    $(window).on("load", function () {
+        setTimeout(function () {
+            $(".loader").fadeOut(100); // smooth hide
+        }, 400); // 1 second only
+    });
+</script>
+
 <!-- jquery -->
 <script src="{{ asset('assets/js/jquery-1.11.3.min.js') }}"></script>
 <!-- bootstrap -->

@@ -272,6 +272,7 @@ $CATEGORY = [
 'TRANSIT' => 4,
 'OFFICE' => 5,
 'WRAP' => 6,
+'MALL' => 7,
 ];
 @endphp
 
@@ -503,6 +504,15 @@ $CATEGORY = [
                 <strong>Location:</strong> {{ $media->address }}
             </div>
             @endif
+            @endif
+
+            @if($media->category_id === $CATEGORY['MALL'])
+            <div class="col-6 mb-2">
+                <strong>Mall Name:</strong> {{ $media->mall_name ?? '-' }}
+            </div>
+            <div class="col-6 mb-2">
+                <strong>Mall Format:</strong> {{ $media->media_format ?? '-' }}
+            </div>
             @endif
 
             {{-- ================= PRICE (ALWAYS LAST) ================= --}}

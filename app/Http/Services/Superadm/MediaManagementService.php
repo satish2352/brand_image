@@ -26,7 +26,7 @@ class MediaManagementService
         return $this->repo->getAll($filters);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, string $slug)
     {
         DB::beginTransaction();
 
@@ -37,7 +37,7 @@ class MediaManagementService
                 'city_id',
                 'area_id',
                 'category_id',
-                'media_code',
+                // 'media_code',
                 'media_title',
                 'address',
                 'width',
@@ -54,6 +54,13 @@ class MediaManagementService
                 'video_link',
 
             ]);
+
+            // ONLY HOARDINGS
+            if (str_contains($slug, 'hoardings')) {
+                $mediaData['media_code'] = $request->media_code;
+            } else {
+                $mediaData['media_code'] = null;
+            }
 
             // AUTO GENERATE MEDIA CODE
             // $mediaData['media_code'] = $this->generateMediaCode($request->vendor_id);
@@ -118,7 +125,7 @@ class MediaManagementService
             throw $e;
         }
     }
-    public function update($id, Request $request)
+    public function update($id, Request $request, string $slug)
     {
         DB::beginTransaction();
 
@@ -131,7 +138,7 @@ class MediaManagementService
                 'area_id',
                 'category_id',
 
-                'media_code',
+                // 'media_code',
                 'media_title',
                 'address',
 
@@ -153,6 +160,13 @@ class MediaManagementService
 
 
             ]);
+
+            // ONLY HOARDINGS CAN UPDATE MEDIA CODE
+            if (str_contains($slug, 'hoardings')) {
+                $updateData['media_code'] = $request->media_code;
+            } else {
+                $updateData['media_code'] = null;
+            }
 
             // AUTO GENERATE MEDIA CODE
             // $mediaData['media_code'] = $this->generateMediaCode($request->vendor_id);
