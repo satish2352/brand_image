@@ -46,6 +46,98 @@ class CampaingController extends Controller
 		return view('superadm.campaing.details', compact('campaigns'));
 	}
 
+	// public function book(Request $request)
+	// {
+	// 	$campaignId = $request->campaign_id;
+	// 	$mediaId    = $request->media_id;
+	// 	$from       = $request->from_date;
+	// 	$to         = $request->to_date;
+
+	// 	$price      = $request->price;
+	// 	$qty        = 1;
+
+	// 	// Calculate days
+	// 	$days = Carbon::parse($from)->diffInDays(Carbon::parse($to)) + 1;
+
+	// 	// Base amount
+	// 	$totalAmount = $days * $price;
+
+	// 	// GST 18%
+	// 	$gstAmount   = round($totalAmount * 0.18, 2);
+
+	// 	// Payable
+	// 	$grandTotal  = $totalAmount + $gstAmount;
+
+	// 	/** 1️⃣ Check Overlap **/
+	// 	$exists = DB::table('media_booked_date')
+	// 		->where('media_id', $mediaId)
+	// 		->where('is_deleted', 0)
+	// 		->where(function ($q) use ($from, $to) {
+	// 			$q->whereBetween('from_date', [$from, $to])
+	// 				->orWhereBetween('to_date', [$from, $to])
+	// 				->orWhereRaw("'$from' BETWEEN from_date AND to_date")
+	// 				->orWhereRaw("'$to' BETWEEN from_date AND to_date");
+	// 		})
+	// 		->exists();
+
+	// 	if ($exists) {
+	// 		return back()->with('error', '⚠ Already booked in these dates!');
+	// 	}
+
+	// 	/** 2️⃣ Insert or Update Booked Dates **/
+	// 	$last = DB::table('media_booked_date')
+	// 		->where('media_id', $mediaId)
+	// 		->where('is_deleted', 0)
+	// 		->orderByDesc('id')
+	// 		->first();
+
+	// 	if ($last) {
+	// 		DB::table('media_booked_date')
+	// 			->where('id', $last->id)
+	// 			->update([
+	// 				'to_date'    => $to,
+	// 				'updated_at' => now(),
+	// 			]);
+	// 	} else {
+	// 		DB::table('media_booked_date')->insert([
+	// 			'media_id'   => $mediaId,
+	// 			'from_date'  => $from,
+	// 			'to_date'    => $to,
+	// 			'is_active'  => 1,
+	// 			'is_deleted' => 0,
+	// 			'created_at' => now(),
+	// 		]);
+	// 	}
+
+	// 	/** 3️⃣ Create Order **/
+	// 	$orderId = DB::table('orders')->insertGetId([
+	// 		'user_id'        => $request->user_id,
+	// 		'campaign_id'    => $request->campaign_id,
+	// 		'order_no'       => 'ORD-' . time(),
+	// 		'total_amount'   => $totalAmount,
+	// 		'gst_amount'     => $gstAmount,
+	// 		'grand_total'    => $grandTotal,
+	// 		'payment_status' => 'ADMIN_BOOKED',
+	// 		'is_active'      => 1,
+	// 		'is_deleted'     => 0,
+	// 		'created_at'     => now(),
+	// 	]);
+
+	// 	/** 4️⃣ Insert order item (WITHOUT total_days / total_price) **/
+	// 	DB::table('order_items')->insert([
+	// 		'order_id'    => $orderId,
+	// 		'media_id'    => $mediaId,
+	// 		'price'       => $price,
+	// 		'qty'         => $qty,
+	// 		'from_date'   => $from,
+	// 		'to_date'     => $to,
+	// 		'is_active'   => 1,
+	// 		'is_deleted'  => 0,
+	// 		'created_at'  => now(),
+	// 	]);
+
+	// 	return back()->with('success', '🎉 Booking Done & Order Created!');
+	// }
 	public function book(Request $request)
 	{
 		$campaignId = $request->campaign_id;
@@ -53,22 +145,16 @@ class CampaingController extends Controller
 		$from       = $request->from_date;
 		$to         = $request->to_date;
 
-		$price      = $request->price;
-		$qty        = 1;
-
-		// Calculate days
-		$days = Carbon::parse($from)->diffInDays(Carbon::parse($to)) + 1;
-
-		// Base amount
-		$totalAmount = $days * $price;
+		$monthlyPrice = $request->price;
+		$perDayPrice  = $request->per_day_price;
+		$days         = $request->total_days;
+		$totalAmount  = $request->total_price;
 
 		// GST 18%
-		$gstAmount   = round($totalAmount * 0.18, 2);
+		$gstAmount  = round($totalAmount * 0.18, 2);
+		$grandTotal = $totalAmount + $gstAmount;
 
-		// Payable
-		$grandTotal  = $totalAmount + $gstAmount;
-
-		/** 1️⃣ Check Overlap **/
+		/** Check overlap **/
 		$exists = DB::table('media_booked_date')
 			->where('media_id', $mediaId)
 			->where('is_deleted', 0)
@@ -81,38 +167,21 @@ class CampaingController extends Controller
 			->exists();
 
 		if ($exists) {
-			return back()->with('error', '⚠ Already booked in these dates!');
+			return back()->with('error', 'Already booked in these dates!');
 		}
 
-		/** 2️⃣ Insert or Update Booked Dates **/
-		$last = DB::table('media_booked_date')
-			->where('media_id', $mediaId)
-			->where('is_deleted', 0)
-			->orderByDesc('id')
-			->first();
+		DB::table('media_booked_date')->insert([
+			'media_id'   => $mediaId,
+			'from_date'  => $from,
+			'to_date'    => $to,
+			'is_active'  => 1,
+			'is_deleted' => 0,
+			'created_at' => now(),
+		]);
 
-		if ($last) {
-			DB::table('media_booked_date')
-				->where('id', $last->id)
-				->update([
-					'to_date'    => $to,
-					'updated_at' => now(),
-				]);
-		} else {
-			DB::table('media_booked_date')->insert([
-				'media_id'   => $mediaId,
-				'from_date'  => $from,
-				'to_date'    => $to,
-				'is_active'  => 1,
-				'is_deleted' => 0,
-				'created_at' => now(),
-			]);
-		}
-
-		/** 3️⃣ Create Order **/
 		$orderId = DB::table('orders')->insertGetId([
 			'user_id'        => $request->user_id,
-			'campaign_id'    => $request->campaign_id,
+			'campaign_id'    => $campaignId,
 			'order_no'       => 'ORD-' . time(),
 			'total_amount'   => $totalAmount,
 			'gst_amount'     => $gstAmount,
@@ -123,20 +192,22 @@ class CampaingController extends Controller
 			'created_at'     => now(),
 		]);
 
-		/** 4️⃣ Insert order item (WITHOUT total_days / total_price) **/
 		DB::table('order_items')->insert([
-			'order_id'    => $orderId,
-			'media_id'    => $mediaId,
-			'price'       => $price,
-			'qty'         => $qty,
-			'from_date'   => $from,
-			'to_date'     => $to,
-			'is_active'   => 1,
-			'is_deleted'  => 0,
-			'created_at'  => now(),
+			'order_id'      => $orderId,
+			'media_id'      => $mediaId,
+			'price'         => $monthlyPrice,
+			'per_day_price' => $perDayPrice,
+			'total_days'    => $days,
+			'total_price'   => $totalAmount,
+			'qty'           => 1,
+			'from_date'     => $from,
+			'to_date'       => $to,
+			'is_active'     => 1,
+			'is_deleted'    => 0,
+			'created_at'    => now(),
 		]);
 
-		return back()->with('success', '🎉 Booking Done & Order Created!');
+		return back()->with('success', 'Booking Done & Order Created!');
 	}
 
 

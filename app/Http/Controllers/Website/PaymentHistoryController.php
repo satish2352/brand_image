@@ -51,14 +51,15 @@ class PaymentHistoryController extends Controller
         $orderId = base64_decode($id);
 
         $items = $this->campaignService->getInvoiceDetails($orderId);
-
+        $generatedAt = now();
         $pdf = Pdf::loadView('website.payment-receipt-pdf', [
             'items'   => $items,
-            'orderId' => $orderId
+            'orderId' => $orderId,
+            'generatedAt' => $generatedAt, // pass to blade
         ])->setPaper('A4');
 
         $pdf->setOption('defaultFont', 'dejavusans');
 
-        return $pdf->download('RECEIPT_' . $orderId . '.pdf');
+        return $pdf->download('RECEIPT_' . $generatedAt . '.pdf');
     }
 }
