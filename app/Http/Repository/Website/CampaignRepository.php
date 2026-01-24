@@ -107,14 +107,16 @@ class CampaignRepository
         );
     }
 
-
     public function fetchOpenCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)
+            ->where('ci.status', 'ACTIVE') // only active cart media
             ->whereNotExists(function ($q) {
                 $q->select(DB::raw(1))
-                    ->from('orders as o')
-                    ->whereColumn('o.campaign_id', 'c.id')
+                    ->from('order_items as oi')
+                    ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                    ->whereColumn('oi.media_id', 'ci.media_id') // media-wise
+                    ->where('ci.cart_type', 'CAMPAIGN') // booked ones
                     ->where('o.is_deleted', 0);
             })
             ->whereDate('ci.to_date', '>=', now()->toDateString())
@@ -122,6 +124,21 @@ class CampaignRepository
             ->get()
             ->groupBy('campaign_id');
     }
+
+    // public function fetchOpenCampaigns($userId, $request)
+    // {
+    //     return $this->baseQuery($userId, $request)
+    //         ->whereNotExists(function ($q) {
+    //             $q->select(DB::raw(1))
+    //                 ->from('orders as o')
+    //                 ->whereColumn('o.campaign_id', 'c.id')
+    //                 ->where('o.is_deleted', 0);
+    //         })
+    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
+    //         ->orderBy('c.id', 'DESC')
+    //         ->get()
+    //         ->groupBy('campaign_id');
+    // }
 
     public function fetchBookedCampaigns($userId, $request)
     {
@@ -131,7 +148,7 @@ class CampaignRepository
                     ->from('order_items as oi')
                     ->join('orders as o', 'o.id', '=', 'oi.order_id')
                     ->whereColumn('oi.media_id', 'ci.media_id') // 🔑 media-level check
-                    ->where('o.payment_status', 'PAID')        // 🔑 only paid
+                    ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED']) // ✅ FIX
                     ->where('o.is_deleted', 0);
             })
             ->orderBy('c.id', 'DESC')
