@@ -469,7 +469,7 @@
 
                 let selectedVendorId = $(this).val();
 
-                // ❌ vendor cleared
+                // vendor cleared
                 if (!selectedVendorId) {
                     $('#media_code').val('');
                     $('#media_code_hidden').val('');
