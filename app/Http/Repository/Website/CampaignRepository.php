@@ -107,31 +107,16 @@ class CampaignRepository
         );
     }
 
-    public function fetchOpenCampaigns($userId, $request)
-    {
-        return $this->baseQuery($userId, $request)
-            ->where('ci.status', 'ACTIVE') // only active cart media
-            ->whereNotExists(function ($q) {
-                $q->select(DB::raw(1))
-                    ->from('order_items as oi')
-                    ->join('orders as o', 'o.id', '=', 'oi.order_id')
-                    ->whereColumn('oi.media_id', 'ci.media_id') // media-wise
-                    ->where('ci.cart_type', 'CAMPAIGN') // booked ones
-                    ->where('o.is_deleted', 0);
-            })
-            ->whereDate('ci.to_date', '>=', now()->toDateString())
-            ->orderBy('c.id', 'DESC')
-            ->get()
-            ->groupBy('campaign_id');
-    }
-
     // public function fetchOpenCampaigns($userId, $request)
     // {
     //     return $this->baseQuery($userId, $request)
+    //         ->where('ci.status', 'ACTIVE') // only active cart media
     //         ->whereNotExists(function ($q) {
     //             $q->select(DB::raw(1))
-    //                 ->from('orders as o')
-    //                 ->whereColumn('o.campaign_id', 'c.id')
+    //                 ->from('order_items as oi')
+    //                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
+    //                 ->whereColumn('oi.media_id', 'ci.media_id') // media-wise
+    //                 ->where('ci.cart_type', 'CAMPAIGN') // booked ones
     //                 ->where('o.is_deleted', 0);
     //         })
     //         ->whereDate('ci.to_date', '>=', now()->toDateString())
@@ -139,12 +124,30 @@ class CampaignRepository
     //         ->get()
     //         ->groupBy('campaign_id');
     // }
+
+    public function fetchOpenCampaigns($userId, $request)
+    {
+        return $this->baseQuery($userId, $request)
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('orders as o')
+                    ->whereColumn('o.campaign_id', 'c.id')
+                    ->where('o.is_deleted', 0);
+            })
+            ->whereDate('ci.to_date', '>=', now()->toDateString())
+            ->orderBy('c.id', 'DESC')
+            ->get()
+            ->groupBy('campaign_id');
+    }
     public function fetchBookedCampaigns($userId, $request)
     {
         return DB::table('campaign as c')
-            ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
-            ->join('order_items as oi', 'oi.media_id', '=', 'ci.media_id')
-            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('orders as o', 'o.campaign_id', '=', 'c.id')
+            ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+            ->join('cart_items as ci', function ($join) {
+                $join->on('ci.media_id', '=', 'oi.media_id')
+                    ->on('ci.campaign_id', '=', 'c.id');
+            })
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->where('c.user_id', $userId)
