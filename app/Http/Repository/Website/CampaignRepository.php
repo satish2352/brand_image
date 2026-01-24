@@ -123,20 +123,35 @@ class CampaignRepository
             ->groupBy('campaign_id');
     }
 
-
     public function fetchBookedCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)
             ->whereExists(function ($q) {
                 $q->select(DB::raw(1))
-                    ->from('orders as o')
-                    ->whereColumn('o.campaign_id', 'c.id')
+                    ->from('order_items as oi')
+                    ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                    ->whereColumn('oi.media_id', 'ci.media_id') // 🔑 media-level check
+                    ->where('o.payment_status', 'PAID')        // 🔑 only paid
                     ->where('o.is_deleted', 0);
             })
             ->orderBy('c.id', 'DESC')
             ->get()
             ->groupBy('campaign_id');
     }
+
+    // public function fetchBookedCampaigns($userId, $request)
+    // {
+    //     return $this->baseQuery($userId, $request)
+    //         ->whereExists(function ($q) {
+    //             $q->select(DB::raw(1))
+    //                 ->from('orders as o')
+    //                 ->whereColumn('o.campaign_id', 'c.id')
+    //                 ->where('o.is_deleted', 0);
+    //         })
+    //         ->orderBy('c.id', 'DESC')
+    //         ->get()
+    //         ->groupBy('campaign_id');
+    // }
 
     public function fetchPastCampaigns($userId, $request)
     {

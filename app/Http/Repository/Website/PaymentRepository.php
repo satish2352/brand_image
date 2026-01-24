@@ -6,43 +6,81 @@ use Illuminate\Support\Facades\DB;
 
 class PaymentRepository
 {
+    // public function getPaidCampaignInvoices($userId)
+    // {
+    //     return DB::table('orders as o')
+    //         ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+    //         ->leftJoin('campaign as c', 'c.id', '=', 'o.campaign_id')
+    //         ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+
+    //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+    //         ->select(
+    //             'o.id as order_id',
+    //             'o.order_no',
+    //             'o.total_amount',
+    //             'o.payment_status',
+    //             'o.created_at',
+    //             'o.grand_total',
+    //             'm.media_title',
+    //             'm.facing',
+    //             'a.area_name',
+
+    //             DB::raw('GROUP_CONCAT(DISTINCT c.campaign_name) as campaign_name'),
+    //             DB::raw('GROUP_CONCAT(DISTINCT a.common_stdiciar_name) as common_stdiciar_name')
+    //         )
+    //         ->where('o.user_id', $userId)
+    //         ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+    //         ->groupBy(
+    //             'o.id',
+    //             'o.order_no',
+    //             'o.total_amount',
+    //             'o.payment_status',
+    //             'o.grand_total',
+    //             'o.created_at',
+    //             'm.media_title',
+    //             'm.facing',
+    //             'a.area_name',
+
+    //         )
+    //         ->orderBy('o.id', 'DESC')
+    //         ->get();
+    // }
     public function getPaidCampaignInvoices($userId)
     {
         return DB::table('orders as o')
             ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
-            ->join('campaign as c', 'c.id', '=', 'o.campaign_id')
+            ->leftJoin('campaign as c', 'c.id', '=', 'o.campaign_id')
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
-
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+
             ->select(
                 'o.id as order_id',
                 'o.order_no',
-                'o.total_amount',
                 'o.payment_status',
                 'o.created_at',
-                'm.media_title',
-                'm.facing',
-                'a.area_name',
+                'o.grand_total',
 
-                DB::raw('GROUP_CONCAT(DISTINCT c.campaign_name) as campaign_name'),
-                DB::raw('GROUP_CONCAT(DISTINCT a.common_stdiciar_name) as common_stdiciar_name')
+                //  combine multiple media locations into one string
+                DB::raw('GROUP_CONCAT(DISTINCT CONCAT(a.area_name, ", ", m.facing) SEPARATOR " | ") as location'),
+
+                //  campaign optional
+                DB::raw('GROUP_CONCAT(DISTINCT c.campaign_name) as campaign_name')
             )
             ->where('o.user_id', $userId)
             ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+
+            //  GROUP BY ONLY ORDER FIELDS
             ->groupBy(
                 'o.id',
                 'o.order_no',
-                'o.total_amount',
                 'o.payment_status',
                 'o.created_at',
-                'm.media_title',
-                'm.facing',
-                'a.area_name',
-
+                'o.grand_total'
             )
             ->orderBy('o.id', 'DESC')
             ->get();
     }
+
     public function getInvoiceDetails($orderId)
     {
         return DB::table('order_items as oi')
@@ -68,7 +106,7 @@ class PaymentRepository
                 'o.total_amount',
                 'o.gst_amount',
                 'o.grand_total',
-
+                'a.area_name',
                 // Campaign
                 DB::raw('GROUP_CONCAT(DISTINCT c.campaign_name) as campaign_name'),
 
@@ -76,13 +114,14 @@ class PaymentRepository
                 'm.media_title',
                 'm.width',
                 'm.height',
+                'm.facing',
                 'oi.price',
                 'oi.qty',
                 'oi.from_date',
                 'oi.to_date',
 
                 // Location
-                'a.common_stdiciar_name',
+                'a.area_name',
 
                 DB::raw('GROUP_CONCAT(mi.images) as images')
             )
@@ -93,15 +132,15 @@ class PaymentRepository
                 'o.total_amount',
                 'o.gst_amount',
                 'o.grand_total',
-
                 'm.media_title',
                 'm.width',
                 'm.height',
+                'm.facing',
                 'oi.price',
                 'oi.qty',
                 'oi.from_date',
                 'oi.to_date',
-                'a.common_stdiciar_name'
+                'a.area_name'
             )
             ->get();
     }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 function uploadImage($file, $folder)
 {
@@ -101,5 +102,24 @@ if (!function_exists('formatAmountShort')) {
                 12 => 'December'
             ];
         }
+    }
+}
+if (!function_exists('calculateMonthlyRangePrice')) {
+    function calculateMonthlyRangePrice($monthlyPrice, $fromDate, $toDate)
+    {
+        $start = Carbon::parse($fromDate);
+        $end   = Carbon::parse($toDate);
+
+        $total = 0;
+
+        while ($start <= $end) {
+            $daysInMonth = $start->daysInMonth;   // 31 / 30 / 28 / 29
+            $perDayPrice = $monthlyPrice / $daysInMonth;
+
+            $total += $perDayPrice;
+            $start->addDay();
+        }
+
+        return round($total, 2);
     }
 }

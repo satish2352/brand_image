@@ -19,7 +19,7 @@
 
         {{-- 🔙 Back Button --}}
         <div class="mb-3">
-            <a href="{{ route('user-payment.list') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('admin.booking.list-booking') }}" class="btn btn-outline-secondary">
                 ← Back to Booking List
             </a>
         </div>
@@ -53,7 +53,7 @@
                         <p>
                             <strong>Total Amount:</strong>
                             <span class="text-success fw-bold fs-5">
-                                ₹{{ number_format($order->total_amount, 2) }}
+                                ₹{{ number_format($order->grand_total, 2) }}
                             </span>
                         </p>
                     </div>
@@ -79,8 +79,9 @@
                             <th class="text-end">Price (₹)</th>
                             <th>From Date</th>
                             <th>To Date</th>
-                            {{-- <th class="text-center">Qty</th> --}}
-                            <th class="text-end">Total (₹)</th>
+                            <th class="text-end">Price (₹)</th>
+                            <th class="text-end">GST (18%) (₹)</th>
+                            <th class="text-end">Final Total (₹)</th>
                         </tr>
                     </thead>
 
@@ -88,7 +89,7 @@
                         @php $grandTotal = 0; @endphp
 
                         @forelse($order->items as $key => $item)
-                            @php $grandTotal += $item->total; @endphp
+                            @php $grandTotal += $item->final_total; @endphp
                             <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>
@@ -100,8 +101,20 @@
                                 <td>{{ $item->from_date ?? '-' }}</td>
                                 <td>{{ $item->to_date ?? '-' }}</td>
                                 {{-- <td class="text-center">{{ $item->qty }}</td> --}}
-                                <td class="text-end fw-semibold">
+                                {{-- <td class="text-end fw-semibold">
                                     {{ number_format($item->total, 2) }}
+                                </td> --}}
+
+                                <td class="text-end">
+                                    {{ number_format($item->item_total, 2) }}
+                                </td>
+
+                                <td class="text-end">
+                                    {{ number_format($item->gst_amount, 2) }}
+                                </td>
+
+                                <td class="text-end fw-bold">
+                                    {{ number_format($item->final_total, 2) }}
                                 </td>
                             </tr>
                         @empty
@@ -115,7 +128,7 @@
 
                     <tfoot class="table-secondary">
                         <tr>
-                            <th colspan="7" class="text-end">Grand Total</th>
+                            <th colspan="9" class="text-end">Grand Total</th>
                             <th class="text-end text-success fs-6">
                                 ₹{{ number_format($grandTotal, 2) }}
                             </th>

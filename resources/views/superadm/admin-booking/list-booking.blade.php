@@ -33,7 +33,7 @@
                                         <td>{{ $row->email }}</td>
                                         <td>{{ $row->mobile_number }}</td>
                                         <td>{{ $row->order_no }}</td>
-                                        <td>{{ number_format($row->total_amount, 2) }}</td>
+                                        <td>{{ number_format($row->grand_total, 2) }}</td>
                                         {{-- <td>
                                     
                                         {{ $row->payment_status }}

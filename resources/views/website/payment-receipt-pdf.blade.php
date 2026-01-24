@@ -84,7 +84,7 @@
         }
 
         .meta-label {
-            width: 60px; 
+            width: 60px;
             font-weight: bold;
         }
 
@@ -96,6 +96,7 @@
         .meta-value {
             flex: 1;
         }
+
         /* REMOVE borders from empty left area */
         .no-border {
             border: none !important;
@@ -131,7 +132,7 @@
         }
 
         .summary-row .summary-label,
-        .summary-row .summary-value{
+        .summary-row .summary-value {
             background: #eaf7ee;
             font-size: 12px;
             font-weight: 700;
@@ -140,7 +141,8 @@
 
         /* Space between items & totals */
         .tbody-spacer td {
-            height: 18px;        /* adjust space here */
+            height: 18px;
+            /* adjust space here */
             border: none !important;
             background: transparent;
         }
@@ -193,24 +195,29 @@
             <td width="60%">
                 <table width="100%">
                     <tr>
+                        <td><b>Date</b></td>
+                        <td>:</td>
+                        <td>
+                            {{ now()->format('d M Y') }}
+
+                            @if (!empty($order->campaign_name))
+                                &nbsp;&nbsp;
+                                <b>Campaign name:</b> {{ $order->campaign_name }}
+                            @endif
+                        </td>
+                    </tr>
+                    {{-- <tr>
                         <td width="45"><b>Location</b></td>
                         <td width="10">:</td>
-                        <td>{{ $order->common_stdiciar_name }}</td>
-                    </tr>
+                        <td>{{ $order->area_name }} {{ $order->facing }}</td>
+                    </tr> --}}
                     <tr>
                         <td><b>Status</b></td>
                         <td>:</td>
                         <td><span class="badge">PAID</span></td>
                     </tr>
-                    <tr>
-                        <td><b>Date</b></td>
-                        <td>:</td>
-                        <td>
-                            {{ now()->format('d M Y') }}
-                            &nbsp;&nbsp;
-                            <b>Campaign name:</b> {{ $order->campaign_name ?? '-' }}
-                        </td>
-                    </tr>
+
+
                 </table>
             </td>
 
@@ -242,7 +249,7 @@
             @foreach ($items as $i => $item)
                 <tr>
                     <td>{{ $i + 1 }}</td>
-                    <td>{{ $item->common_stdiciar_name }}</td>
+                    <td>{{ $item->area_name }}{{ $item->facing }}</td>
                     <td>
                         {{ $item->media_title }}<br>
                         {{ $item->width }} × {{ $item->height }}

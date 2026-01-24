@@ -109,7 +109,8 @@
 
             @page {
                 size: A4;
-                margin: 8mm;   /* change from default to small */
+                margin: 8mm;
+                /* change from default to small */
             }
 
             /* FULL WIDTH USAGE */
@@ -121,7 +122,8 @@
             .invoice-card {
                 width: 100%;
                 margin: 0;
-                padding: 6mm;   /* earlier 18mm was too much */
+                padding: 6mm;
+                /* earlier 18mm was too much */
                 box-shadow: none;
             }
         }
@@ -165,7 +167,7 @@
         }
 
         .meta-label {
-            width: 60px; 
+            width: 60px;
             font-weight: bold;
         }
 
@@ -177,6 +179,7 @@
         .meta-value {
             flex: 1;
         }
+
         /* REMOVE borders from empty left area */
         .no-border {
             border: none !important;
@@ -213,7 +216,8 @@
 
         /* Space between items & totals */
         .tbody-spacer td {
-            height: 18px;        /* adjust space here */
+            height: 18px;
+            /* adjust space here */
             border: none !important;
             background: transparent;
         }
@@ -239,19 +243,30 @@
                         &nbsp;&nbsp;
                         <b>Campaign name:</b> {{ $items->first()->campaign_name ?? '-' }}
                     </p> --}}
-                        <p class="meta-line">
-                            <span class="meta-label">Location</span>
-                            <span class="meta-colon">:</span>
-                            <span class="meta-value">{{ $items->first()->common_stdiciar_name }}</span>
-                        </p>
+                    {{-- <p class="meta-line">
+                        <span class="meta-label">Location</span>
+                        <span class="meta-colon">:</span>
+                        <span class="meta-value">{{ $items->first()->common_stdiciar_name }}</span>
+                    </p> --}}
+                    <p class="meta-line">
+                        <span class="meta-label">Date</span>
+                        <span class="meta-colon">:</span>
+                        <span class="meta-value">
+                            {{ now()->format('d M Y') }}
 
-                        <p class="meta-line">
-                            <span class="meta-label">Status</span>
-                            <span class="meta-colon">:</span>
-                            <span class="meta-value"><span class="badge-paid">PAID</span></span>
-                        </p>
+                            @if (!empty($items->first()->campaign_name))
+                                &nbsp;&nbsp;&nbsp;
+                                <b>Campaign name:</b> {{ $items->first()->campaign_name }}
+                            @endif
+                        </span>
+                    </p>
+                    <p class="meta-line">
+                        <span class="meta-label">Status</span>
+                        <span class="meta-colon">:</span>
+                        <span class="meta-value"><span class="badge-paid">PAID</span></span>
+                    </p>
 
-                        <p class="meta-line">
+                    {{-- <p class="meta-line">
                             <span class="meta-label">Date</span>
                             <span class="meta-colon">:</span>
                             <span class="meta-value">
@@ -259,7 +274,9 @@
                                 &nbsp;&nbsp;&nbsp;
                                 <b>Campaign name:</b> {{ $items->first()->campaign_name ?? '-' }}
                             </span>
-                        </p>
+                        </p> --}}
+
+
                 </div>
 
                 <div class="user-details">
@@ -291,7 +308,7 @@
                     @foreach ($items as $i => $item)
                         <tr>
                             <td>{{ $i + 1 }}</td>
-                            <td>{{ $item->common_stdiciar_name }}</td>
+                            <td>{{ $item->area_name }} {{ $item->facing }}</td>
                             <td>
                                 {{ $item->media_title }}<br>
                                 <small>{{ $item->width }} × {{ $item->height }}</small>
@@ -308,7 +325,7 @@
                         </tr>
                     @endforeach
 
-                        {{-- SPACE ROW --}}
+                    {{-- SPACE ROW --}}
                     <tr class="tbody-spacer">
                         <td colspan="7"></td>
                     </tr>

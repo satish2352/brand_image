@@ -82,11 +82,19 @@ class HomeController extends Controller
             if (!$media) abort(404);
 
             // Fetch all bookings from order_items
-            $orders = DB::table('order_items')
-                ->where('media_id', $mediaId)
-                ->where('is_deleted', 0)
-                ->select('from_date', 'to_date')
-                ->orderBy('from_date')
+            // $orders = DB::table('order_items')
+            //     ->where('media_id', $mediaId)
+            //     ->where('is_deleted', 0)
+            //     ->select('from_date', 'to_date')
+            //     ->orderBy('from_date')
+            //     ->get();
+            $orders = DB::table('order_items as oi')
+                ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                ->where('oi.media_id', $mediaId)
+                ->where('oi.is_deleted', 0)
+                ->where('o.payment_status', 'PAID') // 🔑 KEY FIX
+                ->select('oi.from_date', 'oi.to_date')
+                ->orderBy('oi.from_date')
                 ->get();
 
             // MERGE OVERLAPPING RANGES
