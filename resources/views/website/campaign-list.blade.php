@@ -39,15 +39,25 @@
             <div class="accordion" id="campaignAccordion">
 
                 @foreach ($campaigns as $campaignId => $items)
-                    @php
+                    {{-- @php
                         $items = $items->sortBy('to_date');
                         $campaignName = $items->first()->campaign_name;
                         $totalAmount = $items->sum(fn($i) => $i->total_price);
+                    @endphp --}}
+                    @php
+                        $items = $items->sortBy('to_date');
+                        $campaignName = $items->first()->campaign_name;
+
+                        if ($type === 'booked') {
+                            $totalAmount = $items->sum(fn($i) => $i->grand_total);
+                        } else {
+                            $totalAmount = $items->sum(fn($i) => $i->total_price);
+                        }
                     @endphp
 
                     <div class="accordion-item mb-3 shadow-lg ">
 
-                        <span
+                        {{-- <span
                             class="badge
     @if ($type === 'open') bg-success
     @elseif($type === 'booked') bg-warning
@@ -61,31 +71,47 @@
                             @else
                                 Completed
                             @endif
-                        </span>
+                        </span> --}}
 
                         {{-- HEADER --}}
                         <h2 class="accordion-header" id="heading{{ $campaignId }}">
-
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapse{{ $campaignId }}">
 
-                                <div class="d-grid justify-content- w-100 align-items-center">
-                                    <strong class="text-primary">
-                                        {{ $campaignName }}
+                                <div class="d-flex justify-content-between align-items-center w-100">
+
+                                    {{-- Campaign Name --}}
+                                    <strong class="text-primary" style="font-size:17px;">
+                                        {{ ucfirst($campaignName) }}
                                     </strong>
-                                    <p> <span
-                                            class="badge bg-warning rounded-circle d-inline-flex justify-content-center align-items-center"
-                                            style="width:20px; height:20px;">
-                                            ₹
+
+                                    {{-- Amount + Status --}}
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        <span>
+                                            <span
+                                                class="badge bg-warning rounded-circle d-inline-flex justify-content-center align-items-center"
+                                                style="width:20px; height:20px;">
+                                                ₹
+                                            </span>
+                                            {{ number_format($totalAmount, 2) }}
                                         </span>
 
-                                        {{ number_format($totalAmount, 2) }}
-                                    </p>
+                                        @if ($type === 'open')
+                                            <span class="badge bg-success">Running</span>
+                                        @elseif ($type === 'booked')
+                                            <span class="badge bg-warning">Booked</span>
+                                        @else
+                                            <span class="badge bg-secondary">Completed</span>
+                                        @endif
+
+                                    </div>
 
                                 </div>
 
                             </button>
                         </h2>
+
 
                         {{-- BODY --}}
                         <div id="collapse{{ $campaignId }}" class="accordion-collapse collapse"
