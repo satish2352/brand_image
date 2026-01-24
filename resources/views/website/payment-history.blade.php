@@ -14,7 +14,7 @@
         <table class="table table-bordered text-center align-middle">
             <thead class="table-dark">
                 <tr>
-                    <th>#</th>
+                    <th>Sr. No.</th>
                     <th>Campaign Name</th>
                     <th>Location</th>
                     <th>Order No</th>
@@ -30,7 +30,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $pay->campaign_name ?? '-' }}</td>
-                        <td>{{ $pay->common_stdiciar_name ?? '-' }}</td>
+                        <td>{{ $pay->area_name ?? '-' }},{{ $pay->facing ?? '-' }}</td>
                         <td>{{ $pay->order_no }}</td>
 
                         <td>₹ {{ number_format($pay->total_amount, 2) }}</td>

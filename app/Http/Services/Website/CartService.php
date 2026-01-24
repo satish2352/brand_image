@@ -128,17 +128,34 @@ class CartService
         }
 
         // 🔒 BLOCK already BOOKED dates (order_items only)
-        $alreadyBooked = DB::table('order_items')
-            ->where('media_id', $mediaId)
+        // $alreadyBooked = DB::table('order_items')
+        //     ->where('media_id', $mediaId)
+        //     ->where(function ($q) use ($from, $to) {
+        //         $q->whereBetween('from_date', [$from, $to])
+        //             ->orWhereBetween('to_date', [$from, $to])
+        //             ->orWhere(function ($q2) use ($from, $to) {
+        //                 $q2->where('from_date', '<=', $from)
+        //                     ->where('to_date', '>=', $to);
+        //             });
+        //     })
+        //     ->exists();
+        $alreadyBooked = DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->where('oi.media_id', $mediaId)
+            ->where('o.payment_status', 'PAID') // 🔑
             ->where(function ($q) use ($from, $to) {
-                $q->whereBetween('from_date', [$from, $to])
-                    ->orWhereBetween('to_date', [$from, $to])
+                $q->whereBetween('oi.from_date', [$from, $to])
+                    ->orWhereBetween('oi.to_date', [$from, $to])
                     ->orWhere(function ($q2) use ($from, $to) {
-                        $q2->where('from_date', '<=', $from)
-                            ->where('to_date', '>=', $to);
+                        $q2->where('oi.from_date', '<=', $from)
+                            ->where('oi.to_date', '>=', $to);
                     });
             })
             ->exists();
+
+        if ($alreadyBooked) {
+            throw new \Exception('Selected dates are already booked');
+        }
 
         if ($alreadyBooked) {
             throw new \Exception('Selected dates are already booked');
@@ -179,7 +196,9 @@ class CartService
     }
     public function getBookedDatesByMedia($mediaId)
     {
-        return $this->repo->getBookedDatesByMedia($mediaId);
+        $data_output = $this->repo->getBookedDatesByMedia($mediaId);
+
+        return $data_output;
     }
 
     // =================

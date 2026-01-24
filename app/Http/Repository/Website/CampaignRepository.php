@@ -58,9 +58,10 @@ class CampaignRepository
                 'ci.to_date',
                 'ci.created_at as campaign_date',
                 'm.media_title',
+                'm.facing',
                 'm.width',
                 'm.height',
-                'a.common_stdiciar_name'
+                'a.area_name'
             )
             ->where('c.user_id', $userId)
             ->where('ci.cart_type', 'CAMPAIGN')
@@ -99,9 +100,10 @@ class CampaignRepository
             'ci.to_date',
             'ci.created_at as campaign_date',
             'm.media_title',
+            'm.facing',
             'm.width',
             'm.height',
-            'a.common_stdiciar_name'
+            'a.area_name'
         );
     }
 

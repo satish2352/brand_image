@@ -18,15 +18,17 @@ class HomeService
 
     public function searchMedia(array $filters)
     {
-        // dd($filters);
+
         $data_output =  $this->repo->searchMedia($filters);
-        // dd($data_output);
+
         return  $data_output;
     }
     public function getMediaDetails($mediaId)
     {
         try {
-            return $this->repo->getMediaDetails($mediaId);
+            $data_output = $this->repo->getMediaDetails($mediaId);
+
+            return $data_output;
         } catch (Exception $e) {
 
             Log::error('HomeService getMediaDetails Error', [

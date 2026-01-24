@@ -440,20 +440,20 @@
                 <div class="logo-carousel-inner">
                     <div class="single-logo-item">
 
-                        <img src="{{ asset('assets/img/company-logos/1.png') }}" alt="">
+                        <img src="{{ asset('assets/img/75.png') }}" alt="">
 
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('assets/img/company-logos/2.png') }}" alt="">
+                        <img src="{{ asset('assets/img/76.png') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('assets/img/company-logos/3.png') }}" alt="">
+                        <img src="{{ asset('assets/img/77.png') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('assets/img/company-logos/4.png') }}" alt="">
+                        <img src="{{ asset('assets/img/78.png') }}" alt="">
                     </div>
                     <div class="single-logo-item">
-                        <img src="{{ asset('assets/img/company-logos/5.png') }}" alt="">
+                        <img src="{{ asset('assets/img/79.png') }}" alt="">
                     </div>
                 </div>
             </div>
