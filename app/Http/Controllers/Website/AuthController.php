@@ -13,44 +13,6 @@ use App\Mail\WebsiteOtpMail;
 
 class AuthController extends Controller
 {
-    /* ===================== SIGNUP ===================== */
-    // public function signup(Request $req)
-    // {
-    //     $req->validate([
-    //         'signup_name' => 'required',
-    //         'signup_email' => 'required|email',
-    //         'signup_mobile_number' => 'required|digits:10',
-    //         // 'signup_organisation' => 'required',
-    //         'signup_password' => 'required|min:6',
-    //     ]);
-
-    //     // delete old unverified user (important)
-    //     WebsiteUser::where('email', $req->signup_email)
-    //         ->where('is_email_verified', 0)
-    //         ->delete();
-
-    //     $otp = rand(100000, 999999);
-
-    //     $user = WebsiteUser::create([
-    //         'name' => $req->signup_name,
-    //         'email' => $req->signup_email,
-    //         'mobile_number' => $req->signup_mobile_number,
-    //         // 'organisation' => $req->signup_organisation,
-    //         'password' => Hash::make($req->signup_password),
-    //         'otp' => $otp,
-    //         'otp_expires_at' => Carbon::now()->addMinute(2),
-    //         'is_email_verified' => 0,
-    //     ]);
-
-    //     Mail::to($user->email)->send(new WebsiteOtpMail($otp));
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'email' => $user->email,
-    //         'message' => 'OTP sent to your email'
-    //     ]);
-    // }
-
     public function signup(Request $req)
     {
         $req->validate([

@@ -6,45 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 class PaymentRepository
 {
-    // public function getPaidCampaignInvoices($userId)
-    // {
-    //     return DB::table('orders as o')
-    //         ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
-    //         ->leftJoin('campaign as c', 'c.id', '=', 'o.campaign_id')
-    //         ->join('media_management as m', 'm.id', '=', 'oi.media_id')
 
-    //         ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-    //         ->select(
-    //             'o.id as order_id',
-    //             'o.order_no',
-    //             'o.total_amount',
-    //             'o.payment_status',
-    //             'o.created_at',
-    //             'o.grand_total',
-    //             'm.media_title',
-    //             'm.facing',
-    //             'a.area_name',
-
-    //             DB::raw('GROUP_CONCAT(DISTINCT c.campaign_name) as campaign_name'),
-    //             DB::raw('GROUP_CONCAT(DISTINCT a.common_stdiciar_name) as common_stdiciar_name')
-    //         )
-    //         ->where('o.user_id', $userId)
-    //         ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-    //         ->groupBy(
-    //             'o.id',
-    //             'o.order_no',
-    //             'o.total_amount',
-    //             'o.payment_status',
-    //             'o.grand_total',
-    //             'o.created_at',
-    //             'm.media_title',
-    //             'm.facing',
-    //             'a.area_name',
-
-    //         )
-    //         ->orderBy('o.id', 'DESC')
-    //         ->get();
-    // }
     public function getPaidCampaignInvoices($userId)
     {
         return DB::table('orders as o')

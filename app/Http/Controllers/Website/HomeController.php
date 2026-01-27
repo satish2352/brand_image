@@ -80,14 +80,6 @@ class HomeController extends Controller
             $media = $this->homeService->getMediaDetails($mediaId);
 
             if (!$media) abort(404);
-
-            // Fetch all bookings from order_items
-            // $orders = DB::table('order_items')
-            //     ->where('media_id', $mediaId)
-            //     ->where('is_deleted', 0)
-            //     ->select('from_date', 'to_date')
-            //     ->orderBy('from_date')
-            //     ->get();
             $orders = DB::table('order_items as oi')
                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
                 ->where('oi.media_id', $mediaId)

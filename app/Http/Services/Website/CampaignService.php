@@ -18,19 +18,6 @@ class CampaignService
         protected CampaignRepository $repo
     ) {}
 
-
-    // public function saveCampaign($userId, $campaignName)
-    // {
-    //     return $this->repo->createCampaignAndMoveCart(
-    //         $userId,
-    //         $campaignName
-    //     );
-
-    //     // AFTER CAMPAIGN CREATED
-    //     $this->sendCampaignMailToAdmin($userId);
-
-    //     return true;
-    // }
     public function saveCampaign($userId, $campaignName)
     {
         $this->repo->createCampaignAndMoveCart($userId, $campaignName);

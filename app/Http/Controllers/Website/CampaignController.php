@@ -37,7 +37,7 @@ class CampaignController extends Controller
                 $request->campaign_name
             );
 
-            // ✅ MAIL CALL
+            //  MAIL CALL
             $this->campaignService->sendCampaignMailToAdmin(
                 Auth::guard('website')->id()
             );
@@ -369,16 +369,6 @@ class CampaignController extends Controller
                     "To Date   : $to\n" .
                     "Lighting  : {$item->illumination_name}\n"
             )->getFont()->setSize(18);
-            // $details->createTextRun(
-            //     "Location : {$item->common_stdiciar_name}\n" .
-            //         "Area     : {$item->area_name}\n" .
-            //         "City     : {$item->city_name}\n" .
-            //         "Size     : {$item->width} × {$item->height}\n" .
-            //         "Media type    : {$item->media_type}\n" .
-            //         "Price    : ₹ " . number_format($item->price) . "\n" .
-            //         "Lighting : {$item->illumination_name}\n" .
-            //         "Date     : " . now()->format('d M Y')
-            // )->getFont()->setSize(18);
         }
 
 
@@ -557,23 +547,7 @@ class CampaignController extends Controller
                     ->getFont()->setSize(18)->setBold(true);
             }
 
-            /* ---------- DETAILS ---------- */
 
-            // $slide->createRichTextShape()
-            //     ->setOffsetX(520)->setOffsetY(90)->setWidth(420)
-
-            //     ->createTextRun(
-            //         "SITE DETAILS\n\n" .
-            //             "Location : {$item->common_stdiciar_name}\n" .
-            //             "Area     : {$item->area_name}\n" .
-            //             "City     : {$item->city_name}\n" .
-            //             "Size     : {$item->width} × {$item->height}\n" .
-            //             "Media    : {$item->media_type}\n" .
-            //             "Price    : ₹ " . number_format($item->price) . "\n" .
-            //             "From Date : $from\n" .
-            //             "To Date   : $to" .
-            //             "Lighting : {$item->illumination_name}\n"
-            //     )->getFont()->setSize(18);
 
             /* ---------- SITE DETAILS RIGHT COLUMN ---------- */
             $from = $item->from_date
@@ -616,6 +590,6 @@ class CampaignController extends Controller
 
         /* ================= SAVE FILE ================= */
         $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
-        $writer->save($savePath); // ✅ FINAL OUTPUT
+        $writer->save($savePath); //  FINAL OUTPUT
     }
 }

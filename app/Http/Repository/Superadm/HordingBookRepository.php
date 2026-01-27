@@ -414,7 +414,7 @@ class HordingBookRepository
                 'mm.height',
                 'mm.address',
 
-                // ✅ calculations
+                //  calculations
                 DB::raw('(oi.price * oi.qty) as item_total'),
                 DB::raw('(oi.price * oi.qty * 0.18) as gst_amount'),
                 DB::raw('((oi.price * oi.qty) + (oi.price * oi.qty * 0.18)) as final_total')
@@ -425,39 +425,4 @@ class HordingBookRepository
 
         return $order;
     }
-
-    // public function bookingDetailsList($orderId)
-    // {
-    //     $order = DB::table('orders as o')
-    //         ->join('website_users as u', 'u.id', '=', 'o.user_id')
-    //         ->where('o.id', $orderId)
-    //         ->select(
-    //             'o.*',
-    //             'u.name',
-    //             'u.email',
-    //             'u.mobile_number'
-    //         )
-    //         ->first();
-
-    //     $items = DB::table('order_items as oi')
-    //         ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
-    //         ->where('oi.order_id', $orderId)
-    //         ->select(
-    //             'oi.id',
-    //             'oi.price',
-    //             'oi.qty',
-    //             'oi.from_date',
-    //             'oi.to_date',
-    //             'mm.media_title',
-    //             'mm.width',
-    //             'mm.height',
-    //             'mm.address',
-    //             DB::raw('(oi.price * oi.qty) as total')
-    //         )
-    //         ->get();
-
-    //     $order->items = $items;
-
-    //     return $order;
-    // }
 }

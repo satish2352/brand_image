@@ -280,7 +280,7 @@
             const cityId = $('#city_id').val();
             const areaId = $('#area_id').val();
 
-            // ✅ Enable ONLY when city selected AND area NOT selected
+            //  Enable ONLY when city selected AND area NOT selected
             if (cityId && !areaId) {
                 $('#radius_id')
                     .prop('disabled', false)

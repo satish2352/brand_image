@@ -76,34 +76,6 @@ class CartController extends Controller
                 ->with('error', $e->getMessage());
         }
     }
-
-
-    // public function addWithDate(Request $request)
-    // {
-    //     $request->validate([
-    //         'media_id'  => 'required',
-    //         // 'from_date' => 'required|date|after_or_equal:today',
-    //         // 'from_date' => ['required', 'date', function ($attr, $value, $fail) {
-    //         //     if (Carbon::parse($value)->lt(Carbon::today())) {
-    //         //         $fail('From date must be today or a future date.');
-    //         //     }
-    //         // }],
-    //         'to_date'   => 'required|date|after_or_equal:from_date',
-    //     ]);
-
-    //     $mediaId = base64_decode($request->media_id);
-
-    //     $this->service->addToCartWithDate(
-    //         $mediaId,
-    //         $request->from_date,
-    //         $request->to_date
-    //     );
-
-    //     return redirect()
-    //         ->route('cart.index')
-    //         ->with('success', 'Media added to cart successfully');
-    // }
-
     public function getBookedDates($mediaId)
     {
         return response()->json(

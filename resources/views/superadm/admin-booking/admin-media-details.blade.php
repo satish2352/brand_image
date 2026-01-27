@@ -598,7 +598,7 @@
 
                     // 🟢 AVAILABLE DATE
                     else if (!dayElem.classList.contains('flatpickr-disabled')) {
-                        dayElem.setAttribute('title', 'Available ✅');
+                        dayElem.setAttribute('title', 'Available ');
                         dayElem.style.cursor = 'pointer';
                     }
                 },
@@ -873,7 +873,7 @@
                         confirmButtonText: "Yes, Book Now"
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            form.submit(); // ✅ FINAL SUBMIT
+                            form.submit(); //  FINAL SUBMIT
                         }
                     });
 

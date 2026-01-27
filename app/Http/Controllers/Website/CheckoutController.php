@@ -147,7 +147,7 @@ class CheckoutController extends Controller
                 ->first();
 
             if ($order) {
-                // ✅ UPDATE order amount only
+                //  UPDATE order amount only
                 $gst = round(($total * 18) / 100, 2);
 
                 $order->update([
@@ -173,30 +173,7 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.index');
     }
 
-    // public function placeOrder()
-    // {
-    //     if (!Auth::guard('website')->check()) {
-    //         return redirect('/')->with('error', 'Please login');
-    //     }
 
-    //     $items = $this->cartRepo->getCartItems();
-
-    //     if ($items->isEmpty()) {
-    //         return back()->with('error', 'Cart is empty');
-    //     }
-
-    //     $total = $items->sum(fn($i) => $i->total_price);
-
-    //     $order = DB::transaction(function () use ($items, $total) {
-    //         $order = $this->orderRepo->createOrder($total);
-    //         $this->orderRepo->createOrderItems($order->id, $items);
-    //         return $order;
-    //     });
-
-    //     session(['order_id' => $order->id]);
-
-    //     return redirect()->route('checkout.index'); //  IMPORTANT
-    // }
     public function razorpayWebhook(Request $request)
     {
         $payload   = $request->getContent();

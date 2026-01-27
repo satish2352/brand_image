@@ -45,14 +45,6 @@ Route::get('/clear-cache', function () {
 Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
 Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
 
-
-
-// Route::middleware('auth.both')->group(function () {
-//     Route::get('/ajax/get-states', [LocationController::class, 'getStates'])->name('ajax.states');
-//     Route::post('/ajax/get-districts', [LocationController::class, 'getDistricts'])->name('ajax.districts');
-//     Route::post('/ajax/get-cities', [LocationController::class, 'getCities'])->name('ajax.cities');
-//     Route::post('/ajax/get-areas', [LocationController::class, 'getAreas'])->name('ajax.areas');
-// });
 /* ============================================
    PUBLIC AJAX - NO MIDDLEWARE REQUIRED
 =============================================== */
@@ -123,11 +115,6 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
     Route::get('get-cities/{districtId}', [MediaManagementController::class, 'getCities'])
         ->name('media.getCities');
 
-    // ===================
-    // Route::post('/media/update-status', [MediaManagementController::class, 'getAllAreas'])->name('media.updatestatus');
-    // Route::post('/media/update-status', [MediaManagementController::class, 'getAreaParents'])->name('media.updatestatus');
-    // Route::post('/media/update-status', [MediaManagementController::class, 'getDistricts'])->name('media.updatestatus');
-    // Route::post('/media/update-status', [MediaManagementController::class, 'getAreas'])->name('media.updatestatus');
     Route::prefix('website-user')->group(function () {
         Route::get('list', [WebsiteUserController::class, 'index'])->name('website-user.list');
         Route::post('delete', [WebsiteUserController::class, 'delete'])->name('website-user.delete');
@@ -267,15 +254,6 @@ Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.
 Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp');
 Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp');
 
-
-// Route::middleware('auth:website')->prefix('user/dashboard')->group(function () {
-//     Route::get('/', function () {
-//         return view('website.dashboard.index');
-//     })->name('dashboard.home');
-//     Route::get('/profile', function () {
-//         return view('website.dashboard.profile');
-//     })->name('dashboard.profile');
-// });
 Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function () {
 
     Route::prefix('user/dashboard')->group(function () {
@@ -313,9 +291,7 @@ Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
 
     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
-    // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
-    //     ->name('campaign.list');
-    // Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
+
     // ================= CAMPAIGN LISTS =================
     Route::get('/campaigns/open',   [CampaignController::class, 'openCampaigns'])
         ->name('campaigns.open');
@@ -335,43 +311,5 @@ Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
     Route::get('invoice/download/{id}', [PaymentHistoryController::class, 'downloadInvoice'])->name('invoice.download');
 });
-// Route::middleware(['web'])->group(function () {
-//     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
-//     Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
-//     Route::get('/campaign-export-excel/{campaignId}', [CampaignController::class, 'exportExcel'])->name('campaign.export.excel');
-//     Route::get('/campaign-export-ppt/{campaignId}', [CampaignController::class, 'exportPpt'])->name('campaign.export.ppt');
-//     Route::post('/checkout/campaign/{campaignId}', [CheckoutController::class, 'placeCampaignOrder'])->name('checkout.campaign');
-//     Route::get('/campaign/details/{cart_item_id}', [CampaignController::class, 'viewDetails'])->name('campaign.details');
-//     Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])->name('campaign.payment.history');
-//     Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])->name('campaign.invoice.payments')->middleware('auth:website');
-//     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
-// });
-// Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-// Route::post('/checkout/create-order', [CheckoutController::class, 'createOrder'])
-//     ->name('checkout.create');
-// Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])->name('checkout.create');
-// ->middleware('auth:website');
-// Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
-// Route::post('/payment/success', [CheckoutController::class, 'success'])->name('payment.success');
-// Route::get('/payment/thank-you', function () {
-//     return view('website.payment-success');
-// })->name('payment.thankyou');
-// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
-// Route::middleware(['web'])->group(function () {
-//     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
-//     // Route::post('/campaign-list', [CampaignController::class, 'getCampaignList'])
-//     //     ->name('campaign.list');
-//     Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
-//     Route::get('/campaign-export-excel/{campaignId}', [CampaignController::class, 'exportExcel'])->name('campaign.export.excel');
-//     Route::get('/campaign-export-ppt/{campaignId}', [CampaignController::class, 'exportPpt'])->name('campaign.export.ppt');
-//     Route::post('/checkout/campaign/{campaignId}', [CheckoutController::class, 'placeCampaignOrder'])->name('checkout.campaign');
-//     Route::get('/campaign/details/{cart_item_id}', [CampaignController::class, 'viewDetails'])->name('campaign.details');
-//     Route::get('/payment-history', [PaymentHistoryController::class, 'paymentHistory'])->name('campaign.payment.history');
-//     Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])->name('campaign.invoice.payments')->middleware('auth:website');
-//     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
-//     Route::get('invoice/download/{id}', [PaymentHistoryController::class, 'downloadInvoice'])->name('invoice.download');
-// });
-// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
-
 Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');

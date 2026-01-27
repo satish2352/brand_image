@@ -190,7 +190,7 @@ class CampaignRepository
     //                 ->from('order_items as oi')
     //                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
     //                 ->whereColumn('oi.media_id', 'ci.media_id') // 🔑 media-level check
-    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED']) // ✅ FIX
+    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED']) //  FIX
     //                 ->where('o.is_deleted', 0);
     //         })
     //         ->orderBy('c.id', 'DESC')

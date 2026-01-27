@@ -100,11 +100,6 @@ class CartRepository
     // =================
     public function getBookedDatesByMedia($mediaId)
     {
-        // return DB::table('order_items')
-        //     ->where('media_id', $mediaId)
-        //     ->select('from_date', 'to_date')
-        //     ->get();
-
         return DB::table('order_items as oi')
             ->join('orders as o', 'o.id', '=', 'oi.order_id')
             ->where('oi.media_id', $mediaId)
@@ -119,26 +114,7 @@ class CartRepository
         return CartItem::where('id', $cartItemId)->first();
     }
 
-    // 🔒 Check already booked dates
-    // public function isDateAlreadyBooked($mediaId, $from, $to)
-    // {
-    //     return DB::table('order_items as oi')
-    //         ->join('orders as o', 'o.id', '=', 'oi.order_id')
-    //         ->where('oi.media_id', $mediaId)
-    //         ->where('o.payment_status', 'PAID')
 
-    //         // DB::table('order_items')
-    //         ->where('media_id', $mediaId)
-    //         ->where(function ($q) use ($from, $to) {
-    //             $q->whereBetween('from_date', [$from, $to])
-    //                 ->orWhereBetween('to_date', [$from, $to])
-    //                 ->orWhere(function ($q2) use ($from, $to) {
-    //                     $q2->where('from_date', '<=', $from)
-    //                         ->where('to_date', '>=', $to);
-    //                 });
-    //         })
-    //         ->exists();
-    // }
     public function isDateAlreadyBooked($mediaId, $from, $to)
     {
         return DB::table('order_items as oi')

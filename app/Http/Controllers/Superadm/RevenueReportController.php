@@ -10,93 +10,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class RevenueReportController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     // Month without year validation
-    //     if ($request->filled('month') && !$request->filled('year')) {
-    //         return redirect()
-    //             ->back()
-    //             ->withErrors(['year' => 'Year is required when month is selected'])
-    //             ->withInput();
-    //     }
-
-    //     $type = $request->report_type ?? 'media'; // date | media | user
-    //     $query = $this->baseQuery($request);
-
-    //     /* ======================
-    //        REPORT TYPE LOGIC
-    //     ======================= */
-
-    //     if ($type === 'date') {
-
-    //         $query->select(
-    //             DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             // DB::raw('SUM(oi.price) as total_revenue'),
-    //             DB::raw('MIN(oi.from_date) as sort_date'),
-    //             DB::raw('SUM(o.total_amount) as total_amount'),
-    //             DB::raw('SUM(o.gst_amount) as gst_amount'),
-    //             DB::raw('SUM(o.grand_total) as grand_total'),
-    //             'o.payment_status',
-    //         )
-    //             ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
-    //             ->orderBy('sort_date', 'desc');
-    //     } elseif ($type === 'media') {
-
-    //         $query->select(
-    //             'm.id',
-    //             'm.media_code',
-    //             'm.media_title',
-    //             'cat.category_name as category_name',
-    //             's.state_name as state_name',
-    //             'd.district_name as district_name',
-    //             'c.city_name as city_name',
-    //             'a.area_name as area_name',
-    //             'm.width',
-    //             'm.height',
-    //             'o.payment_status',
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-    //             // DB::raw('SUM(oi.price) as total_revenue')
-    //             DB::raw('SUM(o.total_amount) as total_amount'),
-    //             DB::raw('SUM(o.gst_amount) as gst_amount'),
-    //             DB::raw('SUM(o.grand_total) as grand_total')
-    //         )
-    //             ->groupBy(
-    //                 'm.id',
-    //                 'm.media_code',
-    //                 'm.media_title',
-    //                 'cat.category_name',
-    //                 's.state_name',
-    //                 'd.district_name',
-    //                 'c.city_name',
-    //                 'a.area_name',
-    //                 'm.width',
-    //                 'm.height',
-    //                 'o.payment_status'
-    //             )
-    //             ->orderByDesc('grand_total');
-    //     } else { // USER-WISE
-
-    //         $query->select(
-    //             'u.id',
-    //             'u.name as user_name',
-    //             'o.payment_status',
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-    //             // DB::raw('SUM(oi.price) as total_revenue')
-    //             DB::raw('SUM(o.total_amount) as total_amount'),
-    //             DB::raw('SUM(o.gst_amount) as gst_amount'),
-    //             DB::raw('SUM(o.grand_total) as grand_total')
-    //         )
-    //             ->groupBy('u.id', 'u.name', 'o.payment_status')
-    //             ->orderByDesc('grand_total');
-    //     }
-
-    //     $reports = $query->paginate(10)->withQueryString();
-
-    //     return view('superadm.reports.revenue-report', compact('reports', 'type'));
-    // }
     public function index(Request $request)
     {
         // Month without year validation
@@ -222,17 +135,6 @@ class RevenueReportController extends Controller
             $query->whereMonth('oi.from_date', $request->month);
         }
 
-        // Search filter (server-side)
-        // if ($request->search) {
-        //     $search = $request->search;
-        //     $query->where(function ($q) use ($search) {
-        //         $q->where('m.media_title', 'like', "%$search%")
-        //         ->orWhere('m.media_code', 'like', "%$search%")
-        //         ->orWhere('u.name', 'like', "%$search%")
-        //         ->orWhere('cat.category_name', 'like', "%$search%");
-        //     });
-        // }
-
         if ($request->filled('search')) {
 
             $search = trim($request->search);
@@ -300,135 +202,6 @@ class RevenueReportController extends Controller
 
         return $query;
     }
-
-
-    // private function exportQuery(Request $request)
-    // {
-    //     $type = $request->report_type ?? 'date';
-    //     $query = $this->baseQuery($request);
-
-    //     if ($type === 'date') {
-    //         $query->select(
-    //             DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             DB::raw('SUM(oi.price) as total_revenue')
-    //         )
-    //             ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
-    //             ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
-    //     } elseif ($type === 'media') {
-    //         $query->select(
-    //             'm.media_code',
-    //             'cat.category_name',
-    //             'm.media_title',
-    //             's.state_name as state_name',
-    //             'd.district_name as district_name',
-    //             'c.city_name as city_name',
-    //             'a.area_name',
-    //             'm.width',
-    //             'm.height',
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-    //             DB::raw('SUM(oi.price) as total_revenue')
-    //         )
-    //             ->groupBy(
-    //                 'm.media_code',
-    //                 'cat.category_name',
-    //                 'm.media_title',
-    //                 's.state_name',
-    //                 'd.district_name',
-    //                 'c.city_name',
-    //                 'a.area_name',
-    //                 'm.width',
-    //                 'm.height'
-    //             )
-    //             ->orderByDesc('total_revenue');
-    //     } else { // user
-    //         $query->select(
-    //             'u.name as user_name',
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-    //             DB::raw('SUM(oi.price) as total_revenue')
-    //         )
-    //             ->groupBy('u.name')
-    //             ->orderByDesc('total_revenue');
-    //     }
-
-    //     return $query->get();
-    // }
-
-    // private function exportQuery(Request $request)
-    // {
-    //     $type = $request->report_type ?? 'media';
-    //     $query = $this->baseQuery($request);
-
-    //     if ($type === 'date') {
-
-    //         $query->select(
-    //             DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-
-    //             // ORDERS TABLE
-    //             DB::raw('SUM(o.total_amount) as total_amount'),
-    //             DB::raw('SUM(o.gst_amount) as gst_amount'),
-    //             DB::raw('SUM(o.grand_total) as grand_total'),
-    //             'o.payment_status'
-    //         )
-    //             ->groupBy(DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"))
-    //             ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
-    //     } elseif ($type === 'media') {
-
-    //         $query->select(
-    //             'm.media_code',
-    //             'cat.category_name',
-    //             'm.media_title',
-    //             's.state_name',
-    //             'd.district_name',
-    //             'c.city_name',
-    //             'a.area_name',
-    //             'm.width',
-    //             'm.height',
-    //             'o.payment_status',
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-    //             'o.payment_status',
-    //             // ORDERS TABLE
-    //             DB::raw('SUM(o.total_amount) as total_amount'),
-    //             DB::raw('SUM(o.gst_amount) as gst_amount'),
-    //             DB::raw('SUM(o.grand_total) as grand_total')
-    //         )
-    //             ->groupBy(
-    //                 'm.media_code',
-    //                 'cat.category_name',
-    //                 'm.media_title',
-    //                 's.state_name',
-    //                 'd.district_name',
-    //                 'c.city_name',
-    //                 'a.area_name',
-    //                 'm.width',
-    //                 'm.height',
-    //                 'o.payment_status'
-    //             )
-    //             ->orderByDesc('grand_total');
-    //     } else { // USER-WISE
-
-    //         $query->select(
-    //             'u.name as user_name',
-
-    //             DB::raw('COUNT(oi.id) as total_bookings'),
-    //             DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-
-    //             // ORDERS TABLE
-    //             DB::raw('SUM(o.total_amount) as total_amount'),
-    //             DB::raw('SUM(o.gst_amount) as gst_amount'),
-    //             DB::raw('SUM(o.grand_total) as grand_total'),
-    //             'o.payment_status'
-    //         )
-    //             ->groupBy('u.name', 'o.payment_status')
-    //             ->orderByDesc('grand_total');
-    //     }
-
-    //     return $query->get();
-    // }
     private function exportQuery(Request $request)
     {
         $type = $request->report_type ?? 'media';
@@ -552,7 +325,7 @@ class RevenueReportController extends Controller
 
                 DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
 
-                // ✅ AMOUNTS FROM ORDERS TABLE
+                //  AMOUNTS FROM ORDERS TABLE
                 'o.total_amount',
                 'o.gst_amount',
                 'o.grand_total',
@@ -601,22 +374,6 @@ class RevenueReportController extends Controller
             'hasData' => $data->isNotEmpty()
         ]);
     }
-
-
-    // public function exportExcel(Request $request)
-    // {
-    //     $data = $this->exportQuery($request);
-
-    //     if ($data->isEmpty()) {
-    //         return response()->json(['status' => 'empty']);
-    //     }
-
-    //     return Excel::download(
-    //         new \App\Exports\RevenueExport($data, $request->report_type),
-    //         'revenue_report.xlsx'
-    //     );
-    // }
-
     public function exportExcel(Request $request)
     {
         if (!$request->filled('report_type')) {
@@ -658,5 +415,4 @@ class RevenueReportController extends Controller
 
         return $pdf->download('revenue_report.pdf');
     }
-
 }

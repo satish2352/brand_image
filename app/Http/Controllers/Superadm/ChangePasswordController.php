@@ -24,7 +24,7 @@ class ChangePasswordController extends Controller
                 ->with('error', 'Session expired. Please login again.');
         }
 
-        // ✅ VALIDATION (matches frontend)
+        //  VALIDATION (matches frontend)
         $request->validate([
             'new_password' => [
                 'required',
@@ -51,7 +51,7 @@ class ChangePasswordController extends Controller
         $user->password = Hash::make($request->new_password);
         $user->save();
 
-        // ✅ redirect to dashboard (NOT logout)
+        //  redirect to dashboard (NOT logout)
         return redirect()->route('dashboard')
             ->with('success', 'Password updated successfully!');
     }

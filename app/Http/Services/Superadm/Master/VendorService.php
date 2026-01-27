@@ -28,21 +28,7 @@ class VendorService
         return 'Vendor Code already exists. Please enter a different Vendor Name because Vendor Code depends on Vendor Name.';
     }
 
-    // public function store(array $data)
-    // {
-    //     DB::beginTransaction();
-    //     try {
-    //         if ($this->repo->existsByCode($data['vendor_code'])) {
-    //             throw new Exception('Vendor code already exists');
-    //         }
 
-    //         $this->repo->store($data);
-    //         DB::commit();
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-    // }
 
     public function store(array $data)
     {
@@ -80,21 +66,7 @@ class VendorService
         return $this->repo->find($id);
     }
 
-    // public function update($id, array $data)
-    // {
-    //     DB::beginTransaction();
-    //     try {
-    //         if ($this->repo->existsByCode($data['vendor_code'], $id)) {
-    //             throw new Exception('Vendor code already exists');
-    //         }
 
-    //         $this->repo->update($id, $data);
-    //         DB::commit();
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-    // }
 
     public function update($id, array $data)
     {
