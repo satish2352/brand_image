@@ -135,7 +135,7 @@
                                         method="POST">
                                         @csrf
 
-                                        @if ($type === 'open')
+                                        {{-- @if ($type === 'open')
                                             <button type="submit" class="btn btn-primary btn-sm">
                                                 Place Order
                                             </button>
@@ -147,7 +147,7 @@
                                             <button class="btn btn-secondary btn-sm" disabled>
                                                 Campaign Closed
                                             </button>
-                                        @endif
+                                        @endif --}}
                                     </form>
 
                                 </div>
@@ -275,6 +275,29 @@
                 @endforeach
                 </tbody>
                 </table>
+                @if ($type === 'open')
+                    <div class="d-flex justify-content-end p-3 border-top">
+                        <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                Place Order
+                            </button>
+                        </form>
+                    </div>
+                @elseif ($type === 'booked')
+                    <div class="d-flex justify-content-end p-3 border-top">
+                        <button class="btn btn-warning" disabled>
+                            Already Booked
+                        </button>
+                    </div>
+                @else
+                    <div class="d-flex justify-content-end p-3 border-top">
+                        <button class="btn btn-secondary" disabled>
+                            Campaign Closed
+                        </button>
+                    </div>
+                @endif
+
             </div>
 
     </div>
