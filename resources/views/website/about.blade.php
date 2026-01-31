@@ -181,7 +181,7 @@
 
 <section class="mission-section py-5">
     <div class="container">
-        <div class="row g-4 align-items-center">
+        <div class="row g-4 align-items-stretch">
 
             <!-- LEFT -->
             <div class="col-lg-6">
@@ -278,7 +278,7 @@
 </section>
 
 <!-- FEATURED SECTION -->
-<div class="feature-bg py-100">
+<div class="feature-bg py-100 pt-5 pt-md-1">
     <div class="container">
         <div class="row align-items-center gx-5">
 
@@ -502,43 +502,43 @@
 </script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-    const counters = document.querySelectorAll('.counter');
+    document.addEventListener("DOMContentLoaded", () => {
+        const counters = document.querySelectorAll('.counter');
 
-    const speed = 200; // animation speed
+        const speed = 200; // animation speed
 
-    const startCounter = (counter) => {
-        const target = +counter.getAttribute('data-target');
-        let count = 0;
-        const increment = target / speed;
+        const startCounter = (counter) => {
+            const target = +counter.getAttribute('data-target');
+            let count = 0;
+            const increment = target / speed;
 
-        const updateCount = () => {
-            count += increment;
-            if (count < target) {
-                counter.innerText = Math.ceil(count);
-                requestAnimationFrame(updateCount);
-            } else {
-                counter.innerText = target;
-            }
+            const updateCount = () => {
+                count += increment;
+                if (count < target) {
+                    counter.innerText = Math.ceil(count);
+                    requestAnimationFrame(updateCount);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            updateCount();
         };
-        updateCount();
-    };
 
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                startCounter(entry.target);
-                observer.unobserve(entry.target); // run only once
-            }
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    startCounter(entry.target);
+                    observer.unobserve(entry.target); // run only once
+                }
+            });
+        }, {
+            threshold: 0.5 // mobile ke liye important
         });
-    }, {
-        threshold: 0.5 // mobile ke liye important
-    });
 
-    counters.forEach(counter => {
-        observer.observe(counter);
+        counters.forEach(counter => {
+            observer.observe(counter);
+        });
     });
-});
 </script>
 
 

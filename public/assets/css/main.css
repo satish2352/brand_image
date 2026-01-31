@@ -313,6 +313,10 @@ p:last-child {
   }
 }
 
+.mb-40 {
+  margin-bottom: 40px;
+}
+
 .mt-80 {
   margin-top: 80px;
 }
@@ -729,6 +733,10 @@ nav.mean-nav>ul>li:first-child>a {
   color: #fff;
   display: inline-block;
   padding: 10px;
+}
+
+.bi-cart3 {
+  font-size: 25px;
 }
 
 .site-logo {
@@ -3043,7 +3051,7 @@ table.order-details tbody td {
 
 /* Reserve space for errors */
 .error-space {
-    min-height: 18px;
+  min-height: 18px;
 }
 
 
@@ -3181,7 +3189,6 @@ table.order-details tbody td {
 }
 
 
-
 /* =========================
    MOBILE
 ========================= */
@@ -3190,6 +3197,15 @@ table.order-details tbody td {
   .contact-card {
     padding: 30px 22px;
   }
+
+  .contact-form-box {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 18px 69px;
+
+    margin-bottom: 18px;
+  }
+
 }
 
 @media(max-width: 575px) {
@@ -3199,12 +3215,13 @@ table.order-details tbody td {
 }
 
 @media(max-width: 768px) {
-  .brand-logo{
+  .brand-logo {
     display: flex;
     justify-content: center;
   }
+
   .premium-footer {
-    padding-top:28px !important;
+    padding-top: 28px !important;
   }
 }
 
@@ -3252,11 +3269,12 @@ table.order-details tbody td {
 /* Hording billboard next pre btn css */
 
 .hoarding-slider .swiper-slide {
-    height: auto;              /* Swiper default height override */
-    width: 100%;
+  height: auto;
+  /* Swiper default height override */
+  width: 100%;
 }
 
-.swiper{
+.swiper {
   padding: 1rem !important;
 }
 
@@ -3270,6 +3288,7 @@ table.order-details tbody td {
     width: 33px !important;
     height: 33px !important;
   }
+
   .custom-swiper-nav {
     top: -54px !important;
   }
@@ -3444,6 +3463,13 @@ table.order-details tbody td {
   background: #8a5fff;
 }
 
+.info-card p {
+  font-size: 17px;
+  line-height: 1.65;
+  text-align: justify !important;
+  /* better readability */
+}
+
 /* Responsive */
 @media(max-width: 992px) {
   .container {
@@ -3456,27 +3482,28 @@ table.order-details tbody td {
     padding: 28px 22px 60px;
   }
 
+  /* 
   .info-card p {
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1.45;
     text-align: left !important;
     /* better readability */
-  }
+}
 
-  .info-card .icon {
-    font-size: 36px;
-    margin-bottom: 18px;
-  }
+*/ .info-card .icon {
+  font-size: 36px;
+  margin-bottom: 18px;
+}
 
-  .diamond {
-    width: 52px;
-    height: 52px;
-    bottom: -24px;
-  }
+.diamond {
+  width: 52px;
+  height: 52px;
+  bottom: -24px;
+}
 
-  .diamond span {
-    font-size: 22px;
-  }
+.diamond span {
+  font-size: 22px;
+}
 }
 
 .info-card:hover {

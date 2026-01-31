@@ -64,7 +64,7 @@
                     <div class="header-icons new-header-icons">
                         @auth('website')
                             <a href="{{ route('cart.index') }}" class="btn new-btn-light position-relative">
-                                <i class="bi bi-cart3 fs-5"></i>
+                                <i class="bi bi-cart3 "></i>
                                 @if ($cartCount > 0)
                                     <span
                                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-count">
@@ -74,7 +74,7 @@
                             </a>
                         @else
                             <button class="btn new-btn-light position-relative" onclick="openLoginForCart()">
-                                <i class="bi bi-cart3 fs-5"></i>
+                                <i class="bi bi-cart3 "></i>
                                 @unless ($cartCount == 0)
                                     <span
                                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill cart-count">
