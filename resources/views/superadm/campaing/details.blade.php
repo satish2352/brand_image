@@ -13,14 +13,17 @@
             @foreach ($campaigns->groupBy('campaign_id') as $campaignId => $campaign)
                 @php
                     $first = $campaign->first();
-                    $total = $campaign->sum('total_price');
+
+                    $subtotal = $campaign->sum('total_price');
+                    $gstTotal = round($subtotal * 0.18, 2);
+                    $finalTotal = round($subtotal + $gstTotal, 2);
                 @endphp
 
                 <div class="card mb-3">
                     <div class="card-header bg-light">
                         <strong>{{ $first->campaign_name }}</strong>
                         <span class="badge badge-danger float-right">
-                            ₹ {{ number_format($total, 2) }}
+                            ₹ {{ number_format($finalTotal, 2) }}
                         </span>
                     </div>
 

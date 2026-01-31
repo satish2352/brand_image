@@ -157,7 +157,7 @@
                             </p>
                             <div class="mt-4">
 
-                                <a href="{{ route('campaign.list') }}" class="cart-btn"><i
+                                <a href="{{ route('campaigns.open') }}" class="cart-btn"><i
                                         class="fas fa-shopping-cart"></i>← Back to Campaigns</a>
                             </div>
                         </div>
