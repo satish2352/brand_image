@@ -494,13 +494,20 @@
                     ₹ {{ number_format($media->price, 2) }}
                 </div>
 
-                    {{-- <div class="media-map mt-4">
-                        <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
+                <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
+                    {{-- <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
                     target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
                     <img src="{{ asset('assets/img/map.png') }}" width="30">
                     <span>View on Map</span>
-                    </a>
-                </div> --}}
+                    </a> --}}
+                    @if (!empty($media->video_link))
+                        <a href="{{ $media->video_link }}" target="_blank"
+                            class="text-muted d-inline-flex align-items-center gap-1">
+                            <img src="{{ asset('assets/img/360view.png') }}" width="30">
+                            <span>360° View</span>
+                        </a>
+                    @endif
+                </div>
                 @php
                 $isBillboard = (int) $media->category_id === 1;
                 $isBooked = (int) ($media->is_booked ?? 0);
