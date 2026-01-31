@@ -56,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
 
             $radiusList = DB::table('radius_master')
                 ->where('is_active', 1)
+                ->where('is_deleted', 0)
                 ->orderBy('radius')
                 ->get();
 
@@ -81,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
 
             $radiusList = DB::table('radius_master')
                 ->where('is_active', 1)
+                ->where('is_deleted', 0)
                 ->orderBy('radius')
                 ->get();
 

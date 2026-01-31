@@ -21,8 +21,8 @@ class AreaRepository
                 'a.id',
                 'a.area_name',
                 'a.common_stdiciar_name',
-                'a.latitude',
-                'a.longitude',
+                // 'a.latitude',
+                // 'a.longitude',
                 'a.is_active',
                 's.state_name',
                 'd.district_name',
@@ -57,8 +57,8 @@ class AreaRepository
             'city_id'               => $data['city_id'],
             'area_name'             => $data['area_name'],
             'common_stdiciar_name'  => $data['common_stdiciar_name'],
-            'latitude'              => $data['latitude'],
-            'longitude'             => $data['longitude'],
+            // 'latitude'              => $data['latitude'],
+            // 'longitude'             => $data['longitude'],
         ]);
     }
 
@@ -108,8 +108,8 @@ class AreaRepository
             'city_id'               => $data['city_id'],
             'area_name'             => $data['area_name'],
             'common_stdiciar_name'  => $data['common_stdiciar_name'],
-            'latitude'              => $data['latitude'],
-            'longitude'             => $data['longitude'],
+            // 'latitude'              => $data['latitude'],
+            // 'longitude'             => $data['longitude'],
         ]);
     }
 

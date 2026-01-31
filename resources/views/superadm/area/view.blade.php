@@ -31,15 +31,15 @@
         <div class="col-sm-8 text-color-bg">{{ $area->common_stdiciar_name }}</div>
     </div>
 
-    <div class="row mb-2">
+    {{-- <div class="row mb-2">
         <label class="col-sm-4 font-weight-bold">Latitude</label>
         <div class="col-sm-8 text-color-bg">{{ $area->latitude }}</div>
-    </div>
+    </div> --}}
 
-    <div class="row mb-2">
+    {{-- <div class="row mb-2">
         <label class="col-sm-4 font-weight-bold">Longitude</label>
         <div class="col-sm-8 text-color-bg">{{ $area->longitude }}</div>
-    </div>
+    </div> --}}
 
 
 </div>

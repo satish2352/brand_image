@@ -11,12 +11,12 @@
     <div class="row">
         <!-- Desktop Image -->
         <div class="col-md-12 d-none d-md-block">
-            <img src="{{ asset('assets/img/sads.png') }}" alt="About Banner" class="img-fluid">
+            <img src="{{ asset('assets/img/47.png') }}" alt="About Banner" class="img-fluid">
         </div>
 
         <!-- Mobile Image -->
         <div class="col-md-12 d-block d-md-none">
-            <img src="{{ asset('assets/img/rty1.png') }}" alt="About Banner" class="img-fluid">
+            <img src="{{ asset('assets/img/46.png') }}" alt="About Banner" class="img-fluid">
         </div>
     </div>
 </div>

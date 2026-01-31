@@ -67,6 +67,8 @@ class AuthController extends Controller
             'name' => $req->signup_name,
             'email' => $req->signup_email,
             'mobile_number' => $req->signup_mobile_number,
+            'organisation' => $req->signup_organisation ?? null,
+            'gst' => $req->signup_gst ?? null, 
             'password' => Hash::make($req->signup_password),
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(2),

@@ -49,8 +49,8 @@
                                     <th>District</th>
                                     <th>City</th>
                                     <th>Area Name</th>
-                                    <th>Latitude</th>
-                                    <th>Longitude</th>
+                                    {{-- <th>Latitude</th>
+                                    <th>Longitude</th> --}}
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -64,8 +64,8 @@
                                         <td>{{ $area->district_name }}</td>
                                         <td>{{ $area->city_name }}</td>
                                         <td>{{ $area->area_name }}</td>
-                                        <td>{{ $area->latitude }}</td>
-                                        <td>{{ $area->longitude }}</td>
+                                        {{-- <td>{{ $area->latitude }}</td>
+                                        <td>{{ $area->longitude }}</td> --}}
                                         <td>
                                             <form action="{{ route('area.updatestatus') }}" method="POST"
                                                 class="d-inline-block delete-form">
@@ -89,19 +89,24 @@
                                             </a> --}}
                                             <a href="javascript:void(0);" class="btn btn-sm btn-success mr-2 view-area"
                                                 data-id="{{ base64_encode($area->id) }}" title="View">
-                                                <i class="mdi mdi-eye-outline"></i>
+                                                <i class="mdi mdi-eye-outline icon-medium"></i>
                                             </a>
 
 
                                             <a href="{{ route('area.edit', base64_encode($area->id)) }}"
-                                                class="btn btn-sm btn-primary mr-2">
-                                                <i class="mdi mdi-square-edit-outline"></i>
+                                                class="btn btn-sm btn-primary mr-1">
+                                                <i class="mdi mdi-square-edit-outline icon-medium"></i>
                                             </a>
-
-                                            <button type="button" class="btn btn-sm btn-danger delete-btn"
-                                                data-id="{{ base64_encode($area->id) }}">
-                                                <i class="mdi mdi-trash-can-outline"></i>
-                                            </button>
+                                            <form action="{{ route('area.delete') }}" method="POST"
+                                                class="d-inline-block">
+                                                @csrf
+                                                <input type="hidden" name="id"
+                                                    value="{{ base64_encode($area->id) }}">
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                                    title="Delete">
+                                                    <i class="mdi mdi-trash-can-outline icon-medium"></i>
+                                                </button>
+                                            </form>
                                         </td>
 
 
@@ -184,40 +189,21 @@
             });
         </script>
         <script>
+            // DELETE CONFIRMATION
             $(document).on('click', '.delete-btn', function() {
-                let id = $(this).data('id');
+                let form = $(this).closest('form');
 
                 Swal.fire({
                     title: 'Are You Sure?',
-                    text: "Do you really want to delete this record?",
-                    icon: 'warning',
+                    text: 'Do you really want to delete this record?',
+                    icon: "warning",
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-
-                        $.post("{{ route('area.delete') }}", {
-                            _token: "{{ csrf_token() }}",
-                            id: id
-                        }, function(response) {
-                            if (response.status) {
-                                Swal.fire(
-                                    'Deleted!',
-                                    response.message,
-                                    'success'
-                                );
-                                setTimeout(() => location.reload(), 1000);
-                            } else {
-                                Swal.fire('Error', 'Failed to delete', 'error');
-                            }
-                        }).fail(function() {
-                            Swal.fire('Error', 'Delete request failed', 'error');
-                        });
-
-                    }
-                })
+                    confirmButtonColor: "#28a745",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then(res => {
+                    if (res.isConfirmed) form.submit();
+                });
             });
         </script>
     @endsection

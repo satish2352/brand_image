@@ -6,7 +6,7 @@
     .result-badge {
         background: #fff9d9;
         border-left: 5px solid #ffb100;
-        padding: 8px 15px;
+        padding: 0px 15px;
         border-radius: 8px;
         font-weight: 600;
         display: inline-flex;

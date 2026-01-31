@@ -101,7 +101,7 @@ class HordingBookController extends Controller
             $service->handleAdminBooking($request);
 
             return redirect()
-                ->back()
+                ->route('admin.booking.list-booking')
                 ->with('success', 'Media booked successfully');
         } catch (\Throwable $e) {
 

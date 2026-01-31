@@ -43,8 +43,8 @@ class AreaController extends Controller
             'city_id'              => 'required|integer|exists:cities,id',
             'area_name'             => 'required|string|max:255',
             'common_stdiciar_name'  => 'required|string|max:255',
-            'latitude'             => 'required|numeric',
-            'longitude'            => 'required|numeric',
+            // 'latitude'             => 'required|numeric',
+            // 'longitude'            => 'required|numeric',
         ];
 
         $messages = [
@@ -67,10 +67,10 @@ class AreaController extends Controller
             'common_stdiciar_name.required' => 'Please enter the common standard name.',
             'common_stdiciar_name.string'   => 'Common standard name must be valid text.',
             'common_stdiciar_name.max'      => 'Common standard name must not exceed 255 characters.',
-            'latitude.required'  => 'Latitude is required.',
-            'latitude.numeric'   => 'Latitude must be numeric.',
-            'longitude.required' => 'Longitude is required.',
-            'longitude.numeric'  => 'Longitude must be numeric.',
+            // 'latitude.required'  => 'Latitude is required.',
+            // 'latitude.numeric'   => 'Latitude must be numeric.',
+            // 'longitude.required' => 'Longitude is required.',
+            // 'longitude.numeric'  => 'Longitude must be numeric.',
         ];
 
 
@@ -114,8 +114,8 @@ class AreaController extends Controller
             'city_id'              => 'required|integer|exists:cities,id',
             'area_name'            => 'required|string|max:255',
             'common_stdiciar_name' => 'required|string|max:255',
-            'latitude'             => 'required|numeric',
-            'longitude'            => 'required|numeric',
+            // 'latitude'             => 'required|numeric',
+            // 'longitude'            => 'required|numeric',
         ]);
 
         try {
@@ -149,24 +149,21 @@ class AreaController extends Controller
             ], 500);
         }
     }
-    public function delete(Request $request)
+
+    public function delete(Request $req)
     {
         try {
-            $id = base64_decode($request->id);
-
+            $id = base64_decode($req->id);
             $this->areaService->deleteArea($id);
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Area deleted successfully'
-            ]);
+            return redirect()->route('area.list')->with('success', 'Area deleted successfully.');
         } catch (Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Delete failed'
-            ], 500);
+            return back()->with('error', $e->getMessage());
         }
     }
+
+
+
     public function getStates()
     {
         return response()->json(
@@ -216,15 +213,14 @@ class AreaController extends Controller
     }
 
     public function view($encodedId)
-{
-    try {
-        $id = base64_decode($encodedId);
-        $area = $this->areaService->getAreaById($id);
+    {
+        try {
+            $id = base64_decode($encodedId);
+            $area = $this->areaService->getAreaById($id);
 
-        return view('superadm.area.view', compact('area'));
-    } catch (Exception $e) {
-        return redirect()->route('area.list')->with('error', 'Area not found');
+            return view('superadm.area.view', compact('area'));
+        } catch (Exception $e) {
+            return redirect()->route('area.list')->with('error', 'Area not found');
+        }
     }
-}
-
 }

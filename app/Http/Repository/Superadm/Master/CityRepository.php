@@ -94,7 +94,7 @@ class CityRepository
     /**
      * Soft delete
      */
-    public function softDelete($id)
+    public function deleteCity($id)
     {
         return City::where('id', $id)->update([
             'is_deleted' => 1,

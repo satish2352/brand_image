@@ -64,14 +64,16 @@ class CityController extends Controller
         return response()->json(['status' => true, 'message' => 'Status updated']);
     }
 
-    public function delete(Request $request)
+    public function delete(Request $req)
     {
-        $id = base64_decode($request->id);
-        $this->cityService->deleteCity($id);
-
-        return response()->json(['status' => true, 'message' => 'City deleted']);
+        try {
+            $id = base64_decode($req->id);
+            $this->cityService->deleteCity($id);
+            return redirect()->route('city.list')->with('success', 'City deleted successfully.');
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
-
     public function edit($encodedId)
     {
         try {

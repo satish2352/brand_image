@@ -32,7 +32,9 @@ class CampaignService
     }
     public function getOpenCampaigns($userId, $request)
     {
-        return $this->repo->fetchOpenCampaigns($userId, $request);
+        $data_output = $this->repo->getOpenCampaigns($userId, $request);
+
+        return $data_output;
     }
 
     public function getBookedCampaigns($userId, $request)
