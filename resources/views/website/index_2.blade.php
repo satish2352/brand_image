@@ -104,10 +104,10 @@
 <div class="list-section pt-80 pb-80">
     <div class="container">
 
-        <div class="row">
+        <div class="row d-flex justify-content-center">
 
             <!-- Feature 1 -->
-            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-bullhorn"></i>
@@ -120,7 +120,7 @@
             </div>
 
             <!-- Feature 2 -->
-            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-lightbulb"></i>
@@ -133,7 +133,7 @@
             </div>
 
             <!-- Feature 3 -->
-            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-chart-line"></i>
@@ -352,7 +352,7 @@
 
                                 <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
                                     target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-                                    <img src="{{ asset('assets/img/map.png') }}" width="30">
+                                    <img src="{{ asset('assets/img/105.png') }}" width="30">
                                     <span>View on Map</span>
                                 </a>
                                 @if (!empty($media->video_link))
@@ -498,7 +498,7 @@
                 <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
                     {{-- <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
                     target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-                    <img src="{{ asset('assets/img/map.png') }}" width="30">
+                    <img src="{{ asset('assets/img/105.png') }}" width="30">
                     <span>View on Map</span>
                     </a> --}}
                     @if (!empty($media->video_link))

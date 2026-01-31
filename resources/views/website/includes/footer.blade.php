@@ -15,7 +15,7 @@
                             style="height: 85px;">
                     </div>
                     <p>
-                        Brand Adda is a smart outdoor media portal offering real-time hoarding availability, 360°
+                        Brand Image is a smart outdoor media portal offering real-time hoarding availability, 360°
                         location views, and instant booking.
                     </p>
 

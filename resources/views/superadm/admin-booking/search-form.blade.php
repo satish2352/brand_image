@@ -32,7 +32,7 @@
 
 
             {{-- ================= ROW 1 ================= --}}
-            <div class="row g-3">
+            <div class="row g-3 d-flex">
 
                 {{-- <div class="col-xl-3 col-lg-4 col-md-6">
                     <label class="form-label">Category</label>

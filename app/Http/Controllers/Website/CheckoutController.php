@@ -217,6 +217,10 @@ class CheckoutController extends Controller
         $gstAmount = round(($subTotal * 18) / 100, 2);
         $grandTotal = round($subTotal + $gstAmount, 2);
 
+       //  Razorpay requires INTEGER amount in paise
+    $amountInPaise = (int) round($grandTotal * 100);
+
+
         $api = new Api(
             config('services.razorpay.key'),
             config('services.razorpay.secret')
@@ -224,7 +228,7 @@ class CheckoutController extends Controller
 
         $razorpayOrder = $api->order->create([
             'receipt'  => $order->order_no,
-            'amount'   => $grandTotal * 100, //  GST INCLUDED
+            'amount'   => $amountInPaise, //  GST INCLUDED
             'currency' => 'INR',
         ]);
         //  IMPORTANT: SAVE RAZORPAY ORDER ID IN DB
@@ -239,7 +243,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'order_id' => $razorpayOrder['id'],
-            'amount'   => $grandTotal * 100,
+            'amount'   => $amountInPaise,
             'key'      => config('services.razorpay.key'),
         ]);
     }

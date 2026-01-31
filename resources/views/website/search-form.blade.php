@@ -128,7 +128,7 @@
             @csrf
             <input type="hidden" name="clear" id="clearFlag">
 
-            <div class="row g-3 justify-content-between">
+            <div class="row g-3 justify-content-start justify-content-lg-between">
 
                 <!-- Category -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
@@ -136,10 +136,10 @@
                     <select name="category_id" class="form-select">
                         <option value="">Select Category</option>
                         @foreach ($categories as $cat)
-                            <option value="{{ $cat->id }}"
-                                {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->category_name }}
-                            </option>
+                        <option value="{{ $cat->id }}"
+                            {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
+                            {{ $cat->category_name }}
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -150,14 +150,14 @@
                     <select name="state_id" id="state_id" class="form-select">
                         <option value="">Select State</option>
                         @foreach ($states as $state)
-                            {{-- <option value="{{ $state->location_id }}"
-                                {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
-                                {{ $state->name }} --}}
-                            <option value="{{ $state->id }}"
-                                {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
-                                {{ $state->state_name }}
+                        {{-- <option value="{{ $state->location_id }}"
+                        {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
+                        {{ $state->name }} --}}
+                        <option value="{{ $state->id }}"
+                            {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
+                            {{ $state->state_name }}
 
-                            </option>
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -192,10 +192,10 @@
                     <select name="radius_id" class="form-select" id="radius_id">
                         <option value="">Radius</option>
                         @foreach ($radiusList as $r)
-                            <option value="{{ $r->radius }}"
-                                {{ (string) ($filters['radius_id'] ?? '') === (string) $r->radius ? 'selected' : '' }}>
-                                {{ $r->radius }} KM
-                            </option>
+                        <option value="{{ $r->radius }}"
+                            {{ (string) ($filters['radius_id'] ?? '') === (string) $r->radius ? 'selected' : '' }}>
+                            {{ $r->radius }} KM
+                        </option>
                         @endforeach
                     </select>
                 </div>
@@ -231,9 +231,9 @@
                     <label class="form-label">Available Days</label>
                     <select name="available_days" id="available_days" class="form-select">
                         <option value="">Select Days</option>
-                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>After
+                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>Available After
                             7 Days</option>
-                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>After
+                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>Available After
                             15 Days</option>
                     </select>
                 </div>
@@ -268,36 +268,36 @@
 
                 <div class="row " style="padding-top:15px">
                     <!-- Buttons -->
-                    <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto">
+                    <div class="col-lg-2 col-md-4 col-sm-12 d-grid mt-md-auto">
                         <button type="button" class="btn btn-search"
                             onclick="document.getElementById('searchForm').submit();">
                             Search Media
                         </button>
                     </div>
 
-                    <div class="col-lg-2 col-md-6 col-sm-12 d-grid mt-md-auto mt-3 ">
+                    <div class="col-lg-2 col-md-4 col-sm-12 d-grid mt-md-auto mt-3 ">
                         <button type="button" class="btn btn-clear" id="clearFilters">
                             Clear Filters
                         </button>
                     </div>
                     @if (($filters['category_id'] ?? '') != '')
-                        @php $catName = $mediaList->first()->category_name ?? ''; @endphp
+                    @php $catName = $mediaList->first()->category_name ?? ''; @endphp
 
-                        <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
-                            @if ($mediaList->total() > 0)
-                                <div class="result-badge">
-                                    <span class="icon">📍</span>
-                                    <span class="count">{{ $mediaList->total() }} Results</span>
-                                    {{-- <span class="label">for {{ $catName }}</span> --}}
-                                </div>
-                            @else
-                                <div class="result-badge no-result">
-                                    <span class="icon">❌</span>
-                                    <span class="count">No Results</span>
-                                    {{-- <span class="label">for {{ $catName }}</span> --}}
-                                </div>
-                            @endif
+                    <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
+                        @if ($mediaList->total() > 0)
+                        <div class="result-badge">
+                            <span class="icon">📍</span>
+                            <span class="count">{{ $mediaList->total() }} Results</span>
+                            {{-- <span class="label">for {{ $catName }}</span> --}}
                         </div>
+                        @else
+                        <div class="result-badge no-result">
+                            <span class="icon">❌</span>
+                            <span class="count">No Results</span>
+                            {{-- <span class="label">for {{ $catName }}</span> --}}
+                        </div>
+                        @endif
+                    </div>
                     @endif
                 </div>
 
@@ -343,7 +343,7 @@
                 _token: csrf,
                 district_id: districtId
             }, function(data) {
-                let html = '<option value="">Select City</option>';
+                let html = '<option value="">Select Town</option>';
                 data.forEach(c => {
                     html +=
                         `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>${c.city_name}</option>`;
@@ -371,7 +371,7 @@
         // Change Events
         $('#state_id').on('change', function() {
             loadDistricts(this.value);
-            $('#city_id').html('<option value="">Select City</option>');
+            $('#city_id').html('<option value="">Select Town</option>');
             $('#area_id').html('<option value="">Select Area</option>');
         });
 
@@ -620,8 +620,16 @@
         }
 
         // Restore values from search page
-        let savedMin = {{ $filters['min_price'] ?? 0 }};
-        let savedMax = {{ $filters['max_price'] ?? 200000 }};
+        let savedMin = {
+            {
+                $filters['min_price'] ?? 0
+            }
+        };
+        let savedMax = {
+            {
+                $filters['max_price'] ?? 200000
+            }
+        };
 
         minSlider.val(savedMin);
         maxSlider.val(savedMax);

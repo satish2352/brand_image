@@ -50,7 +50,7 @@
                     {{-- View on Map --}}
                     <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
                         target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-                        <img src="{{ asset('assets/img/map.png') }}" width="30">
+                        <img src="{{ asset('assets/img/105.png') }}" width="30">
                         <span>View on Map</span>
                     </a>
                     @if (!empty($media->video_link))
@@ -123,7 +123,7 @@
     <a href="https://www.google.com/maps/search/?api=1&query=Pune+Bus+Stand"
        target="_blank"
        class="text-muted d-inline-flex align-items-center gap-1">
-        <img src="{{ asset('assets/img/map.png') }}" width="30">
+        <img src="{{ asset('assets/img/105.png') }}" width="30">
         <span>View on Map</span>
     </a>
 

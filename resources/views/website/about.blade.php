@@ -181,12 +181,12 @@
 
 <section class="mission-section py-5">
     <div class="container">
-        <div class="row g-4 align-items-stretch">
+        <div class="row g-4 align-items-center ">
 
             <!-- LEFT -->
             <div class="col-lg-6">
 
-                <img src="{{ asset('assets/img/45.png') }}" class="img-fluid rounded-5  d-flex justify-content-center" alt="mission">
+                <img src="{{ asset('assets/img/45.png') }}" class="img-fluid rounded-5    d-flex justify-content-center" alt="mission">
 
 
             </div>
@@ -285,8 +285,7 @@
             <!-- LEFT CONTENT -->
             <div class="col-lg-6">
                 <div class="featured-text">
-                    <h2 class="pb-3">
-                        Why <span class="orange-text">Brand Image Media</span>
+                    <h2 class="pb-3 text-center text-lg-start"> Why <span class="orange-text">Brand Image Media</span>
                     </h2>
                     <p class="mb-5 text-muted whybrandimg-para">
                         We deliver result-oriented outdoor advertising solutions
@@ -371,7 +370,7 @@
         <div class="row  justify-content-center">
 
             <!-- CARD 1 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5 pb-md-0  ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5    ">
                 <div class="info-card orange-card h-100 w-100 ">
 
                     <div class="content">
@@ -386,7 +385,7 @@
             </div>
 
             <!-- CARD 2 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5 pb-md-0 ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5   ">
                 <div class="info-card orange-card h-100 w-100 ">
 
                     <div class="content">
@@ -400,7 +399,7 @@
             </div>
 
             <!-- CARD 3 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5 pb-md-0 ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5   ">
                 <div class="info-card orange-card h-100 w-100">
 
                     <div class="content">
@@ -414,7 +413,7 @@
             </div>
 
             <!-- CARD 4 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5 pb-md-0 ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5   ">
                 <div class="info-card orange-card h-100 w-100">
                     <div class="content">
                         <img src="{{ asset('assets/img/11.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
