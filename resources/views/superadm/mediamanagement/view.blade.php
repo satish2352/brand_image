@@ -162,15 +162,43 @@
                         if (xhr.responseJSON.errors) {
                             let errorMessage = '';
 
-                            $.each(xhr.responseJSON.errors, function(key, value) {
-                                errorMessage += value[0] + '\n';
-                            });
+                            // $.each(xhr.responseJSON.errors, function(key, value) {
+                            //     errorMessage += value[0] + '\n';
+                            // }); //one more error
+
+                            // ONLY FIRST ERROR MESSAGE
+                            let firstError = Object.values(xhr.responseJSON.errors)[0][0];
 
                             // alert(errorMessage);
                             // showAlert('error', errorMessage);
                             showAlert('error', errorMessage);
                             return;
                         }
+
+                        //if want to show multiple error
+
+                        // if (xhr.responseJSON.errors) {
+
+                        //     let errorHtml = '<ul style="text-align:left; margin-left:15px;">';
+
+                        //     $.each(xhr.responseJSON.errors, function (key, messages) {
+                        //         messages.forEach(function (msg) {
+                        //             errorHtml += `<li>${msg}</li>`;
+                        //         });
+                        //     });
+
+                        //     errorHtml += '</ul>';
+
+                        //     Swal.fire({
+                        //         icon: 'error',
+                        //         title: 'Validation Errors',
+                        //         html: errorHtml,
+                        //         confirmButtonText: 'OK'
+                        //     });
+
+                        //     return;
+                        // }
+                        
                     }
 
                     // Other errors
