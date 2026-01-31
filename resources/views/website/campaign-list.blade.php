@@ -10,8 +10,15 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             {{-- <h4 class="mb-0">Campaign List</h4> --}}
             <h4 class="mb-0">
-                {{ $type === 'past' ? 'Past Campaign List' : 'Active Campaign List' }}
+                @if ($type === 'open')
+                    Campaign List
+                @elseif($type === 'booked')
+                    Booked Campaign List
+                @else
+                    Past Campaign List
+                @endif
             </h4>
+
         </div>
 
         {{-- SEARCH --}}
@@ -24,12 +31,6 @@
                 <button class="btn btn-primary w-100">Search</button>
             </div>
         </form>
-
-        {{-- @if ($campaigns->count() === 0)
-        <div class="alert alert-info text-center">
-            No campaigns found.
-        </div>
-    @else --}}
         @if ($campaigns->isEmpty())
             <div class="alert alert-info text-center">
                 {{ $type === 'past' ? 'No past campaigns found.' : 'No active campaigns found.' }}
@@ -39,11 +40,6 @@
             <div class="accordion" id="campaignAccordion">
 
                 @foreach ($campaigns as $campaignId => $items)
-                    {{-- @php
-                        $items = $items->sortBy('to_date');
-                        $campaignName = $items->first()->campaign_name;
-                        $totalAmount = $items->sum(fn($i) => $i->total_price);
-                    @endphp --}}
                     @php
                         $items = $items->sortBy('to_date');
                         $campaignName = $items->first()->campaign_name;
@@ -56,23 +52,6 @@
                     @endphp
 
                     <div class="accordion-item mb-3 shadow-lg ">
-
-                        {{-- <span
-                            class="badge
-    @if ($type === 'open') bg-success
-    @elseif($type === 'booked') bg-warning
-    @else bg-secondary @endif
-    float-end m-2 me-4">
-
-                            @if ($type === 'open')
-                                Running
-                            @elseif($type === 'booked')
-                                Booked
-                            @else
-                                Completed
-                            @endif
-                        </span> --}}
-
                         {{-- HEADER --}}
                         <h2 class="accordion-header" id="heading{{ $campaignId }}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -98,7 +77,7 @@
                                         </span>
 
                                         @if ($type === 'open')
-                                            <span class="badge bg-success">Running</span>
+                                            {{-- <span class="badge bg-success">Running</span> --}}
                                         @elseif ($type === 'booked')
                                             <span class="badge bg-warning">Booked</span>
                                         @else
@@ -134,20 +113,6 @@
                                     <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
                                         method="POST">
                                         @csrf
-
-                                        {{-- @if ($type === 'open')
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                Place Order
-                                            </button>
-                                        @elseif ($type === 'booked')
-                                            <button class="btn btn-warning btn-sm" disabled>
-                                                Already Booked
-                                            </button>
-                                        @else
-                                            <button class="btn btn-secondary btn-sm" disabled>
-                                                Campaign Closed
-                                            </button>
-                                        @endif --}}
                                     </form>
 
                                 </div>
@@ -193,34 +158,6 @@
                                                 @endif
                                             </tr>
                                         </thead>
-
-                                        <tbody>
-                                            <?php
-                                            // dd($items);
-                                            // die();
-                                            ?>
-                                            @foreach ($items as $index => $row)
-                                                {{-- <tr>
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $row->area_name ?? '-' }} {{ $row->facing ?? '-' }}</td>
-                                                    <td>{{ $row->media_title ?? '-' }}</td>
-                                                    <td>{{ $row->width }} × {{ $row->height }}</td>
-                                                    <td>₹ {{ number_format($row->total_price, 2) }}</td>
-                                                    <td>{{ $row->from_date ? \Carbon\Carbon::parse($row->from_date)->format('d-m-Y') : '-' }}
-                                                    </td>
-                                                    <td>{{ $row->to_date ? \Carbon\Carbon::parse($row->to_date)->format('d-m-Y') : '-' }}
-                                                    </td>
-
-                                                    <td>{{ $row->total_days ?? '-' }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($row->campaign_date)->format('d M Y') }}
-                                                    </td>
-                                                    <td>
-                                                        <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
-                                                            class="btn btn-outline-primary btn-sm">
-                                                            View
-                                                        </a>
-                                                    </td>
-                                                </tr> --}}
                                         <tbody>
                                             @foreach ($items as $index => $row)
                                                 <tr>
@@ -272,41 +209,40 @@
                                                 </tr>
                                             @endforeach
                                         </tbody>
+                                    </table>
+                                    @if ($type === 'open')
+                                        <div class="d-flex justify-content-end p-3 border-top">
+                                            <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
+                                                method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-primary">
+                                                    Place Order
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @elseif ($type === 'booked')
+                                        <div class="d-flex justify-content-end p-3 border-top">
+                                            <button class="btn btn-warning" disabled>
+                                                Already Booked
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div class="d-flex justify-content-end p-3 border-top">
+                                            <button class="btn btn-secondary" disabled>
+                                                Campaign Closed
+                                            </button>
+                                        </div>
+                                    @endif
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 @endforeach
-                </tbody>
-                </table>
-                @if ($type === 'open')
-                    <div class="d-flex justify-content-end p-3 border-top">
-                        <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-primary">
-                                Place Order
-                            </button>
-                        </form>
-                    </div>
-                @elseif ($type === 'booked')
-                    <div class="d-flex justify-content-end p-3 border-top">
-                        <button class="btn btn-warning" disabled>
-                            Already Booked
-                        </button>
-                    </div>
-                @else
-                    <div class="d-flex justify-content-end p-3 border-top">
-                        <button class="btn btn-secondary" disabled>
-                            Campaign Closed
-                        </button>
-                    </div>
-                @endif
 
             </div>
-
-    </div>
-    </div>
-    </div>
-    @endforeach
-
-    </div>
-    @endif
+        @endif
 
     </div>
 

@@ -1,58 +1,54 @@
 @extends('superadm.layout.master')
 
 @section('content')
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="card shadow-sm">
-            <div class="card-body">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
 
-                <h4 class="mb-4">Edit Area</h4>
+                    <h4 class="mb-4">Edit Area</h4>
 
-                <form action="{{ route('area.update', $encodedId) }}" method="POST" novalidate>
-                    @csrf
+                    <form action="{{ route('area.update', $encodedId) }}" method="POST" novalidate>
+                        @csrf
 
-                    {{-- STATE --}}
-                    <div class="form-group mb-3">
-                        <label>State <span class="text-danger">*</span></label>
-                        <select id="state" name="state_id" class="form-control">
-                            <option value="{{ $area->state_id }}">{{ $area->state_name }}</option>
-                        </select>
-                    </div>
+                        {{-- STATE --}}
+                        <div class="form-group mb-3">
+                            <label>State <span class="text-danger">*</span></label>
+                            <select id="state" name="state_id" class="form-control">
+                                <option value="{{ $area->state_id }}">{{ $area->state_name }}</option>
+                            </select>
+                        </div>
 
-                    {{-- DISTRICT --}}
-                    <div class="form-group mb-3">
-                        <label>District <span class="text-danger">*</span></label>
-                        <select id="district" name="district_id" class="form-control">
-                            <option value="{{ $area->district_id }}">{{ $area->district_name }}</option>
-                        </select>
-                    </div>
+                        {{-- DISTRICT --}}
+                        <div class="form-group mb-3">
+                            <label>District <span class="text-danger">*</span></label>
+                            <select id="district" name="district_id" class="form-control">
+                                <option value="{{ $area->district_id }}">{{ $area->district_name }}</option>
+                            </select>
+                        </div>
 
-                    {{-- CITY --}}
-                    <div class="form-group mb-3">
-                        <label>City <span class="text-danger">*</span></label>
-                        <select id="city" name="city_id" class="form-control">
-                            <option value="{{ $area->city_id }}">{{ $area->city_name }}</option>
-                        </select>
-                    </div>
+                        {{-- CITY --}}
+                        <div class="form-group mb-3">
+                            <label>City <span class="text-danger">*</span></label>
+                            <select id="city" name="city_id" class="form-control">
+                                <option value="{{ $area->city_id }}">{{ $area->city_name }}</option>
+                            </select>
+                        </div>
 
-                    {{-- AREA NAME --}}
-                    <div class="form-group mb-3">
-                        <label>Area Name <span class="text-danger">*</span></label>
-                        <input type="text"
-                               name="area_name"
-                               class="form-control"
-                               value="{{ old('area_name', $area->area_name) }}">
-                    </div>
+                        {{-- AREA NAME --}}
+                        <div class="form-group mb-3">
+                            <label>Area Name <span class="text-danger">*</span></label>
+                            <input type="text" name="area_name" class="form-control"
+                                value="{{ old('area_name', $area->area_name) }}">
+                        </div>
 
-                    {{-- COMMON NAME --}}
-                    <div class="form-group mb-4">
-                        <label>Common State District City Area Name <span class="text-danger">*</span></label>
-                        <input type="text"
-                               name="common_stdiciar_name"
-                               class="form-control"
-                               value="{{ old('common_stdiciar_name', $area->common_stdiciar_name) }}">
-                    </div>
-                    <div class="row">
+                        {{-- COMMON NAME --}}
+                        <div class="form-group mb-4">
+                            <label>Common State District City Area Name <span class="text-danger">*</span></label>
+                            <input type="text" name="common_stdiciar_name" class="form-control"
+                                value="{{ old('common_stdiciar_name', $area->common_stdiciar_name) }}">
+                        </div>
+                        {{-- <div class="row">
                          <div class="col-md-6 mb-3">
                     <label>Latitude <span class="text-danger">*</span></label>
                     <input type="text" name="latitude"
@@ -66,232 +62,234 @@
                         value="{{ old('longitude', $area->longitude) }}"
                         class="form-control">
                 </div>
-                    </div>
+                    </div> --}}
 
-                    <div class="d-flex justify-content-end">
-                        <a href="{{ route('area.list') }}" class="btn btn-secondary mr-3">Cancel</a>
-                        <button type="submit" class="btn btn-success">Update Area</button>
-                    </div>
+                        <div class="d-flex justify-content-end">
+                            <a href="{{ route('area.list') }}" class="btn btn-secondary mr-3">Cancel</a>
+                            <button type="submit" class="btn btn-success">Update Area</button>
+                        </div>
 
-                </form>
+                    </form>
 
+                </div>
             </div>
         </div>
     </div>
-</div>
 @section('scripts')
-<script>
-$(document).ready(function () {
+    <script>
+        $(document).ready(function() {
 
-    let selectedState    = "{{ $area->state_id }}";
-    let selectedDistrict = "{{ $area->district_id }}";
-    let selectedCity     = "{{ $area->city_id }}";
+            let selectedState = "{{ $area->state_id }}";
+            let selectedDistrict = "{{ $area->district_id }}";
+            let selectedCity = "{{ $area->city_id }}";
 
-    /* ================= LOAD STATES ================= */
-    $.get("{{ url('/area/get-states') }}", function (states) {
+            /* ================= LOAD STATES ================= */
+            $.get("{{ url('/area/get-states') }}", function(states) {
 
-        $('#state').html('<option value="">Select State</option>');
+                $('#state').html('<option value="">Select State</option>');
 
-        $.each(states, function (i, state) {
-            let selected = state.id == selectedState ? 'selected' : '';
-            $('#state').append(
-                `<option value="${state.id}" ${selected}>${state.state_name}</option>`
-            );
-        });
+                $.each(states, function(i, state) {
+                    let selected = state.id == selectedState ? 'selected' : '';
+                    $('#state').append(
+                        `<option value="${state.id}" ${selected}>${state.state_name}</option>`
+                    );
+                });
 
-        if (selectedState) {
-            loadDistricts(selectedState);
-        }
-    });
-
-    /* ================= LOAD DISTRICTS ================= */
-    function loadDistricts(stateId) {
-
-        $('#district').html('<option value="">Select District</option>');
-
-        $.get("{{ url('/area/get-districts') }}", { state_id: stateId }, function (districts) {
-
-            $.each(districts, function (i, district) {
-                let selected = district.id == selectedDistrict ? 'selected' : '';
-                $('#district').append(
-                    `<option value="${district.id}" ${selected}>${district.district_name}</option>`
-                );
+                if (selectedState) {
+                    loadDistricts(selectedState);
+                }
             });
 
-            if (selectedDistrict) {
-                loadCities(selectedDistrict);
+            /* ================= LOAD DISTRICTS ================= */
+            function loadDistricts(stateId) {
+
+                $('#district').html('<option value="">Select District</option>');
+
+                $.get("{{ url('/area/get-districts') }}", {
+                    state_id: stateId
+                }, function(districts) {
+
+                    $.each(districts, function(i, district) {
+                        let selected = district.id == selectedDistrict ? 'selected' : '';
+                        $('#district').append(
+                            `<option value="${district.id}" ${selected}>${district.district_name}</option>`
+                        );
+                    });
+
+                    if (selectedDistrict) {
+                        loadCities(selectedDistrict);
+                    }
+                });
             }
-        });
-    }
 
-    /* ================= LOAD CITIES ================= */
-    function loadCities(districtId) {
+            /* ================= LOAD CITIES ================= */
+            function loadCities(districtId) {
 
-        $('#city').html('<option value="">Select City</option>');
+                $('#city').html('<option value="">Select City</option>');
 
-        $.get("{{ url('/area/get-cities') }}", { district_id: districtId }, function (cities) {
+                $.get("{{ url('/area/get-cities') }}", {
+                    district_id: districtId
+                }, function(cities) {
 
-            $.each(cities, function (i, city) {
-                let selected = city.id == selectedCity ? 'selected' : '';
-                $('#city').append(
-                    `<option value="${city.id}" ${selected}>${city.city_name}</option>`
-                );
+                    $.each(cities, function(i, city) {
+                        let selected = city.id == selectedCity ? 'selected' : '';
+                        $('#city').append(
+                            `<option value="${city.id}" ${selected}>${city.city_name}</option>`
+                        );
+                    });
+                });
+            }
+
+            /* ================= CHANGE EVENTS ================= */
+            $('#state').change(function() {
+                selectedState = $(this).val();
+                selectedDistrict = null;
+                selectedCity = null;
+                loadDistricts(selectedState);
             });
-        });
-    }
 
-    /* ================= CHANGE EVENTS ================= */
-    $('#state').change(function () {
-        selectedState = $(this).val();
-        selectedDistrict = null;
-        selectedCity = null;
-        loadDistricts(selectedState);
-    });
+            $('#district').change(function() {
+                selectedDistrict = $(this).val();
+                selectedCity = null;
+                loadCities(selectedDistrict);
+            });
 
-    $('#district').change(function () {
-        selectedDistrict = $(this).val();
-        selectedCity = null;
-        loadCities(selectedDistrict);
-    });
+            // validation
 
-    // validation
+            $('form').attr('novalidate', true);
 
-        $('form').attr('novalidate', true);
+            $('form').on('submit', function(e) {
 
-    $('form').on('submit', function (e) {
+                let valid = true;
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
 
-        let valid = true;
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
+                function error(el, msg) {
+                    el.addClass('is-invalid');
+                    el.after(`<div class="invalid-feedback">${msg}</div>`);
+                    valid = false;
+                }
 
-        function error(el, msg) {
-            el.addClass('is-invalid');
-            el.after(`<div class="invalid-feedback">${msg}</div>`);
-            valid = false;
-        }
+                if (!$('#state').val()) error($('#state'), 'Please select a state.');
+                if (!$('#district').val()) error($('#district'), 'Please select a district.');
+                if (!$('#city').val()) error($('#city'), 'Please select a city.');
 
-        if (!$('#state').val())    error($('#state'), 'Please select a state.');
-        if (!$('#district').val()) error($('#district'), 'Please select a district.');
-        if (!$('#city').val())     error($('#city'), 'Please select a city.');
+                let area = $('input[name="area_name"]');
+                if (!area.val()) error(area, 'Please enter the area name.');
+                else if (area.val().length > 255) error(area, 'Area name must not exceed 255 characters.');
 
-        let area = $('input[name="area_name"]');
-        if (!area.val()) error(area, 'Please enter the area name.');
-        else if (area.val().length > 255) error(area, 'Area name must not exceed 255 characters.');
+                let common = $('input[name="common_stdiciar_name"]');
+                if (!common.val()) error(common, 'Please enter the common standard name.');
+                else if (common.val().length > 255) error(common,
+                    'Common standard name must not exceed 255 characters.');
 
-        let common = $('input[name="common_stdiciar_name"]');
-        if (!common.val()) error(common, 'Please enter the common standard name.');
-        else if (common.val().length > 255) error(common, 'Common standard name must not exceed 255 characters.');
+                // let lat = $('input[name="latitude"]');
+                // if (!lat.val()) error(lat, 'Latitude is required.');
+                // else if (isNaN(lat.val())) error(lat, 'Latitude must be numeric.');
 
-        let lat = $('input[name="latitude"]');
-        if (!lat.val()) error(lat, 'Latitude is required.');
-        else if (isNaN(lat.val())) error(lat, 'Latitude must be numeric.');
+                // let lng = $('input[name="longitude"]');
+                // if (!lng.val()) error(lng, 'Longitude is required.');
+                // else if (isNaN(lng.val())) error(lng, 'Longitude must be numeric.');
 
-        let lng = $('input[name="longitude"]');
-        if (!lng.val()) error(lng, 'Longitude is required.');
-        else if (isNaN(lng.val())) error(lng, 'Longitude must be numeric.');
+                if (!valid) e.preventDefault();
+            });
 
-        if (!valid) e.preventDefault();
-    });
-    
-    // 
+            // 
 
-        function clearError(element) {
-        element.removeClass('is-invalid');
-        element.next('.invalid-feedback').remove();
-        }
+            function clearError(element) {
+                element.removeClass('is-invalid');
+                element.next('.invalid-feedback').remove();
+            }
 
-        // Text inputs
-        $('input[type="text"]').on('input', function () {
-            clearError($(this));
-        });
+            // Text inputs
+            $('input[type="text"]').on('input', function() {
+                clearError($(this));
+            });
 
-        // Select dropdowns
-        $('select').on('change', function () {
-            clearError($(this));
-        });
+            // Select dropdowns
+            $('select').on('change', function() {
+                clearError($(this));
+            });
 
             /* ================= VALIDATION PATCH (DO NOT TOUCH AJAX) ================= */
 
-    const onlyLetters    = /[^a-zA-Z\s]/g;
-    const onlyNumbersDot = /[^0-9.]/g;
+            const onlyLetters = /[^a-zA-Z\s]/g;
+            const onlyNumbersDot = /[^0-9.]/g;
 
-    /* ===== LIVE INPUT RESTRICTION (NO ERROR MSG) ===== */
+            /* ===== LIVE INPUT RESTRICTION (NO ERROR MSG) ===== */
 
-    // Area Name → letters only
-    $('input[name="area_name"]').on('input', function () {
-        this.value = this.value.replace(onlyLetters, '');
-    });
+            // Area Name → letters only
+            $('input[name="area_name"]').on('input', function() {
+                this.value = this.value.replace(onlyLetters, '');
+            });
 
-    // Latitude & Longitude → numbers + dot only
-    $('input[name="latitude"], input[name="longitude"]').on('input', function () {
-        this.value = this.value.replace(onlyNumbersDot, '');
-    });
+            // Latitude & Longitude → numbers + dot only
+            // $('input[name="latitude"], input[name="longitude"]').on('input', function() {
+            //     this.value = this.value.replace(onlyNumbersDot, '');
+            // });
 
-    /* ===== CLEAR ERROR ONLY FOR CURRENT FIELD ===== */
-    function clearError(el) {
-        el.removeClass('is-invalid');
-        el.closest('.form-group, .col-md-6').find('.invalid-feedback').remove();
-    }
+            /* ===== CLEAR ERROR ONLY FOR CURRENT FIELD ===== */
+            function clearError(el) {
+                el.removeClass('is-invalid');
+                el.closest('.form-group, .col-md-6').find('.invalid-feedback').remove();
+            }
 
-    $('input, select').on('input change', function () {
-        clearError($(this));
-    });
+            $('input, select').on('input change', function() {
+                clearError($(this));
+            });
 
-    /* ===== FORM SUBMIT VALIDATION (AJAX SAFE) ===== */
-    $('form').on('submit.validation', function (e) {
+            /* ===== FORM SUBMIT VALIDATION (AJAX SAFE) ===== */
+            $('form').on('submit.validation', function(e) {
 
-        let valid = true;
+                let valid = true;
 
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
 
-        function error(el, msg) {
-            el.addClass('is-invalid');
-            el.after(`<div class="invalid-feedback">${msg}</div>`);
-            valid = false;
-        }
+                function error(el, msg) {
+                    el.addClass('is-invalid');
+                    el.after(`<div class="invalid-feedback">${msg}</div>`);
+                    valid = false;
+                }
 
-        // State / District / City
-        if (!$('#state').val())    error($('#state'), 'Please select a state.');
-        if (!$('#district').val()) error($('#district'), 'Please select a district.');
-        if (!$('#city').val())     error($('#city'), 'Please select a city.');
+                // State / District / City
+                if (!$('#state').val()) error($('#state'), 'Please select a state.');
+                if (!$('#district').val()) error($('#district'), 'Please select a district.');
+                if (!$('#city').val()) error($('#city'), 'Please select a city.');
 
-        // Area Name
-        let area = $('input[name="area_name"]');
-        if (!area.val()) {
-            error(area, 'Please enter the area name.');
-        } else if (area.val().length > 255) {
-            error(area, 'Area name must not exceed 255 characters.');
-        }
+                // Area Name
+                let area = $('input[name="area_name"]');
+                if (!area.val()) {
+                    error(area, 'Please enter the area name.');
+                } else if (area.val().length > 255) {
+                    error(area, 'Area name must not exceed 255 characters.');
+                }
 
-        // Common Name
-        let common = $('input[name="common_stdiciar_name"]');
-        if (!common.val()) {
-            error(common, 'Please enter the common standard name.');
-        } else if (common.val().length > 255) {
-            error(common, 'Common standard name must not exceed 255 characters.');
-        }
+                // Common Name
+                let common = $('input[name="common_stdiciar_name"]');
+                if (!common.val()) {
+                    error(common, 'Please enter the common standard name.');
+                } else if (common.val().length > 255) {
+                    error(common, 'Common standard name must not exceed 255 characters.');
+                }
 
-        // Latitude
-        let lat = $('input[name="latitude"]');
-        if (!lat.val()) {
-            error(lat, 'Latitude is required.');
-        }
+                // Latitude
+                // let lat = $('input[name="latitude"]');
+                // if (!lat.val()) {
+                //     error(lat, 'Latitude is required.');
+                // }
 
-        // Longitude
-        let lng = $('input[name="longitude"]');
-        if (!lng.val()) {
-            error(lng, 'Longitude is required.');
-        }
+                // Longitude
+                // let lng = $('input[name="longitude"]');
+                // if (!lng.val()) {
+                //     error(lng, 'Longitude is required.');
+                // }
 
-        if (!valid) e.preventDefault();
-    });
+                if (!valid) e.preventDefault();
+            });
 
 
-});
-</script>
+        });
+    </script>
 @endsection
-
-
-
 @endsection

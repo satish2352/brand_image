@@ -99,7 +99,7 @@ class MediaManagementRepository
             ->leftJoin('areas as ar', 'ar.id', '=', 'mm.area_id')
             ->leftJoin('category as cat', 'cat.id', '=', 'mm.category_id')
             ->leftJoin('vendors as vd', 'vd.id', '=', 'mm.vendor_id')
-            ->leftJoin('illumination as il', 'il.id', '=', 'mm.illumination_id')
+            ->leftJoin('illuminations as il', 'il.id', '=', 'mm.illumination_id')
             ->leftJoin('radius_master as rm', 'rm.id', '=', 'mm.radius_id')
             ->leftJoin('media_images as mi', function ($join) {
                 $join->on('mi.media_id', '=', 'mm.id')

@@ -69,14 +69,23 @@
                                         </td>
                                         <td class="d-flex">
                                             <a href="{{ route('city.edit', base64_encode($city->id)) }}"
-                                                class="btn btn-sm btn-primary mr-2">
+                                                class="btn btn-sm btn-primary icon-medium mr-2">
                                                 <i class="mdi mdi-square-edit-outline"></i>
                                             </a>
-
-                                            <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                            <form action="{{ route('city.delete') }}" method="POST"
+                                                class="d-inline-block">
+                                                @csrf
+                                                <input type="hidden" name="id"
+                                                    value="{{ base64_encode($city->id) }}">
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                                    title="Delete">
+                                                    <i class="mdi mdi-trash-can-outline icon-medium"></i>
+                                                </button>
+                                            </form>
+                                            {{-- <button type="button" class="btn btn-sm btn-danger delete-btn"
                                                 data-id="{{ base64_encode($city->id) }}">
                                                 <i class="mdi mdi-trash-can-outline"></i>
-                                            </button>
+                                            </button> --}}
                                         </td>
 
 
@@ -96,6 +105,7 @@
             </div>
         </div>
     </div>
+
     @section('scripts')
         <script>
             /* ================= STATUS TOGGLE ================= */
@@ -116,44 +126,23 @@
 
             /* ================= DELETE ================= */
             /* ================= DELETE WITH SWEET ALERT ================= */
-            $('.delete-btn').click(function() {
 
-                let id = $(this).data('id');
+
+            // DELETE CONFIRMATION
+            $(document).on('click', '.delete-btn', function() {
+                let form = $(this).closest('form');
 
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: "Do you really want to delete this record?",
-                    icon: 'warning',
+                    title: 'Are You Sure?',
+                    text: 'Do you really want to delete this record?',
+                    icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, delete it!',
-                    cancelButtonText: 'Cancel',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.post("{{ route('city.delete') }}", {
-                            _token: "{{ csrf_token() }}",
-                            id: id
-                        }, function(response) {
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: response.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-
-                            setTimeout(() => location.reload(), 1500);
-
-                        }).fail(function() {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Delete failed!'
-                            });
-                        });
-                    }
+                    confirmButtonColor: "#28a745",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then(res => {
+                    if (res.isConfirmed) form.submit();
                 });
-
             });
         </script>
     @endsection

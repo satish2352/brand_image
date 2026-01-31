@@ -29,17 +29,17 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
 
     <!-- breadcrumb-section -->
     <!-- <div class="breadcrumb-section breadcrumb-bg">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-8 offset-lg-2 text-center">
-                                <div class="breadcrumb-text">
-                                    <p>Read the Details</p>
-                                    <h1>Dashboard</h1>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-8 offset-lg-2 text-center">
+                                    <div class="breadcrumb-text">
+                                        <p>Read the Details</p>
+                                        <h1>Dashboard</h1>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div> -->
+                    </div> -->
     <!-- end breadcrumb section -->
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
@@ -106,7 +106,7 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
                                     <li>
                                         <a href="{{ route('campaigns.open') }}"
                                             class="{{ request()->routeIs('campaigns.open') ? 'active' : '' }}">
-                                            Active Campaigns
+                                            List Campaigns
                                         </a>
                                     </li>
 

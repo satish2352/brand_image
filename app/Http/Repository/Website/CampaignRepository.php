@@ -125,7 +125,7 @@ class CampaignRepository
     //         ->groupBy('campaign_id');
     // }
 
-    public function fetchOpenCampaigns($userId, $request)
+    public function getOpenCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)
             ->whereNotExists(function ($q) {

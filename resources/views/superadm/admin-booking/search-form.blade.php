@@ -135,10 +135,11 @@
                     <label class="form-label">Available Days</label>
                     <select name="available_days" class="form-select form-control">
                         <option value="">Select Days</option>
-                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>After
-                            7
+                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>
+                            Available in next 7
                         </option>
-                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>After
+                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>
+                            Available in next
                             15
                         </option>
                     </select>

@@ -104,61 +104,61 @@
                             </div>
                         </form>
 
-                        
-                    {{-- HEADER --}}
-                    <div class="d-flex justify-content-between mb-3">
-                        <h4>Media List</h4>
-                        <a href="{{ route('media.create') }}" class="btn btn-add">
-                            Add Media
-                        </a>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
 
-                            {{-- <table class="table table-bordered table-striped datatables"> --}}
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Sr.No</th>
-                                    {{-- <th>Media Code</th> --}}
-                                    <th>Media Title</th>
-                                    <th>Category</th>
-                                    <th>State</th>
-                                    <th>District</th>
-                                    <th>City</th>
-                                    <th>Area</th>
-                                    <th>Price</th>
-                                    <th>Vendor Name</th>
-                                    <th>Media Code</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
+                        {{-- HEADER --}}
+                        <div class="d-flex justify-content-between mb-3">
+                            <h4>Media List</h4>
+                            <a href="{{ route('media.create') }}" class="btn btn-add">
+                                Add Media
+                            </a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
 
-                            <tbody>
-                                @forelse ($mediaList as $key => $media)
+                                {{-- <table class="table table-bordered table-striped datatables"> --}}
+                                <thead class="table-light">
                                     <tr>
-                                        <td>{{ $key + 1 }}</td>
+                                        <th>Sr.No</th>
+                                        {{-- <th>Media Code</th> --}}
+                                        <th>Media Title</th>
+                                        <th>Category</th>
+                                        <th>State</th>
+                                        <th>District</th>
+                                        <th>City</th>
+                                        <th>Area</th>
+                                        <th>Price</th>
+                                        <th>Vendor Name</th>
+                                        <th>Media Code</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
 
-                                        <td>{{ $media->media_title ?? '-' }}</td>
-                                        <td>{{ $media->category_name ?? '-' }}</td>
-                                        <td>{{ $media->state_name ?? '-' }}</td>
-                                        <td>{{ $media->district_name ?? '-' }}</td>
-                                        <td>{{ $media->city_name ?? '-' }}</td>
-                                        <td>{{ $media->area_name ?? '-' }}</td>
-                                        <td>
-                                            ₹ {{ $media->price !== null ? number_format($media->price, 2) : '-' }}
-                                        </td>
-                                        <td>{{ $media->vendor_name ?? '-' }}</td>
-                                        <td>{{ $media->media_code ?? '-' }}</td>
-                                        <td>
-                                            <label class="switch">
-                                                <input type="checkbox" class="toggle-status"
-                                                    data-id="{{ base64_encode($media->id) }}"
-                                                    {{ $media->is_active ? 'checked' : '' }}>
-                                                <span class="slider"></span>
-                                            </label>
-                                        </td>
-                                        {{-- <td class="d-flex">
+                                <tbody>
+                                    @forelse ($mediaList as $key => $media)
+                                        <tr>
+                                            {{-- <td>{{ $key + 1 }}</td> --}}
+                                            <td>{{ $mediaList->firstItem() + $key }}</td>
+                                            <td>{{ $media->media_title ?? '-' }}</td>
+                                            <td>{{ $media->category_name ?? '-' }}</td>
+                                            <td>{{ $media->state_name ?? '-' }}</td>
+                                            <td>{{ $media->district_name ?? '-' }}</td>
+                                            <td>{{ $media->city_name ?? '-' }}</td>
+                                            <td>{{ $media->area_name ?? '-' }}</td>
+                                            <td>
+                                                ₹ {{ $media->price !== null ? number_format($media->price, 2) : '-' }}
+                                            </td>
+                                            <td>{{ $media->vendor_name ?? '-' }}</td>
+                                            <td>{{ $media->media_code ?? '-' }}</td>
+                                            <td>
+                                                <label class="switch">
+                                                    <input type="checkbox" class="toggle-status"
+                                                        data-id="{{ base64_encode($media->id) }}"
+                                                        {{ $media->is_active ? 'checked' : '' }}>
+                                                    <span class="slider"></span>
+                                                </label>
+                                            </td>
+                                            {{-- <td class="d-flex">
 
                                             <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
                                                 class="btn btn-info btn-sm mr-1" title="View Details">
@@ -181,124 +181,144 @@
                                                 <i class="mdi mdi-trash-can-outline"></i>
                                             </button>
                                         </td> --}}
-                                        <td class="d-flex">
+                                            <td class="d-flex">
 
-                                            {{-- View Details --}}
-                                            <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
-                                                class="btn btn-success btn-sm m-1" title="View Details">
-                                                <i class="fa fa-eye"></i>
-                                            </a>
+                                                {{-- View Details --}}
+                                                <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
+                                                    class="btn btn-success btn-sm m-1" title="View Details">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
 
-                                            {{-- View Images --}}
-                                            <a href="{{ route('media.view', base64_encode($media->id)) }}"
-                                                class="btn btn-secondary btn-sm m-1" title="Add Images">
-                                                <i class="fa fa-image"></i>
-                                            </a>
+                                                {{-- View Images --}}
+                                                <a href="{{ route('media.view', base64_encode($media->id)) }}"
+                                                    class="btn btn-secondary btn-sm m-1" title="Add Images">
+                                                    <i class="fa fa-image"></i>
+                                                </a>
 
-                                            {{-- Edit --}}
-                                            <a href="{{ route('media.edit', base64_encode($media->id)) }}"
-                                                class="btn btn-primary btn-sm m-1" title="Edit">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
+                                                {{-- Edit --}}
+                                                <a href="{{ route('media.edit', base64_encode($media->id)) }}"
+                                                    class="btn btn-primary btn-sm m-1" title="Edit">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
 
-                                            {{-- Delete --}}
-                                            <button type="button" class="btn btn-danger btn-sm delete-btn m-1"
-                                                data-id="{{ base64_encode($media->id) }}" title="Delete">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
+                                                {{-- Delete --}}
+                                                <button type="button" class="btn btn-danger btn-sm delete-btn m-1"
+                                                    data-id="{{ base64_encode($media->id) }}" title="Delete">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
 
-                                        </td>
+                                            </td>
 
 
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="12" class="text-center">
-                                            No media found
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                        {{ $mediaList->appends(request()->query())->links() }}
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="12" class="text-center">
+                                                No media found
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-between  mt-3">
+
+                                {{-- LEFT : COUNT --}}
+                                <div class="text-muted d-flex align-items-start">
+                                    Showing {{ $mediaList->firstItem() }} to {{ $mediaList->lastItem() }}
+                                    of {{ $mediaList->total() }} rows
+                                </div>
+
+                                {{-- RIGHT : PAGINATION --}}
+                                <div>
+                                    {{ $mediaList->appends(request()->query())->links() }}
+                                </div>
+
+                            </div>
+
+                            {{-- <div class="text-muted">
+                                Showing {{ $mediaList->firstItem() }} to {{ $mediaList->lastItem() }}
+                                of {{ $mediaList->total() }} rows
+                            </div>
+
+                            {{ $mediaList->appends(request()->query())->links() }} --}}
+                        </div>
+
                     </div>
-
                 </div>
             </div>
         </div>
-    </div>
-    @section('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @section('scripts')
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <script>
-            /* ================= STATUS TOGGLE ================= */
-            $(document).on('change', '.toggle-status', function() {
+            <script>
+                /* ================= STATUS TOGGLE ================= */
+                $(document).on('change', '.toggle-status', function() {
 
-                let id = $(this).data('id');
+                    let id = $(this).data('id');
 
-                $.post("{{ route('media.status') }}", {
-                    _token: "{{ csrf_token() }}",
-                    id: id
-                }, function(response) {
-                    toastr.success(response.message);
-                }).fail(function() {
-                    toastr.error('Failed to update status');
-                });
-
-            });
-
-            /* ================= DELETE (FIXED) ================= */
-            $(document).on('click', '.delete-btn', function() {
-
-                let id = $(this).data('id');
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "This media will be permanently deleted.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, delete it',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-
-                    if (!result.isConfirmed) return;
-
-                    $.ajax({
-                        url: "{{ route('media.delete') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            id: id
-                        },
-                        success: function(response) {
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: 'Media deleted successfully.',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-
-                            // Remove row without reload
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1200);
-                        },
-                        error: function() {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Failed!',
-                                text: 'Delete failed. Please try again.'
-                            });
-                        }
+                    $.post("{{ route('media.status') }}", {
+                        _token: "{{ csrf_token() }}",
+                        id: id
+                    }, function(response) {
+                        toastr.success(response.message);
+                    }).fail(function() {
+                        toastr.error('Failed to update status');
                     });
 
                 });
 
-            });
-        </script>
+                /* ================= DELETE (FIXED) ================= */
+                $(document).on('click', '.delete-btn', function() {
+
+                    let id = $(this).data('id');
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This media will be permanently deleted.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete it',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+
+                        if (!result.isConfirmed) return;
+
+                        $.ajax({
+                            url: "{{ route('media.delete') }}",
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                id: id
+                            },
+                            success: function(response) {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'Media deleted successfully.',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                // Remove row without reload
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1200);
+                            },
+                            error: function() {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed!',
+                                    text: 'Delete failed. Please try again.'
+                                });
+                            }
+                        });
+
+                    });
+
+                });
+            </script>
+        @endsection
     @endsection
-@endsection

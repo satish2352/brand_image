@@ -747,9 +747,14 @@
                 text: "{{ session('success') }}",
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#28a745'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('admin.booking.list-booking') }}";
+                }
             });
         </script>
     @endif
+
 
     @if (session('error'))
         <script>

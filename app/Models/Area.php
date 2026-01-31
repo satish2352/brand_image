@@ -14,8 +14,8 @@ class Area extends Model
         'city_id',
         'area_name',
         'common_stdiciar_name',
-        'latitude',
-        'longitude',
+        // 'latitude',
+        // 'longitude',
         'is_active',
         'is_deleted',
     ];

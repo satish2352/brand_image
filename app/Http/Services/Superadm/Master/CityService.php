@@ -70,6 +70,8 @@ class CityService
 
     public function deleteCity($id)
     {
-        return $this->cityRepo->softDelete($id);
+        $data_output = $this->cityRepo->deleteCity($id);
+
+        return $data_output;
     }
 }
