@@ -13,19 +13,23 @@ class AdminCampaignCreatedMail extends Mailable
 {
     public function __construct(
         public $campaign,
-        public $excelPath,
-        public $pptPath
+        public string $excelBinary,
+        public string $pptBinary
     ) {}
 
     public function build()
     {
         return $this->subject('New Campaign Created')
             ->view('emails.admin-campaign-created')
-            ->attach($this->excelPath, [
-                'as' => 'Campaign.xlsx'
-            ])
-            ->attach($this->pptPath, [
-                'as' => 'Campaign.pptx'
-            ]);
+            ->attachData(
+                $this->excelBinary,
+                'Campaign.xlsx',
+                ['mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+            )
+            ->attachData(
+                $this->pptBinary,
+                'Campaign.pptx',
+                ['mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation']
+            );
     }
 }

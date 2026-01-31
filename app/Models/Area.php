@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\MediaManagement;
 
 class Area extends Model
 {
@@ -24,4 +25,10 @@ class Area extends Model
         'is_active'  => 'boolean',
         'is_deleted' => 'boolean',
     ];
+
+    public function media()
+    {
+        return $this->hasMany(MediaManagement::class, 'area_id');
+    }
+
 }

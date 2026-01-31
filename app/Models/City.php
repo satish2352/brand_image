@@ -4,6 +4,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\MediaManagement;
 
 class City extends Model
 {
@@ -23,5 +24,9 @@ class City extends Model
     public function district()
     {
         return $this->belongsTo(District::class);
+    }
+    public function media()
+    {
+        return $this->hasMany(MediaManagement::class, 'city_id');
     }
 }

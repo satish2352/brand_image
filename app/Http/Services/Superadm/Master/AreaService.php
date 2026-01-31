@@ -97,16 +97,39 @@ class AreaService
     }
 
     /* ===== DELETE (SOFT) ===== */
+    // public function deleteArea($id)
+    // {
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $this->areaRepo->softDelete($id);
+    //         DB::commit();
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         throw $e;
+    //     }
+    // }
+
     public function deleteArea($id)
     {
         DB::beginTransaction();
 
         try {
+
+            // STOP delete if area used in media_management
+            if ($this->areaRepo->isAreaUsedInMedia($id)) {
+                throw new Exception(
+                    'This Area is used in Media Management. Please delete related media first.'
+                );
+            }
+
             $this->areaRepo->softDelete($id);
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
     }
+
 }

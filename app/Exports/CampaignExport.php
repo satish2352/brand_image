@@ -143,7 +143,6 @@ class CampaignExport implements
 
                 // Amount & Total Amount columns (L & M)
                 $event->sheet->setCellValue('L' . $totalRow, number_format($this->grandTotal, 2));
-                $event->sheet->setCellValue('M' . $totalRow, number_format($this->grandTotal, 2));
 
                 // Bold row
                 $event->sheet->getStyle("A{$totalRow}:M{$totalRow}")->applyFromArray([
