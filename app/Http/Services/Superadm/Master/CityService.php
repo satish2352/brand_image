@@ -68,10 +68,35 @@ class CityService
         return $this->cityRepo->toggleStatus($id);
     }
 
+    // public function deleteCity($id)
+    // {
+    //     $data_output = $this->cityRepo->deleteCity($id);
+
+    //     return $data_output;
+    // }
+
     public function deleteCity($id)
     {
-        $data_output = $this->cityRepo->deleteCity($id);
+        DB::beginTransaction();
 
-        return $data_output;
+        try {
+
+            // Stop delete if city is used in media_management
+            if ($this->cityRepo->isCityUsedInMedia($id)) {
+                throw new Exception(
+                    'This City is used in Media Management. Please delete related media first.'
+                );
+            }
+
+            $this->cityRepo->deleteCity($id);
+
+            DB::commit();
+            return true;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
+
 }

@@ -134,4 +134,13 @@ class AreaRepository
             'is_active'  => 0
         ]);
     }
+
+    public function isAreaUsedInMedia($areaId)
+    {
+        return Area::where('id', $areaId)
+            ->whereHas('media', function ($q) {
+                $q->where('is_deleted', 0);
+            })
+            ->exists();
+    }
 }

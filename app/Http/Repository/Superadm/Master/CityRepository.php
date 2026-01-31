@@ -101,4 +101,14 @@ class CityRepository
             'is_active'  => 0
         ]);
     }
+
+    public function isCityUsedInMedia($cityId)
+    {
+        return City::where('id', $cityId)
+            ->whereHas('media', function ($q) {
+                $q->where('is_deleted', 0);
+            })
+            ->exists();
+    }
+
 }
