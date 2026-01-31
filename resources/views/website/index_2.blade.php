@@ -320,9 +320,10 @@
                             {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
                             <h3 style="font-size: 21px;">
                                 <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                                    {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
+                                    {{ \Illuminate\Support\Str::limit(($media->area_name ?? $media->category_name).' '.$media->facing, 25, '...') }}
                                 </a>
                             </h3>
+
 
                             <p class="blog-meta">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -426,7 +427,7 @@
 </div>
 </div>
 
-<div class="latest-news pb-150">
+<div class="latest-news pb-150 pt-150">
     <div class="container">
 
         {{-- Title --}}
@@ -444,11 +445,11 @@
 
             @foreach ($otherMedia as $media)
             @if ($media->category_name !== 'Hoardings/Billboards')
-                @php
-                    $width = (float) ($media->width ?? 0);
-                    $height = (float) ($media->height ?? 0);
-                    $sqft = $width * $height;
-                @endphp
+            @php
+            $width = (float) ($media->width ?? 0);
+            $height = (float) ($media->height ?? 0);
+            $sqft = $width * $height;
+            @endphp
 
             <div class="col-lg-4 col-md-6 mb-5">
                 <div class="single-latest-news">
@@ -481,18 +482,18 @@
                         {{ $media->area_name }}, {{ $media->city_name }}
                     </p>
 
-                <div class="col-6 mb-2 d-flex">
-                    <strong>Size : </strong>
-                    {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
+                    <div class="col-12 mb-2 d-flex">
+                        <strong>Size : </strong>
+                        {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
 
-                </div>
-                <div class="col-6 mb-2 d-flex">
-                    <strong>Area : </strong>
-                    {{ number_format($sqft, 2) }} SQFT
-                </div>
-                <div class="media-price">
-                    ₹ {{ number_format($media->price, 2) }}
-                </div>
+                    </div>
+                    <div class="col-12 mb-2 d-flex">
+                        <strong>Area : </strong>
+                        {{ number_format($sqft, 2) }} SQFT
+                    </div>
+                    <div class="media-price">
+                        ₹ {{ number_format($media->price, 2) }}
+                    </div>
 
                 <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
                     {{-- <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
@@ -551,7 +552,7 @@
                     Contact Us
                     </a> --}}
                     {{-- <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
-                        Contact Us
+                    Contact Us
                     </a> --}}
                     <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}#contact-form"
                         class="card-btn contact">

@@ -312,7 +312,7 @@
                                                                                                                                                                             </div>
                                                                                                                                                                         </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
-        <div id="media-details" class="mt-150 mb-150">
+        <div id="media-details" class="mt-150 mb-80">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-7">
@@ -481,10 +481,7 @@
                                     <span class="text-muted">/ month</span>
 
                                     @if ($isBillboard)
-                                        <div class="col-12 mt-2">
-                                            <span class="price">₹ {{ number_format($media->price, 2) }}</span>
-                                            <span class="text-muted">/ month</span>
-                                        </div>
+                                       
 
                                         {{-- <div class="per-day">
                     ₹ {{ number_format($media->per_day_price,2) }} / day
