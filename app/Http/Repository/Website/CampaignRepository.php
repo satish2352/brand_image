@@ -9,35 +9,88 @@ use Carbon\Carbon;
 
 class CampaignRepository
 {
-    public function createCampaignAndMoveCart($userId, $campaignName)
-    {
-        return DB::transaction(function () use ($userId, $campaignName) {
+    // public function createCampaignAndMoveCart($userId, $campaignName)
+    // {
+    //     return DB::transaction(function () use ($userId, $campaignName) {
 
-            // 1️⃣ Create campaign
-            $campaign = Campaign::create([
-                'user_id'       => $userId,
-                'campaign_name' => $campaignName,
-                'is_active'     => 1,
-                'is_deleted'    => 0,
-            ]);
+    //         // 1️⃣ Create campaign
+    //         $campaign = Campaign::create([
+    //             'user_id'       => $userId,
+    //             'campaign_name' => $campaignName,
+    //             'is_active'     => 1,
+    //             'is_deleted'    => 0,
+    //         ]);
 
-            // 2️⃣ Update existing NORMAL cart items
-            $query = CartItem::where('status', 'ACTIVE')
-                ->where('cart_type', 'NORMAL')
-                ->where('user_id', $userId);
+    //         // 2️⃣ Update existing NORMAL cart items
+    //         $query = CartItem::where('status', 'ACTIVE')
+    //             ->where('cart_type', 'NORMAL')
+    //             ->where('user_id', $userId);
 
-            if (!$query->exists()) {
-                throw new \Exception('Cart is empty');
+    //         if (!$query->exists()) {
+    //             throw new \Exception('Cart is empty');
+    //         }
+
+    //         $query->update([
+    //             'cart_type'   => 'CAMPAIGN',
+    //             'campaign_id' => $campaign->id,
+    //         ]);
+
+    //         return true;
+    //     });
+    // }
+ public function createCampaignAndMoveCart($userId, $campaignName)
+{
+    return DB::transaction(function () use ($userId, $campaignName) {
+
+        $campaign = Campaign::create([
+            'user_id'       => $userId,
+            'campaign_name' => $campaignName,
+            'is_active'     => 1,
+            'is_deleted'    => 0,
+        ]);
+
+        $normalItems = CartItem::where('status', 'ACTIVE')
+            ->where('cart_type', 'NORMAL')
+            ->where('user_id', $userId)
+            ->get();
+
+        if ($normalItems->isEmpty()) {
+            throw new \Exception('Cart is empty');
+        }
+
+        $duplicateFound = false;
+
+        foreach ($normalItems as $item) {
+
+           $exists = CartItem::where('user_id', $userId)
+    ->where('media_id', $item->media_id)
+    ->where('from_date', $item->from_date)
+    ->where('to_date', $item->to_date)
+    ->whereNotNull('campaign_id')          // only real campaigns
+    ->where('id', '!=', $item->id)         // exclude same cart row
+    ->exists();
+
+
+            if ($exists) {
+                $duplicateFound = true;
+                continue;
             }
 
-            $query->update([
+            $item->update([
                 'cart_type'   => 'CAMPAIGN',
                 'campaign_id' => $campaign->id,
             ]);
+        }
 
-            return true;
-        });
-    }
+        if ($duplicateFound) {
+            throw new \Exception('Some media are already added in another campaign for the same dates.');
+        }
+
+        return true;
+    });
+}
+
+
     public function getCampaignList($userId, $request)
     {
         $query = DB::table('campaign as c')

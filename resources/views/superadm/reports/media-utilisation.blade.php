@@ -148,7 +148,9 @@
                                     <th>From Date</th>
                                     <th>To Date</th>
                                     <th>Booked Days</th>
-                                    <th>Amount (₹)</th>
+                                    <th>Total (₹)</th>
+                                    <th class="text-end">GST (18%) (₹)</th>
+                                   <th class="text-end">Final Total (₹)</th>
                                 </tr>
                             </thead>
 
@@ -164,7 +166,11 @@
                                         <td>{{ \Carbon\Carbon::parse($row->from_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($row->to_date)->format('d-m-Y') }}</td>
                                         <td>{{ $row->booked_days }}</td>
-                                        <td>₹ {{ number_format($row->booking_amount, 2) }}</td>
+                                       
+
+                                          <td>₹ {{ number_format($row->total_amount, 2) }}</td>
+                                            <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
+                                              <td>₹ {{ number_format($row->grand_total, 2) }}</td>
                                     </tr>
                                 @empty
                                     <tr>

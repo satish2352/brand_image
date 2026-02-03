@@ -25,7 +25,7 @@ public function index(Request $request)
         ->join('website_users as u', 'u.id', '=', 'o.user_id')
         ->join('media_management as m', 'm.id', '=', 'oi.media_id')
         ->join('category as c', 'c.id', '=', 'm.category_id')
-        ->where('o.payment_status', 'paid')
+        // ->where('o.payment_status', 'paid')
         ->where('m.is_deleted', 0);
 
     // Year / Month
@@ -67,21 +67,41 @@ public function index(Request $request)
     /* =========================
        BOOKING-WISE SELECT
     ========================== */
+    // $reports = $query->select(
+    //         'u.name as user_name',
+    //         'm.media_code',
+    //         'm.media_title',
+    //         'c.category_name',
+    //         'm.width',
+    //         'm.height',
+    //         'oi.from_date',
+    //         'oi.to_date',
+    //         'o.total_amount',
+    //         'o.gst_amount',
+    //         'o.grand_total',
+    //          DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
+    //         'oi.price as booking_amount'
+    //     )
     $reports = $query->select(
-            'u.name as user_name',
-            'm.media_code',
-            'm.media_title',
-            'c.category_name',
-            'm.width',
-            'm.height',
-            'oi.from_date',
-            'oi.to_date',
-            DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
-            'oi.price as booking_amount'
-        )
-        ->orderBy('oi.from_date', 'desc')
-        ->paginate(10)
-        ->withQueryString();
+    'u.name as user_name',
+    'm.media_code',
+    'm.media_title',
+    'c.category_name',
+    'm.width',
+    'm.height',
+    'oi.from_date',
+    'oi.to_date',
+    DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
+
+    'oi.total_price as total_amount',
+
+    DB::raw('ROUND((oi.total_price / o.total_amount) * o.gst_amount, 2) as gst_amount'),
+
+    DB::raw('ROUND(oi.total_price + ((oi.total_price / o.total_amount) * o.gst_amount), 2) as grand_total')
+)
+->orderBy('oi.from_date', 'desc')
+->paginate(10)
+->withQueryString();
 
     $mediaList = DB::table('media_management')
         ->where('is_deleted', 0)
@@ -110,7 +130,7 @@ private function baseQuery(Request $request)
         ->join('website_users as u', 'u.id', '=', 'o.user_id')
         ->join('media_management as m', 'm.id', '=', 'oi.media_id')
         ->join('category as c', 'c.id', '=', 'm.category_id')
-        ->where('o.payment_status', 'paid')
+        // ->where('o.payment_status', 'paid')
         ->where('m.is_deleted', 0);
 
     if ($request->year && $request->month) {
@@ -144,18 +164,25 @@ private function baseQuery(Request $request)
         });
     }
 
-    return $query->select(
-        'u.name as user_name',
-        'm.media_code',
-        'm.media_title',
-        'c.category_name',
-        'm.width',
-        'm.height',
-        'oi.from_date',
-        'oi.to_date',
-        DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
-        'oi.price as booking_amount'
-    )->orderBy('oi.from_date', 'desc');
+  return $query->select(
+    'u.name as user_name',
+    'm.media_code',
+    'm.media_title',
+    'c.category_name',
+    'm.width',
+    'm.height',
+    'oi.from_date',
+    'oi.to_date',
+    DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
+
+    'oi.total_price as total_amount',
+
+    DB::raw('ROUND((oi.total_price / o.total_amount) * o.gst_amount, 2) as gst_amount'),
+
+    DB::raw('ROUND(oi.total_price + ((oi.total_price / o.total_amount) * o.gst_amount), 2) as grand_total')
+)
+->orderBy('oi.from_date', 'desc');
+
 }
 
 public function checkExportData(Request $request)
@@ -172,9 +199,9 @@ public function exportExcel(Request $request)
 {
     $data = $this->baseQuery($request)->get();
 
-    return Excel::download(
+   return Excel::download(
         new \App\Exports\MediaUtilisationExport($data),
-        'media_utilisation_report.xlsx'
+        'media_utilisation_report_' . now()->format('Y-m-d') . '.xlsx'
     );
 }
 
@@ -187,7 +214,9 @@ public function exportPdf(Request $request)
         compact('reports')
     )->setPaper('A4', 'landscape');
 
-    return $pdf->download('media_utilisation_report.pdf');
+     return $pdf->download(
+        'media_utilisation_report_' . now()->format('Y-m-d') . '.pdf'
+    );
 }
 
 

@@ -108,7 +108,7 @@ class HomeRepository
                 ->having('distance', '<=', $radiusKm)
                 ->orderBy('distance', 'asc');
 
-            Log::info('🎯 Radius Filter Applied', [
+            Log::info(' Radius Filter Applied', [
                 'center_lat' => $centerLat,
                 'center_lng' => $centerLng,
                 'radius_km'  => $radiusKm

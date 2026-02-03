@@ -191,7 +191,7 @@
 
                             @if ($type === 'date')
                                 <th>Period</th>
-                                <th>Total Bookings</th>
+                                <!-- <th>Total Bookings</th> -->
                                 {{-- <th>Total Revenue (₹)</th> --}}
                                 <th>Amount (₹)</th>
                                 <th>GST (₹)</th>
@@ -214,7 +214,7 @@
                                 <th>Final Total (₹)</th>
                             @elseif($type === 'user')
                                 <th>User Name</th>
-                                <th>Total Bookings</th>
+                            
                                 <th>Booked Days</th>
                                 <th>Payment Mode</th>
                                 {{-- <th>Total Revenue (₹)</th> --}}
@@ -233,23 +233,15 @@
                                 @if ($type === 'date')
                                     <td>{{ $row->period }}</td>
                                     {{-- <td>{{ $row->total_bookings }}</td> --}}
-                                    <td>
+                                    <!-- <td>
                                         <button class="btn btn-sm btn-outline-primary"
                                             onclick="openBookingModal('{{ $row->period }}')">
                                             <i class="mdi mdi-eye"></i> {{ $row->total_bookings }}
                                         </button>
-                                    </td>
+                                    </td> -->
                                     {{-- PAYMENT MODE --}}
 
-                                    {{-- <td>
-                                        @if ($row->payment_status === 'PAID')
-                                            <span class="badge badge-success">ONLINE</span>
-                                        @elseif ($row->payment_status === 'ADMIN_BOOKED')
-                                            <span class="badge badge-warning">OFFLINE</span>
-                                        @else
-                                            <span class="badge badge-secondary">{{ $row->payment_status }}</span>
-                                        @endif
-                                    </td> --}}
+                                   
 
                                     {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
                                     <td>₹ {{ number_format($row->total_amount, 2) }}</td>
@@ -267,13 +259,15 @@
                                     <td>{{ $row->total_bookings }}</td>
                                     <td>{{ $row->booked_days }}</td>
                                     <td>
-                                        @if ($row->payment_status === 'PAID')
-                                            <span class="badge badge-success">ONLINE</span>
-                                        @elseif ($row->payment_status === 'ADMIN_BOOKED')
-                                            <span class="badge badge-offline">OFFLINE (Admin Booked)</span>
-                                        @else
-                                            <span class="badge badge-secondary">{{ $row->payment_status }}</span>
-                                        @endif
+                                        @if ($row->booking_type === 'ONLINE')
+    <span class="badge badge-success">ONLINE</span>
+@elseif ($row->booking_type === 'OFFLINE')
+    <span class="badge badge-offline">OFFLINE (Admin Booked)</span>
+@else
+    <span class="badge badge-secondary">{{ $row->booking_type }}</span>
+@endif
+
+                                     
                                     </td>
 
                                     {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
@@ -283,20 +277,15 @@
                                 @elseif($type === 'user')
                                     <td>{{ $row->user_name }}</td>
                                     {{-- <td>{{ $row->total_bookings }}</td> --}}
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary"
-                                            onclick="openUserBookingModal({{ $row->id }}, '{{ $row->user_name }}')">
-                                            View ({{ $row->total_bookings }})
-                                        </button>
-                                    </td>
+                                   
                                     <td>{{ $row->booked_days }}</td>
                                     <td>
-                                        @if ($row->payment_status === 'PAID')
+                                        @if ($row->booking_type === 'ONLINE')
                                             <span class="badge badge-success">ONLINE</span>
-                                        @elseif ($row->payment_status === 'ADMIN_BOOKED')
+                                        @elseif ($row->booking_type === 'ADMIN_BOOKED')
                                             <span class="badge badge-warning">OFFLINE</span>
                                         @else
-                                            <span class="badge badge-secondary">{{ $row->payment_status }}</span>
+                                            <span class="badge badge-secondary">{{ $row->booking_type }}</span>
                                         @endif
                                     </td>
 

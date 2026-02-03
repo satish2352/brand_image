@@ -158,7 +158,8 @@ class CartRepository
         $to,
         $perDayPrice,
         $totalPrice,
-        $totalDays
+        $totalDays,
+        $cartType
     ) {
         CartItem::create([
             'user_id'       => Auth::guard('website')->id(),
@@ -171,7 +172,8 @@ class CartRepository
             'total_price'   => $totalPrice,
             'total_days'    => $totalDays,
             'qty'           => 1,
-            'cart_type'     => 'NORMAL',
+              'cart_type'     => $cartType,   // ✅ dynamic
+            // 'cart_type'     => 'NORMAL',
             'status'        => 'HOLD',
             'is_active'     => 1,
             'is_deleted'    => 0,
@@ -185,14 +187,20 @@ class CartRepository
             'qty' => max(1, $qty)
         ]);
     }
+public function removeItem($itemId)
+{
+    $query = CartItem::where('id', $itemId);
+    $this->ownerCondition($query);
+    $query->delete();
+}
 
 
-    public function removeItem($itemId)
-    {
-        $query = CartItem::where('id', $itemId);
-        $this->ownerCondition($query);
-        $query->delete();
-    }
+    // public function removeItem($itemId)
+    // {
+    //     $query = CartItem::where('id', $itemId);
+    //     $this->ownerCondition($query);
+    //     $query->delete();
+    // }
 
     public function clearCart()
     {

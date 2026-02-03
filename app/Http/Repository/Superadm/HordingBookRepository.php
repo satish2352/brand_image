@@ -193,20 +193,21 @@ class HordingBookRepository
         }
 
 
-        if (!empty($filters['available_days'])) {
-            $query->where(
-                'm.updated_at',
-                '>=',
-                now()->subDays((int)$filters['available_days'])
-            );
-        }
+        // if (!empty($filters['available_days'])) {
+        //     $query->where(
+        //         'm.updated_at',
+        //         '>=',
+        //         now()->subDays((int)$filters['available_days'])
+        //     );
+        // }
 
-        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
-            $query->whereBetween(
-                DB::raw('DATE(m.updated_at)'),
-                [$filters['from_date'], $filters['to_date']]
-            );
-        }
+        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+        //     $query->whereBetween(
+        //         DB::raw('DATE(m.updated_at)'),
+        //         [$filters['from_date'], $filters['to_date']]
+        //     );
+        // }
+        /*  BOOKING STATUS LOGIC */
         /*  BOOKING STATUS LOGIC */
         if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
 
@@ -240,6 +241,38 @@ class HordingBookRepository
             END AS is_booked
         "));
         }
+        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+
+        //     $fromDate = $filters['from_date'];
+        //     $toDate   = $filters['to_date'];
+
+        //     $query->addSelect(DB::raw("
+        //     CASE
+        //         WHEN EXISTS (
+        //             SELECT 1 FROM media_booked_date mbd
+        //             WHERE mbd.media_id = m.id
+        //             AND mbd.is_deleted = 0
+        //             AND mbd.is_active = 1
+        //             AND mbd.from_date <= '{$toDate}'
+        //             AND mbd.to_date >= '{$fromDate}'
+        //         )
+        //         THEN 1 ELSE 0
+        //     END AS is_booked
+        // "));
+        // } else {
+
+        //     $query->addSelect(DB::raw("
+        //     CASE
+        //         WHEN EXISTS (
+        //             SELECT 1 FROM media_booked_date mbd
+        //             WHERE mbd.media_id = m.id
+        //             AND mbd.is_deleted = 0
+        //             AND mbd.is_active = 1
+        //         )
+        //         THEN 1 ELSE 0
+        //     END AS is_booked
+        // "));
+        // }
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
         return $query->orderBy('m.id', 'DESC')->paginate($perPage);
     }
@@ -384,45 +417,106 @@ class HordingBookRepository
             ->orderBy('o.id', 'desc')
             ->get();
     }
-    public function bookingDetailsList($orderId)
-    {
-        // 🔹 Order header
-        $order = DB::table('orders as o')
-            ->join('website_users as u', 'u.id', '=', 'o.user_id')
-            ->where('o.id', $orderId)
-            ->select(
-                'o.*',
-                'u.name',
-                'u.email',
-                'u.mobile_number'
-            )
-            ->first();
+    // public function bookingDetailsList($orderId)
+    // {
+    //     // 🔹 Order header
+    //     $order = DB::table('orders as o')
+    //         ->join('website_users as u', 'u.id', '=', 'o.user_id')
+    //         ->where('o.id', $orderId)
+    //         ->select(
+    //             'o.*',
+    //             'u.name',
+    //             'u.email',
+    //             'u.mobile_number'
+    //         )
+    //         ->first();
 
-        // 🔹 Order items
-        $items = DB::table('order_items as oi')
-            ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
-            ->where('oi.order_id', $orderId)
-            ->select(
-                'oi.id',
-                'oi.price',
-                'oi.qty',
-                'oi.from_date',
-                'oi.to_date',
+    //     // 🔹 Order items
+    //     $items = DB::table('order_items as oi')
+    //         ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
+    //          ->leftJoin('orders as od', 'od.id', '=', 'oi.order_id')
+    //         ->where('oi.order_id', $orderId)
+    //         ->select(
+    //             'oi.id',
+    //             'oi.price as order_price',
+    //             'oi.per_day_price',
+    //             'oi.total_days',
+    //             'oi.total_price',
+    //             'oi.qty',
+    //             'oi.from_date',
+    //             'oi.to_date',
+    //             'mm.media_title',
+    //             'mm.width',
+    //             'mm.height',
+    //             'mm.address',
+    //             'mm.price',
+    //             'od.total_amount',
+    //             'od.payment_status',
+    //             'od.gst_amount',
+    //             'od.grand_total',
 
-                'mm.media_title',
-                'mm.width',
-                'mm.height',
-                'mm.address',
 
-                //  calculations
-                DB::raw('(oi.price * oi.qty) as item_total'),
-                DB::raw('(oi.price * oi.qty * 0.18) as gst_amount'),
-                DB::raw('((oi.price * oi.qty) + (oi.price * oi.qty * 0.18)) as final_total')
-            )
-            ->get();
+              
+                
+    //         )
+    //         ->get();
 
-        $order->items = $items;
+    //     $order->items = $items;
 
-        return $order;
+    //     return $order;
+    // }
+
+public function bookingDetailsList($orderId)
+{
+    $gstPercent = 18; // GST %
+
+    // 🔹 Order header
+    $order = DB::table('orders as o')
+        ->join('website_users as u', 'u.id', '=', 'o.user_id')
+        ->where('o.id', $orderId)
+        ->select(
+            'o.*',
+            'u.name',
+            'u.email',
+            'u.mobile_number'
+        )
+        ->first();
+
+    // 🔹 Order items
+    $items = DB::table('order_items as oi')
+        ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
+        ->leftJoin('orders as od', 'od.id', '=', 'oi.order_id')
+        ->where('oi.order_id', $orderId)
+        ->select(
+            'oi.id',
+            'oi.price as order_price',
+            'oi.per_day_price',
+            'oi.total_days',
+            'oi.total_price',
+            'oi.qty',
+            'oi.from_date',
+            'oi.to_date',
+            'mm.media_title',
+            'mm.width',
+            'mm.height',
+            'mm.address',
+            'mm.price',
+            'od.total_amount',
+            'od.payment_status',
+            'od.gst_amount',
+            'od.grand_total'
+        )
+        ->get();
+
+    // 🔹 Calculate GST & Final Amount per item
+    foreach ($items as $item) {
+        $item->gst_amount   = round(($item->total_price * $gstPercent) / 100, 2);
+        $item->final_amount = round($item->total_price + $item->gst_amount, 2);
     }
+
+    $order->items = $items;
+
+    return $order;
+}
+
 }

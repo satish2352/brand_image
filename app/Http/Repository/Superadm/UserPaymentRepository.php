@@ -49,39 +49,49 @@ class UserPaymentRepository
 
     public function getOrderDetails($orderId)
     {
+         $gstPercent = 18; // GST %
         $order = DB::table('orders as o')
             ->join('website_users as u', 'u.id', '=', 'o.user_id')
             ->where('o.id', $orderId)
             ->select(
-                'o.*',
-                'u.name',
-                'u.email',
-                'u.mobile_number',
-                'o.total_amount',
-                'o.gst_amount',
-                'o.grand_total',
+               'o.*',
+            'u.name',
+            'u.email',
+            'u.mobile_number'
             )
             ->first();
 
         $items = DB::table('order_items as oi')
             ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
+                ->leftJoin('orders as od', 'od.id', '=', 'oi.order_id')
             ->where('oi.order_id', $orderId)
             ->select(
-                'oi.id',
-                'oi.price',
-                'oi.qty',
-                'oi.from_date',
-                'oi.to_date',
-                'mm.media_title',
-                'mm.width',
-                'mm.height',
-                'mm.address',
+            'oi.id',
+            'oi.price as order_price',
+            'oi.per_day_price',
+            'oi.total_days',
+            'oi.total_price',
+            'oi.qty',
+            'oi.from_date',
+            'oi.to_date',
+            'mm.media_title',
+            'mm.width',
+            'mm.height',
+            'mm.address',
+            'mm.price',
+            'od.total_amount',
+            'od.payment_status',
+            'od.gst_amount',
+            'od.grand_total'
+        )
+        ->get();
 
-                DB::raw('(oi.price * oi.qty) as item_total'),
-                DB::raw('(oi.price * oi.qty * 0.18) as gst_amount'),
-                DB::raw('((oi.price * oi.qty) + (oi.price * oi.qty * 0.18)) as final_total')
-            )
-            ->get();
+    // 🔹 Calculate GST & Final Amount per item
+    foreach ($items as $item) {
+        $item->gst_amount   = round(($item->total_price * $gstPercent) / 100, 2);
+        $item->final_amount = round($item->total_price + $item->gst_amount, 2);
+    }
+
 
 
         $order->items = $items;

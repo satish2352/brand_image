@@ -32,7 +32,10 @@ class MediaUtilisationExport implements FromCollection, WithHeadings, WithStyles
                 $row->from_date,
                 $row->to_date,
                 $row->booked_days,
-                $row->booking_amount,
+                $row->total_amount,
+                $row->gst_amount,
+                $row->grand_total,
+                
             ];
         });
     }
@@ -49,6 +52,9 @@ class MediaUtilisationExport implements FromCollection, WithHeadings, WithStyles
             'To Date',
             'Booked Days',
             'Amount (₹)',
+            'GST (18%) (₹)',
+             'Final Total (₹)'
+            
         ];
     }
 
