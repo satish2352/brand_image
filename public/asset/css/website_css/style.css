@@ -1053,7 +1053,7 @@ Header .navbar-custom {
     color: #f5a623 !important;
 }
 
-.counter::after {
+.aboutcounter::after {
     content: " +";
 }
 

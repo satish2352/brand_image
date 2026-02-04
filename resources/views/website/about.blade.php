@@ -133,25 +133,25 @@
 
                     <div class="stat-card">
                         <i class="bi bi-award"></i>
-                        <h3 class="counter" data-target="12">0</h3>
+                        <h3  class="counter aboutcounter" data-target="12">0</h3>
                         <span>Years Experience</span>
                     </div>
 
                     <div class="stat-card">
                         <i class="bi bi-people"></i>
-                        <h3 class="counter" data-target="300">0</h3>
+                        <h3  class="counter aboutcounter" data-target="300">0</h3>
                         <span>Happy Clients</span>
                     </div>
 
                     <div class="stat-card">
                         <i class="bi bi-geo-alt"></i>
-                        <h3 class="counter" data-target="50">0</h3>
+                        <h3  class="counter aboutcounter" data-target="50">0</h3>
                         <span>Cities Covered</span>
                     </div>
 
                     <div class="stat-card">
                         <i class="bi bi-stars"></i>
-                        <h3 class="counter" data-target="500">0</h3>
+                        <h3  class="counter aboutcounter" data-target="500">0</h3>
                         <span>Campaigns</span>
                     </div>
 

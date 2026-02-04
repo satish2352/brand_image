@@ -640,7 +640,7 @@
         <!-- RIGHT : ACTION BUTTONS -->
         <div class="col-md-8 text-md-end mt-3 mt-md-0">
 
-            <a href="{{ route('website.search') }}" class="btn cart-btn btn-cart-outline">
+            <a href="{{ route('website.search.view') }}" class="btn cart-btn btn-cart-outline">
                 Continue Booking </a>
 
             {{-- <button class="btn cart-btn cart-btn-dark ms-md-2"
