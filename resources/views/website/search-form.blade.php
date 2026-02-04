@@ -586,58 +586,50 @@
 </script>
 
 <script>
-    $(document).ready(function() {
+$(document).ready(function() {
 
-        let minSlider = $("#minRange");
-        let maxSlider = $("#maxRange");
-        let fill = $("#rangeFill");
-        let minLabel = $("#minRangeLabel");
-        let maxLabel = $("#maxRangeLabel");
-        let maxValue = parseInt(maxSlider.attr("max"));
+    let minSlider = $("#minRange");
+    let maxSlider = $("#maxRange");
+    let fill = $("#rangeFill");
+    let minLabel = $("#minRangeLabel");
+    let maxLabel = $("#maxRangeLabel");
+    let maxValue = parseInt(maxSlider.attr("max"));
 
-        function updateSlider() {
-            let minVal = parseInt(minSlider.val());
-            let maxVal = parseInt(maxSlider.val());
+    function updateSlider() {
+        let minVal = parseInt(minSlider.val());
+        let maxVal = parseInt(maxSlider.val());
 
-            if (minVal > maxVal - 1000) {
-                minVal = maxVal - 1000;
-                minSlider.val(minVal);
-            }
-
-            let minPercent = (minVal / maxValue) * 100;
-            let maxPercent = (maxVal / maxValue) * 100;
-
-            fill.css({
-                left: minPercent + "%",
-                width: (maxPercent - minPercent) + "%"
-            });
-
-            minLabel.text("₹" + minVal.toLocaleString('en-IN'));
-            maxLabel.text("₹" + maxVal.toLocaleString('en-IN'));
-
-            $("#min_price").val(minVal);
-            $("#max_price").val(maxVal);
+        if (minVal > maxVal - 1000) {
+            minVal = maxVal - 1000;
+            minSlider.val(minVal);
         }
 
-        // Restore values from search page
-        let savedMin = {
-            {
-                $filters['min_price'] ?? 0
-            }
-        };
-        let savedMax = {
-            {
-                $filters['max_price'] ?? 200000
-            }
-        };
+        let minPercent = (minVal / maxValue) * 100;
+        let maxPercent = (maxVal / maxValue) * 100;
 
-        minSlider.val(savedMin);
-        maxSlider.val(savedMax);
+        fill.css({
+            left: minPercent + "%",
+            width: (maxPercent - minPercent) + "%"
+        });
 
-        updateSlider(); // initial paint
+        minLabel.text("₹" + minVal.toLocaleString('en-IN'));
+        maxLabel.text("₹" + maxVal.toLocaleString('en-IN'));
 
-        // ⭐⭐ MOST IMPORTANT — Update UI when dragging ⭐⭐
-        minSlider.on("input change", updateSlider);
-        maxSlider.on("input change", updateSlider);
-    });
+        $("#min_price").val(minVal);
+        $("#max_price").val(maxVal);
+    }
+
+    // ✅ FIXED Blade values
+    let savedMin = {{ $filters['min_price'] ?? 0 }};
+    let savedMax = {{ $filters['max_price'] ?? 200000 }};
+
+    minSlider.val(savedMin);
+    maxSlider.val(savedMax);
+
+    updateSlider();
+
+    minSlider.on("input change", updateSlider);
+    maxSlider.on("input change", updateSlider);
+
+});
 </script>

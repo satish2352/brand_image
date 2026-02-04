@@ -201,18 +201,24 @@ class HomeRepository
         "));
         }
         // PRICE FILTER ONLY IF CATEGORY = 1
-        if (!empty($filters['category_id']) && (int)$filters['category_id'] === 1) {
+//         if (!empty($filters['category_id']) && (int)$filters['category_id'] === 1) {
 
-            // MIN
-            if (isset($filters['min_price']) && $filters['min_price'] !== '') {
-                $query->where('m.price', '>=', (int)$filters['min_price']);
-            }
+//            if (isset($filters['min_price']) && $filters['min_price'] !== '') {
+//     $query->whereRaw('CAST(m.price AS UNSIGNED) >= ?', [(int)$filters['min_price']]);
+// }
 
-            // MAX
-            if (isset($filters['max_price']) && $filters['max_price'] !== '') {
-                $query->where('m.price', '<=', (int)$filters['max_price']);
-            }
-        }
+// if (isset($filters['max_price']) && $filters['max_price'] !== '') {
+//     $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
+// }
+
+//         }
+if (isset($filters['min_price']) && $filters['min_price'] !== '') {
+    $query->whereRaw('CAST(m.price AS UNSIGNED) >= ?', [(int)$filters['min_price']]);
+}
+
+if (isset($filters['max_price']) && $filters['max_price'] !== '') {
+    $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
+}
 
 
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
