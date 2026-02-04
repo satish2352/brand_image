@@ -152,12 +152,18 @@
                     if (xhr.status === 422) {
 
                         // CASE 1: custom message (total > 10 images)
-                        if (xhr.responseJSON.message) {
-                            // alert(xhr.responseJSON.message);
-                            showAlert('warning', xhr.responseJSON.message);
-                            return;
-                        }
+                        // if (xhr.responseJSON.message) {
+                        //     // alert(xhr.responseJSON.message);
+                        //     showAlert('warning', xhr.responseJSON.message);
+                        //     return;
+                        // }
+                    if (xhr.responseJSON.errors) {
+                                let firstError = Object.values(xhr.responseJSON.errors)[0][0];
+                                showAlert('error', firstError);
+                                return;
+                            }
 
+                        
                         // CASE 2: normal validation errors
                         if (xhr.responseJSON.errors) {
                             let errorMessage = '';

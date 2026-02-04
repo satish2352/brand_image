@@ -181,6 +181,33 @@
     </div>
 
 
+
+@if (session('success'))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: @json(session('success')),
+        timer: 1500,
+        showConfirmButton: false
+    });
+});
+</script>
+@endif
+
+@if (session('error'))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    Swal.fire({
+        icon: 'error',
+        title: 'Not Allowed',
+        text: @json(session('error'))
+    });
+});
+</script>
+@endif
+
     {{-- Delete Confirmation --}}
     <script>
         $(document).on("click", ".delete-btn", function(e) {

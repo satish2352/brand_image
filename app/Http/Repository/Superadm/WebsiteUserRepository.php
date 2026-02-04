@@ -14,12 +14,23 @@ class WebsiteUserRepository
             ->get();
     }
 
-    public function delete($id)
-    {
-        return DB::table('website_users')
-            ->where('id', $id)
-            ->update(['is_deleted' => 1]);
+ public function delete($id)
+{
+    // 🔍 Check if user has orders
+    $hasOrders = DB::table('orders')
+        ->where('user_id', $id)
+        ->exists();
+
+    if ($hasOrders) {
+        return false; // ❌ do not delete
     }
+
+    // ✅ safe to delete
+    return DB::table('website_users')
+        ->where('id', $id)
+        ->update(['is_deleted' => 1]);
+}
+
     public function toggleStatus($id)
     {
         $user = DB::table('website_users')->where('id', $id)->first();

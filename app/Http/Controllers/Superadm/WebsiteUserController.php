@@ -21,11 +21,20 @@ class WebsiteUserController extends Controller
 		return view('superadm.website-user.website-user-list', compact('users'));
 	}
 
-	public function delete(Request $request)
-	{
-		$this->service->delete(base64_decode($request->id));
-		return back()->with('success', 'User deleted successfully');
-	}
+	
+public function delete(Request $request)
+{
+    $id = base64_decode($request->id);
+
+    $result = $this->service->delete($id);
+
+    if (!$result) {
+        return back()->with('error', 'This user cannot be deleted because orders exist.');
+    }
+
+    return back()->with('success', 'User deleted successfully');
+}
+
 	public function toggleStatus(Request $request)
 	{
 		$this->service->toggleStatus(base64_decode($request->id));
