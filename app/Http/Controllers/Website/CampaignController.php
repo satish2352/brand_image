@@ -483,18 +483,24 @@ class CampaignController extends Controller
         /* ================= INIT PPT ================= */
         $ppt = new PhpPresentation();
 
+        $ppt->getLayout()->setDocumentLayout(
+           \PhpOffice\PhpPresentation\DocumentLayout::LAYOUT_SCREEN_16X9
+
+        );
+
         /* =====================================================
         SLIDE 1 : COVER SLIDE
         ===================================================== */
         $slide1 = $ppt->getActiveSlide();
 
         // Background
-        $slide1->createDrawingShape()
-            ->setPath(public_path('asset/theamoriginalalf/images/bluebg.png'))
-            ->setWidth(960)
-            ->setHeight(540)
-            ->setOffsetX(0)
-            ->setOffsetY(0);
+       $bg = $slide1->createDrawingShape();
+$bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
+   ->setWidth(800)          // reduce width
+   ->setHeight(540)        // keep ratio
+   ->setOffsetX(0)        // center horizontally ( (960-800)/2 )
+   ->setOffsetY(0);       // center vertically ( (540-450)/2 )
+
 
         // Logo
         $slide1->createDrawingShape()
@@ -564,12 +570,19 @@ class CampaignController extends Controller
                 }
 
                 try {
-                    $slide->createDrawingShape()
-                        ->setPath($path)
-                        ->setWidth($w)
-                        ->setHeight($h)
-                        ->setOffsetX($x)
-                        ->setOffsetY($y);
+                    // $slide->createDrawingShape()
+                    //     ->setPath($path)
+                    //     ->setWidth($w)
+                    //     ->setHeight($h)
+                    //     ->setOffsetX($x)
+                    //     ->setOffsetY($y);
+$shape = $slide->createDrawingShape();
+$shape->setPath($path)
+      ->setWidth(200)          // set only width
+      ->setOffsetX($x)
+      ->setOffsetY($y);
+
+$shape->getShadow()->setVisible(false); // optional clean look
 
                     $hasValidImage = true;
 

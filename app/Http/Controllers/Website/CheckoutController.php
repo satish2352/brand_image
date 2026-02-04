@@ -40,6 +40,7 @@ class CheckoutController extends Controller
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->select(
                 'order_items.price',
+                'order_items.total_days',
                 'order_items.qty',
                 'm.media_title',
                 'm.facing',

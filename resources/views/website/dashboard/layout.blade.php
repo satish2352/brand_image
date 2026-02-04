@@ -127,7 +127,7 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
                                 </ul>
                             </li>
 
-                            <li class="{{ request()->routeIs('campaign.payment.history') ? 'active' : '' }}">
+                            <li>
                                 <a href="{{ route('campaign.payment.history') }}">
                                     <i class="bi bi-receipt"></i> Payment History
                                 </a>

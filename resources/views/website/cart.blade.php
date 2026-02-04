@@ -600,7 +600,7 @@
 {{-- GRAND TOTAL --}}
 {{-- <div class="d-flex justify-content-between align-items-center mt-4">
         <h5>
-            Grand Total:
+            Total:
             <span class="text-success">
                 ₹ {{ number_format($grandTotal, 2) }}
 </span>
@@ -631,7 +631,7 @@
             @foreach ($items as $item)
             @php $grandTotal += $item->total_price; @endphp
             @endforeach
-            <h5 class="summary-label">Grand Total</h5>
+            <h5 class="summary-label">Total</h5>
             <h3 class="summary-amount">
                 ₹ {{ number_format($grandTotal, 2) }}
             </h3>
@@ -682,7 +682,7 @@
                 @php $grandTotal += $item->total_price; @endphp
             @endforeach
             <h5 class="mb-0 text-start">
-                Grand Total:
+                Total:
                 <span class="text-success">
                     ₹ {{ number_format($grandTotal, 2) }}
 </span>
