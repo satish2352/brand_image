@@ -38,7 +38,7 @@
 
 
 
-                                    <th>Days</th>
+                                    <!-- <th>Days</th> -->
                                     <th>Monthly Price</th>
                                     <th>Per Day</th>
                                     <th>Total</th>
@@ -58,7 +58,7 @@
                                         <td>{{ $item->total_days }}</td>
                                         {{-- <td>{{ number_format($item->price, 2) }}</td>
                                         <td>{{ number_format($item->total_price, 2) }}</td> --}}
-                                        <td>{{ $item->total_days }}</td>
+                                        <!-- <td>{{ $item->total_days }}</td> -->
                                         <td>{{ number_format($item->price, 2) }}</td>
                                         <td>{{ number_format($item->per_day_price ?? $item->total_price / $item->total_days, 2) }}
                                         </td>
