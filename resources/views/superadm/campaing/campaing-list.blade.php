@@ -12,7 +12,7 @@
                         <th>Sr. No.</th>
                         <th>User Name</th>
                         <th>Campaign Name</th>
-                        <th>Date</th>
+                        <th>Booking Date</th>
                         <th>Export</th>
                         <th>Action</th>
                     </tr>
