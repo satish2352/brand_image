@@ -163,34 +163,58 @@ class HordingBookRepository
             $query->where('m.area_id', $filters['area_id']);
         }
 
-        if (!empty($filters['available_days'])) {
+    //     if (!empty($filters['available_days'])) {
 
-            $days = (int) $filters['available_days'];
-            $today = now()->toDateString();
+    //         $days = (int) $filters['available_days'];
+    //         $today = now()->toDateString();
 
-            $query->addSelect(DB::raw("
-        CASE
-            WHEN NOT EXISTS (
+    //         $query->addSelect(DB::raw("
+    //     CASE
+    //         WHEN NOT EXISTS (
+    //             SELECT 1 FROM media_booked_date mbd
+    //             WHERE mbd.media_id = m.id
+    //             AND mbd.is_active = 1
+    //             AND mbd.is_deleted = 0
+    //         )
+    //         THEN 1
+
+    //         WHEN EXISTS (
+    //             SELECT 1 FROM media_booked_date mbd
+    //             WHERE mbd.media_id = m.id
+    //             AND mbd.is_active = 1
+    //             AND mbd.is_deleted = 0
+    //             AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
+    //         )
+    //         THEN 1
+
+    //         ELSE 0
+    //     END AS is_available_days
+    // "));
+    //     }
+/* ================= AVAILABLE DAYS FILTER ================= */
+if (!empty($filters['available_days'])) {
+
+    $days  = (int) $filters['available_days'];
+    $today = now()->toDateString();
+
+    $query->whereRaw("
+        (
+            NOT EXISTS (
                 SELECT 1 FROM media_booked_date mbd
                 WHERE mbd.media_id = m.id
                 AND mbd.is_active = 1
                 AND mbd.is_deleted = 0
             )
-            THEN 1
-
-            WHEN EXISTS (
+            OR EXISTS (
                 SELECT 1 FROM media_booked_date mbd
                 WHERE mbd.media_id = m.id
                 AND mbd.is_active = 1
                 AND mbd.is_deleted = 0
-                AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
+                AND DATEDIFF(mbd.from_date, ?) >= ?
             )
-            THEN 1
-
-            ELSE 0
-        END AS is_available_days
-    "));
-        }
+        )
+    ", [$today, $days]);
+}
 
 
         // if (!empty($filters['available_days'])) {
@@ -209,38 +233,71 @@ class HordingBookRepository
         // }
         /*  BOOKING STATUS LOGIC */
         /*  BOOKING STATUS LOGIC */
-        if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
 
-            $fromDate = $filters['from_date'];
-            $toDate   = $filters['to_date'];
+        //     $fromDate = $filters['from_date'];
+        //     $toDate   = $filters['to_date'];
 
-            $query->addSelect(DB::raw("
-            CASE
-                WHEN EXISTS (
-                    SELECT 1 FROM media_booked_date mbd
-                    WHERE mbd.media_id = m.id
-                    AND mbd.is_deleted = 0
-                    AND mbd.is_active = 1
-                    AND mbd.from_date <= '{$toDate}'
-                    AND mbd.to_date >= '{$fromDate}'
-                )
-                THEN 1 ELSE 0
-            END AS is_booked
-        "));
-        } else {
+        //     $query->addSelect(DB::raw("
+        //     CASE
+        //         WHEN EXISTS (
+        //             SELECT 1 FROM media_booked_date mbd
+        //             WHERE mbd.media_id = m.id
+        //             AND mbd.is_deleted = 0
+        //             AND mbd.is_active = 1
+        //             AND mbd.from_date <= '{$toDate}'
+        //             AND mbd.to_date >= '{$fromDate}'
+        //         )
+        //         THEN 1 ELSE 0
+        //     END AS is_booked
+        // "));
+        // } else {
 
-            $query->addSelect(DB::raw("
-            CASE
-                WHEN EXISTS (
-                    SELECT 1 FROM media_booked_date mbd
-                    WHERE mbd.media_id = m.id
-                    AND mbd.is_deleted = 0
-                    AND mbd.is_active = 1
-                )
-                THEN 1 ELSE 0
-            END AS is_booked
-        "));
-        }
+        //     $query->addSelect(DB::raw("
+        //     CASE
+        //         WHEN EXISTS (
+        //             SELECT 1 FROM media_booked_date mbd
+        //             WHERE mbd.media_id = m.id
+        //             AND mbd.is_deleted = 0
+        //             AND mbd.is_active = 1
+        //         )
+        //         THEN 1 ELSE 0
+        //     END AS is_booked
+        // "));
+        // }
+      if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
+
+    $fromDate = $filters['from_date'];
+    $toDate   = $filters['to_date'];
+
+    $query->addSelect(DB::raw("
+        CASE
+            WHEN EXISTS (
+                SELECT 1 FROM media_booked_date mbd
+                WHERE mbd.media_id = m.id
+                AND mbd.is_deleted = 0
+                AND mbd.is_active = 1
+                AND mbd.from_date <= '{$toDate}'
+                AND mbd.to_date >= '{$fromDate}'
+            )
+            THEN 1 ELSE 0
+        END AS is_booked
+    "));
+} else {
+    $query->addSelect(DB::raw("
+        CASE
+            WHEN EXISTS (
+                SELECT 1 FROM media_booked_date mbd
+                WHERE mbd.media_id = m.id
+                AND mbd.is_deleted = 0
+                AND mbd.is_active = 1
+            )
+            THEN 1 ELSE 0
+        END AS is_booked
+    "));
+}
+
+
         // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
 
         //     $fromDate = $filters['from_date'];
@@ -274,7 +331,15 @@ class HordingBookRepository
         // "));
         // }
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
-        return $query->orderBy('m.id', 'DESC')->paginate($perPage);
+     $totalCount = (clone $query)->count();
+
+$results = $query->orderBy('m.id', 'DESC')->paginate($perPage);
+
+return [
+    'data' => $results,
+    'total_count' => $totalCount
+];
+
     }
 
     public function getMediaDetailsAdmin($mediaId)

@@ -17,9 +17,13 @@ class HordingBookController extends Controller
     public function index()
     {
         $filters = [];
-        $mediaList = $this->homeService->searchMedia($filters);
+     // $mediaList = $this->homeService->searchMedia($filters);
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters'));
+    $mediaData = $this->homeService->searchMedia($filters);
+
+    $mediaList  = $mediaData['data'];         // paginator
+    $totalCount = $mediaData['total_count']; // integer
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount'));
     }
 
     public function search(Request $request)
@@ -41,8 +45,9 @@ class HordingBookController extends Controller
             'available_days',
         ]);
 
-        $mediaList = $this->homeService->searchMedia($filters);
-
+        $mediaData = $this->homeService->searchMedia($filters);
+  $mediaList  = $mediaData['data'];         // paginator
+    $totalCount = $mediaData['total_count']; // integer
         // 🔥 Lazy load AJAX
         if ($request->ajax()) {
             return view('superadm.admin-booking.admin-media-home-list', [
@@ -51,7 +56,7 @@ class HordingBookController extends Controller
         }
 
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters'));
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount'));
     }
     public function getMediaDetailsAdmin($mediaId)
     {

@@ -113,11 +113,17 @@
               <div class="media-img-wrap">
                   <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" alt="">
 
-                  @if ($media->from_date && $media->to_date)
+                  <!-- @if ($media->from_date && $media->to_date)
                       <span class="status-badge booked">Booked</span>
                   @else
                       <span class="status-badge available">Available</span>
-                  @endif
+                  @endif -->
+                  @if ($media->is_booked == 1)
+    <span class="status-badge booked">Booked</span>
+@else
+    <span class="status-badge available">Available</span>
+@endif
+
               </div>
 
               {{-- BODY --}}

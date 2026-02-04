@@ -145,19 +145,47 @@
                     </select>
                 </div>
 
+
+                 
+
+
+                <!-- <div> -->
+                    <!-- @if(isset($totalCount))
+    <div class="alert alert-info text-center mb-3">
+        <strong>{{ $totalCount }}</strong> Media Found
+    </div>
+@endif -->
+                <!-- </div> -->
+
             </div>
 
             {{-- ================= BUTTONS ================= --}}
             <div class="row g-3 mt-3 justify-content-center">
 
-                <div class="col-xl-2 col-lg-3 col-md-4 d-grid">
-                    <button type="submit" class="btn btn-success">
+             <div class="col-xl-3 col-lg-3 col-md-6">
+                       @if(isset($totalCount))
+                        <div class="result-badge alert alert-info text-center">
+                            <span class="icon">📍</span>
+                            <span class="count">{{ $totalCount }} Results</span>
+                            
+                        </div>
+                        @else
+                        <div class="result-badge no-result">
+                            <span class="icon">❌</span>
+                            <span class="count">No Results</span>
+                          
+                        </div>
+                        @endif
+                    </div>
+
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <button type="submit" class="btn btn-success" style = "padding: 11px; width: inherit;">
                         🔍 Search
                     </button>
                 </div>
 
-                <div class="col-xl-2 col-lg-3 col-md-4 d-grid">
-                    <button type="button" id="clearFilters" class="btn btn-outline-secondary">
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <button type="button" id="clearFilters" class="btn btn-outline-secondary"  style = "padding: 11px; width: inherit;">
                         ✖ Clear
                     </button>
                 </div>

@@ -392,12 +392,12 @@
     });
 </script>
 
-<script>
+<!-- <script>
     document.getElementById('clearFilters').addEventListener('click', function() {
         document.getElementById('clearFlag').value = '1';
         this.closest('form').submit();
     });
-</script>
+</script> -->
 
 <script>
     document.getElementById('clearFilters').addEventListener('click', function() {

@@ -35,9 +35,9 @@ class HomeController extends Controller
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
     {
-        if ($request->filled('clear')) {
-            return redirect()->route('website.home');
-        }
+        // if ($request->filled('clear')) {
+        //     return redirect()->route('website.home');
+        // }
 
         $filters = $request->only([
             'category_id',
