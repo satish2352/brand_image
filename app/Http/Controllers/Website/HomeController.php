@@ -66,10 +66,18 @@ class HomeController extends Controller
     }
 
     /** GET /search — do not show filters — redirect home */
+    // public function searchView()
+    // {
+    //     return redirect()->route('website.home');
+    // }
     public function searchView()
-    {
-        return redirect()->route('website.home');
-    }
+{
+    $filters = [];
+    $mediaList = $this->homeService->searchMedia($filters);
+
+    return view('website.search', compact('mediaList', 'filters'));
+}
+
     public function getMediaDetails($mediaId)
     {
         try {
