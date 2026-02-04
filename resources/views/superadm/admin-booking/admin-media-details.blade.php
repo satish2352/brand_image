@@ -213,7 +213,9 @@
             background: #218838 !important;
             color: #fff !important;
         }
-
+        .flatpickr-day.flatpickr-disabled{
+            color: #0f0d0d4d !important;
+        }
         /* ===== BOOKED DATE HOVER ===== */
         .flatpickr-day.booked-date:hover {
             background: #dc3545 !important;

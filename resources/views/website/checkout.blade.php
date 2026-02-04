@@ -44,7 +44,7 @@
                             <tr>
                                 <td>{{ $item->area_name }} {{ $item->facing }}</td>
                                 <td class="text-end">₹ {{ number_format($item->price, 2) }}</td>
-                                 <td class="text-end">₹ {{ number_format($item->total_days) }}</td>
+                                 <td class="text-end">{{ number_format($item->total_days) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
