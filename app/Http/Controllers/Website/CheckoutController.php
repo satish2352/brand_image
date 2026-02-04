@@ -342,7 +342,10 @@ class CheckoutController extends Controller
             'razorpay_order_id'
         ]);
 
-        return view('website.dashboard');
+        // return view('website.dashboard');
+       return redirect()->route('dashboard.home')->with('success', 'Payment successful!');
+
+
     }
 
 

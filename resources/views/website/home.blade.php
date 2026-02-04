@@ -4,6 +4,6 @@
 
 @section('content')
 
-    @include('website.index_2')
+    @include('website.index')
 
 @endsection
