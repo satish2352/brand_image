@@ -42,13 +42,32 @@
                     <div class="col-md-6">
                         <p><strong>Order No:</strong> {{ $order->order_no }}</p>
 
-                        <p>
+                        <!-- <p>
                             <strong>Payment Status:</strong>
-                           <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}">
+                           <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}" style = "color:#fff;">
     {{ $order->payment_status }}
 </span>
 
-                        </p>
+                        </p> -->
+<p>
+    <strong>Payment Status:</strong>
+
+    @php
+        $statusText = match($order->payment_status) {
+            'PAID' => 'Paid',
+            'ADMIN_BOOKED' => 'Admin Booked',
+        };
+
+        $statusClass = match($order->payment_status) {
+            'PAID' => 'bg-success',
+            'ADMIN_BOOKED' => 'bg-info',
+        };
+    @endphp
+
+    <span class="badge {{ $statusClass }}" style="color:#fff;">
+        {{ $statusText }}
+    </span>
+</p>
 
                         <p>
                             <strong>Total Amount:</strong>
