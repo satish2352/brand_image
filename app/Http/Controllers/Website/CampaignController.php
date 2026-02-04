@@ -152,18 +152,33 @@ class CampaignController extends Controller
                 ->with('error', 'Campaign details not found');
         }
     }
-    public function exportExcel($campaignId)
-    {
-        $campaignId = base64_decode($campaignId);
+    // public function exportExcel($campaignId)
+    // {
+    //     $campaignId = base64_decode($campaignId);
 
-        return Excel::download(
-            new CampaignExport(
-                Auth::guard('website')->id(),
-                $campaignId
-            ),
-            'campaign_items.xlsx'
-        );
-    }
+    //     return Excel::download(
+    //         new CampaignExport(
+    //             Auth::guard('website')->id(),
+    //             $campaignId
+    //         ),
+    //         'campaign_items.xlsx'
+    //     );
+    // }
+    public function exportExcel($campaignId)
+{
+    $campaignId = base64_decode($campaignId);
+
+    $campaign = DB::table('campaign')->where('id', $campaignId)->first();
+
+    $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $campaign->campaign_name)
+        . '_' . now()->format('d-m-Y') . '.xlsx';
+
+    return Excel::download(
+        new CampaignExport(Auth::guard('website')->id(), $campaignId),
+        $fileName
+    );
+}
+
     // public function exportPpt($campaignId)
     // {
     //     while (ob_get_level() > 0) {
