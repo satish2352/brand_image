@@ -83,28 +83,7 @@
                                         <?php
                                         // dd( $item);
                                         ?>
-                                        <!-- <td>
-                                            <form action="{{ route('admin.campaign.book') }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="campaign_id" value="{{ $item->campaign_id }}">
-                                                <input type="hidden" name="user_id" value="{{ $item->user_id }}">
-                                              
-                                                <input type="hidden" name="media_id" value="{{ $item->media_id }}">
-                                                <input type="hidden" name="from_date" value="{{ $item->from_date }}">
-                                                <input type="hidden" name="to_date" value="{{ $item->to_date }}">
-                                                <input type="hidden" name="price" value="{{ $item->price }}">
-                                                <input type="hidden" name="total_price" value="{{ $item->total_price }}">
-                                                <input type="hidden" name="total_days" value="{{ $item->total_days }}">
-                                                <input type="hidden" name="campaign_id" value="{{ $item->campaign_id }}">
-                                                <input type="hidden" name="per_day_price"
-                                                    value="{{ $item->per_day_price ?? 0 }}">
-
-
-
-
-                                                <button type="submit" class="btn btn-primary btn-sm">Book</button>
-                                            </form>
-                                        </td> -->
+                                      
                                         <td>
     @if ($item->is_booked)
         <button class="btn btn-secondary btn-sm" disabled>Booked</button>

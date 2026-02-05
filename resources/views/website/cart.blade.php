@@ -6,37 +6,7 @@
 @section('content')
 
 <style>
-    /* .flatpickr-day.selected.startRange,
-                .flatpickr-day.selected.endRange {
-                    background: #ff9800 !important;
-                    color: #fff !important;
-                }
-
-              
-                .flatpickr-day.selected {
-                    background: #ff9800 !important;
-                    color: #fff !important;
-                }
-
-              
-                .flatpickr-day.inRange {
-                    background: rgba(255, 152, 0, 0.35) !important;
-                    color: #000 !important;
-                }
-
-                
-                .flatpickr-day.inRange:hover {
-                    background: rgba(255, 152, 0, 0.5) !important;
-                }
-
-              
-                .flatpickr-day.flatpickr-disabled {
-                    background: transparent !important;
-                    color: #9a9a9a !important;
-                    cursor: not-allowed;
-                } */
-
-    .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.flatpickr-disabled,
     .flatpickr-day.flatpickr-disabled:hover {
         color: #979393 !important;
         /* keep same disabled color */

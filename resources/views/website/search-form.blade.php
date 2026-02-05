@@ -37,28 +37,7 @@
         color: #dc3545;
     }
 
-    /* .range-slider-container {
-        position: relative;
-        height: 40px;
-    }
-
-    .range-slider-container input[type=range] {
-        position: absolute;
-        width: 100%;
-        pointer-events: none;
-        -webkit-appearance: none;
-        background: none;
-    }
-
-    .range-slider-container input[type=range]::-webkit-slider-thumb {
-        pointer-events: auto;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #f28123;
-        cursor: pointer;
-        -webkit-appearance: none;
-    } */
+  
     /* Uniform height for all inputs & selects */
     .media-search-card .form-select,
     .media-search-card .form-control {

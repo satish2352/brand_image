@@ -404,24 +404,6 @@
     </div>
 
     <script>
-        // document.querySelector('form').addEventListener('submit', function(e) {
-
-        //     const name = document.querySelector('[name="signup_name"]').value.trim();
-        //     const email = document.querySelector('[name="signup_email"]').value.trim();
-        //     const mobile = document.querySelector('[name="signup_mobile_number"]').value.trim();
-
-        //     if (!name || !email || !mobile) {
-        //         alert('Please fill Name, Email and Mobile Number');
-        //         e.preventDefault();
-        //         return;
-        //     }
-
-        //     if (!/^\d{10,12}$/.test(mobile)) {
-        //         alert('Mobile number must be 10 to 12 digits');
-        //         e.preventDefault();
-        //     }
-        // });
-
         /* ================= REGEX ================= */
         const nameRegex = /^[A-Za-z\s]+$/;
         const mobileRegex = /^[6-9][0-9]{9}$/;
@@ -453,55 +435,6 @@
                 .find('.invalid-feedback')
                 .remove();
         }
-
-        /* ================= FORM SUBMIT VALIDATION ================= */
-        // $('#bookingForm').on('submit.validation', function(e) {
-
-        //     let valid = true;
-        //     $('.is-invalid').removeClass('is-invalid');
-        //     $('.invalid-feedback').remove();
-
-        //     function error(el, msg) {
-        //         el.addClass('is-invalid');
-        //         el.after(`<div class="invalid-feedback">${msg}</div>`);
-        //         valid = false;
-        //     }
-
-        //     /* ===== Full Name ===== */
-        //     let name = $('input[name="signup_name"]');
-        //     if (!name.val()) {
-        //         error(name, 'Full name is required');
-        //     } else if (!nameRegex.test(name.val())) {
-        //         error(name, 'Full name must contain only letters');
-        //     }
-
-        //     /* ===== Email ===== */
-        //     let email = $('input[name="signup_email"]');
-        //     if (!email.val()) {
-        //         error(email, 'Email is required');
-        //     } else if (!emailRegex.test(email.val())) {
-        //         error(email, 'Enter a valid email (example@domain.co)');
-        //     }
-
-        //     /* ===== Mobile ===== */
-        //     let mobile = $('input[name="signup_mobile_number"]');
-        //     if (!mobile.val()) {
-        //         error(mobile, 'Mobile number is required');
-        //     } else if (!mobileRegex.test(mobile.val())) {
-        //         error(mobile, 'Mobile must be 10 digits and start with 6, 7, 8, or 9');
-        //     }
-
-        //     /* ===== Booking Date Check ===== */
-        //     if (!$('#from_date').val() || !$('#to_date').val()) {
-        //         $('#dateError').removeClass('d-none');
-        //         valid = false;
-        //     }
-
-        //     if (!valid) {
-        //         e.preventDefault();
-        //         return false;
-        //     }
-        // });
     </script>
 
 
@@ -560,28 +493,7 @@
                     to: r.to_date
                 })),
 
-                //  Mark booked dates RED
-                // onDayCreate: function(dObj, dStr, fp, dayElem) {
-                //     const date = dayElem.dateObj.toISOString().split('T')[0];
-
-                //     bookedRanges.forEach(range => {
-                //         // if (date >= range.from_date && date <= range.to_date) {
-                //         //     dayElem.classList.add('booked-date');
-                //         // }
-                //         if (date > range.from_date && date < range.to_date) {
-                //             dayElem.classList.add('booked-date');
-                //         }
-
-                //     });
-                // },
                 onDayCreate: function(dObj, dStr, fp, dayElem) {
-                    // const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
-
-                    // bookedRanges.forEach(range => {
-                    //     if (date >= range.from_date && date <= range.to_date) {
-                    //         dayElem.classList.add('booked-date');
-                    //     }
-                    // });
                     const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
                     let isBooked = false;
 
@@ -677,65 +589,7 @@
                     addBtn.disabled = false;
                 }
 
-                // onChange: function(selectedDates) {
-
-                //     addBtn.disabled = true;
-                //     errorBox.classList.add('d-none');
-
-                //     if (selectedDates.length !== 2) return;
-
-                //     const start = selectedDates[0];
-                //     const end = selectedDates[1];
-
-                //     const diffDays =
-                //         Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-                //     // if (diffDays < MIN_DAYS) {
-                //     //     errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
-                //     //     errorBox.classList.remove('d-none');
-                //     //     return;
-                //     // }
-                //     if (diffDays < MIN_DAYS) {
-                //         errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
-                //         errorBox.classList.remove('d-none');
-
-                //         // Reset UI values
-                //         document.getElementById('totalDays').innerText = 0;
-                //         document.getElementById('baseAmount').innerText = "0.00";
-                //         document.getElementById('gstAmount').innerText = "0.00";
-                //         document.getElementById('grandTotal').innerText = "0.00";
-
-                //         // Reset hidden fields
-                //         document.getElementById('total_amount').value = "";
-                //         document.getElementById('gst_amount').value = "";
-                //         document.getElementById('grand_total').value = "";
-                //         fromInput.value = "";
-                //         toInput.value = "";
-
-                //         // Disable button
-                //         addBtn.disabled = true;
-
-                //         return;
-                //     }
-
-                //     const baseAmount = diffDays * pricePerDay;
-                //     const gstAmount = +(baseAmount * 0.18).toFixed(2);
-                //     const grandTotal = +(baseAmount + gstAmount).toFixed(2);
-
-                //     document.getElementById('totalDays').innerText = diffDays;
-                //     document.getElementById('baseAmount').innerText = baseAmount.toFixed(2);
-                //     document.getElementById('gstAmount').innerText = gstAmount.toFixed(2);
-                //     document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
-
-                //     document.getElementById('total_amount').value = baseAmount.toFixed(2);
-                //     document.getElementById('gst_amount').value = gstAmount.toFixed(2);
-                //     document.getElementById('grand_total').value = grandTotal.toFixed(2);
-
-                //     fromInput.value = flatpickr.formatDate(start, "Y-m-d");
-                //     toInput.value = flatpickr.formatDate(end, "Y-m-d");
-
-                //     addBtn.disabled = false;
-                // }
+                
             });
         });
     </script>
