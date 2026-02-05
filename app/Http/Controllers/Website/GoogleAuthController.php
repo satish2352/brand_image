@@ -10,14 +10,8 @@ use Illuminate\Support\Str;
 
 class GoogleAuthController extends Controller
 {
-    // public function redirect()
-    // {
-    //     return Socialite::driver('google')->redirect();
-    // }
-
-    public function redirect()
+      public function redirect()
     {
-        // dd(config('services.google.redirect'));
         return Socialite::driver('google')
             ->redirectUrl(config('services.google.redirect'))
             ->stateless()

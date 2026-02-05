@@ -130,73 +130,7 @@ public function addToCartWithDate($mediaId, $from, $to, $cartType)
         $cartType
     );
 }
-
-
-    // public function addToCartWithDate($mediaId, $from, $to)
-    // {
-    //     $fromDate = Carbon::parse($from);
-    //     $toDate   = Carbon::parse($to);
-
-    //     $userId = auth('website')->id();
-    //     $sessionId = session()->getId();
-
-    //     $exists = DB::table('cart_items')
-    //         ->where('media_id', $mediaId)
-    //         ->where(function ($q) use ($userId, $sessionId) {
-    //             $q->where('user_id', $userId)
-    //                 ->orWhere('session_id', $sessionId);
-    //         })
-    //         ->where(function ($q) use ($from, $to) {
-    //             $q->whereBetween('from_date', [$from, $to])
-    //                 ->orWhereBetween('to_date', [$from, $to])
-    //                 ->orWhere(function ($q2) use ($from, $to) {
-    //                     $q2->where('from_date', '<=', $from)
-    //                         ->where('to_date', '>=', $to);
-    //                 });
-    //         })
-    //         ->exists();
-
-    //     if ($exists) {
-    //         throw new \Exception('Media already added in cart for selected dates');
-    //     }
-
-    //     $alreadyBooked = DB::table('order_items as oi')
-    //         ->join('orders as o', 'o.id', '=', 'oi.order_id')
-    //         ->where('oi.media_id', $mediaId)
-    //         ->where('o.payment_status', 'PAID')
-    //         ->where(function ($q) use ($from, $to) {
-    //             $q->whereBetween('oi.from_date', [$from, $to])
-    //                 ->orWhereBetween('oi.to_date', [$from, $to])
-    //                 ->orWhere(function ($q2) use ($from, $to) {
-    //                     $q2->where('oi.from_date', '<=', $from)
-    //                         ->where('oi.to_date', '>=', $to);
-    //                 });
-    //         })
-    //         ->exists();
-
-    //     if ($alreadyBooked) {
-    //         throw new \Exception('Selected dates are already booked');
-    //     }
-
-    //     $monthlyPrice = DB::table('media_management')
-    //         ->where('id', $mediaId)
-    //         ->value('price');
-
-    //     $totalDays  = $fromDate->diffInDays($toDate) + 1;
-    //     $totalPrice = calculateMonthlyRangePrice($monthlyPrice, $from, $to);
-
-    //     $this->repo->addItemWithDate(
-    //         $mediaId,
-    //         $monthlyPrice,
-    //         $from,
-    //         $to,
-    //         round($totalPrice / $totalDays, 2),
-    //         round($totalPrice, 2),
-    //         $totalDays
-    //     );
-    // }
-
-    public function updateCartDates($cartItemId, $from, $to)
+        public function updateCartDates($cartItemId, $from, $to)
     {
         $item = $this->repo->getCartItemById($cartItemId);
 

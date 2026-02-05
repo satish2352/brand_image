@@ -21,15 +21,7 @@ class CartController extends Controller
         $items = $this->service->getCartItems();
         return view('website.cart', compact('items'));
     }
-    // public function add($mediaId)
-    // {
-    //     $mediaId = base64_decode($mediaId);
-    //     $this->service->addToCart($mediaId);
-
-    //     return redirect()
-    //         ->route('cart.index')
-    //         ->with('success', 'Item added to cart');
-    // }
+  
     public function add($mediaId)
     {
         $mediaId = base64_decode($mediaId);
@@ -74,35 +66,6 @@ public function addWithDate(Request $request)
             ->with('error', $e->getMessage());
     }
 }
-
-    // public function addWithDate(Request $request)
-    // {
-    //     $request->validate([
-    //         'media_id'  => 'required',
-    //         'from_date' => 'required|date',
-    //         'to_date'   => 'required|date|after_or_equal:from_date',
-    //     ]);
-
-    //     $mediaId = base64_decode($request->media_id);
-
-    //     try {
-
-    //         $this->service->addToCartWithDate(
-    //             $mediaId,
-    //             $request->from_date,
-    //             $request->to_date
-    //         );
-
-    //         return redirect()
-    //             ->route('cart.index')
-    //             ->with('success', 'Media added to cart successfully');
-    //     } catch (\Exception $e) {
-
-    //         return redirect()
-    //             ->route('cart.index')
-    //             ->with('error', $e->getMessage());
-    //     }
-    // }
     public function getBookedDates($mediaId)
     {
         return response()->json(

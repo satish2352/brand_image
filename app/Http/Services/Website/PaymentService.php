@@ -14,8 +14,6 @@ class PaymentService
     public function getInvoicePayments($userId)
     {
         $data_output = $this->repo->getPaidCampaignInvoices($userId);
-        // dd($data_output);
-        // die();
         return $data_output;
     }
     public function getInvoiceDetails($orderId)

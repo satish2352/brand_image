@@ -67,14 +67,6 @@ class CityService
     {
         return $this->cityRepo->toggleStatus($id);
     }
-
-    // public function deleteCity($id)
-    // {
-    //     $data_output = $this->cityRepo->deleteCity($id);
-
-    //     return $data_output;
-    // }
-
     public function deleteCity($id)
     {
         DB::beginTransaction();

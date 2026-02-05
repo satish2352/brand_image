@@ -163,34 +163,7 @@ class HordingBookRepository
             $query->where('m.area_id', $filters['area_id']);
         }
 
-    //     if (!empty($filters['available_days'])) {
-
-    //         $days = (int) $filters['available_days'];
-    //         $today = now()->toDateString();
-
-    //         $query->addSelect(DB::raw("
-    //     CASE
-    //         WHEN NOT EXISTS (
-    //             SELECT 1 FROM media_booked_date mbd
-    //             WHERE mbd.media_id = m.id
-    //             AND mbd.is_active = 1
-    //             AND mbd.is_deleted = 0
-    //         )
-    //         THEN 1
-
-    //         WHEN EXISTS (
-    //             SELECT 1 FROM media_booked_date mbd
-    //             WHERE mbd.media_id = m.id
-    //             AND mbd.is_active = 1
-    //             AND mbd.is_deleted = 0
-    //             AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
-    //         )
-    //         THEN 1
-
-    //         ELSE 0
-    //     END AS is_available_days
-    // "));
-    //     }
+   
 /* ================= AVAILABLE DAYS FILTER ================= */
 if (!empty($filters['available_days'])) {
 
@@ -215,56 +188,7 @@ if (!empty($filters['available_days'])) {
         )
     ", [$today, $days]);
 }
-
-
-        // if (!empty($filters['available_days'])) {
-        //     $query->where(
-        //         'm.updated_at',
-        //         '>=',
-        //         now()->subDays((int)$filters['available_days'])
-        //     );
-        // }
-
-        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
-        //     $query->whereBetween(
-        //         DB::raw('DATE(m.updated_at)'),
-        //         [$filters['from_date'], $filters['to_date']]
-        //     );
-        // }
-        /*  BOOKING STATUS LOGIC */
-        /*  BOOKING STATUS LOGIC */
-        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
-
-        //     $fromDate = $filters['from_date'];
-        //     $toDate   = $filters['to_date'];
-
-        //     $query->addSelect(DB::raw("
-        //     CASE
-        //         WHEN EXISTS (
-        //             SELECT 1 FROM media_booked_date mbd
-        //             WHERE mbd.media_id = m.id
-        //             AND mbd.is_deleted = 0
-        //             AND mbd.is_active = 1
-        //             AND mbd.from_date <= '{$toDate}'
-        //             AND mbd.to_date >= '{$fromDate}'
-        //         )
-        //         THEN 1 ELSE 0
-        //     END AS is_booked
-        // "));
-        // } else {
-
-        //     $query->addSelect(DB::raw("
-        //     CASE
-        //         WHEN EXISTS (
-        //             SELECT 1 FROM media_booked_date mbd
-        //             WHERE mbd.media_id = m.id
-        //             AND mbd.is_deleted = 0
-        //             AND mbd.is_active = 1
-        //         )
-        //         THEN 1 ELSE 0
-        //     END AS is_booked
-        // "));
-        // }
+       
       if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
 
     $fromDate = $filters['from_date'];
@@ -296,40 +220,6 @@ if (!empty($filters['available_days'])) {
         END AS is_booked
     "));
 }
-
-
-        // if (!empty($filters['from_date']) && !empty($filters['to_date'])) {
-
-        //     $fromDate = $filters['from_date'];
-        //     $toDate   = $filters['to_date'];
-
-        //     $query->addSelect(DB::raw("
-        //     CASE
-        //         WHEN EXISTS (
-        //             SELECT 1 FROM media_booked_date mbd
-        //             WHERE mbd.media_id = m.id
-        //             AND mbd.is_deleted = 0
-        //             AND mbd.is_active = 1
-        //             AND mbd.from_date <= '{$toDate}'
-        //             AND mbd.to_date >= '{$fromDate}'
-        //         )
-        //         THEN 1 ELSE 0
-        //     END AS is_booked
-        // "));
-        // } else {
-
-        //     $query->addSelect(DB::raw("
-        //     CASE
-        //         WHEN EXISTS (
-        //             SELECT 1 FROM media_booked_date mbd
-        //             WHERE mbd.media_id = m.id
-        //             AND mbd.is_deleted = 0
-        //             AND mbd.is_active = 1
-        //         )
-        //         THEN 1 ELSE 0
-        //     END AS is_booked
-        // "));
-        // }
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
      $totalCount = (clone $query)->count();
 
@@ -482,56 +372,7 @@ return [
             ->orderBy('o.id', 'desc')
             ->get();
     }
-    // public function bookingDetailsList($orderId)
-    // {
-    //     // 🔹 Order header
-    //     $order = DB::table('orders as o')
-    //         ->join('website_users as u', 'u.id', '=', 'o.user_id')
-    //         ->where('o.id', $orderId)
-    //         ->select(
-    //             'o.*',
-    //             'u.name',
-    //             'u.email',
-    //             'u.mobile_number'
-    //         )
-    //         ->first();
-
-    //     // 🔹 Order items
-    //     $items = DB::table('order_items as oi')
-    //         ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
-    //          ->leftJoin('orders as od', 'od.id', '=', 'oi.order_id')
-    //         ->where('oi.order_id', $orderId)
-    //         ->select(
-    //             'oi.id',
-    //             'oi.price as order_price',
-    //             'oi.per_day_price',
-    //             'oi.total_days',
-    //             'oi.total_price',
-    //             'oi.qty',
-    //             'oi.from_date',
-    //             'oi.to_date',
-    //             'mm.media_title',
-    //             'mm.width',
-    //             'mm.height',
-    //             'mm.address',
-    //             'mm.price',
-    //             'od.total_amount',
-    //             'od.payment_status',
-    //             'od.gst_amount',
-    //             'od.grand_total',
-
-
-              
-                
-    //         )
-    //         ->get();
-
-    //     $order->items = $items;
-
-    //     return $order;
-    // }
-
-public function bookingDetailsList($orderId)
+   public function bookingDetailsList($orderId)
 {
     $gstPercent = 18; // GST %
 

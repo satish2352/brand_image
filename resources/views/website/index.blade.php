@@ -280,10 +280,6 @@
             </div>
             <div class="swiper hoarding-slider mb-4">
                 <div class="swiper-wrapper">
-                    <?php
-                    // dd($mediaList);
-                    // die();
-                    ?>
                     @php
                     $latestFive = $mediaList->where('category_id', 1)->sortByDesc('created_at')->take(5);
                     @endphp

@@ -17,10 +17,6 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <?php
-                // dd($campaigns);
-                // die();
-                ?>
                 <tbody>
                     @foreach ($campaigns as $key => $row)
                         <tr>

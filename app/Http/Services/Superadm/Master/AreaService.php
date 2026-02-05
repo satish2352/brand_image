@@ -95,21 +95,6 @@ class AreaService
             throw $e;
         }
     }
-
-    /* ===== DELETE (SOFT) ===== */
-    // public function deleteArea($id)
-    // {
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $this->areaRepo->softDelete($id);
-    //         DB::commit();
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-    // }
-
     public function deleteArea($id)
     {
         DB::beginTransaction();

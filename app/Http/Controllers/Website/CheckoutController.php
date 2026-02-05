@@ -64,60 +64,7 @@ class CheckoutController extends Controller
             'grandTotal'
         ));
     }
-    // public function placeOrder()
-    // {
-    //     if (!Auth::guard('website')->check()) {
-    //         return redirect('/')->with('error', 'Please login');
-    //     }
-
-    //     $items = $this->cartRepo->getCartItems();
-
-    //     if ($items->isEmpty()) {
-    //         return back()->with('error', 'Cart is empty');
-    //     }
-
-    //     //  Prevent empty date items
-    //     foreach ($items as $item) {
-    //         if (!$item->from_date || !$item->to_date) {
-    //             return redirect()
-    //                 ->back()
-    //                 ->with('error', 'Please select date and click "Add Dates" before checkout.');
-    //         }
-    //     }
-
-    //     //  Calculate total AFTER validation
-    //     $total = $items->sum(fn($i) => $i->total_price);
-
-    //     $order = DB::transaction(function () use ($items, $total) {
-    //         $order = $this->orderRepo->createOrder($total);
-    //         $this->orderRepo->createOrderItems($order->id, $items);
-    //         return $order;
-    //     });
-
-    //     // Notify all admins
-    //     $admins = User::where('id', 1)->get();
-    //     foreach ($admins as $admin) {
-    //         // $admin->notify(new OrderPlacedNotification($order));
-    //         // \App\Models\Notification::create([
-    //         //     'user_id'  => $admin->id,
-    //         //     'order_id' => $order->id,
-    //         //     'media_id' => null, // use when needed
-    //         // ]);
-    //         foreach ($items as $item) {
-
-    //             \App\Models\Notification::create([
-    //                 'user_id'  => $admin->id, // Admin who reads
-    //                 'order_id' => $order->id,
-    //                 'media_id' => $item->media_id,
-    //                 'is_read'  => 0,
-    //             ]);
-    //         }
-    //     }
-
-    //     session(['order_id' => $order->id]);
-
-    //     return redirect()->route('checkout.index');
-    // }
+  
     public function placeOrder()
     {
         if (!Auth::guard('website')->check()) {

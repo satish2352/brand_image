@@ -65,7 +65,6 @@ class HomeController extends Controller
         return view('website.search', compact('mediaList', 'filters'));
     }
 
-    /** GET /search — do not show filters — redirect home */
     // public function searchView()
     // {
     //     return redirect()->route('website.home');

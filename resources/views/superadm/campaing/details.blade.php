@@ -78,12 +78,7 @@
                                             @else
                                                 <span class="badge badge-success">Available</span>
                                             @endif
-                                        </td>
-
-                                        <?php
-                                        // dd( $item);
-                                        ?>
-                                      
+                                        </td>                                      
                                         <td>
     @if ($item->is_booked)
         <button class="btn btn-secondary btn-sm" disabled>Booked</button>

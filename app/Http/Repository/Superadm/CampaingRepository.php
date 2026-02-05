@@ -6,20 +6,6 @@ use Illuminate\Support\Facades\DB;
 
 class CampaingRepository
 {
-
-    // public function adminCampaignList()
-    // {
-    //     return DB::table('campaign as c')
-    //         ->join('website_users as u', 'u.id', '=', 'c.user_id')
-    //         ->select(
-    //             'u.id as user_id',
-    //             'u.name as user_name',
-    //             DB::raw('COUNT(c.id) as total_campaigns')
-    //         )
-    //         // ->groupBy('u.id', 'u.name')
-    //         ->orderByDesc('u.id')
-    //         ->get();
-    // }
     public function adminCampaignList()
     {
         return DB::table('campaign as c')
