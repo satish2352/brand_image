@@ -254,6 +254,9 @@ Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.
 Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp');
 Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp');
 
+
+ Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+ 
 Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function () {
 
     Route::prefix('user/dashboard')->group(function () {
@@ -278,7 +281,7 @@ Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function
     Route::post('/checkout/create-order', [CheckoutController::class, 'placeOrder'])->name('checkout.create');
     Route::post('/checkout/pay', [CheckoutController::class, 'pay'])->name('checkout.pay');
     Route::post('/payment/success', [CheckoutController::class, 'success'])->name('payment.success');
-    Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+    // Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
     Route::post('/campaign/store', [CampaignController::class, 'store'])->name('campaign.store');
     Route::get('/campaign-list', [CampaignController::class, 'getCampaignList'])->name('campaign.list');
