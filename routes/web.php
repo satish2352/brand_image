@@ -42,6 +42,8 @@ Route::get('/clear-cache', function () {
     return "<h3> All caches cleared successfully!</h3>";
 })->name('clear.cache');
 
+ Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+ 
 Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
 Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
 
@@ -255,8 +257,8 @@ Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('
 Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp');
 
 
- Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
- 
+
+
 Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function () {
 
     Route::prefix('user/dashboard')->group(function () {
