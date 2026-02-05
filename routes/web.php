@@ -43,7 +43,7 @@ Route::get('/clear-cache', function () {
 })->name('clear.cache');
 
 //  Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
-Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
 Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
 
