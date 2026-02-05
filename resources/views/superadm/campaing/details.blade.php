@@ -31,7 +31,7 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>Media Title</th>
+                                    <th>Location Name</th>
                                     <th>From</th>
                                     <th>To</th>
                                     <th>Days</th>
@@ -52,7 +52,7 @@
                             <tbody>
                                 @foreach ($campaign as $item)
                                     <tr>
-                                        <td>{{ $item->media_title }}</td>
+                                        <td>{{ $item->area_name }} {{ $item->facing }}</td>
                                         <td>{{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}</td>
                                         <td>{{ $item->total_days }}</td>

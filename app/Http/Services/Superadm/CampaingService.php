@@ -57,6 +57,8 @@ class CampaingService
                 'm.media_title',
                 'm.width',
                 'm.height',
+                  'm.facing',
+                'a.area_name',
                 'a.common_stdiciar_name'
             )
             ->orderBy('c.id', 'DESC')

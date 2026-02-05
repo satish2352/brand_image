@@ -5,6 +5,7 @@
 
 @section('content')
     <style>
+        
         .invoice-wrapper {
             display: flex;
             justify-content: center;
@@ -293,11 +294,12 @@
                     <tr>
                         <th>Sr. No.</th>
                         <th>Location</th>
-                        <th>Media / Size</th>
+                        <th>Media </th>
+                        <th>Size</th> 
                         <th>From Date</th>
                         <th>To Date</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
+                        <th>Total Days</th>
+                      
                     </tr>
                 </thead>
                 <tbody>
@@ -310,9 +312,9 @@
                             <td>{{ $i + 1 }}</td>
                             <td>{{ $item->area_name }} {{ $item->facing }}</td>
                             <td>
-                                {{ $item->media_title }}<br>
-                                <small>{{ $item->width }} × {{ $item->height }}</small>
+                                {{ $item->media_title }}
                             </td>
+                             <td> <small>{{ $item->width }} × {{ $item->height }}</small></td>
                             <td>
                                 {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
                             </td>
@@ -320,8 +322,9 @@
                             <td>
                                 {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
                             </td>
-                            <td>₹ {{ number_format($item->price, 2) }}</td>
-                            <td>₹ {{ number_format($item->price, 2) }}</td>
+                            <td>{{ number_format($item->total_days) }}</td>
+                            
+                           
                         </tr>
                     @endforeach
 

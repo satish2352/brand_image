@@ -222,9 +222,9 @@
                                         </div>
                                     @elseif ($type === 'booked')
                                         <div class="d-flex justify-content-end p-3 border-top">
-                                            <button class="btn btn-warning" disabled>
+                                            <!-- <button class="btn btn-warning" disabled>
                                                 Already Booked
-                                            </button>
+                                            </button> -->
                                         </div>
                                     @else
                                         <div class="d-flex justify-content-end p-3 border-top">
