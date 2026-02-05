@@ -122,38 +122,94 @@ class CheckoutController extends Controller
     }
 
 
-    public function razorpayWebhook(Request $request)
-    {
-        $payload   = $request->getContent();
-        $signature = $request->header('X-Razorpay-Signature');
-        $secret    = config('services.razorpay.webhook_secret');
+    // public function razorpayWebhook(Request $request)
+    // {
+    //     $payload   = $request->getContent();
+    //     $signature = $request->header('X-Razorpay-Signature');
+    //     $secret    = config('services.razorpay.webhook_secret');
 
-        try {
-            //  VERIFY WEBHOOK SIGNATURE
-            $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-            $api->utility->verifyWebhookSignature($payload, $signature, $secret);
+    //     try {
+    //         //  VERIFY WEBHOOK SIGNATURE
+    //         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+    //         $api->utility->verifyWebhookSignature($payload, $signature, $secret);
 
-            $data = json_decode($payload, true);
+    //         $data = json_decode($payload, true);
 
-            $razorpayOrderId = $data['payload']['payment']['entity']['order_id'];
-            $paymentId       = $data['payload']['payment']['entity']['id'];
+    //         $razorpayOrderId = $data['payload']['payment']['entity']['order_id'];
+    //         $paymentId       = $data['payload']['payment']['entity']['id'];
 
-            $order = \App\Models\Order::where('payment_gateway_order_id', $razorpayOrderId)->first();
+    //         $order = \App\Models\Order::where('payment_gateway_order_id', $razorpayOrderId)->first();
 
-            if (!$order) {
-                return response()->json(['status' => 'order_not_found'], 404);
-            }
+    //         if (!$order) {
+    //             return response()->json(['status' => 'order_not_found'], 404);
+    //         }
 
+    //         $order->update([
+    //             'payment_status' => 'PAID',
+    //             'payment_id' => $paymentId
+    //         ]);
+
+    //         return response()->json(['status' => 'success'], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
+public function razorpayWebhook(Request $request)
+{
+    $payload   = $request->getContent();
+    $signature = $request->header('X-Razorpay-Signature');
+    $secret    = config('services.razorpay.webhook_secret');
+
+    try {
+        $api = new Api(
+            config('services.razorpay.key'),
+            config('services.razorpay.secret')
+        );
+
+        $api->utility->verifyWebhookSignature($payload, $signature, $secret);
+
+        $data  = json_decode($payload, true);
+        $event = $data['event'] ?? null;
+
+        // ✅ Handle ONLY final success events
+        if (!in_array($event, ['payment.captured', 'order.paid'])) {
+            return response()->json(['status' => 'ignored'], 200);
+        }
+
+        $payment = $data['payload']['payment']['entity'] ?? null;
+
+        if (!$payment) {
+            return response()->json(['status' => 'no_payment'], 200);
+        }
+
+        $razorpayOrderId = $payment['order_id'] ?? null;
+        $paymentId       = $payment['id'] ?? null;
+
+        if (!$razorpayOrderId || !$paymentId) {
+            return response()->json(['status' => 'invalid_payload'], 200);
+        }
+
+        $order = Order::where('payment_gateway_order_id', $razorpayOrderId)->first();
+
+        if ($order && $order->payment_status !== 'PAID') {
             $order->update([
                 'payment_status' => 'PAID',
-                'payment_id' => $paymentId
+                'payment_id'     => $paymentId,
             ]);
-
-            return response()->json(['status' => 'success'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
         }
+
+        // ✅ ALWAYS return 200
+        return response()->json(['status' => 'success'], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Razorpay Webhook Error', [
+            'message' => $e->getMessage()
+        ]);
+
+        // ⚠️ NEVER return 4xx / 5xx
+        return response()->json(['status' => 'error_logged'], 200);
     }
+}
 
 
     public function pay()
