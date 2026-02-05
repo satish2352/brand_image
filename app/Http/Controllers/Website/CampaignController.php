@@ -329,7 +329,9 @@ $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
 
     if (empty($img)) continue;
 
-    $originalPath = public_path('storage/upload/images/media/' . trim($img));
+    // $originalPath = public_path('storage/upload/images/media/' . trim($img));
+    $originalPath = storage_path('app/public/upload/images/media/' . trim($img));
+
 
     if (!file_exists($originalPath) || !is_readable($originalPath)) {
         continue;
