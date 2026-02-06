@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class OrderRepository
 {
 
-    public function createOrder($subTotal)
+    public function createOrder($subTotal, $campaignId = null)
     {
         $gstAmount   = round(($subTotal * 18) / 100, 2);
         $grandTotal  = $subTotal + $gstAmount;
@@ -24,6 +24,7 @@ class OrderRepository
             'gst_amount'    => $gstAmount,
             'grand_total'   => $grandTotal,
             'payment_status' => 'PENDING',
+            'campaign_id'   => $campaignId 
         ]);
     }
 public function createOrderItems($orderId, $items)

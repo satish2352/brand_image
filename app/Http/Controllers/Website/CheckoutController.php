@@ -401,7 +401,8 @@ public function razorpayWebhook(Request $request)
         // $total = $items->sum(fn($i) => $i->price * $i->qty);
         $total = $items->sum(fn($i) => $i->total_price);
 
-        $order = $this->orderRepo->createOrder($total);
+        // $order = $this->orderRepo->createOrder($total);
+         $order = $this->orderRepo->createOrder($total, $campaignId);
         $this->orderRepo->createOrderItems($order->id, $items);
 
         // ONLY STORE ORDER ID

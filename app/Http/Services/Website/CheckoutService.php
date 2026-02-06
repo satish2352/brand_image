@@ -39,7 +39,9 @@ class CheckoutService
             // $total = $items->sum(fn($i) => $i->price * $i->qty);
             $total = $items->sum(fn($i) => $i->total_price);
             //  DO NOT pass user_id
-            $order = $this->orderRepo->createOrder($total);
+            // $order = $this->orderRepo->createOrder($total);
+            $order = $this->orderRepo->createOrder($total, $campaignId);
+
 
             $this->orderRepo->createOrderItems($order->id, $items);
 

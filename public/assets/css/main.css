@@ -935,7 +935,7 @@ a.mobile-show {
 .header-icons a,
 .header-icons button {
   margin: 0;
-  padding: 6px 10px;
+  padding: 0px 7px;
 }
 
 /* ===== User Dropdown Fix ===== */
@@ -3534,3 +3534,5 @@ table.order-details tbody td {
   background-color: rgb(245, 245, 245);
 
 }
+
+/* ================ */
