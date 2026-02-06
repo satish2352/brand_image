@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Website\CheckoutController;
 
-Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+Route::any('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
 
 
