@@ -160,18 +160,24 @@ public function razorpayWebhook(Request $request)
     $signature = $request->header('X-Razorpay-Signature');
     $secret    = config('services.razorpay.webhook_secret');
 
+    // 🔴 IMPORTANT: If signature missing, do not verify
+    if (empty($signature) || empty($secret)) {
+        return response()->json(['status' => 'signature_missing'], 200);
+    }
+
     try {
         $api = new Api(
             config('services.razorpay.key'),
             config('services.razorpay.secret')
         );
 
+        // Verify webhook signature
         $api->utility->verifyWebhookSignature($payload, $signature, $secret);
 
         $data  = json_decode($payload, true);
         $event = $data['event'] ?? null;
 
-        // ✅ Handle ONLY final success events
+        // Handle only success events
         if (!in_array($event, ['payment.captured', 'order.paid'])) {
             return response()->json(['status' => 'ignored'], 200);
         }
@@ -198,18 +204,19 @@ public function razorpayWebhook(Request $request)
             ]);
         }
 
-        // ✅ ALWAYS return 200
         return response()->json(['status' => 'success'], 200);
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         \Log::error('Razorpay Webhook Error', [
-            'message' => $e->getMessage()
+            'message' => $e->getMessage(),
+            'payload' => $payload
         ]);
 
-        // ⚠️ NEVER return 4xx / 5xx
+        // Always return 200 so Razorpay doesn't retry infinitely
         return response()->json(['status' => 'error_logged'], 200);
     }
 }
+
 
 
     public function pay()
