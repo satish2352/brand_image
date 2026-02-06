@@ -1,9 +1,9 @@
 <?php
 
-// use Illuminate\Support\Facades\Route;
-// use App\Http\Controllers\Website\CheckoutController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Website\CheckoutController;
 
-// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
 // Route::get('/test', function () {
 //     return 'API WORKING';

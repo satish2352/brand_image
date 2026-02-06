@@ -160,8 +160,19 @@ public function razorpayWebhook(Request $request)
     $signature = $request->header('X-Razorpay-Signature');
     $secret    = config('services.razorpay.webhook_secret');
 
-    // 🔴 IMPORTANT: If signature missing, do not verify
+    // ✅ LOG 1 — Check if webhook is hitting controller
+    \Log::info('Razorpay Webhook HIT', [
+        'signature' => $signature,
+        'secret_present' => !empty($secret),
+        'payload' => $payload
+    ]);
+
     if (empty($signature) || empty($secret)) {
+        \Log::warning('Signature missing', [
+            'signature' => $signature,
+            'secret' => $secret
+        ]);
+
         return response()->json(['status' => 'signature_missing'], 200);
     }
 
@@ -177,7 +188,11 @@ public function razorpayWebhook(Request $request)
         $data  = json_decode($payload, true);
         $event = $data['event'] ?? null;
 
-        // Handle only success events
+        // ✅ LOG 2 — Which event came
+        \Log::info('Razorpay Event Received', [
+            'event' => $event
+        ]);
+
         if (!in_array($event, ['payment.captured', 'order.paid'])) {
             return response()->json(['status' => 'ignored'], 200);
         }
@@ -185,11 +200,18 @@ public function razorpayWebhook(Request $request)
         $payment = $data['payload']['payment']['entity'] ?? null;
 
         if (!$payment) {
+            \Log::warning('No payment entity found');
             return response()->json(['status' => 'no_payment'], 200);
         }
 
         $razorpayOrderId = $payment['order_id'] ?? null;
         $paymentId       = $payment['id'] ?? null;
+
+        // ✅ LOG 3 — Payment details
+        \Log::info('Payment Data', [
+            'razorpay_order_id' => $razorpayOrderId,
+            'payment_id' => $paymentId
+        ]);
 
         if (!$razorpayOrderId || !$paymentId) {
             return response()->json(['status' => 'invalid_payload'], 200);
@@ -202,6 +224,10 @@ public function razorpayWebhook(Request $request)
                 'payment_status' => 'PAID',
                 'payment_id'     => $paymentId,
             ]);
+
+            \Log::info('Order marked PAID', [
+                'order_id' => $order->id
+            ]);
         }
 
         return response()->json(['status' => 'success'], 200);
@@ -212,10 +238,10 @@ public function razorpayWebhook(Request $request)
             'payload' => $payload
         ]);
 
-        // Always return 200 so Razorpay doesn't retry infinitely
         return response()->json(['status' => 'error_logged'], 200);
     }
 }
+
 
 
 
