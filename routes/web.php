@@ -45,8 +45,15 @@ Route::get('/clear-cache', function () {
 Route::get('/test', function () {
     return 'API WORKING';
 });
+Route::post('/payment/webhook/test-hit', function(\Illuminate\Http\Request $r){
+    \Log::info("TEST WEBHOOK HIT", [
+        "headers" => $r->headers->all(),
+        "body" => $r->getContent(),
+    ]);
+    return response()->json(["ok"=>true],200);
+});
 
-Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 // Route::any('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
 
