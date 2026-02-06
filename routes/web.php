@@ -325,8 +325,8 @@ Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function
 Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');
 
-Route::get('/{any}', function () {
-    return view('app');
-})->where('any', '^(?!api).*$');
+// Route::get('/{any}', function () {
+//     return view('app');
+// })->where('any', '^(?!api).*$');
 
 
