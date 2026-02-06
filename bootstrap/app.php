@@ -20,9 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
 
         // GLOBAL middleware (runs on every request)
-        $middleware->append(
-            \App\Http\Middleware\ComingSoonMiddleware::class
-        );
+        // $middleware->append(
+        //     \App\Http\Middleware\ComingSoonMiddleware::class
+        // );
 
         // Middleware aliases (unchanged)
         $middleware->alias([
