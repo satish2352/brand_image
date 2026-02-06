@@ -42,8 +42,10 @@ Route::get('/clear-cache', function () {
     return "<h3> All caches cleared successfully!</h3>";
 })->name('clear.cache');
 
-//  Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 // Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+Route::any('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+
+
 Route::get('login', [LoginController::class, 'loginsuper'])->name('login');
 Route::post('superlogin', [LoginController::class, 'validateSuperLogin'])->name('superlogin');
 
@@ -320,6 +322,7 @@ Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.c
 Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');
 
 Route::get('/{any}', function () {
-    return view('app'); // change app to your blade file name
-})->where('any', '.*');
+    return view('app');
+})->where('any', '^(?!api).*$');
+
 
