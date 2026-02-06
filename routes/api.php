@@ -5,5 +5,10 @@ use App\Http\Controllers\Website\CheckoutController;
 
 Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
+Route::get('/test', function () {
+    return 'API WORKING';
+});
+
+
 
 
