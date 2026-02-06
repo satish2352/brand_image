@@ -42,6 +42,10 @@ Route::get('/clear-cache', function () {
     return "<h3> All caches cleared successfully!</h3>";
 })->name('clear.cache');
 
+Route::get('/test', function () {
+    return 'API WORKING';
+});
+
 // Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 // Route::any('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
