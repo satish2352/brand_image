@@ -46,7 +46,7 @@ Route::get('/test', function () {
     return 'API WORKING';
 });
 
-// Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
+Route::post('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 // Route::any('/payment/webhook/razorpay', [CheckoutController::class, 'razorpayWebhook']);
 
 
