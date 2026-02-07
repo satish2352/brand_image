@@ -301,16 +301,7 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                                                                                                                                            Desktop Image
-                                                                                                                                                                            <div class="col-md-12 d-none d-md-block">
-                                                                                                                                                                                <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                                                                                                                                                                            </div>
-
-                                                                                                                                                                            Mobile Image
-                                                                                                                                                                            <div class="col-md-12 d-block d-md-none">
-                                                                                                                                                                                <img src="{{ asset('assets/img/mobile_add_to_cart.png') }}" alt="About Banner" class="img-fluid">
-                                                                                                                                                                            </div>
-                                                                                                                                                                        </div> -->
+                                                                                                                                                                   </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-80">
             <div class="container">
