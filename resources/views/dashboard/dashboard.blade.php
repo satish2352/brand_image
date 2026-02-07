@@ -187,7 +187,7 @@
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h4 class="mb-0">
-                                                    ₹ {{ formatAmountShort($monthlyRevenue) }}
+                                                    ₹ {{ formatAmountShort($monthlyRevenue) }}  (Online)
                                                 </h4>
                                                 <small>This Month Revenue</small>
                                             </div>
@@ -209,7 +209,7 @@
                                             </div>
                                             <div class="ml-2 align-self-center">
                                                 <h4 class="mb-0">
-                                                    ₹ {{ formatAmountShort($yearlyRevenue) }}
+                                                    ₹ {{ formatAmountShort($yearlyRevenue) }} (Online)
                                                 </h4>
                                                 <small>This Year Revenue</small>
                                             </div>
