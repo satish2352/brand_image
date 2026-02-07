@@ -63,7 +63,7 @@
 
                     <div class="header-icons new-header-icons">
                         @auth('website')
-                            <a href="{{ route('cart.index') }}" class="btn new-btn-light position-relative">
+                            <a href="{{ route('cart.index') }}" class="btn cart-page new-btn-light position-relative">
                                 <i class="bi bi-cart3 "></i>
                                 @if ($cartCount > 0)
                                     <span

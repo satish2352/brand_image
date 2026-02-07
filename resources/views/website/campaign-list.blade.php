@@ -23,11 +23,11 @@
 
         {{-- SEARCH --}}
         <form method="GET" action="{{ url()->current() }}" class="row g-2 mb-4">
-            <div class="col-lg-4 col-md-6">
+            <div class="col-12 col-md-6 col-lg-4">
                 <input type="text" name="campaign_name" class="form-control" placeholder="Search Campaign Name"
                     value="{{ request('campaign_name') }}">
             </div>
-            <div class="col-lg-2 col-md-3">
+            <div class="col-12 col-md-3 col-lg-2">
                 <button class="btn btn-primary w-100">Search</button>
             </div>
         </form>
@@ -57,7 +57,7 @@
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapse{{ $campaignId }}">
 
-                                <div class="d-flex justify-content-between align-items-center w-100">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center w-100 gap-2">
 
                                     {{-- Campaign Name --}}
                                     <strong class="text-primary" style="font-size:17px;">

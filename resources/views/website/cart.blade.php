@@ -337,15 +337,17 @@
         opacity: 1;
         border-color: #ff9800;
     }
-</style>
 
-
+    /* Plese do not distrb this css and stay on this internal page css do not paste in external css */
+    .new-header-icons .cart-page{
+        padding: 7px 7px;
+    }
 </style>
 
 <!-- breadcrumb-section -->
 
 <div class="container-fluid about-banner-img g-0">
-    <div class="row">
+    <div class="row g-0">
         <!-- Desktop Image -->
         <div class="col-md-12 d-none d-md-block">
             <img src="{{ asset('assets/img/addtocart.png') }}" alt="About Banner" class="img-fluid">
@@ -441,9 +443,9 @@
                             <input type="hidden" name="to_date" class="to-date">
 
                             {{-- <div class="cart-calendar"
-         id="calendar_{{ $item->id }}"
+                                id="calendar_{{ $item->id }}"
                             data-media-id="{{ $item->media_id }}">
-                    </div> --}}
+                            </div> --}}
                     <div>
 
                         <div class="cart-calendar" id="calendar_{{ $item->id }}"
@@ -478,7 +480,7 @@
 
 
                 </div>
-                <div class="col-lg-4 col-md-1 col-sm-1">
+                <div class="col-lg-4 col-md-12 col-sm-12">
                     <div class=" d-flex justify-content-end"> <button type="button"
                             class="btn btn-danger btn-sm mt-2 update-date-btn ms-2"
                             style="background-color: #f13939;"
