@@ -210,16 +210,34 @@
                                             @endforeach
                                         </tbody>
                                     </table>
-                                    @if ($type === 'open')
-                                        <div class="d-flex justify-content-end p-3 border-top">
+                               
+                                        <!-- <div class="d-flex justify-content-end p-3 border-top">
                                             <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
                                                 method="POST">
                                                 @csrf
+                                                
                                                 <button type="submit" class="btn btn-primary">
                                                     Place Order
                                                 </button>
                                             </form>
-                                        </div>
+                                        </div> -->
+                                        @if ($type === 'open')
+<div class="d-flex justify-content-end p-3 border-top">
+    <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}" method="POST">
+        @csrf
+
+     <button type="submit"
+    class="btn btn-primary"
+    {{ $bookedStatus[$campaignId] ? 'disabled' : '' }}>
+
+    {{ $bookedStatus[$campaignId] ? 'Already Booked' : 'Place Order' }}
+
+</button>
+
+    </form>
+</div>
+
+
                                     @elseif ($type === 'booked')
                                         <div class="d-flex justify-content-end p-3 border-top">
                                             <!-- <button class="btn btn-warning" disabled>

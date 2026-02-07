@@ -145,6 +145,7 @@ class CampaignRepository
 
         return $query->select(
             'ci.id as cart_item_id',
+            'ci.media_id',
             'c.id as campaign_id',
             'c.campaign_name',
             'ci.total_price',
@@ -208,6 +209,7 @@ class CampaignRepository
             ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
             ->where('o.is_deleted', 0)
             ->select(
+                  'ci.media_id', 
                 'ci.id as cart_item_id',
                 'c.id as campaign_id',
                 'c.campaign_name',
