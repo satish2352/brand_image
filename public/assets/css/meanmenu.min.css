@@ -22,7 +22,7 @@ a.meanmenu-reveal {
     padding: 13px 13px 11px;
     position: absolute;
     top: 12px !important;
-    right: 0;
+    right: 12px !important;
     cursor: pointer;
     color: #fff;
     text-decoration: none;
