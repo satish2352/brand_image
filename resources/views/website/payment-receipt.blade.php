@@ -289,6 +289,7 @@
 
     .invoice-actions .btn {
         width: 100%;
+        padding: 4px;
     }
 }
 
