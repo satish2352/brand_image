@@ -222,6 +222,96 @@
             border: none !important;
             background: transparent;
         }
+
+        /* ===========================
+   MOBILE RESPONSIVE
+=========================== */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 992px) {
+
+    .invoice-card {
+        width: 100%;
+        padding: 12px;
+        margin-top: 2rem;
+    }
+
+    .invoice-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .invoice-header img {
+        height: 40px;
+    }
+
+    .invoice-meta {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .user-details p {
+        line-height: 1.4;
+        font-size: 13px;
+    }
+
+    .invoice-table {
+        min-width: 900px; /* forces scroll instead of squeeze */
+        font-size: 12px;
+    }
+
+    .invoice-table th,
+    .invoice-table td {
+        padding: 6px;
+        white-space: nowrap;
+    }
+
+    .summary-label,
+    .summary-value {
+        font-size: 13px;
+    }
+
+    .grand-total-row .summary-label,
+    .grand-total-row .summary-value {
+        font-size: 14px;
+    }
+
+    .invoice-actions {
+        flex-direction: column;
+    }
+
+    .invoice-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .invoice-card {
+        padding: 10px;
+    }
+
+    .meta-label {
+        width: 50px;
+        font-size: 12px;
+    }
+
+    .meta-value {
+        font-size: 12px;
+    }
+
+    .badge-paid {
+        font-size: 11px;
+        padding: 2px 8px;
+    }
+}
+
     </style>
 
     <div class="invoice-wrapper">
@@ -289,6 +379,7 @@
             </div>
 
             {{-- TABLE --}}
+            <div class="table-responsive">
             <table class="invoice-table">
                 <thead>
                     <tr>
@@ -357,6 +448,7 @@
                 </tfoot>
 
             </table>
+            </div>
 
             {{-- TOTAL --}}
             {{-- <div class="invoice-total">
