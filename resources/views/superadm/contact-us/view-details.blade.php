@@ -136,12 +136,12 @@
             </div>
         </div>
 
-        <div class="info-row">
+        <!-- <div class="info-row">
             <div class="info-col" style="width:100%">
                 <div class="info-label">Address</div>
                 <div class="info-value">{{ $contact->address ?? '-' }}</div>
             </div>
-        </div>
+        </div> -->
 
     </div>
 </div>
