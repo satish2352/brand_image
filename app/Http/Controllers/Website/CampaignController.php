@@ -50,20 +50,66 @@ class CampaignController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+public function isCampaignBooked($items)
+{
+    foreach ($items as $row) {
 
+        $exists = \DB::table('media_booked_date')
+            ->where('media_id', $row->media_id)
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->where(function ($q) use ($row) {
+                $q->whereBetween('from_date', [$row->from_date, $row->to_date])
+                  ->orWhereBetween('to_date', [$row->from_date, $row->to_date])
+                  ->orWhere(function ($q2) use ($row) {
+                      $q2->where('from_date', '<=', $row->from_date)
+                         ->where('to_date', '>=', $row->to_date);
+                  });
+            })
+            ->exists();
 
-    public function openCampaigns(Request $request)
-    {
-        $campaigns = $this->campaignService->getOpenCampaigns(
-            Auth::guard('website')->id(),
-            $request
-        );
-
-        return view('website.campaign-list', [
-            'campaigns' => $campaigns,
-            'type'      => 'open',
-        ]);
+        if ($exists) {
+            return true;
+        }
     }
+
+    return false;
+}
+public function openCampaigns(Request $request)
+{
+    $campaigns = $this->campaignService->getOpenCampaigns(
+        Auth::guard('website')->id(),
+        $request
+    );
+
+ $bookedStatus = [];
+
+foreach ($campaigns as $campaignId => $items) {
+    $bookedStatus[$campaignId] =
+        $this->campaignService->isCampaignBooked($items);
+}
+
+
+  return view('website.campaign-list', [
+    'campaigns' => $campaigns,
+    'type'      => 'open',
+    'bookedStatus' => $bookedStatus
+]);
+}
+
+
+    // public function openCampaigns(Request $request)
+    // {
+    //     $campaigns = $this->campaignService->getOpenCampaigns(
+    //         Auth::guard('website')->id(),
+    //         $request
+    //     );
+
+    //     return view('website.campaign-list', [
+    //         'campaigns' => $campaigns,
+    //         'type'      => 'open',
+    //     ]);
+    // }
 
     // 🔵 BOOKED (Order placed)
     public function bookedCampaigns(Request $request)

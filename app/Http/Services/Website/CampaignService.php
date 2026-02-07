@@ -50,6 +50,7 @@ class CampaignService
     public function getCampaignDetailsByCartItem($userId, $cartItemId)
     {
         $data_output = $this->repo->getCampaignDetailsByCartItem($userId, $cartItemId);
+       
         return $data_output;
     }
 
@@ -82,5 +83,33 @@ class CampaignService
                 $pptBinary
             ));
     }
+public function isCampaignBooked($items)
+{
+    foreach ($items as $row) {
+
+        if (!isset($row->media_id)) {
+            continue;
+        }
+
+        $exists = DB::table('media_booked_date')
+            ->where('media_id', $row->media_id)
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->where(function ($q) use ($row) {
+                $q->whereBetween('from_date', [$row->from_date, $row->to_date])
+                  ->orWhereBetween('to_date', [$row->from_date, $row->to_date])
+                  ->orWhere(function ($q2) use ($row) {
+                      $q2->where('from_date', '<=', $row->from_date)
+                         ->where('to_date', '>=', $row->to_date);
+                  });
+            })
+            ->exists();
+
+        if ($exists) return true;
+    }
+
+    return false;
+}
+
 
 }
