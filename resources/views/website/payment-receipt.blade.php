@@ -253,7 +253,7 @@
     }
 
     .invoice-meta {
-        flex-direction: column;
+        /* flex-direction: column; */
         gap: 15px;
     }
 
