@@ -107,7 +107,7 @@
             @csrf
             <input type="hidden" name="clear" id="clearFlag">
 
-            <div class="row g-3 justify-content-start justify-content-lg-between">
+            <div class="row g-3 justify-content-center justify-content-lg-between">
 
                 <!-- Category -->
                 <div class="col-lg-2 col-md-4 col-sm-6">

@@ -242,9 +242,10 @@
     }
 
     .invoice-header {
-        flex-direction: column;
+        /* flex-direction: column; */
         gap: 10px;
         text-align: center;
+        margin-top: 1rem;
     }
 
     .invoice-header img {
@@ -252,7 +253,7 @@
     }
 
     .invoice-meta {
-        flex-direction: column;
+        /* flex-direction: column; */
         gap: 15px;
     }
 
@@ -269,7 +270,7 @@
     .invoice-table th,
     .invoice-table td {
         padding: 6px;
-        white-space: nowrap;
+        white-space: inherit;
     }
 
     .summary-label,
@@ -282,12 +283,13 @@
         font-size: 14px;
     }
 
-    .invoice-actions {
+    /* .invoice-actions {
         flex-direction: column;
-    }
+    } */
 
     .invoice-actions .btn {
         width: 100%;
+        padding: 4px;
     }
 }
 

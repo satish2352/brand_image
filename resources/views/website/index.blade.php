@@ -258,8 +258,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="section-title hording-section-title">
-                    <h3><span class="orange-text">Hoardings / Billboards</h3>
-                    <p>Turn busy roads into powerful brand touchpoints with premium hoardings and billboard solutions.
+                    <h3 data-aos="fade-up-right" data-aos-duration="3000"><span class="orange-text">Hoardings / Billboards</h3>
+                    <p data-aos="fade-up-left" data-aos-duration="3000">Turn busy roads into powerful brand touchpoints with premium hoardings and billboard solutions.
                     </p>
                 </div>
             </div>
@@ -267,7 +267,7 @@
         {{-- ================= HOARDINGS SECTION ================= --}}
         {{-- <div class="row mb-4"> --}}
 
-        <div class="hoarding-slider-wrapper position-relative">
+        <div class="hoarding-slider-wrapper position-relative" data-aos="zoom-in" data-aos-duration="3000">
 
             <!-- Custom Navigation -->
             <div class="custom-swiper-nav">
@@ -430,8 +430,8 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="section-title">
-                    <h3><span class="orange-text">Other Media</h3>
-                    <p>Extend your brand reach with strategic non-traditional media that captures attention in everyday
+                    <h3 data-aos="fade-right" data-aos-duration="3000"> <span class="orange-text" >Other Media</h3>
+                    <p data-aos="fade-left" data-aos-duration="3000">Extend your brand reach with strategic non-traditional media that captures attention in everyday
                         environments.</p>
                 </div>
             </div>
@@ -447,7 +447,7 @@
             $sqft = $width * $height;
             @endphp
 
-            <div class="col-lg-4 col-md-6 mb-5">
+            <div class="col-lg-4 col-md-6 mb-5" data-aos="zoom-in" data-aos-duration="3000">
                 <div class="single-latest-news">
 
                     <div class="latest-news-bg"
@@ -581,8 +581,8 @@
 
         <div class="process-header text-center">
             <span class="process-subtitle">OUR PROCESS</span>
-            <h2 class="process-title">How We <span>Work</span></h2>
-            <p class="process-desc">
+            <h2 class="process-title" data-aos="zoom-in" data-aos-duration="3000">How We <span>Work</span></h2>
+            <p class="process-desc" data-aos="zoom-in" data-aos-duration="3000">
                 A seamless 6-step process to take your outdoor advertising
                 from concept to city-wide visibility.
             </p>
@@ -593,7 +593,7 @@
 
             <div class="timeline-line"></div>
 
-            <div class="process-step">
+            <div class="process-step" data-aos="fade-up-right" data-aos-duration="3000">
                 <div class="process-circle">
                     <i class="bi bi-search"></i>
                     <span class="step-no">01</span>
@@ -602,7 +602,7 @@
                 <p>Browse our extensive inventory of outdoor media locations across India.</p>
             </div>
 
-            <div class="process-step">
+            <div class="process-step" data-aos="fade-up" data-aos-duration="3000">
                 <div class="process-circle">
                     <i class="bi bi-file-earmark-text"></i>
                     <span class="step-no">02</span>
@@ -611,7 +611,7 @@
                 <p>Create a customized media plan based on your target audience and budget.</p>
             </div>
 
-            <div class="process-step">
+            <div class="process-step" data-aos="fade-down" data-aos-duration="3000">
                 <div class="process-circle">
                     <i class="bi bi-calendar-check"></i>
                     <span class="step-no">03</span>
@@ -620,7 +620,7 @@
                 <p>Reserve your preferred locations and timeframes with easy booking.</p>
             </div>
 
-            <div class="process-step">
+            <div class="process-step" data-aos="fade-up" data-aos-duration="3000">
                 <div class="process-circle">
                     <i class="bi bi-check-circle"></i>
                     <span class="step-no">04</span>
@@ -629,7 +629,7 @@
                 <p>Get quick approvals and clearances for your campaign materials.</p>
             </div>
 
-            <div class="process-step">
+            <div class="process-step" data-aos="fade-down" data-aos-duration="3000">
                 <div class="process-circle">
                     <i class="bi bi-credit-card"></i>
                     <span class="step-no">05</span>
@@ -638,7 +638,7 @@
                 <p>Secure and flexible payment options for your convenience.</p>
             </div>
 
-            <div class="process-step">
+            <div class="process-step" data-aos="fade-up-left" data-aos-duration="3000">
                 <div class="process-circle">
                     <i class="bi bi-rocket-takeoff"></i>
                     <span class="step-no">06</span>
@@ -656,7 +656,7 @@
         <div class="row align-items-center">
 
 
-            <div class="col-lg-6">
+            <div class="col-lg-6"  data-aos="fade-right"  data-aos-duration="3000">
                 <span class="about-subtitle">ABOUT US</span>
 
                 <h2 class="about-title">
@@ -675,25 +675,25 @@
             <div class="col-lg-5 ms-lg-5">
                 <div class="stats-grid">
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-award"></i>
                         <h3 class="counter" data-target="12">0</h3>
                         <span>Years Experience</span>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-people"></i>
                         <h3 class="counter" data-target="300">0</h3>
                         <span>Happy Clients</span>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-geo-alt"></i>
                         <h3 class="counter" data-target="50">0</h3>
                         <span>Cities Covered</span>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-stars"></i>
                         <h3 class="counter" data-target="500">0</h3>
                         <span>Campaigns</span>
@@ -711,22 +711,22 @@
     <div class="container">
         <div class="cta-box text-center">
 
-            <h2>
+            <h2  data-aos="zoom-in-down" data-aos-duration="3000">
                 Ready to Amplify Your <br>
                 <span>Brand Presence?</span>
             </h2>
 
-            <p>
+            <p data-aos="fade-up" data-aos-duration="2500">
                 Let's discuss how we can transform your advertising vision
                 into city-wide visibility. Get a free consultation today.
             </p>
 
             <div class="cta-actions">
-                <a href="{{ url('/contact-us') }}" class="btn-cta primary">
+                <a href="{{ url('/contact-us') }}" class="btn-cta primary" data-aos="fade-right" data-aos-duration="2500">
                     Get Free Quote <i class="bi bi-arrow-right"></i>
                 </a>
 
-                <a href="tel:+9177700 09506" class="btn-cta outline">
+                <a href="tel:+9177700 09506" class="btn-cta outline" data-aos="fade-left" data-aos-duration="2500">
                     <i class="bi bi-telephone"></i> Call Us Now
                 </a>
             </div>

@@ -1684,6 +1684,42 @@ input[type="submit"] {
   }
 }
 
+@media (max-width: 766px) {
+  .flatpickr-calendar{
+    margin-left: -13px;
+  }
+}
+
+/* ===================== */
+/* TABLET BUTTON FIX */
+/* iPad / Tablet only */
+/* ===================== */
+@media (min-width: 768px) and (max-width: 991px) {
+
+    .cart-summary .col-md-8 {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .cart-summary .cart-btn {
+        flex: 1 1 calc(50% - 12px); /* 2 buttons in one row */
+        text-align: center;
+        margin: 0 !important;
+    }
+
+    /* Checkout button full width */
+    .cart-summary form {
+        flex: 1 1 100%;
+    }
+
+    .cart-summary form .cart-btn {
+        width: 100%;
+    }
+}
+
+
 /* vivek */
 /* .homepage-slider {
   height: 100dvh;

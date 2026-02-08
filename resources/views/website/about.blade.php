@@ -80,7 +80,7 @@
 
 <!-- breadcrumb-section -->
 <div class="container-fluid about-banner-img g-0" data-aos="fade-in">
-    <div class="row">
+    <div class="row g-0">
         <!-- Desktop Image -->
         <div class="col-md-12 d-none d-md-block">
             <img src="{{ asset('assets/img/about_us.png') }}" alt="About Banner" class="img-fluid">
@@ -283,7 +283,7 @@
 <!-- FEATURED SECTION -->
 <div class="feature-bg py-100 pt-5 pt-md-1">
     <div class="container">
-        <div class="row align-items-center gx-5">
+        <div class="row align-items-center gx-0 gx-lg-5">
 
             <!-- LEFT CONTENT -->
             <div class="col-lg-6">

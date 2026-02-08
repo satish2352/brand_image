@@ -31,7 +31,7 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
    
     <!-- end breadcrumb section -->
     <div class="container-fluid about-banner-img g-0">
-        <div class="row">
+        <div class="row g-0">
             <!-- Desktop Image -->
             <div class="col-md-12 d-none d-md-block">
                 <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid">

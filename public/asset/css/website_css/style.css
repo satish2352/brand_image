@@ -386,12 +386,12 @@ Header .navbar-custom {
     }
 
 
-    /* ✅ ONLY WHEN USER IS LOGGED IN */
+    /* ONLY WHEN USER IS LOGGED IN */
     body.user-logged-in .new-header-icons {
-        margin-right: 3.4rem !important;
+        margin-right: 3rem !important;
     }
 
-    /* ❌ WHEN USER NOT LOGGED IN → NO MARGIN */
+    /* WHEN USER NOT LOGGED IN → NO MARGIN */
     body.user-guest .new-header-icons {
         margin-right: 0 !important;
     }
