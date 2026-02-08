@@ -91,14 +91,7 @@
             {{-- ================= ROW 2 ================= --}}
             <div class="row g-3 mt-1">
 
-                <div class="col-xl-2 col-lg-4 col-md-6">
-                    <label class="form-label">Area</label>
-                    <select name="area_id" id="area_id" class="form-select form-control">
-                        <option value="">Select Area</option>
-                    </select>
-                </div>
-
-                <div class="col-xl-2 col-lg-3 col-md-6" id="radius_wrapper">
+              <div class="col-xl-2 col-lg-3 col-md-6" id="radius_wrapper">
                     <label class="form-label">Radius</label>
                     <select name="radius_id" id="radius_id" class="form-select form-control">
                         <option value="">Radius</option>
@@ -108,8 +101,13 @@
                     </select>
                 </div>
 
-
-                <div class="col-xl-2 col-lg-3 col-md-6" id="area_type_wrapper">
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label class="form-label">Area</label>
+                    <select name="area_id" id="area_id" class="form-select form-control">
+                        <option value="">Select Area</option>
+                    </select>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-6" id="area_type_wrapper">
                     <label class="form-label">Area Type</label>
                     <select name="area_type" id="area_type" class="form-select form-control">
                         <option value="">Select Type</option>
@@ -120,18 +118,9 @@
                     </select>
                 </div>
 
-                <div class="col-xl-2 col-lg-3 col-md-6">
-                    <label class="form-label">From Date</label>
-                    <input type="date" name="from_date" class="form-control"
-                        value="{{ $filters['from_date'] ?? '' }}">
-                </div>
+               
 
-                <div class="col-xl-2 col-lg-3 col-md-6">
-                    <label class="form-label">To Date</label>
-                    <input type="date" name="to_date" class="form-control" value="{{ $filters['to_date'] ?? '' }}">
-                </div>
-
-                <div class="col-xl-2 col-lg-3 col-md-6">
+                <div class="col-xl-4 col-lg-3 col-md-6">
                     <label class="form-label">Available Days</label>
                     <select name="available_days" class="form-select form-control">
                         <option value="">Select Days</option>
@@ -144,32 +133,30 @@
                         </option>
                     </select>
                 </div>
-
-
-                 
-
-
-                <!-- <div> -->
-                    <!-- @if(isset($totalCount))
-    <div class="alert alert-info text-center mb-3">
-        <strong>{{ $totalCount }}</strong> Media Found
-    </div>
-@endif -->
-                <!-- </div> -->
-
             </div>
 
             {{-- ================= BUTTONS ================= --}}
-            <div class="row g-3 mt-3 justify-content-center">
+            <div class="row g-3 mt-1">
+ <div class="col-xl-3 col-lg-3 col-md-6">
+                    <label class="form-label">From Date</label>
+                    <input type="date" name="from_date" class="form-control"
+                        value="{{ $filters['from_date'] ?? '' }}">
+                </div>
 
-             <div class="col-xl-3 col-lg-3 col-md-6">
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <label class="form-label">To Date</label>
+                    <input type="date" name="to_date" class="form-control" value="{{ $filters['to_date'] ?? '' }}">
+                </div>
+             <div class="col-xl-2 col-lg-2 col-md-6">
                        @if(isset($totalCount))
+                         <label class="form-label"></label>
                         <div class="result-badge alert alert-info text-center">
                             <span class="icon">📍</span>
                             <span class="count">{{ $totalCount }} Results</span>
                             
                         </div>
                         @else
+                         <label class="form-label"></label>
                         <div class="result-badge no-result">
                             <span class="icon">❌</span>
                             <span class="count">No Results</span>
@@ -178,13 +165,15 @@
                         @endif
                     </div>
 
-                <div class="col-xl-3 col-lg-3 col-md-6">
+                <div class="col-xl-2 col-lg-2 col-md-6">
+                     <label class="form-label"></label>
                     <button type="submit" class="btn btn-success" style = "padding: 11px; width: inherit;">
                         🔍 Search
                     </button>
                 </div>
 
-                <div class="col-xl-3 col-lg-3 col-md-6">
+                <div class="col-xl-2 col-lg-2 col-md-6">
+                     <label class="form-label"></label>
                     <button type="button" id="clearFilters" class="btn btn-outline-secondary"  style = "padding: 11px; width: inherit;">
                         ✖ Clear
                     </button>

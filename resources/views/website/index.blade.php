@@ -107,20 +107,20 @@
         <div class="row d-flex justify-content-center">
 
             <!-- Feature 1 -->
-            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0"  data-aos="fade-down-right">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-bullhorn"></i>
                     </div>
-                    <div class="content">
-                        <h3>Wide Media Reach</h3>
+                    <div class="content" >
+                        <h3  >Wide Media Reach</h3>
                         <p>Extensive outdoor media coverage <br>across prime locations in India.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Feature 2 -->
-            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0"  data-aos="zoom-in-down">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-lightbulb"></i>
@@ -133,7 +133,7 @@
             </div>
 
             <!-- Feature 3 -->
-            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0">
+            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0 p-2 p-lg-0" data-aos="fade-down-left">
                 <div class="list-box d-flex align-items-center">
                     <div class="list-icon">
                         <i class="fas fa-chart-line"></i>
@@ -171,10 +171,10 @@
 
         <div class="services-header text-center">
             <span class="services-subtitle">OUR SERVICES</span>
-            <h2 class="services-title">
+            <h2 class="services-title" data-aos="zoom-in" data-aos-duration="3000">
                 Outdoor Media <span>Solutions</span>
             </h2>
-            <p class="services-desc">
+            <p class="services-desc" data-aos="zoom-in-down" data-aos-duration="3000">
                 Comprehensive outdoor advertising solutions tailored to reach your target
                 audience across India's diverse landscape.
             </p>
@@ -183,7 +183,7 @@
 
         <div class="row g-4">
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-down-right" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon"><i class="bi bi-display"></i></div>
                     <h4>Traditional OOH</h4>
@@ -191,7 +191,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-down" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon"><i class="bi bi-layers"></i></div>
                     <h4>Digital Displays</h4>
@@ -199,7 +199,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-down" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon highlight"><i class="bi bi-brush"></i></div>
                     <h4>Wall Painting</h4>
@@ -207,7 +207,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-down-left" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon"><i class="bi bi-shop"></i></div>
                     <h4>Mall Media</h4>
@@ -215,7 +215,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up-right" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon"><i class="bi bi-building"></i></div>
                     <h4>Office Branding</h4>
@@ -223,7 +223,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon"><i class="bi bi-train-front"></i></div>
                     <h4>Transit Media</h4>
@@ -231,7 +231,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon"><i class="bi bi-airplane"></i></div>
                     <h4>Airport Branding</h4>
@@ -239,7 +239,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up-left" data-aos-duration="3000">
                 <div class="service-card">
                     <div class="service-icon"><i class="bi bi-palette"></i></div>
                     <h4>Wall Wraps</h4>

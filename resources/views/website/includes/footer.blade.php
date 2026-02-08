@@ -320,3 +320,9 @@ $(document).ajaxError(function (event, xhr) {
         sessionStorage.setItem('redirect_after_login', url);
     }
 </script>
+
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init();
+</script>
+

@@ -79,7 +79,7 @@
 </style>
 
 <!-- breadcrumb-section -->
-<div class="container-fluid about-banner-img g-0">
+<div class="container-fluid about-banner-img g-0" data-aos="fade-in">
     <div class="row">
         <!-- Desktop Image -->
         <div class="col-md-12 d-none d-md-block">
@@ -99,17 +99,17 @@
     <div class="container">
 
         <div class="row align-items-center justify-content-center">
-            <div class="col-lg-11 py-lg-3">
+            <div class="col-lg-11 py-lg-3" data-aos="fade-up">
 
                 <span class="about-subtitle">ABOUT US</span>
 
-                <h2 class="about-title">
+                <h2 class="about-title" >
                     Business Has Only Two Functions:
                     <span>Marketing & Innovation</span>
                 </h2>
             </div>
             <!-- LEFT CONTENT -->
-            <div class="col-lg-6 px-4 py-2">
+            <div class="col-lg-6 px-4 py-2" data-aos="fade-right"  data-aos-duration="3000">
 
 
                 <p>
@@ -131,25 +131,25 @@
             <div class="col-lg-5">
                 <div class="stats-grid">
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-award"></i>
                         <h3  class="counter aboutcounter" data-target="12">0</h3>
                         <span>Years Experience</span>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-people"></i>
                         <h3  class="counter aboutcounter" data-target="300">0</h3>
                         <span>Happy Clients</span>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-geo-alt"></i>
                         <h3  class="counter aboutcounter" data-target="50">0</h3>
                         <span>Cities Covered</span>
                     </div>
 
-                    <div class="stat-card">
+                    <div class="stat-card" data-aos="zoom-in" data-aos-duration="3000">
                         <i class="bi bi-stars"></i>
                         <h3  class="counter aboutcounter" data-target="500">0</h3>
                         <span>Campaigns</span>
@@ -158,7 +158,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-11 py-lg-3 p-3">
+            <div class="col-lg-11 py-lg-3 p-3" data-aos="fade-up" data-aos-duration="3000">
                 <p>In addition to branding, we excel in various advertising mediums. From traditional print advertisements to digital marketing campaigns, we stay up-to-date with the latest trends and technologies to ensure maximum impact for your message. Our advertising solutions are tailored to your specific goals, whether it's increasing brand awareness, driving website traffic, or generating leads.
                     Furthermore, our proficiency in event management allows us to create memorable experiences that leave a lasting impression. From corporate conferences to product launches, we handle every aspect of event planning, ensuring seamless execution and exceptional attendee experiences.
                 </p>
@@ -172,8 +172,8 @@
 
 <section class="vision_mission  mt-5">
     <div class="container">
-        <h2 class="text-center vision_mission_heading">Shaping the Outdoor Advertising Landscape</h2>
-        <p class="text-center vision_mission_para">Our vision and mission to set new standards in outdoor media
+        <h2 class="text-center vision_mission_heading" data-aos="zoom-in" data-aos-duration="3000">Shaping the Outdoor Advertising Landscape</h2>
+        <p class="text-center vision_mission_para" data-aos="zoom-out-up" data-aos-duration="3000">Our vision and mission to set new standards in outdoor media
             excellence</p>
 
     </div>
@@ -184,7 +184,7 @@
         <div class="row g-4 align-items-center ">
 
             <!-- LEFT -->
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="zoom-in-down">
 
                 <img src="{{ asset('assets/img/45.png') }}" class="img-fluid rounded-5    d-flex justify-content-center" alt="mission">
 
@@ -196,7 +196,8 @@
                 <div class="row g-4 align-items-center d-grid">
 
 
-                    <div class="col-md-12">
+                    <div class="col-md-12" data-aos="fade-up"
+     data-aos-duration="3000">
                         <div class="mission-card">
                             <img src="{{ asset('assets/img/17.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
                             <div>
@@ -208,7 +209,8 @@
                         </div>
                     </div>
 
-                    <div class="col-md-12">
+                    <div class="col-md-12" data-aos="fade-up"
+     data-aos-duration="3000">
                         <div class="mission-card">
                             <img src="{{ asset('assets/img/15.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
                             <div>
@@ -218,7 +220,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12" data-aos="fade-up"
+     data-aos-duration="2000">
                         <div class="mission-card">
                             <img src="{{ asset('assets/img/16.png') }}" class="img-fluid rounded-5 misiionsimg" alt="mission">
                             <div>
@@ -244,7 +247,7 @@
     <div class="testimonial-wrapper">
 
         <!-- LEFT CONTENT -->
-        <div class="testimonial-left">
+        <div class="testimonial-left" data-aos="fade-up-right" data-aos-duration="2000">
             <h2>
                 “I would like to say big ‘Thank you’ to Brand Image TEAM for immense effort and support. In addition, I
                 have feeling that our future projects are going to be great as well, good luck to the Team.”
@@ -285,15 +288,15 @@
             <!-- LEFT CONTENT -->
             <div class="col-lg-6">
                 <div class="featured-text">
-                    <h2 class="pb-3 text-center text-lg-start"> Why <span class="orange-text">Brand Image Media</span>
+                    <h2 class="pb-3 text-center text-lg-start" data-aos="fade-up" data-aos-duration="3000"> Why <span class="orange-text">Brand Image Media</span>
                     </h2>
-                    <p class="mb-5 text-muted whybrandimg-para">
+                    <p class="mb-5 text-muted whybrandimg-para"  data-aos="fade-up-right" data-aos-duration="3000">
                         We deliver result-oriented outdoor advertising solutions
                         that help brands gain maximum visibility and impact.
                     </p>
 
                     <div class="row">
-                        <div class="col-md-6 mb-4">
+                        <div class="col-md-6 mb-4" data-aos="fade-up" data-aos-duration="3000">
                             <div class="list-box d-flex">
                                 <div class="list-icon">
                                     <i class="fas fa-map-marked-alt"></i>
@@ -305,7 +308,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 mb-4">
+                        <div class="col-md-6 mb-4" data-aos="fade-down" data-aos-duration="3000">
                             <div class="list-box d-flex">
                                 <div class="list-icon">
                                     <i class="fas fa-coins"></i>
@@ -317,7 +320,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 mb-4">
+                        <div class="col-md-6 mb-4" data-aos="fade-right" data-aos-duration="2000">
                             <div class="list-box d-flex">
                                 <div class="list-icon">
                                     <i class="fas fa-lightbulb"></i>
@@ -329,7 +332,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6" data-aos="fade-left" data-aos-duration="2000">
                             <div class="list-box d-flex">
                                 <div class="list-icon">
                                     <i class="fas fa-headset"></i>
@@ -346,7 +349,7 @@
             </div>
 
             <!-- RIGHT IMAGE -->
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="zoom-in-up" data-aos-duration="3000">
                 <div class="feature-image-wrapper">
                     <img src="{{ asset('assets/img/one.png') }}" alt="Outdoor Advertising" class="img-fluid">
                 </div>
@@ -359,10 +362,10 @@
 <section class="py-5 deliver ">
     <div class="py-lg-5 container text-center">
 
-        <h2 class="pb-3">
-            The <span class="orange-text"> Way We Deliver</span>
+        <h2 class="pb-3" data-aos="zoom-out-up" data-aos-duration="3000">
+            The <span class="orange-text" > Way We Deliver</span>
         </h2>
-        <p class="mb-5 text-muted vision_mission_para">
+        <p class="mb-5 text-muted vision_mission_para" data-aos="zoom-in" data-aos-duration="3000">
             Insight-driven planning and smart execution
             that brings your brand to the forefront.
         </p>
@@ -370,7 +373,7 @@
         <div class="row  justify-content-center">
 
             <!-- CARD 1 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5    ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5" data-aos="fade-down" data-aos-duration="3000">
                 <div class="info-card orange-card h-100 w-100 ">
 
                     <div class="content">
@@ -385,7 +388,7 @@
             </div>
 
             <!-- CARD 2 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5   ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5" data-aos="fade-up" data-aos-duration="3000">
                 <div class="info-card orange-card h-100 w-100 ">
 
                     <div class="content">
@@ -399,7 +402,7 @@
             </div>
 
             <!-- CARD 3 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5   ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5" data-aos="fade-down" data-aos-duration="3000">
                 <div class="info-card orange-card h-100 w-100">
 
                     <div class="content">
@@ -413,7 +416,7 @@
             </div>
 
             <!-- CARD 4 -->
-            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5   ">
+            <div class="col-lg-3 col-md-6 col-sm-12 px-md-3 pb-5" data-aos="fade-up" data-aos-duration="3000">
                 <div class="info-card orange-card h-100 w-100">
                     <div class="content">
                         <img src="{{ asset('assets/img/11.png') }}" style="height: 120px; width: 120px" class="mb-3" alt="">
