@@ -294,6 +294,17 @@
     const selectedCity = "{{ $filters['city_id'] ?? '' }}";
     const selectedArea = "{{ $filters['area_id'] ?? '' }}";
 </script>
+<script>
+$(document).ready(function () {
+    let today = new Date().toISOString().split('T')[0];
+    $('#from_date').attr('min', today);
+
+    // Optional: also restrict "To Date" not to be before From Date
+    $('#from_date').on('change', function () {
+        $('#to_date').attr('min', $(this).val());
+    });
+});
+</script>
 
 <script>
     $(document).ready(function() {
