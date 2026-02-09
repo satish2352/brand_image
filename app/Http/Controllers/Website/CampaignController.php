@@ -455,18 +455,85 @@ $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
             $details->getActiveParagraph()->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-            $details->createTextRun(
-                "SITE DETAILS\n\n" .
-                "Location  : {$item->common_stdiciar_name}\n" .
-                "Area      : {$item->area_name}\n" .
-                "City      : {$item->city_name}\n" .
-                "Size      : {$item->width} × {$item->height}\n" .
-                "Media type: {$item->media_type}\n" .
-                "Price     : ₹ " . number_format($item->price) . "\n" .
-                "From Date : $from\n" .
-                "To Date   : $to\n" .
-                "Lighting  : {$item->illumination_name}\n"
-            )->getFont()->setSize(18);
+            // $details->createTextRun(
+            //     "SITE DETAILS\n\n" .
+            //     "Location  : {$item->common_stdiciar_name}\n" .
+            //     "Area      : {$item->area_name}\n" .
+            //     "City      : {$item->city_name}\n" .
+            //     "Size      : {$item->width} × {$item->height}\n" .
+            //     "Media type: {$item->media_type}\n" .
+            //     "Price     : ₹ " . number_format($item->price) . "\n" .
+            //     "From Date : $from\n" .
+            //     "To Date   : $to\n" .
+            //     "Lighting  : {$item->illumination_name}\n"
+            // )->getFont()->setSize(18);
+            // Heading
+$details->createTextRun("SITE DETAILS\n\n")
+    ->getFont()->setBold(true)->setSize(18);
+
+// Location
+$details->createTextRun("Location  : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("{$item->common_stdiciar_name}\n")
+    ->getFont()->setSize(18);
+
+// Area
+$details->createTextRun("Area      : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("{$item->area_name}\n")
+    ->getFont()->setSize(18);
+
+// City
+$details->createTextRun("City      : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("{$item->city_name}\n")
+    ->getFont()->setSize(18);
+
+// Size
+$details->createTextRun("Size      : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("{$item->width} × {$item->height}\n")
+    ->getFont()->setSize(18);
+
+// Media Type
+$details->createTextRun("Media type: ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("{$item->media_type}\n")
+    ->getFont()->setSize(18);
+
+// Price
+$details->createTextRun("Price     : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("₹ " . number_format($item->price) . "\n")
+    ->getFont()->setSize(18);
+
+// From Date
+$details->createTextRun("From Date : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("$from\n")
+    ->getFont()->setSize(18);
+
+// To Date
+$details->createTextRun("To Date   : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("$to\n")
+    ->getFont()->setSize(18);
+
+// Lighting
+$details->createTextRun("Lighting  : ")
+    ->getFont()->setBold(true)->setSize(18);
+
+$details->createTextRun("{$item->illumination_name}\n")
+    ->getFont()->setSize(18);
+
         }
 
         /* =====================================================
