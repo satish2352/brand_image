@@ -393,14 +393,15 @@ Header .navbar-custom {
 
     /* WHEN USER NOT LOGGED IN → NO MARGIN */
     body.user-guest .new-header-icons {
-        margin-right: 0 !important;
+        /* margin-right: 0 !important; */
     }
 
     /* Header row alignment */
     .main-menu-wrap {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        /* margin-right: 64px !important; */
     }
 
     /* Logo left */
@@ -412,7 +413,7 @@ Header .navbar-custom {
     .new-header-icons {
         order: 2;
         margin-left: auto;
-        margin-right: 10px;
+        /* margin-right: 100px !important; */
     }
 
     /* Toggle (hamburger) last */
