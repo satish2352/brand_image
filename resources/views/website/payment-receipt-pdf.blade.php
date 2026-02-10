@@ -207,28 +207,7 @@
     </table>
 
     <!-- INFO -->
-    {{-- <table class="info-table">
-        <tr>
-            <td width="60%">
-                <b>Location:</b> {{ $order->common_stdiciar_name }}<br><br>
-
-                <b>Status:</b>
-                <span class="badge">PAID</span><br><br>
-
-                <b>Date:</b> {{ now()->format('d M Y') }}
-                &nbsp;&nbsp;
-                <b>Campaign name:</b> {{ $order->campaign_name ?? '-' }}
-            </td>
-
-            <td width="22%" style="line-height:1.4; word-break:break-word;">
-                <b>Issued To:</b><br><br>
-
-                Name: {{ auth('website')->user()->name }}<br><br>
-                Mobile No: {{ auth('website')->user()->mobile_number ?? '-' }}<br><br>
-                Email: {{ auth('website')->user()->email }}
-            </td>
-        </tr>
-    </table> --}}
+   
 
     <table class="info-table">
         <tr>
@@ -236,28 +215,18 @@
             <td width="60%">
                 <table width="100%">
                     <tr>
-                        <td><b>Date</b></td>
-                        <td>:</td>
-                        <td>
-                            {{ now()->format('d M Y') }}
-
-                            @if (!empty($order->campaign_name))
-                                &nbsp;&nbsp;
-                                <b>Campaign name:</b> {{ $order->campaign_name }}
-                            @endif
-                        </td>
+                        <td><b>Date</b> : {{ now()->format('d M Y') }}</td>
                     </tr>
-                    {{-- <tr>
-                        <td width="45"><b>Location</b></td>
-                        <td width="10">:</td>
-                        <td>{{ $order->area_name }} {{ $order->facing }}</td>
-                    </tr> --}}
                     <tr>
-                        <td><b>Status</b></td>
-                        <td>:</td>
-                        <td><span class="badge">PAID</span></td>
+                        <td><b>Status</b> : <span class="badge">PAID</span> </td>
                     </tr>
-
+                     <tr>
+                         @if (!empty($order->campaign_name))
+                         <td>
+                                <b>Campaign Name : </b> {{ $order->campaign_name }}
+                        </td>
+                          @endif
+                     </tr>
 
                 </table>
             </td>

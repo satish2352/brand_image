@@ -133,7 +133,8 @@
 
             html,
             body {
-                width: 210mm;
+                width: 100%;
+    max-width: 190mm;
                 height: 297mm;
                 margin: 0;
                 padding: 0;
@@ -159,6 +160,22 @@
             .invoice-actions {
                 display: none !important;
             }
+
+             .table-responsive {
+        overflow: visible !important;
+    }
+
+    .invoice-table {
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .invoice-table th,
+    .invoice-table td {
+        font-size: 12px;
+        padding: 6px;
+        word-wrap: break-word;
+    }
         }
 
         .meta-line {
