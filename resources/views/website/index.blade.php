@@ -291,7 +291,7 @@
                         <div class="single-latest-news mx-lg-4">
 
                             {{-- <div class="latest-news-bg"
-                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
                         </div> --}}
                         @php
                         $isBillboard = (int) $media->category_id === 1;
@@ -301,7 +301,7 @@
                         $sqft = $width * $height;
                         @endphp
                         <div class="latest-news-bg"
-                            style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')" class="card-img-fit">
+                            style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
 
                             @if ($isBooked === 1)
                             <span class="media-badge booked">Booked</span>
@@ -451,10 +451,10 @@
                 <div class="single-latest-news">
 
                     <div class="latest-news-bg"
-                        style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')" class="card-img-fit">
+                        style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
                     </div>
                     {{-- <div class="latest-news-bg"
-									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
 
                     @if ($isBooked === 1)
                     <span class="media-badge booked">Booked</span>
