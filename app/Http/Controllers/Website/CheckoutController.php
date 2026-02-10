@@ -74,6 +74,48 @@ class CheckoutController extends Controller
         $userId = Auth::guard('website')->id();
         $items  = $this->cartRepo->getCartItems();
 
+        foreach ($items as $item) {
+
+    // 1) Check campaign bookings
+    $campaignBooked = DB::table('media_booked_date')
+        ->where('media_id', $item->media_id)
+        ->where('is_deleted', 0)
+        ->where('is_active', 1)
+        ->where(function ($q) use ($item) {
+            $q->whereBetween('from_date', [$item->from_date, $item->to_date])
+              ->orWhereBetween('to_date', [$item->from_date, $item->to_date])
+              ->orWhere(function ($q2) use ($item) {
+                  $q2->where('from_date', '<=', $item->from_date)
+                     ->where('to_date', '>=', $item->to_date);
+              });
+        })
+        ->exists();
+
+    if ($campaignBooked) {
+        return back()->with('error', 'Some media is already booked. Please change dates.');
+    }
+
+    // 2) Check PAID orders
+    $paidBooked = DB::table('order_items as oi')
+        ->join('orders as o', 'o.id', '=', 'oi.order_id')
+        ->where('oi.media_id', $item->media_id)
+        ->where('o.payment_status', 'PAID')
+        ->where(function ($q) use ($item) {
+            $q->whereBetween('oi.from_date', [$item->from_date, $item->to_date])
+              ->orWhereBetween('oi.to_date', [$item->from_date, $item->to_date])
+              ->orWhere(function ($q2) use ($item) {
+                  $q2->where('oi.from_date', '<=', $item->from_date)
+                     ->where('oi.to_date', '>=', $item->to_date);
+              });
+        })
+        ->exists();
+
+    if ($paidBooked) {
+        return back()->with('error', 'media already booked by another user.');
+    }
+}
+
+
         if ($items->isEmpty()) {
             return back()->with('error', 'Cart is empty');
         }

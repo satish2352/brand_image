@@ -724,7 +724,7 @@ ul.sub-menu li:last-child {
 .mean-container a.meanmenu-reveal {
   /* padding: 10px 8px 6px; */
   /* padding: 13px 10px 15px 10px; */
-      padding: 12px 13px 12px 13px;
+  padding: 12px 13px 12px 13px;
 
   border-radius: 4px;
 }
@@ -936,7 +936,7 @@ a.mobile-show {
 .header-icons a,
 .header-icons button {
   margin: 0;
-  padding: 0px 7px;
+  /* padding: 0px 7px; */
 }
 
 /* ===== User Dropdown Fix ===== */
@@ -1685,7 +1685,7 @@ input[type="submit"] {
 }
 
 @media (max-width: 766px) {
-  .flatpickr-calendar{
+  .flatpickr-calendar {
     margin-left: -13px;
   }
 }
@@ -1696,27 +1696,28 @@ input[type="submit"] {
 /* ===================== */
 @media (min-width: 768px) and (max-width: 991px) {
 
-    .cart-summary .col-md-8 {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 12px;
-    }
+  .cart-summary .col-md-8 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+  }
 
-    .cart-summary .cart-btn {
-        flex: 1 1 calc(50% - 12px); /* 2 buttons in one row */
-        text-align: center;
-        margin: 0 !important;
-    }
+  .cart-summary .cart-btn {
+    flex: 1 1 calc(50% - 12px);
+    /* 2 buttons in one row */
+    text-align: center;
+    margin: 0 !important;
+  }
 
-    /* Checkout button full width */
-    .cart-summary form {
-        flex: 1 1 100%;
-    }
+  /* Checkout button full width */
+  .cart-summary form {
+    flex: 1 1 100%;
+  }
 
-    .cart-summary form .cart-btn {
-        width: 100%;
-    }
+  .cart-summary form .cart-btn {
+    width: 100%;
+  }
 }
 
 
