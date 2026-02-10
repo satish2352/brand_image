@@ -21,6 +21,10 @@ class HomeController extends Controller
         $filters = [];
         $mediaList = $this->homeService->searchMedia($filters);
 
+
+
+
+
         // ADD THIS (ONLY ACTIVE SLIDERS)
         $sliders = HomeSlider::where('is_active', 1)
             ->where('is_deleted', 0)
@@ -30,7 +34,30 @@ class HomeController extends Controller
         // NEW (Other Media latest per category)
         $otherMedia = $this->homeService->getLatestOtherMediaByCategory();
 
-        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia'));
+        $billboards = DB::table('media_management as m')
+
+            ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('cities as ci', 'ci.id', '=', 'm.city_id')
+
+            ->select(
+                'm.*',
+                'c.category_name',
+                'a.area_name',
+                'ci.city_name',
+                DB::raw("(SELECT images 
+                  FROM media_images 
+                  WHERE media_id = m.id 
+                  ORDER BY id ASC 
+                  LIMIT 1) as first_image")
+            )
+
+            ->where('m.category_id', 1)
+            ->get();
+
+
+
+        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
@@ -70,12 +97,12 @@ class HomeController extends Controller
     //     return redirect()->route('website.home');
     // }
     public function searchView()
-{
-    $filters = [];
-    $mediaList = $this->homeService->searchMedia($filters);
+    {
+        $filters = [];
+        $mediaList = $this->homeService->searchMedia($filters);
 
-    return view('website.search', compact('mediaList', 'filters'));
-}
+        return view('website.search', compact('mediaList', 'filters'));
+    }
 
     public function getMediaDetails($mediaId)
     {

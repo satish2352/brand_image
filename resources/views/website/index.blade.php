@@ -280,10 +280,9 @@
             </div>
             <div class="swiper hoarding-slider mb-4">
                 <div class="swiper-wrapper">
-                    @php
-                    $latestFive = $mediaList->where('category_id', 1)->sortByDesc('created_at')->take(5);
-                    @endphp
-                    @foreach ($latestFive as $media)
+
+                   
+                    @foreach ($billboards as $media)
                     @if ($media->category_id === 1)
 
                     {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
