@@ -138,6 +138,34 @@ class HomeRepository
             $query->where('m.area_id', $filters['area_id']);
         }
 
+        //     if (!empty($filters['available_days'])) {
+
+        //         $days = (int) $filters['available_days'];
+        //         $today = now()->toDateString();
+
+        //         $query->addSelect(DB::raw("
+        //     CASE
+        //         WHEN NOT EXISTS (
+        //             SELECT 1 FROM media_booked_date mbd
+        //             WHERE mbd.media_id = m.id
+        //             AND mbd.is_active = 1
+        //             AND mbd.is_deleted = 0
+        //         )
+        //         THEN 1
+
+        //         WHEN EXISTS (
+        //             SELECT 1 FROM media_booked_date mbd
+        //             WHERE mbd.media_id = m.id
+        //             AND mbd.is_active = 1
+        //             AND mbd.is_deleted = 0
+        //             AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
+        //         )
+        //         THEN 1
+
+        //         ELSE 0
+        //     END AS is_available_days
+        // "));
+        //     }
         if (!empty($filters['available_days'])) {
 
             $days = (int) $filters['available_days'];
@@ -165,6 +193,9 @@ class HomeRepository
             ELSE 0
         END AS is_available_days
     "));
+
+            //  THIS LINE IS MISSING
+            $query->having('is_available_days', 1);
         }
 
         /*  BOOKING STATUS LOGIC */
@@ -201,24 +232,24 @@ class HomeRepository
         "));
         }
         // PRICE FILTER ONLY IF CATEGORY = 1
-//         if (!empty($filters['category_id']) && (int)$filters['category_id'] === 1) {
+        //         if (!empty($filters['category_id']) && (int)$filters['category_id'] === 1) {
 
-//            if (isset($filters['min_price']) && $filters['min_price'] !== '') {
-//     $query->whereRaw('CAST(m.price AS UNSIGNED) >= ?', [(int)$filters['min_price']]);
-// }
+        //            if (isset($filters['min_price']) && $filters['min_price'] !== '') {
+        //     $query->whereRaw('CAST(m.price AS UNSIGNED) >= ?', [(int)$filters['min_price']]);
+        // }
 
-// if (isset($filters['max_price']) && $filters['max_price'] !== '') {
-//     $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
-// }
+        // if (isset($filters['max_price']) && $filters['max_price'] !== '') {
+        //     $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
+        // }
 
-//         }
-if (isset($filters['min_price']) && $filters['min_price'] !== '') {
-    $query->whereRaw('CAST(m.price AS UNSIGNED) >= ?', [(int)$filters['min_price']]);
-}
+        //         }
+        if (isset($filters['min_price']) && $filters['min_price'] !== '') {
+            $query->whereRaw('CAST(m.price AS UNSIGNED) >= ?', [(int)$filters['min_price']]);
+        }
 
-if (isset($filters['max_price']) && $filters['max_price'] !== '') {
-    $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
-}
+        if (isset($filters['max_price']) && $filters['max_price'] !== '') {
+            $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
+        }
 
 
         //  PAGINATION (REQUIRED FOR LAZY LOADING)

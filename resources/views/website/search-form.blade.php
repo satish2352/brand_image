@@ -105,7 +105,7 @@
 
         <form method="POST" id="searchForm" action="{{ route('website.search') }}">
             @csrf
-            <input type="hidden" name="clear" id="clearFlag">
+            {{-- <input type="hidden" name="clear" id="clearFlag"> --}}
 
             <div class="row g-3 justify-content-center justify-content-lg-between">
 
@@ -389,13 +389,40 @@ $(document).ready(function () {
     });
 </script> -->
 
-<script>
+{{-- <script>
     document.getElementById('clearFilters').addEventListener('click', function() {
         document.getElementById('clearFlag').value = '1';
         this.closest('form').submit();
     });
-</script>
+</script> --}}
+<script>
+    document.getElementById('clearFilters').addEventListener('click', function () {
 
+    // Reset form fields
+    document.getElementById('searchForm').reset();
+
+    // Reset dependent dropdowns
+    $('#district_id').html('<option value="">Select District</option>');
+    $('#city_id').html('<option value="">Select Town</option>');
+    $('#area_id').html('<option value="">Select Area</option>');
+
+    // Reset slider
+    $("#minRange").val(0);
+    $("#maxRange").val(200000);
+    $("#min_price").val(0);
+    $("#max_price").val(200000);
+    $("#minRangeLabel").text("₹0");
+    $("#maxRangeLabel").text("₹2,00,000");
+
+    // Reset slider fill
+    $("#rangeFill").css({ left: "0%", width: "100%" });
+
+    // Optional: reload default media via form submit
+    // (keeps layout stable)
+    document.getElementById('searchForm').submit();
+});
+
+</script>
 <script>
     $(document).ready(function() {
 

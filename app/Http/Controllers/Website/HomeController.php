@@ -86,6 +86,13 @@ class HomeController extends Controller
         // if ($request->filled('clear')) {
         //     return redirect()->route('website.home');
         // }
+        //  IF CLEAR BUTTON CLICKED
+        if ($request->filled('clear')) {
+            $filters = [];
+            $mediaList = $this->homeService->searchMedia($filters);
+            return view('website.search', compact('mediaList', 'filters'));
+        }
+
 
         $filters = $request->only([
             'category_id',

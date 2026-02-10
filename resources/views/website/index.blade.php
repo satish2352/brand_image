@@ -45,7 +45,7 @@
 
 /* IMAGE TOP */
 .media-img {
-    height: 180px;   /* FIXED HEIGHT */
+    height: 250px;   /* FIXED HEIGHT */
     width: 100%;
     background-size: cover;
     background-position: center;
