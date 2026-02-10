@@ -4,6 +4,47 @@
 <head>
     <meta charset="utf-8">
     <style>
+        @media print {
+
+    body {
+        font-size: 12px;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    th, td {
+        padding: 5px !important;
+        font-size: 12px !important;
+    }
+
+    .items-table th,
+    .items-table td {
+        border: 1px solid #000 !important;
+    }
+
+    .summary-label,
+    .summary-value {
+        font-size: 12px !important;
+    }
+
+    .header-title {
+        font-size: 20px !important;
+    }
+
+    img {
+        max-height: 40px;
+    }
+
+    /* Prevent row breaking */
+    tr {
+        page-break-inside: avoid;
+    }
+}
+
+
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 13px;
@@ -179,7 +220,7 @@
                 <b>Campaign name:</b> {{ $order->campaign_name ?? '-' }}
             </td>
 
-            <td width="22%" style="line-height:0.8; word-break:break-word;">
+            <td width="22%" style="line-height:1.4; word-break:break-word;">
                 <b>Issued To:</b><br><br>
 
                 Name: {{ auth('website')->user()->name }}<br><br>

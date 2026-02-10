@@ -329,28 +329,13 @@
             {{-- META --}}
             <div class="invoice-meta">
                 <div>
-                    {{-- <p><b>Location:</b> {{ $items->first()->common_stdiciar_name }}</p>
-                    <p><b>Status:</b> <span class="badge-paid">PAID</span></p>
-                    <p>
-                        <b>Date:</b> {{ now()->format('d M Y') }}
-                        &nbsp;&nbsp;
-                        <b>Campaign name:</b> {{ $items->first()->campaign_name ?? '-' }}
-                    </p> --}}
-                    {{-- <p class="meta-line">
-                        <span class="meta-label">Location</span>
-                        <span class="meta-colon">:</span>
-                        <span class="meta-value">{{ $items->first()->common_stdiciar_name }}</span>
-                    </p> --}}
                     <p class="meta-line">
                         <span class="meta-label">Date</span>
                         <span class="meta-colon">:</span>
                         <span class="meta-value">
                             {{ now()->format('d M Y') }}
 
-                            @if (!empty($items->first()->campaign_name))
-                                &nbsp;&nbsp;&nbsp;
-                                <b>Campaign name:</b> {{ $items->first()->campaign_name }}
-                            @endif
+                          
                         </span>
                     </p>
                     <p class="meta-line">
@@ -358,7 +343,12 @@
                         <span class="meta-colon">:</span>
                         <span class="meta-value"><span class="badge-paid">PAID</span></span>
                     </p>
-
+<p class="meta-line">
+      @if (!empty($items->first()->campaign_name))
+                                
+                                <b>Campaign Name : </b> {{ $items->first()->campaign_name }}
+                            @endif
+    </p>
                     {{-- <p class="meta-line">
                             <span class="meta-label">Date</span>
                             <span class="meta-colon">:</span>
