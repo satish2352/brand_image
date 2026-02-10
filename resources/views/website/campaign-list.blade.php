@@ -230,7 +230,7 @@
     class="btn btn-primary"
     {{ $bookedStatus[$campaignId] ? 'disabled' : '' }}>
 
-    {{ $bookedStatus[$campaignId] ? 'Already Booked' : 'Place Order' }}
+    {{ $bookedStatus[$campaignId] ? 'Already Booked By Other User' : 'Place Order' }}
 
 </button>
 
