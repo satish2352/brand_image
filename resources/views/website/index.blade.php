@@ -35,7 +35,29 @@
 		</div>
 	</div> --}}
 <!-- end home page slider -->
+<style>
+    .media-card-hording {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
 
+/* IMAGE TOP */
+.media-img {
+    height: 180px;   /* FIXED HEIGHT */
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* TEXT AREA */
+.media-content {
+    padding: 15px;
+}
+
+</style>
 @if ($sliders->count())
 
 <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
@@ -287,7 +309,7 @@
 
                     {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
                     <div class="swiper-slide">
-                        <div class="single-latest-news mx-lg-4">
+                        <div class="single-latest-news">
 
                             {{-- <div class="latest-news-bg"
                                     style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
@@ -446,28 +468,47 @@
             $sqft = $width * $height;
             @endphp
 
-            <div class="col-lg-4 col-md-6 mb-5">
-                <div class="single-latest-news">
 
-                    <div class="latest-news-bg"
-                        style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
-                    </div>
-                    {{-- <div class="latest-news-bg"
-									style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
 
-                    @if ($isBooked === 1)
-                    <span class="media-badge booked">Booked</span>
-                    @else
-                    <span class="media-badge available">Available</span>
-                    @endif
 
-                </div> --}}
 
-                <div class="news-text-box">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="col-lg-3 col-md-6 mb-5">
+              
+
+                   <div class="media-card-hording">
+
+        <div class="media-img"
+             style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+        </div>
+
+              
+
+                <div class="media-content">
 
                     {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
                     <h3 style="font-size: 21px;">
-                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
+                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}" style="color: black">
                             {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
                         </a>
                     </h3>
@@ -498,8 +539,8 @@
                     </a> --}}
                     @if (!empty($media->video_link))
                         <a href="{{ $media->video_link }}" target="_blank"
-                            class="text-muted d-inline-flex align-items-center gap-1">
-                            <img src="{{ asset('assets/img/360view.png') }}" width="30">
+                            class="text-muted d-inline-flex align-items-center gap-1 mt-1">
+                            <img src="{{ asset('assets/img/360view.png') }}" style="width : 20px">
                             <span>360° View</span>
                         </a>
                     @endif
@@ -733,6 +774,31 @@
         </div>
     </div>
 </section>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+new Swiper(".hoarding-slider", {
+    slidesPerView: 4,
+    spaceBetween: 20,
+    loop: true,
+    centeredSlides: false,
+
+    navigation: {
+        nextEl: ".swiper-btn-next",
+        prevEl: ".swiper-btn-prev",
+    },
+
+    breakpoints: {
+        0: { slidesPerView: 1 },
+        576: { slidesPerView: 2 },
+        768: { slidesPerView: 3 },
+        992: { slidesPerView: 4 },
+        1200: { slidesPerView: 4 }
+    }
+});
+
+});
+</script>
 
 <!-- logo carousel -->
 {{-- <div class="logo-carousel-section">

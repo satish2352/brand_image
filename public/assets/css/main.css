@@ -1879,12 +1879,12 @@ div.owl-controls,
 }
 
 .latest-news-bg {
+  height: 180px !important;
+  /* FIXED HEIGHT */
   width: 100%;
-  height: 400px;
-  /* background-size: contain; */
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #f2f2f2;
 }
 
 .card-img-fit {
