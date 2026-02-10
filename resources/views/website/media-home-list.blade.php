@@ -6,6 +6,11 @@ $width = (float) ($media->width ?? 0);
 $height = (float) ($media->height ?? 0);
 $sqft = $width * $height;
 @endphp
+<?php
+
+dd($mediaList);
+die();
+?>
 {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
 <div class="col-12 col-md-6 mb-4">
     <div class="single-latest-news">
