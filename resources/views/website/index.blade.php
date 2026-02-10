@@ -281,7 +281,7 @@
             <div class="swiper hoarding-slider mb-4">
                 <div class="swiper-wrapper">
 
-                   
+                  
                     @foreach ($billboards as $media)
                     @if ($media->category_id === 1)
 

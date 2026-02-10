@@ -36,24 +36,45 @@ class HomeController extends Controller
 
         $billboards = DB::table('media_management as m')
 
-            ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('cities as city', 'city.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->leftJoin('cities as ci', 'ci.id', '=', 'm.city_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
+            ->leftJoin('states as s', 's.id', '=', 'm.state_id')
+            ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
+            ->leftJoin(DB::raw('
+        (SELECT media_id, MIN(images) AS first_image
+         FROM media_images
+         WHERE is_deleted = 0 AND is_active = 1
+         GROUP BY media_id
+        ) mi
+    '), 'mi.media_id', '=', 'm.id')
 
-            ->select(
-                'm.*',
-                'c.category_name',
+            ->where('m.is_deleted', 0)
+            ->where('m.is_active', 1)
+
+            ->select([
+                'm.id',
+                'm.media_title',
+                'm.price',
+                'm.category_id',
+                'm.latitude',
+                'm.longitude',
+                'm.width',
+                'm.height',
+                'm.facing',
+                'm.video_link',
+                'ct.category_name',
                 'a.area_name',
-                'ci.city_name',
-                DB::raw("(SELECT images 
-                  FROM media_images 
-                  WHERE media_id = m.id 
-                  ORDER BY id ASC 
-                  LIMIT 1) as first_image")
-            )
-
-            ->where('m.category_id', 1)
+                's.state_name as state_name',
+                'd.district_name as district_name',
+                'city.city_name as city_name',
+                'm.area_type',
+                'a.common_stdiciar_name as common_area_name',
+                'mi.first_image',
+                DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price')
+            ])
             ->get();
+
 
 
 
