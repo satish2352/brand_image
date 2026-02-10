@@ -82,7 +82,7 @@
 
                         <div class="card-body">
                             <h3 class="mb-1 ">
-                                Campaign Name :
+                                Campaign Name 
                                 <span> : {{ $campaign->first()->campaign_name }}</span>
                             </h3>
                             <p class="mb-3 " style="color: #2b64b5;">
