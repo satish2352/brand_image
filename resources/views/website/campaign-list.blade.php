@@ -180,10 +180,17 @@
 
                                                         <td>₹ {{ number_format($row->grand_total, 2) }}</td>
                                                         <td>
-                                                            <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
+                                                            <a href="{{ route('campaign.details', [
+    'cart_item_id' => base64_encode($row->cart_item_id)
+]) }}" class="btn btn-outline-primary btn-sm">
+    View
+</a>
+
+
+                                                            {{-- <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
                                                                 class="btn btn-outline-primary btn-sm">
                                                                 View
-                                                            </a>
+                                                            </a> --}}
                                                         </td>
                                                     @else
                                                         <td>₹ {{ number_format($row->total_price, 2) }}</td>
@@ -200,10 +207,16 @@
                                                         </td>
 
                                                         <td>
-                                                            <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
+                                                            {{-- <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
                                                                 class="btn btn-outline-primary btn-sm">
                                                                 View
-                                                            </a>
+                                                            </a> --}}
+                                                            <a href="{{ route('campaign.details', [
+    'cart_item_id' => base64_encode($row->cart_item_id)
+]) }}" class="btn btn-outline-primary btn-sm">
+    View
+</a>
+
                                                         </td>
                                                     @endif
                                                 </tr>

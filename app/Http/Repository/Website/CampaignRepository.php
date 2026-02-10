@@ -38,57 +38,57 @@ class CampaignRepository
     //         return true;
     //     });
     // }
- public function createCampaignAndMoveCart($userId, $campaignName)
-{
-    return DB::transaction(function () use ($userId, $campaignName) {
+    public function createCampaignAndMoveCart($userId, $campaignName)
+    {
+        return DB::transaction(function () use ($userId, $campaignName) {
 
-        $campaign = Campaign::create([
-            'user_id'       => $userId,
-            'campaign_name' => $campaignName,
-            'is_active'     => 1,
-            'is_deleted'    => 0,
-        ]);
+            $campaign = Campaign::create([
+                'user_id'       => $userId,
+                'campaign_name' => $campaignName,
+                'is_active'     => 1,
+                'is_deleted'    => 0,
+            ]);
 
-        $normalItems = CartItem::where('status', 'ACTIVE')
-            ->where('cart_type', 'NORMAL')
-            ->where('user_id', $userId)
-            ->get();
+            $normalItems = CartItem::where('status', 'ACTIVE')
+                ->where('cart_type', 'NORMAL')
+                ->where('user_id', $userId)
+                ->get();
 
-        if ($normalItems->isEmpty()) {
-            throw new \Exception('Cart is empty');
-        }
-
-        $duplicateFound = false;
-
-        foreach ($normalItems as $item) {
-
-           $exists = CartItem::where('user_id', $userId)
-    ->where('media_id', $item->media_id)
-    ->where('from_date', $item->from_date)
-    ->where('to_date', $item->to_date)
-    ->whereNotNull('campaign_id')          // only real campaigns
-    ->where('id', '!=', $item->id)         // exclude same cart row
-    ->exists();
-
-
-            if ($exists) {
-                $duplicateFound = true;
-                continue;
+            if ($normalItems->isEmpty()) {
+                throw new \Exception('Cart is empty');
             }
 
-            $item->update([
-                'cart_type'   => 'CAMPAIGN',
-                'campaign_id' => $campaign->id,
-            ]);
-        }
+            $duplicateFound = false;
 
-        if ($duplicateFound) {
-            throw new \Exception('Some media are already added in another campaign for the same dates.');
-        }
+            foreach ($normalItems as $item) {
 
-        return true;
-    });
-}
+                $exists = CartItem::where('user_id', $userId)
+                    ->where('media_id', $item->media_id)
+                    ->where('from_date', $item->from_date)
+                    ->where('to_date', $item->to_date)
+                    ->whereNotNull('campaign_id')          // only real campaigns
+                    ->where('id', '!=', $item->id)         // exclude same cart row
+                    ->exists();
+
+
+                if ($exists) {
+                    $duplicateFound = true;
+                    continue;
+                }
+
+                $item->update([
+                    'cart_type'   => 'CAMPAIGN',
+                    'campaign_id' => $campaign->id,
+                ]);
+            }
+
+            if ($duplicateFound) {
+                throw new \Exception('Some media are already added in another campaign for the same dates.');
+            }
+
+            return true;
+        });
+    }
 
 
     public function getCampaignList($userId, $request)
@@ -209,7 +209,7 @@ class CampaignRepository
             ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
             ->where('o.is_deleted', 0)
             ->select(
-                  'ci.media_id', 
+                'ci.media_id',
                 'ci.id as cart_item_id',
                 'c.id as campaign_id',
                 'c.campaign_name',
@@ -308,7 +308,7 @@ class CampaignRepository
             ->where('ci.id', $cartItemId)
             ->where('c.user_id', $userId)
             ->where('ci.cart_type', 'CAMPAIGN')
-            ->where('ci.status', 'ACTIVE')
+            // ->where('ci.status', 'ACTIVE')
             ->groupBy(
                 'c.campaign_name',
                 'ci.price',

@@ -50,52 +50,52 @@ class CampaignController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
-public function isCampaignBooked($items)
-{
-    foreach ($items as $row) {
+    public function isCampaignBooked($items)
+    {
+        foreach ($items as $row) {
 
-        $exists = \DB::table('media_booked_date')
-            ->where('media_id', $row->media_id)
-            ->where('is_deleted', 0)
-            ->where('is_active', 1)
-            ->where(function ($q) use ($row) {
-                $q->whereBetween('from_date', [$row->from_date, $row->to_date])
-                  ->orWhereBetween('to_date', [$row->from_date, $row->to_date])
-                  ->orWhere(function ($q2) use ($row) {
-                      $q2->where('from_date', '<=', $row->from_date)
-                         ->where('to_date', '>=', $row->to_date);
-                  });
-            })
-            ->exists();
+            $exists = \DB::table('media_booked_date')
+                ->where('media_id', $row->media_id)
+                ->where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->where(function ($q) use ($row) {
+                    $q->whereBetween('from_date', [$row->from_date, $row->to_date])
+                        ->orWhereBetween('to_date', [$row->from_date, $row->to_date])
+                        ->orWhere(function ($q2) use ($row) {
+                            $q2->where('from_date', '<=', $row->from_date)
+                                ->where('to_date', '>=', $row->to_date);
+                        });
+                })
+                ->exists();
 
-        if ($exists) {
-            return true;
+            if ($exists) {
+                return true;
+            }
         }
+
+        return false;
     }
+    public function openCampaigns(Request $request)
+    {
+        $campaigns = $this->campaignService->getOpenCampaigns(
+            Auth::guard('website')->id(),
+            $request
+        );
 
-    return false;
-}
-public function openCampaigns(Request $request)
-{
-    $campaigns = $this->campaignService->getOpenCampaigns(
-        Auth::guard('website')->id(),
-        $request
-    );
+        $bookedStatus = [];
 
- $bookedStatus = [];
-
-foreach ($campaigns as $campaignId => $items) {
-    $bookedStatus[$campaignId] =
-        $this->campaignService->isCampaignBooked($items);
-}
+        foreach ($campaigns as $campaignId => $items) {
+            $bookedStatus[$campaignId] =
+                $this->campaignService->isCampaignBooked($items);
+        }
 
 
-  return view('website.campaign-list', [
-    'campaigns' => $campaigns,
-    'type'      => 'open',
-    'bookedStatus' => $bookedStatus
-]);
-}
+        return view('website.campaign-list', [
+            'campaigns' => $campaigns,
+            'type'      => 'open',
+            'bookedStatus' => $bookedStatus
+        ]);
+    }
 
 
     // public function openCampaigns(Request $request)
@@ -193,9 +193,7 @@ foreach ($campaigns as $campaignId => $items) {
 
             return view('website.campaign-details', compact('campaign'));
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->route('campaign.list')
-                ->with('error', 'Campaign details not found');
+            dd($e->getMessage());
         }
     }
     // public function exportExcel($campaignId)
@@ -211,21 +209,21 @@ foreach ($campaigns as $campaignId => $items) {
     //     );
     // }
     public function exportExcel($campaignId)
-{
-    $campaignId = base64_decode($campaignId);
+    {
+        $campaignId = base64_decode($campaignId);
 
-    $campaign = DB::table('campaign')->where('id', $campaignId)->first();
+        $campaign = DB::table('campaign')->where('id', $campaignId)->first();
 
-    $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $campaign->campaign_name)
-        . '_' . now()->format('d-m-Y') . '.xlsx';
+        $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $campaign->campaign_name)
+            . '_' . now()->format('d-m-Y') . '.xlsx';
 
-    return Excel::download(
-        new CampaignExport(Auth::guard('website')->id(), $campaignId),
-        $fileName
-    );
-}
+        return Excel::download(
+            new CampaignExport(Auth::guard('website')->id(), $campaignId),
+            $fileName
+        );
+    }
 
-   
+
 
     public function exportPpt($campaignId)
     {
@@ -243,7 +241,7 @@ foreach ($campaigns as $campaignId => $items) {
 
         return response($binary, 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
             'Cache-Control' => 'no-store, no-cache',
         ]);
     }
@@ -301,7 +299,7 @@ foreach ($campaigns as $campaignId => $items) {
         $ppt = new PhpPresentation();
 
         $ppt->getLayout()->setDocumentLayout(
-           \PhpOffice\PhpPresentation\DocumentLayout::LAYOUT_SCREEN_16X9
+            \PhpOffice\PhpPresentation\DocumentLayout::LAYOUT_SCREEN_16X9
 
         );
 
@@ -311,12 +309,12 @@ foreach ($campaigns as $campaignId => $items) {
         $slide1 = $ppt->getActiveSlide();
 
         // Background
-       $bg = $slide1->createDrawingShape();
-$bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
-   ->setWidth(800)          // reduce width
-   ->setHeight(540)        // keep ratio
-   ->setOffsetX(0)        // center horizontally ( (960-800)/2 )
-   ->setOffsetY(0);       // center vertically ( (540-450)/2 )
+        $bg = $slide1->createDrawingShape();
+        $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
+            ->setWidth(800)          // reduce width
+            ->setHeight(540)        // keep ratio
+            ->setOffsetX(0)        // center horizontally ( (960-800)/2 )
+            ->setOffsetY(0);       // center vertically ( (540-450)/2 )
 
 
         // Logo
@@ -373,53 +371,52 @@ $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
 
             foreach ($images as $img) {
 
-    if (empty($img)) continue;
+                if (empty($img)) continue;
 
-    // $originalPath = public_path('storage/upload/images/media/' . trim($img));
-    $originalPath = storage_path('app/public/upload/images/media/' . trim($img));
+                // $originalPath = public_path('storage/upload/images/media/' . trim($img));
+                $originalPath = storage_path('app/public/upload/images/media/' . trim($img));
 
 
-    if (!file_exists($originalPath) || !is_readable($originalPath)) {
-        continue;
-    }
+                if (!file_exists($originalPath) || !is_readable($originalPath)) {
+                    continue;
+                }
 
-    // STEP 1: Read image binary
-    $imageData = file_get_contents($originalPath);
-    if ($imageData === false) continue;
+                // STEP 1: Read image binary
+                $imageData = file_get_contents($originalPath);
+                if ($imageData === false) continue;
 
-    // STEP 2: Convert to base64 (optional but safe)
-    $base64 = base64_encode($imageData);
+                // STEP 2: Convert to base64 (optional but safe)
+                $base64 = base64_encode($imageData);
 
-    // STEP 3: Write TEMP image file
-    $tempPath = storage_path(
-        'app/temp_ppt_' . md5($img) . '.png'
-    );
+                // STEP 3: Write TEMP image file
+                $tempPath = storage_path(
+                    'app/temp_ppt_' . md5($img) . '.png'
+                );
 
-    file_put_contents(
-        $tempPath,
-        base64_decode($base64)
-    );
+                file_put_contents(
+                    $tempPath,
+                    base64_decode($base64)
+                );
 
-    // STEP 4: Embed image into PPT
-    try {
-        $shape = $slide->createDrawingShape();
-        $shape->setPath($tempPath)
-              ->setWidth(200)
-              ->setOffsetX($x)
-              ->setOffsetY($y);
+                // STEP 4: Embed image into PPT
+                try {
+                    $shape = $slide->createDrawingShape();
+                    $shape->setPath($tempPath)
+                        ->setWidth(200)
+                        ->setOffsetX($x)
+                        ->setOffsetY($y);
 
-        $hasValidImage = true;
+                    $hasValidImage = true;
 
-        $x += $w + $gap;
-        if ($x > $maxWidth) {
-            $x = 40;
-            $y += $h + $gap;
-        }
-
-    } catch (\Throwable $e) {
-        continue;
-    }
-}
+                    $x += $w + $gap;
+                    if ($x > $maxWidth) {
+                        $x = 40;
+                        $y += $h + $gap;
+                    }
+                } catch (\Throwable $e) {
+                    continue;
+                }
+            }
 
 
             // Placeholder if no images
@@ -468,72 +465,71 @@ $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
             //     "Lighting  : {$item->illumination_name}\n"
             // )->getFont()->setSize(18);
             // Heading
-$details->createTextRun("SITE DETAILS\n\n")
-    ->getFont()->setBold(true)->setSize(18);
+            $details->createTextRun("SITE DETAILS\n\n")
+                ->getFont()->setBold(true)->setSize(18);
 
-// Location
-$details->createTextRun("Location  : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // Location
+            $details->createTextRun("Location  : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("{$item->common_stdiciar_name}\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("{$item->common_stdiciar_name}\n")
+                ->getFont()->setSize(18);
 
-// Area
-$details->createTextRun("Area      : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // Area
+            $details->createTextRun("Area      : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("{$item->area_name}\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("{$item->area_name}\n")
+                ->getFont()->setSize(18);
 
-// City
-$details->createTextRun("City      : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // City
+            $details->createTextRun("City      : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("{$item->city_name}\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("{$item->city_name}\n")
+                ->getFont()->setSize(18);
 
-// Size
-$details->createTextRun("Size      : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // Size
+            $details->createTextRun("Size      : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("{$item->width} × {$item->height}\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("{$item->width} × {$item->height}\n")
+                ->getFont()->setSize(18);
 
-// Media Type
-$details->createTextRun("Media type: ")
-    ->getFont()->setBold(true)->setSize(18);
+            // Media Type
+            $details->createTextRun("Media type: ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("{$item->media_type}\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("{$item->media_type}\n")
+                ->getFont()->setSize(18);
 
-// Price
-$details->createTextRun("Price     : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // Price
+            $details->createTextRun("Price     : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("₹ " . number_format($item->price) . "\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("₹ " . number_format($item->price) . "\n")
+                ->getFont()->setSize(18);
 
-// From Date
-$details->createTextRun("From Date : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // From Date
+            $details->createTextRun("From Date : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("$from\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("$from\n")
+                ->getFont()->setSize(18);
 
-// To Date
-$details->createTextRun("To Date   : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // To Date
+            $details->createTextRun("To Date   : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("$to\n")
-    ->getFont()->setSize(18);
+            $details->createTextRun("$to\n")
+                ->getFont()->setSize(18);
 
-// Lighting
-$details->createTextRun("Lighting  : ")
-    ->getFont()->setBold(true)->setSize(18);
+            // Lighting
+            $details->createTextRun("Lighting  : ")
+                ->getFont()->setBold(true)->setSize(18);
 
-$details->createTextRun("{$item->illumination_name}\n")
-    ->getFont()->setSize(18);
-
+            $details->createTextRun("{$item->illumination_name}\n")
+                ->getFont()->setSize(18);
         }
 
         /* =====================================================

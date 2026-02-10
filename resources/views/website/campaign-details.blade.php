@@ -156,10 +156,16 @@
                                 </small>
                             </p>
                             <div class="mt-4">
+    <a href="{{ url()->previous() }}" class="cart-btn">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+                            {{-- <div class="mt-4">
 
                                 <a href="{{ route('campaigns.open') }}" class="cart-btn"><i
                                         class="fas fa-shopping-cart"></i>← Back to Campaigns</a>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
 
