@@ -885,7 +885,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 flatpickr(calendar, {
                     mode: "range",
                     inline: true,
-                    static: true,
+                   
                     minDate: "today",
                     dateFormat: "Y-m-d",
 
