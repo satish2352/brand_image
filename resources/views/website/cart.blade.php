@@ -868,7 +868,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
     document.querySelectorAll('.cart-calendar').forEach(calendar => {
-
+ calendar.innerHTML = "";
         const mediaId = calendar.dataset.mediaId;
         const fromDate = calendar.dataset.fromDate;
         const toDate = calendar.dataset.toDate;
@@ -885,7 +885,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 flatpickr(calendar, {
                     mode: "range",
                     inline: true,
-                    static: true,
+                  
                     minDate: "today",
                     dateFormat: "Y-m-d",
 
