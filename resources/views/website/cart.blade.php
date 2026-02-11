@@ -825,7 +825,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const fromDate = calendar.dataset.fromDate;
         const toDate = calendar.dataset.toDate;
 
-        const form = calendar.closest('.cart-date-form');
+        const form = calendar.closest('form');
         const fromInp = form.querySelector('.from-date');
         const toInp = form.querySelector('.to-date');
         const error = form.querySelector('.cart-date-error');
@@ -852,6 +852,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     disable: disabledDates,
 
                     onChange: function(dates, dateStr, fp) {
+                         console.log("DATE SELECTED================>", dates);
                         if (dates.length === 2) {
                             fromInp.value = fp.formatDate(dates[0], "Y-m-d");
                             toInp.value = fp.formatDate(dates[1], "Y-m-d");
@@ -882,7 +883,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let firstInvalidForm = null;
 
         document.querySelectorAll('.cart-date-form').forEach(form => {
-
+.cart-date-form
             const fromDate = form.querySelector('.from-date').value;
             const toDate = form.querySelector('.to-date').value;
             const errorBox = form.querySelector('.cart-date-error');
