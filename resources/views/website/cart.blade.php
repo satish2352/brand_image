@@ -843,22 +843,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     }));
                 }
 
-                flatpickr(calendar, {
-                    mode: "range",
-                    inline: true,
-                    minDate: "today",
-                    dateFormat: "Y-m-d",
-                    defaultDate: (fromDate && toDate) ? [fromDate, toDate] : null,
-                    disable: disabledDates,
+               flatpickr(calendar, {
+    mode: "range",
+    inline: true,
+    minDate: "today",
+    dateFormat: "Y-m-d",
+    defaultDate: (fromDate && toDate) ? [fromDate, toDate] : null,
+    disable: disabledDates,
 
-                    onChange: function(dates, dateStr, fp) {
-                         console.log("DATE SELECTED================>", dates);
-                        if (dates.length === 2) {
-                            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
-                            toInp.value = fp.formatDate(dates[1], "Y-m-d");
-                        }
-                    }
-                });
+    onReady: function(selectedDates, dateStr, fp) {
+        if (selectedDates.length === 2) {
+            fromInp.value = fp.formatDate(selectedDates[0], "Y-m-d");
+            toInp.value = fp.formatDate(selectedDates[1], "Y-m-d");
+        }
+    },
+
+    onChange: function(dates, dateStr, fp) {
+        if (dates.length === 2) {
+            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
+            toInp.value = fp.formatDate(dates[1], "Y-m-d");
+        }
+    }
+});
+
 
             })
             .catch(() => {
