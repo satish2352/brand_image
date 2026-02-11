@@ -6,6 +6,11 @@
 @section('content')
 
 <style>
+    .cart-calendar {
+    min-height: 320px;
+    display: block;
+}
+
         .flatpickr-day.flatpickr-disabled,
     .flatpickr-day.flatpickr-disabled:hover {
         color: #979393 !important;
@@ -446,7 +451,7 @@
                                 id="calendar_{{ $item->id }}"
                             data-media-id="{{ $item->media_id }}">
                             </div> --}}
-                    <div>
+                    <div style="width:100%">
 
                         <div class="cart-calendar" id="calendar_{{ $item->id }}"
                             data-media-id="{{ $item->media_id }}"
