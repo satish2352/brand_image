@@ -763,44 +763,54 @@
 </script>
 {{-- ============== --}}
 <script>
- document.querySelectorAll('.add-date-btn').forEach(btn => {
+document.addEventListener("DOMContentLoaded", function () {
 
-    btn.addEventListener('click', function() {
+    document.querySelectorAll('.add-date-btn').forEach(btn => {
 
-        const form = this.closest('.cart-date-form');
-        if (!form) return;
+        btn.addEventListener('click', function() {
 
-        const fromDate = form.querySelector('.from-date').value;
-        const toDate = form.querySelector('.to-date').value;
-        const errorBox = form.querySelector('.cart-date-error');
+            const form = this.closest('.cart-date-form');
+            if (!form) return;
 
-        if (!fromDate || !toDate) {
-            errorBox.classList.remove('d-none');
-            errorBox.innerText = 'Please select booking dates';
-            return;
-        }
+            const fromDate = form.querySelector('.from-date').value;
+            const toDate = form.querySelector('.to-date').value;
+            const errorBox = form.querySelector('.cart-date-error');
 
-        const formData = new FormData(form);
-
-        fetch("{{ route('cart.update.dates') }}", {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            },
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
+            if (!fromDate || !toDate) {
                 errorBox.classList.remove('d-none');
-                errorBox.innerText = data.message;
-            } else {
-                location.reload();
+                errorBox.innerText = 'Please select booking dates';
+                return;
             }
+
+            const formData = new FormData(form);
+
+            fetch("{{ route('cart.update.dates') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    errorBox.classList.remove('d-none');
+                    errorBox.innerText = data.message;
+                } else {
+                    location.reload();
+                }
+            })
+            .catch(() => {
+                errorBox.classList.remove('d-none');
+                errorBox.innerText = 'Something went wrong';
+            });
+
         });
+
     });
 
 });
+
 
 </script>
 
