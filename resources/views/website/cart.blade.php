@@ -6,16 +6,6 @@
 @section('content')
 
 <style>
-    .cart-calendar .flatpickr-calendar {
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-    .cart-calendar {
-    min-height: 320px;
-    display: block;
-}
-
         .flatpickr-day.flatpickr-disabled,
     .flatpickr-day.flatpickr-disabled:hover {
         color: #979393 !important;
@@ -442,7 +432,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-5 col-md-12">
+                    <div class="col-lg-4 col-md-6 col-sm-6">
 
 
                         <form class="cart-date-form mt-3">
@@ -456,7 +446,7 @@
                                 id="calendar_{{ $item->id }}"
                             data-media-id="{{ $item->media_id }}">
                             </div> --}}
-                    <div style="width:100%">
+                    <div>
 
                         <div class="cart-calendar" id="calendar_{{ $item->id }}"
                             data-media-id="{{ $item->media_id }}"
@@ -895,7 +885,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 flatpickr(calendar, {
                     mode: "range",
                     inline: true,
-                   
+                    static: true,
                     minDate: "today",
                     dateFormat: "Y-m-d",
 
