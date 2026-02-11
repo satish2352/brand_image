@@ -20,15 +20,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
 
         // GLOBAL middleware (runs on every request)
-        // $middleware->append(
-        //     \App\Http\Middleware\ComingSoonMiddleware::class
-        // );
+        $middleware->append(
+            \App\Http\Middleware\ComingSoonMiddleware::class
+        );
 
         // ✅ Add this
-    $middleware->validateCsrfTokens(except: [
-        'payment/webhook/razorpay',
-        'payment/webhook/razorpay/*',
-    ]);
+        $middleware->validateCsrfTokens(except: [
+            'payment/webhook/razorpay',
+            'payment/webhook/razorpay/*',
+        ]);
         // Middleware aliases (unchanged)
         $middleware->alias([
             'SuperAdmin'   => \App\Http\Middleware\SuperAdmin::class,
@@ -42,4 +42,3 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->create();
-
