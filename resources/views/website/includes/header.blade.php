@@ -349,7 +349,8 @@
                                     sessionStorage.removeItem('redirect_after_login');
                                     window.location.href = redirectUrl; //  ADD TO CART
                                 } else {
-                                    window.location.reload(); // normal login
+                                    // window.location.reload(); // normal login
+                                    window.location.href = "{{ route('website.search') }}";
                                 }
 
                             });
