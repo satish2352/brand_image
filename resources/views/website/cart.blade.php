@@ -6,6 +6,11 @@
 @section('content')
 
 <style>
+    .cart-calendar .flatpickr-calendar {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
     .cart-calendar {
     min-height: 320px;
     display: block;
@@ -437,7 +442,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-md-6 col-sm-6">
+                    <div class="col-lg-5 col-md-12">
 
 
                         <form class="cart-date-form mt-3">
