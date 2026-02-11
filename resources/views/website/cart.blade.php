@@ -439,8 +439,10 @@
                             @csrf
 
                             <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
-                            <input type="hidden" name="from_date" class="from-date">
-                            <input type="hidden" name="to_date" class="to-date">
+                            {{-- <input type="hidden" name="from_date" class="from-date">
+                            <input type="hidden" name="to_date" class="to-date"> --}}
+<input type="hidden" name="from_date" id="from_{{ $item->id }}">
+<input type="hidden" name="to_date" id="to_{{ $item->id }}">
 
                             {{-- <div class="cart-calendar"
                                 id="calendar_{{ $item->id }}"
@@ -448,12 +450,18 @@
                             </div> --}}
                     <div>
 
-                        <div class="cart-calendar" id="calendar_{{ $item->id }}"
+                        {{-- <div class="cart-calendar" id="calendar_{{ $item->id }}"
                             data-media-id="{{ $item->media_id }}"
                             data-from-date="{{ $item->from_date }}"
                             data-to-date="{{ $item->to_date }}">
-                        </div>
+                        </div> --}}
 
+<div class="cart-calendar"
+     data-cart-id="{{ $item->id }}"
+     data-media-id="{{ $item->media_id }}"
+     data-from-date="{{ $item->from_date }}"
+     data-to-date="{{ $item->to_date }}">
+</div>
 
 
 
@@ -768,60 +776,113 @@
 <script>
     document.querySelectorAll('.update-date-btn').forEach(btn => {
 
-        btn.addEventListener('click', function() {
+    btn.addEventListener('click', function() {
 
-            const form = this.closest('.cart-date-form');
-            const fromDate = form.querySelector('.from-date').value;
-            const toDate = form.querySelector('.to-date').value;
-            const errorBox = form.querySelector('.cart-date-error');
+        const form = this.closest('.cart-date-form');
+        const cartId = form.querySelector('[name="cart_item_id"]').value;
 
-            if (!fromDate || !toDate) {
+        const fromDate = document.getElementById('from_' + cartId).value;
+        const toDate   = document.getElementById('to_' + cartId).value;
+
+        const errorBox = form.querySelector('.cart-date-error');
+
+        if (!fromDate || !toDate) {
+            errorBox.classList.remove('d-none');
+            errorBox.innerText = 'Please select booking dates';
+            return;
+        }
+
+        const start = new Date(fromDate);
+        const end   = new Date(toDate);
+
+        const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+        if (diffDays < MIN_BOOKING_DAYS) {
+            errorBox.classList.remove('d-none');
+            errorBox.innerText = `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
+            return;
+        }
+
+        errorBox.classList.add('d-none');
+
+        const formData = new FormData(form);
+
+        fetch("{{ route('cart.update.dates') }}", {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
                 errorBox.classList.remove('d-none');
-                errorBox.innerText = 'Please select booking dates';
-                return;
+                errorBox.innerText = data.message;
+            } else {
+                location.reload();
             }
-
-            const start = new Date(fromDate);
-            const end = new Date(toDate);
-
-            const diffDays =
-                Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-            if (diffDays < MIN_BOOKING_DAYS) {
-                errorBox.classList.remove('d-none');
-                errorBox.innerText =
-                    `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
-                return;
-            }
-
-            errorBox.classList.add('d-none');
-            errorBox.innerText = '';
-
-            const formData = new FormData(form);
-
-            fetch("{{ route('cart.update.dates') }}", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        errorBox.classList.remove('d-none');
-                        errorBox.innerText = data.message;
-                    } else {
-                        location.reload();
-                    }
-                })
-                .catch(() => {
-                    errorBox.classList.remove('d-none');
-                    errorBox.innerText = 'Something went wrong';
-                });
         });
-
     });
+
+});
+
+    // document.querySelectorAll('.update-date-btn').forEach(btn => {
+
+    //     btn.addEventListener('click', function() {
+
+    //         const form = this.closest('.cart-date-form');
+    //         const fromDate = form.querySelector('.from-date').value;
+    //         const toDate = form.querySelector('.to-date').value;
+    //         const errorBox = form.querySelector('.cart-date-error');
+
+    //         if (!fromDate || !toDate) {
+    //             errorBox.classList.remove('d-none');
+    //             errorBox.innerText = 'Please select booking dates';
+    //             return;
+    //         }
+
+    //         const start = new Date(fromDate);
+    //         const end = new Date(toDate);
+
+    //         const diffDays =
+    //             Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+    //         if (diffDays < MIN_BOOKING_DAYS) {
+    //             errorBox.classList.remove('d-none');
+    //             errorBox.innerText =
+    //                 `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
+    //             return;
+    //         }
+
+    //         errorBox.classList.add('d-none');
+    //         errorBox.innerText = '';
+
+    //         const formData = new FormData(form);
+
+    //         fetch("{{ route('cart.update.dates') }}", {
+    //                 method: "POST",
+    //                 headers: {
+    //                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
+    //                 },
+    //                 body: formData
+    //             })
+    //             .then(res => res.json())
+    //             .then(data => {
+    //                 if (!data.success) {
+    //                     errorBox.classList.remove('d-none');
+    //                     errorBox.innerText = data.message;
+    //                 } else {
+    //                     location.reload();
+    //                 }
+    //             })
+    //             .catch(() => {
+    //                 errorBox.classList.remove('d-none');
+    //                 errorBox.innerText = 'Something went wrong';
+    //             });
+    //     });
+
+    // });
 </script>
 
 
@@ -832,69 +893,50 @@
     document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
         const mediaId = calendar.dataset.mediaId;
+        const cartId  = calendar.dataset.cartId;
         const fromDate = calendar.dataset.fromDate;
         const toDate = calendar.dataset.toDate;
 
-        const form = calendar.closest('.cart-date-form');
-        const fromInp = form.querySelector('.from-date');
-        const toInp = form.querySelector('.to-date');
+        const fromInp = document.getElementById('from_' + cartId);
+        const toInp   = document.getElementById('to_' + cartId);
 
         fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
         .then(res => res.json())
         .then(bookings => {
 
-            // SAFETY: if API returns null
-            if (!Array.isArray(bookings)) {
-                bookings = [];
-            }
+            if (!Array.isArray(bookings)) bookings = [];
 
-            flatpickr(calendar, {
-    mode: "range",
-    inline: true,
-    minDate: "today",
-    dateFormat: "Y-m-d",
-
-    defaultDate: (fromDate && toDate)
-        ? [fromDate, toDate]
-        : null,
-
-    disable: bookings.map(b => ({
-        from: b.from_date,
-        to: b.to_date
-    })),
-
-    onChange: function (dates, dateStr, fp) {
-        if (dates.length >= 1) {
-            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
-        }
-        if (dates.length === 2) {
-            toInp.value = fp.formatDate(dates[1], "Y-m-d");
-        }
-    },
-
-    onClose: function (dates, dateStr, fp) {
-        if (dates.length === 2) {
-            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
-            toInp.value = fp.formatDate(dates[1], "Y-m-d");
-        }
-    }
-});
-
-
-        })
-        .catch(() => {
-            // IMPORTANT: If API fails, still show calendar
             flatpickr(calendar, {
                 mode: "range",
                 inline: true,
                 minDate: "today",
-                dateFormat: "Y-m-d"
+                dateFormat: "Y-m-d",
+
+                defaultDate: (fromDate && toDate) ? [fromDate, toDate] : null,
+
+                disable: bookings.map(b => ({
+                    from: b.from_date,
+                    to: b.to_date
+                })),
+
+                onChange: function (dates, dateStr, fp) {
+
+                    if (dates.length >= 1) {
+                        fromInp.value = fp.formatDate(dates[0], "Y-m-d");
+                    }
+
+                    if (dates.length === 2) {
+                        toInp.value = fp.formatDate(dates[1], "Y-m-d");
+                    }
+                }
             });
+
         });
 
     });
 
 });
+
 
 
     // document.querySelectorAll('.cart-calendar').forEach(calendar => {
@@ -974,8 +1016,11 @@
 
         document.querySelectorAll('.cart-date-form').forEach(form => {
 
-            const fromDate = form.querySelector('.from-date').value;
-            const toDate = form.querySelector('.to-date').value;
+           const cartId = form.querySelector('[name="cart_item_id"]').value;
+
+const fromDate = document.getElementById('from_' + cartId).value;
+const toDate   = document.getElementById('to_' + cartId).value;
+
             const errorBox = form.querySelector('.cart-date-error');
 
             if (!fromDate || !toDate) {
