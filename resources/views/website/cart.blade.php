@@ -845,14 +845,17 @@
                 flatpickr(calendar, {
                     mode: "range",
                     inline: true,
-                    static: true,
+                  
                     minDate: "today",
                     dateFormat: "Y-m-d",
+                    defaultDate: (fromDate && toDate)
+                        ? [fromDate, toDate]
+                        : null,
 
-                    defaultDate: [
-                        calendar.dataset.fromDate || null,
-                        calendar.dataset.toDate || null
-                    ],
+                    // defaultDate: [
+                    //     calendar.dataset.fromDate || null,
+                    //     calendar.dataset.toDate || null
+                    // ],
 
                     disable: bookings.map(b => ({
                         from: b.from_date,
