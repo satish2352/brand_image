@@ -88,6 +88,8 @@ class HomeController extends Controller
         // }
         //  IF CLEAR BUTTON CLICKED
         if ($request->filled('clear')) {
+            session()->forget('search_filters');   // ⭐ IMPORTANT
+
             $filters = [];
             $mediaList = $this->homeService->searchMedia($filters);
             return view('website.search', compact('mediaList', 'filters'));
@@ -108,7 +110,8 @@ class HomeController extends Controller
             'min_price',   // <- add
             'max_price',   // <- add
         ]);
-
+        // ⭐ SAVE FILTERS IN SESSION
+        session(['search_filters' => $filters]);
         $mediaList = $this->homeService->searchMedia($filters);
 
         // Lazy load POST
@@ -126,7 +129,16 @@ class HomeController extends Controller
     // }
     public function searchView()
     {
-        $filters = [];
+        // $filters = [];
+        // $filters = session('search_filters', []);
+        // If page opened directly (reload/manual)
+        if (!session()->has('search_filters')) {
+            $filters = [];
+        } else {
+            $filters = session('search_filters');
+        }
+
+
         $mediaList = $this->homeService->searchMedia($filters);
 
         return view('website.search', compact('mediaList', 'filters'));

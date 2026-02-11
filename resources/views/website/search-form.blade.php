@@ -419,7 +419,16 @@ $(document).ready(function () {
 
     // Optional: reload default media via form submit
     // (keeps layout stable)
-    document.getElementById('searchForm').submit();
+   let form = document.getElementById('searchForm');
+
+let input = document.createElement("input");
+input.type = "hidden";
+input.name = "clear";
+input.value = "1";
+
+form.appendChild(input);
+form.submit();
+
 });
 
 </script>

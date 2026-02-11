@@ -56,7 +56,20 @@
 .media-content {
     padding: 15px;
 }
+.carousel-control-prev,
+        .carousel-control-next {
+            top: 50%;
+            bottom: unset;
+            transform: translateY(-50%);
+            height: 500px;
+            align-items: center;
+        }
 
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            filter: invert(1) opacity(1);
+            background: none !important;
+        }
 </style>
 @if ($sliders->count())
 
@@ -77,22 +90,7 @@
         @endforeach
 
     </div>
-    <style>
-        .carousel-control-prev,
-        .carousel-control-next {
-            top: 50%;
-            bottom: unset;
-            transform: translateY(-50%);
-            height: 500px;
-            align-items: center;
-        }
-
-        .carousel-control-prev-icon,
-        .carousel-control-next-icon {
-            filter: invert(1) opacity(1);
-            background: none !important;
-        }
-    </style>
+   
     {{-- CONTROLS --}}
     <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
         data-bs-slide="prev">

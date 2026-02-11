@@ -18,6 +18,28 @@
     border-color: #000;
     outline: none;
 }
+.user-btn {
+    width: 55px;
+    height: 46px;
+    padding: 0;
+    background: #f28123;
+    border-radius: 6px;
+    justify-content: center;
+    gap: 5px;
+}
+
+.user-avatar {
+    width: 22px;
+    height: 22px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    margin-right: 2px;
+}
+
 </style>
 
 <!--PreLoader-->

@@ -61,7 +61,63 @@
     </script>
 
 </head>
+<style>
+    .header-icons .btn,
+.header-icons a {
+    width: 55px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
 
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-icons a {
+     /* width: 55px;
+    height: 46px; */
+    background: #f28123;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    position: relative;
+}
+
+.header-icons i,
+.header-icons img {
+    font-size: 25px;
+    /* width: 22px;
+    height: 22px; */
+}
+.cart-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #007bff;
+    color: #fff;
+    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-icon img {
+    width: 22px;
+    height: 22px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+</style>
 <body class="d-flex flex-column min-vh-100 {{ auth('website')->check() ? 'user-logged-in' : 'user-guest' }}">
 
     {{-- Include Header --}}

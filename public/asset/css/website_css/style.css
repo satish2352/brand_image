@@ -372,6 +372,17 @@ Header .navbar-custom {
 /* Mobile View */
 @media (max-width: 991px) {
 
+
+    .header-icons .btn,
+    .header-icons a {
+        width: 56px !important;
+        height: 40px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
     .new-header-icons {
         display: flex;
         align-items: center;
@@ -453,7 +464,7 @@ Header .navbar-custom {
 ================================ */
 
 .user-menu-v2 {
-    width: 200px;
+    width: 200px !important;
     padding: 14px;
     border-radius: 16px;
     border: none;
@@ -507,17 +518,20 @@ Header .navbar-custom {
 
 /* ACTIVE (Dashboard) */
 .user-menu-v2 .menu-btn.active {
+    width: 175px !important;
     background: #F28123;
     color: #fff;
 }
 
 /* LOGOUT */
 .user-menu-v2 .menu-btn.logout {
+    width: 175px !important;
     color: #e53935;
 }
 
 /* HOVER EFFECT */
 .user-menu-v2 .menu-btn:hover {
+    width: 175px;
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
 }
@@ -534,6 +548,7 @@ Header .navbar-custom {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding-right: 11px;
 }
 
 .user-avatar {
