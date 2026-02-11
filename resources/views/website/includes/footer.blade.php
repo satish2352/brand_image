@@ -191,7 +191,7 @@ $(document).ajaxError(function (event, xhr) {
 </script>
 
 {{-- --}}
-<script>
+{{-- <script>
     document.addEventListener("DOMContentLoaded", function() {
 
         const counters = document.querySelectorAll(".counter");
@@ -233,7 +233,7 @@ $(document).ajaxError(function (event, xhr) {
         observer.observe(document.querySelector(".about-modern"));
 
     });
-</script>
+</script> --}}
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
