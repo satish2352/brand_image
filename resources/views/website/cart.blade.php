@@ -482,7 +482,7 @@
                 </div>
                 <div class="col-lg-4 col-md-12 col-sm-12">
                     <div class=" d-flex justify-content-end"> <button type="button"
-                            class="btn btn-danger btn-sm mt-2 ms-2"
+                            class="btn btn-danger btn-sm mt-2 update-date-btn ms-2"
                             style="background-color: #f13939;"
                             onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
                             <i class="fa fa-trash" aria-hidden="true"></i>
@@ -614,13 +614,7 @@
 
             <!-- <a href="{{ route('website.search.view') }}" class="btn cart-btn btn-cart-outline">
                 Continue Booking </a> -->
-{{-- <a href="{{ route('website.search') }}" class="btn cart-btn btn-cart-outline">
-    Continue Booking
-</a> --}}
-<a href="{{ route('website.search') }}"
-   id="continueBookingBtn"
-   class="btn cart-btn btn-cart-outline disabled"
-   style="pointer-events:none; opacity:.6;">
+<a href="{{ route('website.search') }}" class="btn cart-btn btn-cart-outline">
     Continue Booking
 </a>
 
@@ -741,39 +735,6 @@
 </script>
 
 <script>
-function checkAllDatesSelected() {
-
-    let allSelected = true;
-
-    document.querySelectorAll('.cart-date-form').forEach(form => {
-        const fromDate = form.querySelector('.from-date').value;
-        const toDate   = form.querySelector('.to-date').value;
-
-        if (!fromDate || !toDate) {
-            allSelected = false;
-        }
-    });
-
-    const btn = document.getElementById('continueBookingBtn');
-
-    if (allSelected) {
-        btn.classList.remove('disabled');
-        btn.style.pointerEvents = 'auto';
-        btn.style.opacity = '1';
-    } else {
-        btn.classList.add('disabled');
-        btn.style.pointerEvents = 'none';
-        btn.style.opacity = '.6';
-    }
-}
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    checkAllDatesSelected();
-});
-</script>
-
-<script>
     function zoomImage(e, container) {
         const img = container.querySelector('img');
         const rect = container.getBoundingClientRect();
@@ -851,7 +812,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         errorBox.classList.remove('d-none');
                         errorBox.innerText = data.message;
                     } else {
-                        checkAllDatesSelected();
                         location.reload();
                     }
                 })
@@ -867,82 +827,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 <script>
-   document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
-    setTimeout(() => {
+        const mediaId = calendar.dataset.mediaId;
+        const fromDate = calendar.dataset.fromDate;
+        const toDate = calendar.dataset.toDate;
 
-        document.querySelectorAll('.cart-calendar').forEach(calendar => {
+        const form = calendar.closest('.cart-date-form');
+        const fromInp = form.querySelector('.from-date');
+        const toInp = form.querySelector('.to-date');
+        const error = form.querySelector('.cart-date-error');
 
-            const mediaId = calendar.dataset.mediaId;
-            const form = calendar.closest('.cart-date-form');
-            const fromInp = form.querySelector('.from-date');
-            const toInp = form.querySelector('.to-date');
-            const error = form.querySelector('.cart-date-error');
+        fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
+            .then(res => res.json())
+            .then(bookings => {
 
-            fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
-                .then(res => res.json())
-                .then(bookings => {
+                flatpickr(calendar, {
+                    mode: "range",
+                    inline: true,
+                    static: true,
+                    minDate: "today",
+                    dateFormat: "Y-m-d",
 
-                    flatpickr(calendar, {
-                        mode: "range",
-                        inline: true,
-                        minDate: "today",
-                        dateFormat: "Y-m-d",
+                    defaultDate: [
+                        calendar.dataset.fromDate || null,
+                        calendar.dataset.toDate || null
+                    ],
 
-                        defaultDate: [
-                            calendar.dataset.fromDate || null,
-                            calendar.dataset.toDate || null
-                        ],
+                    disable: bookings.map(b => ({
+                        from: b.from_date,
+                        to: b.to_date
+                    })),
 
-                        disable: bookings.map(b => ({
-                            from: b.from_date,
-                            to: b.to_date
-                        })),
-
-                        onReady: function(selectedDates, dateStr, fp) {
-                            if (selectedDates.length === 2) {
-                                fromInp.value = fp.formatDate(selectedDates[0], "Y-m-d");
-                                toInp.value = fp.formatDate(selectedDates[1], "Y-m-d");
-                                checkAllDatesSelected();
-                            }
-                        },
-
-                        onChange: function(dates, dateStr, fp) {
-                            if (dates.length === 2) {
-
-                                const start = dates[0];
-                                const end = dates[1];
-
-                                const diffDays =
-                                    Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-                                if (diffDays < MIN_BOOKING_DAYS) {
-                                    error.classList.remove('d-none');
-                                    error.innerText =
-                                        `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
-                                    return;
-                                }
-
-                                fromInp.value = fp.formatDate(start, "Y-m-d");
-                                toInp.value = fp.formatDate(end, "Y-m-d");
-
-                                checkAllDatesSelected();
-
-                                error.classList.add('d-none');
-                                error.innerText = '';
-                            }
+                    onReady: function(selectedDates, dateStr, fp) {
+                        if (selectedDates.length === 2) {
+                            fromInp.value = fp.formatDate(selectedDates[0], "Y-m-d");
+                            toInp.value = fp.formatDate(selectedDates[1], "Y-m-d");
                         }
-                    });
+                    },
 
+                    onChange: function(dates, dateStr, fp) {
+                        if (dates.length === 2) {
+
+                            const start = dates[0];
+                            const end = dates[1];
+
+                            const diffDays =
+                                Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+                            if (diffDays < MIN_BOOKING_DAYS) {
+                                error.classList.remove('d-none');
+                                error.innerText =
+                                    `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
+                                return;
+                            }
+
+                            fromInp.value = fp.formatDate(start, "Y-m-d");
+                            toInp.value = fp.formatDate(end, "Y-m-d");
+
+                            error.classList.add('d-none');
+                            error.innerText = '';
+                        }
+                    }
                 });
 
-        });
 
-    }, 120); // ⭐ IMPORTANT DELAY
-
-});
-
-
+            });
+    });
 </script>
 
 
