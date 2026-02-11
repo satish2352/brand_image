@@ -21,7 +21,7 @@ class CartController extends Controller
         $items = $this->service->getCartItems();
         return view('website.cart', compact('items'));
     }
-  
+
     public function add($mediaId)
     {
         $mediaId = base64_decode($mediaId);
@@ -39,39 +39,49 @@ class CartController extends Controller
         }
     }
 
-public function addWithDate(Request $request)
-{
-    $request->validate([
-        'media_id'  => 'required',
-        'from_date' => 'required|date',
-        'to_date'   => 'required|date|after_or_equal:from_date',
-    ]);
+    public function addWithDate(Request $request)
+    {
+        $request->validate([
+            'media_id'  => 'required',
+            'from_date' => 'required|date',
+            'to_date'   => 'required|date|after_or_equal:from_date',
+        ]);
 
-    $mediaId = base64_decode($request->media_id);
+        $mediaId = base64_decode($request->media_id);
 
-    try {
-        $this->service->addToCartWithDate(
-            $mediaId,
-            $request->from_date,
-            $request->to_date,
-            'NORMAL'   // ✅ ADD THIS
-        );
+        try {
+            $this->service->addToCartWithDate(
+                $mediaId,
+                $request->from_date,
+                $request->to_date,
+                'NORMAL'   // ✅ ADD THIS
+            );
 
-        return redirect()
-            ->route('cart.index')
-            ->with('success', 'Media added to cart successfully');
-    } catch (\Exception $e) {
-        return redirect()
-            ->route('cart.index')
-            ->with('error', $e->getMessage());
+            return redirect()
+                ->route('cart.index')
+                ->with('success', 'Media added to cart successfully');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('cart.index')
+                ->with('error', $e->getMessage());
+        }
     }
-}
+    // public function getBookedDates($mediaId)
+    // {
+    //     return response()->json(
+    //         $this->service->getBookedDatesByMedia($mediaId)
+    //     );
+    // }
     public function getBookedDates($mediaId)
     {
-        return response()->json(
-            $this->service->getBookedDatesByMedia($mediaId)
-        );
+        try {
+            $bookings = $this->service->getBookedDatesByMedia($mediaId);
+            return response()->json($bookings ?? []);
+        } catch (\Exception $e) {
+            return response()->json([]);
+        }
     }
+
 
     public function updateDates(Request $request)
     {
