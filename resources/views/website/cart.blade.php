@@ -827,96 +827,77 @@
 
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+
     document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
         const mediaId = calendar.dataset.mediaId;
         const fromDate = calendar.dataset.fromDate;
         const toDate = calendar.dataset.toDate;
 
+        if (!mediaId) {
+            console.error("Missing media ID:", calendar);
+            return;
+        }
+
         const form = calendar.closest('.cart-date-form');
         const fromInp = form.querySelector('.from-date');
         const toInp = form.querySelector('.to-date');
-        const error = form.querySelector('.cart-date-error');
 
         fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Network response not OK");
+                }
+                return res.json();
+            })
             .then(bookings => {
 
-                // flatpickr(calendar, {
-                //     mode: "range",
-                //     inline: true,
-                //     static: true,
-                //     minDate: "today",
-                //     dateFormat: "Y-m-d",
+                flatpickr(calendar, {
+                    mode: "range",
+                    inline: true,
+                    minDate: "today",
+                    dateFormat: "Y-m-d",
 
-                //     defaultDate: [
-                //         calendar.dataset.fromDate || null,
-                //         calendar.dataset.toDate || null
-                //     ],
+                    defaultDate: (fromDate && toDate)
+                        ? [fromDate, toDate]
+                        : null,
 
-                //     disable: bookings.map(b => ({
-                //         from: b.from_date,
-                //         to: b.to_date
-                //     })),
+                    disable: Array.isArray(bookings)
+                        ? bookings.map(b => ({
+                            from: b.from_date,
+                            to: b.to_date
+                        }))
+                        : [],
 
-                //     onReady: function(selectedDates, dateStr, fp) {
-                //         if (selectedDates.length === 2) {
-                //             fromInp.value = fp.formatDate(selectedDates[0], "Y-m-d");
-                //             toInp.value = fp.formatDate(selectedDates[1], "Y-m-d");
-                //         }
-                //     },
+                    onChange: function (dates, dateStr, fp) {
+                        if (dates.length === 2) {
+                            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
+                            toInp.value = fp.formatDate(dates[1], "Y-m-d");
+                        }
+                    }
+                });
 
-                //     onChange: function(dates, dateStr, fp) {
-                //         if (dates.length === 2) {
+            })
+            .catch(error => {
 
-                //             const start = dates[0];
-                //             const end = dates[1];
+                console.error("Calendar load failed:", error);
 
-                //             const diffDays =
-                //                 Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-                //             if (diffDays < MIN_BOOKING_DAYS) {
-                //                 error.classList.remove('d-none');
-                //                 error.innerText =
-                //                     `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
-                //                 return;
-                //             }
-
-                //             fromInp.value = fp.formatDate(start, "Y-m-d");
-                //             toInp.value = fp.formatDate(end, "Y-m-d");
-
-                //             error.classList.add('d-none');
-                //             error.innerText = '';
-                //         }
-                //     }
-                // });
-flatpickr(calendar, {
-    mode: "range",
-    inline: true,
-    minDate: "today",
-    dateFormat: "Y-m-d",
-
-    defaultDate: (fromDate && toDate)
-        ? [fromDate, toDate]
-        : null,
-
-    disable: bookings.map(b => ({
-        from: b.from_date,
-        to: b.to_date
-    })),
-
-    onChange: function (dates, dateStr, fp) {
-        if (dates.length === 2) {
-            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
-            toInp.value = fp.formatDate(dates[1], "Y-m-d");
-        }
-    }
-});
-
+                // Even if fetch fails → still load calendar
+                flatpickr(calendar, {
+                    mode: "range",
+                    inline: true,
+                    minDate: "today",
+                    dateFormat: "Y-m-d"
+                });
 
             });
+
     });
+
+});
 </script>
+
 
 
 <script>
