@@ -98,14 +98,30 @@ class CartRepository
         ]);
     }
     // =================
+    // public function getBookedDatesByMedia($mediaId)
+    // {
+    //     return DB::table('order_items as oi')
+    //         ->join('orders as o', 'o.id', '=', 'oi.order_id')
+    //         ->where('oi.media_id', $mediaId)
+    //         ->where('o.payment_status', 'PAID')
+    //         ->select('oi.from_date', 'oi.to_date')
+    //         ->get();
+    // }
     public function getBookedDatesByMedia($mediaId)
     {
-        return DB::table('order_items as oi')
-            ->join('orders as o', 'o.id', '=', 'oi.order_id')
-            ->where('oi.media_id', $mediaId)
-            ->where('o.payment_status', 'PAID')
-            ->select('oi.from_date', 'oi.to_date')
-            ->get();
+        try {
+            return DB::table('order_items as oi')
+                ->leftJoin('orders as o', 'o.id', '=', 'oi.order_id')
+                ->where('oi.media_id', $mediaId)
+                ->where(function ($q) {
+                    $q->where('o.payment_status', 'PAID')
+                        ->orWhereNull('o.payment_status');
+                })
+                ->select('oi.from_date', 'oi.to_date')
+                ->get();
+        } catch (\Exception $e) {
+            return collect([]);
+        }
     }
 
     // 🔹 Get single cart item
@@ -172,7 +188,7 @@ class CartRepository
             'total_price'   => $totalPrice,
             'total_days'    => $totalDays,
             'qty'           => 1,
-              'cart_type'     => $cartType,   // ✅ dynamic
+            'cart_type'     => $cartType,   // ✅ dynamic
             // 'cart_type'     => 'NORMAL',
             'status'        => 'HOLD',
             'is_active'     => 1,
@@ -187,12 +203,12 @@ class CartRepository
             'qty' => max(1, $qty)
         ]);
     }
-public function removeItem($itemId)
-{
-    $query = CartItem::where('id', $itemId);
-    $this->ownerCondition($query);
-    $query->delete();
-}
+    public function removeItem($itemId)
+    {
+        $query = CartItem::where('id', $itemId);
+        $this->ownerCondition($query);
+        $query->delete();
+    }
 
 
     // public function removeItem($itemId)

@@ -72,12 +72,22 @@ class CartController extends Controller
     //         $this->service->getBookedDatesByMedia($mediaId)
     //     );
     // }
+    // public function getBookedDates($mediaId)
+    // {
+    //     try {
+    //         $bookings = $this->service->getBookedDatesByMedia($mediaId);
+    //         return response()->json($bookings ?? []);
+    //     } catch (\Exception $e) {
+    //         return response()->json([]);
+    //     }
+    // }
     public function getBookedDates($mediaId)
     {
         try {
             $bookings = $this->service->getBookedDatesByMedia($mediaId);
+
             return response()->json($bookings ?? []);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([]);
         }
     }
