@@ -69,7 +69,7 @@
 
                                     <td>
                                         <a href="{{ route('campaign.invoice.view', base64_encode($pay->order_id)) }}"
-                                            class="btn btn-sm btn-outline-primary mob-bottmo-spacing mb-2">
+                                            class="btn btn-sm btn-outline-primary mob-bottmo-spacing">
                                             View
                                         </a>
 

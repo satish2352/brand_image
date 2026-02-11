@@ -91,7 +91,7 @@
 
 .header-icons i,
 .header-icons img {
-    font-size: 25px;
+    font-size: 18px;
     /* width: 22px;
     height: 22px; */
 }

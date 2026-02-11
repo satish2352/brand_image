@@ -272,8 +272,8 @@ class CampaignRepository
         return $this->baseQuery($userId, $request)
             ->whereDate('ci.to_date', '<', now()->toDateString())
             ->orderBy('c.id', 'DESC')
-            ->get()
-            ->groupBy('campaign_id');
+            ->get();
+        // ->groupBy('campaign_id');
     }
     public function getCampaignDetailsByCartItem($userId, $cartItemId)
     {

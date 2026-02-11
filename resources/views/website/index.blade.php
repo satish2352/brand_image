@@ -70,6 +70,42 @@
             filter: invert(1) opacity(1);
             background: none !important;
         }
+
+        /* CARD FULL HEIGHT FIX */
+.single-latest-news,
+.media-card-hording {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* IMAGE FIXED HEIGHT */
+.latest-news-bg,
+.media-img {
+    height: 220px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+/* CONTENT AREA FLEX */
+.news-text-box,
+.media-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* PUSH BUTTONS TO BOTTOM */
+.card-actions {
+    margin-top: auto;
+}
+@media (max-width: 768px) {
+    .latest-news-bg,
+    .media-img {
+        height: 180px;
+    }
+}
 </style>
 @if ($sliders->count())
 

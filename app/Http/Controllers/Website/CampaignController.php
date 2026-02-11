@@ -54,7 +54,7 @@ class CampaignController extends Controller
     {
         foreach ($items as $row) {
 
-            $exists = \DB::table('media_booked_date')
+            $exists = DB::table('media_booked_date')
                 ->where('media_id', $row->media_id)
                 ->where('is_deleted', 0)
                 ->where('is_active', 1)
