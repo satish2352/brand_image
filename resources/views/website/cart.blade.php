@@ -869,74 +869,79 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
    document.addEventListener("DOMContentLoaded", function () {
 
-    document.querySelectorAll('.cart-calendar').forEach(calendar => {
+    setTimeout(() => {
 
-        const mediaId = calendar.dataset.mediaId;
-        const form = calendar.closest('.cart-date-form');
-        const fromInp = form.querySelector('.from-date');
-        const toInp = form.querySelector('.to-date');
-        const error = form.querySelector('.cart-date-error');
+        document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
-        fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
-            .then(res => res.json())
-            .then(bookings => {
+            const mediaId = calendar.dataset.mediaId;
+            const form = calendar.closest('.cart-date-form');
+            const fromInp = form.querySelector('.from-date');
+            const toInp = form.querySelector('.to-date');
+            const error = form.querySelector('.cart-date-error');
 
-                flatpickr(calendar, {
-                    mode: "range",
-                    inline: true,
-                    minDate: "today",
-                    dateFormat: "Y-m-d",
+            fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
+                .then(res => res.json())
+                .then(bookings => {
 
-                    defaultDate: [
-                        calendar.dataset.fromDate || null,
-                        calendar.dataset.toDate || null
-                    ],
+                    flatpickr(calendar, {
+                        mode: "range",
+                        inline: true,
+                        minDate: "today",
+                        dateFormat: "Y-m-d",
 
-                    disable: bookings.map(b => ({
-                        from: b.from_date,
-                        to: b.to_date
-                    })),
+                        defaultDate: [
+                            calendar.dataset.fromDate || null,
+                            calendar.dataset.toDate || null
+                        ],
 
-                    onReady: function(selectedDates, dateStr, fp) {
-                        if (selectedDates.length === 2) {
-                            fromInp.value = fp.formatDate(selectedDates[0], "Y-m-d");
-                            toInp.value = fp.formatDate(selectedDates[1], "Y-m-d");
-                            checkAllDatesSelected();
-                        }
-                    },
+                        disable: bookings.map(b => ({
+                            from: b.from_date,
+                            to: b.to_date
+                        })),
 
-                    onChange: function(dates, dateStr, fp) {
-                        if (dates.length === 2) {
-
-                            const start = dates[0];
-                            const end = dates[1];
-
-                            const diffDays =
-                                Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-                            if (diffDays < MIN_BOOKING_DAYS) {
-                                error.classList.remove('d-none');
-                                error.innerText =
-                                    `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
-                                return;
+                        onReady: function(selectedDates, dateStr, fp) {
+                            if (selectedDates.length === 2) {
+                                fromInp.value = fp.formatDate(selectedDates[0], "Y-m-d");
+                                toInp.value = fp.formatDate(selectedDates[1], "Y-m-d");
+                                checkAllDatesSelected();
                             }
+                        },
 
-                            fromInp.value = fp.formatDate(start, "Y-m-d");
-                            toInp.value = fp.formatDate(end, "Y-m-d");
+                        onChange: function(dates, dateStr, fp) {
+                            if (dates.length === 2) {
 
-                            checkAllDatesSelected();
+                                const start = dates[0];
+                                const end = dates[1];
 
-                            error.classList.add('d-none');
-                            error.innerText = '';
+                                const diffDays =
+                                    Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+                                if (diffDays < MIN_BOOKING_DAYS) {
+                                    error.classList.remove('d-none');
+                                    error.innerText =
+                                        `Minimum booking period is ${MIN_BOOKING_DAYS} days`;
+                                    return;
+                                }
+
+                                fromInp.value = fp.formatDate(start, "Y-m-d");
+                                toInp.value = fp.formatDate(end, "Y-m-d");
+
+                                checkAllDatesSelected();
+
+                                error.classList.add('d-none');
+                                error.innerText = '';
+                            }
                         }
-                    }
+                    });
+
                 });
 
-            });
+        });
 
-    });
+    }, 120); // ⭐ IMPORTANT DELAY
 
 });
+
 
 </script>
 
