@@ -827,7 +827,7 @@
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
@@ -838,40 +838,54 @@
         const form = calendar.closest('.cart-date-form');
         const fromInp = form.querySelector('.from-date');
         const toInp = form.querySelector('.to-date');
-        const error = form.querySelector('.cart-date-error');
 
         fetch("{{ url('/cart/booked-dates') }}/" + mediaId)
-            .then(res => res.json())
-            .then(bookings => {
+        .then(res => res.json())
+        .then(bookings => {
 
-               flatpickr(calendar, {
-    mode: "range",
-    inline: true,
-    minDate: "today",
-    dateFormat: "Y-m-d",
+            // SAFETY: if API returns null
+            if (!Array.isArray(bookings)) {
+                bookings = [];
+            }
 
-    defaultDate: (fromDate && toDate)
-        ? [fromDate, toDate]
-        : null,
+            flatpickr(calendar, {
+                mode: "range",
+                inline: true,
+                minDate: "today",
+                dateFormat: "Y-m-d",
 
-    disable: bookings.map(b => ({
-        from: b.from_date,
-        to: b.to_date
-    })),
+                defaultDate: (fromDate && toDate)
+                    ? [fromDate, toDate]
+                    : null,
 
-    onChange: function (dates, dateStr, fp) {
-        if (dates.length === 2) {
-            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
-            toInp.value = fp.formatDate(dates[1], "Y-m-d");
-        }
-    }
-});
+                disable: bookings.map(b => ({
+                    from: b.from_date,
+                    to: b.to_date
+                })),
 
-
+                onChange: function (dates, dateStr, fp) {
+                    if (dates.length === 2) {
+                        fromInp.value = fp.formatDate(dates[0], "Y-m-d");
+                        toInp.value = fp.formatDate(dates[1], "Y-m-d");
+                    }
+                }
             });
+
+        })
+        .catch(() => {
+            // IMPORTANT: If API fails, still show calendar
+            flatpickr(calendar, {
+                mode: "range",
+                inline: true,
+                minDate: "today",
+                dateFormat: "Y-m-d"
+            });
+        });
+
     });
 
 });
+
 
     // document.querySelectorAll('.cart-calendar').forEach(calendar => {
 
