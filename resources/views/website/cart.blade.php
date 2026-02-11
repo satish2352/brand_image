@@ -458,7 +458,7 @@
                         <div class="d-flex justify-content-start">
 
 
-                            <button type="button" class="btn btn-warning btn-sm mt-2 add-date-btn">
+                            <button type="button" class="btn btn-warning btn-sm mt-2 update-date-btn">
                                 Add Dates
                             </button>
                             <small class="text-danger cart-date-error d-none mt-2 ms-5"
@@ -479,7 +479,7 @@
                 </div>
                 <div class="col-lg-4 col-md-12 col-sm-12">
                     <div class=" d-flex justify-content-end"> <button type="button"
-                            class="btn btn-danger btn-sm mt-2 remove-btn ms-2"
+                            class="btn btn-danger btn-sm mt-2 update-date-btn ms-2"
                             style="background-color: #f13939;"
                             onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
                             <i class="fa fa-trash" aria-hidden="true"></i>
@@ -763,7 +763,7 @@
 </script>
 {{-- ============== --}}
 <script>
-    document.querySelectorAll('.add-date-btn').forEach(btn => {
+    document.querySelectorAll('.update-date-btn').forEach(btn => {
 
         btn.addEventListener('click', function() {
 
