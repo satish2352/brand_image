@@ -844,29 +844,29 @@
             .then(res => res.json())
             .then(bookings => {
 
-                flatpickr(calendar, {
-                    mode: "range",
-                    inline: true,
-                    minDate: "today",
-                    dateFormat: "Y-m-d",
+               flatpickr(calendar, {
+    mode: "range",
+    inline: true,
+    minDate: "today",
+    dateFormat: "Y-m-d",
 
-                    defaultDate: [
-                        fromDate || null,
-                        toDate || null
-                    ],
+    defaultDate: (fromDate && toDate)
+        ? [fromDate, toDate]
+        : null,
 
-                    disable: bookings.map(b => ({
-                        from: b.from_date,
-                        to: b.to_date
-                    })),
+    disable: bookings.map(b => ({
+        from: b.from_date,
+        to: b.to_date
+    })),
 
-                    onChange: function (dates, dateStr, fp) {
-                        if (dates.length === 2) {
-                            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
-                            toInp.value = fp.formatDate(dates[1], "Y-m-d");
-                        }
-                    }
-                });
+    onChange: function (dates, dateStr, fp) {
+        if (dates.length === 2) {
+            fromInp.value = fp.formatDate(dates[0], "Y-m-d");
+            toInp.value = fp.formatDate(dates[1], "Y-m-d");
+        }
+    }
+});
+
 
             });
     });
