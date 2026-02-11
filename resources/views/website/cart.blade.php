@@ -883,7 +883,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let firstInvalidForm = null;
 
         document.querySelectorAll('.cart-date-form').forEach(form => {
-.cart-date-form
+
             const fromDate = form.querySelector('.from-date').value;
             const toDate = form.querySelector('.to-date').value;
             const errorBox = form.querySelector('.cart-date-error');
