@@ -28,6 +28,11 @@ class CampaignExport implements
     // Grand total accumulator
     protected float $grandTotal = 0;
 
+
+    protected float $grandGst   = 0;   // ADD THIS
+    protected float $grandFinal = 0;   // ADD THIS
+
+
     public function __construct(int $userId, int $campaignId)
     {
         $this->userId     = $userId;
@@ -62,15 +67,20 @@ class CampaignExport implements
             ->orderBy('ci.id')
             ->get();
     }
-
     public function map($row): array
     {
         $this->srNo++;
 
         $totalSqft = ($row->width ?? 0) * ($row->height ?? 0);
 
-        // Add to grand total
-        $this->grandTotal += ($row->total_price ?? 0);
+        $amount = $row->total_price ?? 0;
+        $gst    = round($amount * 0.18, 2);
+        $final  = $amount + $gst;
+
+        // accumulate totals
+        $this->grandTotal += $amount;
+        $this->grandGst   += $gst;
+        $this->grandFinal += $final;
 
         return [
             $this->srNo,
@@ -84,10 +94,37 @@ class CampaignExport implements
             number_format($row->monthly_price, 2),
             number_format($row->per_day_price, 2),
             $row->total_days ?? 0,
-            // number_format($row->total_price, 2),
-            number_format($row->total_price, 2),
+            number_format($amount, 2),
+            number_format($gst, 2),     // NEW
+            number_format($final, 2),   // NEW
         ];
     }
+
+    // public function map($row): array
+    // {
+    //     $this->srNo++;
+
+    //     $totalSqft = ($row->width ?? 0) * ($row->height ?? 0);
+
+    //     // Add to grand total
+    //     $this->grandTotal += ($row->total_price ?? 0);
+
+    //     return [
+    //         $this->srNo,
+    //         $row->district_name ?? '-',
+    //         $row->city_name ?? '-',
+    //         $row->media_code ?? '-',
+    //         $row->area_name ?? '-',
+    //         $row->width ?? 0,
+    //         $row->height ?? 0,
+    //         $totalSqft,
+    //         number_format($row->monthly_price, 2),
+    //         number_format($row->per_day_price, 2),
+    //         $row->total_days ?? 0,
+    //         // number_format($row->total_price, 2),
+    //         number_format($row->total_price, 2),
+    //     ];
+    // }
 
     public function headings(): array
     {
@@ -105,6 +142,8 @@ class CampaignExport implements
             'Total Days',
             // 'Amount (₹)',
             'Total Amount (₹)',
+            'GST 18% (₹)',        // NEW
+            'Final Amount (₹)',   // NEW
         ];
     }
 
@@ -128,26 +167,51 @@ class CampaignExport implements
     }
 
     /** Add GRAND TOTAL row after data */
+    // public function registerEvents(): array
+    // {
+    //     return [
+    //         AfterSheet::class => function (AfterSheet $event) {
+    //             $lastDataRow = $this->srNo + 1; // header + rows
+    //             $totalRow    = $lastDataRow + 1; // grand total row
+
+    //             // Label cell
+    //             $event->sheet->setCellValue('A' . $totalRow, 'GRAND TOTAL');
+
+    //             // Merge first 11 columns
+    //             $event->sheet->mergeCells("A{$totalRow}:K{$totalRow}");
+
+    //             // Amount & Total Amount columns (L & M)
+    //             $event->sheet->setCellValue('L' . $totalRow, number_format($this->grandTotal, 2));
+
+    //             // Bold row
+    //             $event->sheet->getStyle("A{$totalRow}:M{$totalRow}")->applyFromArray([
+    //                 'font' => ['bold' => true],
+    //             ]);
+    //         },
+    //     ];
+    // }
     public function registerEvents(): array
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $lastDataRow = $this->srNo + 1; // header + rows
-                $totalRow    = $lastDataRow + 1; // grand total row
 
-                // Label cell
+                $lastDataRow = $this->srNo + 1;
+                $totalRow    = $lastDataRow + 1;
+
                 $event->sheet->setCellValue('A' . $totalRow, 'GRAND TOTAL');
 
-                // Merge first 11 columns
+                // merge till Total Days column
                 $event->sheet->mergeCells("A{$totalRow}:K{$totalRow}");
 
-                // Amount & Total Amount columns (L & M)
+                // totals
                 $event->sheet->setCellValue('L' . $totalRow, number_format($this->grandTotal, 2));
+                $event->sheet->setCellValue('M' . $totalRow, number_format($this->grandGst, 2));
+                $event->sheet->setCellValue('N' . $totalRow, number_format($this->grandFinal, 2));
 
-                // Bold row
-                $event->sheet->getStyle("A{$totalRow}:M{$totalRow}")->applyFromArray([
-                    'font' => ['bold' => true],
-                ]);
+                $event->sheet->getStyle("A{$totalRow}:N{$totalRow}")
+                    ->applyFromArray([
+                        'font' => ['bold' => true],
+                    ]);
             },
         ];
     }

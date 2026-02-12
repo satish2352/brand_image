@@ -64,7 +64,7 @@ class CheckoutController extends Controller
             'grandTotal'
         ));
     }
-  
+
     public function placeOrder()
     {
         if (!Auth::guard('website')->check()) {
@@ -76,44 +76,44 @@ class CheckoutController extends Controller
 
         foreach ($items as $item) {
 
-    // 1) Check campaign bookings
-    $campaignBooked = DB::table('media_booked_date')
-        ->where('media_id', $item->media_id)
-        ->where('is_deleted', 0)
-        ->where('is_active', 1)
-        ->where(function ($q) use ($item) {
-            $q->whereBetween('from_date', [$item->from_date, $item->to_date])
-              ->orWhereBetween('to_date', [$item->from_date, $item->to_date])
-              ->orWhere(function ($q2) use ($item) {
-                  $q2->where('from_date', '<=', $item->from_date)
-                     ->where('to_date', '>=', $item->to_date);
-              });
-        })
-        ->exists();
+            // 1) Check campaign bookings
+            $campaignBooked = DB::table('media_booked_date')
+                ->where('media_id', $item->media_id)
+                ->where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->where(function ($q) use ($item) {
+                    $q->whereBetween('from_date', [$item->from_date, $item->to_date])
+                        ->orWhereBetween('to_date', [$item->from_date, $item->to_date])
+                        ->orWhere(function ($q2) use ($item) {
+                            $q2->where('from_date', '<=', $item->from_date)
+                                ->where('to_date', '>=', $item->to_date);
+                        });
+                })
+                ->exists();
 
-    if ($campaignBooked) {
-        return back()->with('error', 'Some media is already booked. Please change dates.');
-    }
+            if ($campaignBooked) {
+                return back()->with('error', 'Some media is already booked. Please change dates.');
+            }
 
-    // 2) Check PAID orders
-    $paidBooked = DB::table('order_items as oi')
-        ->join('orders as o', 'o.id', '=', 'oi.order_id')
-        ->where('oi.media_id', $item->media_id)
-        ->where('o.payment_status', 'PAID')
-        ->where(function ($q) use ($item) {
-            $q->whereBetween('oi.from_date', [$item->from_date, $item->to_date])
-              ->orWhereBetween('oi.to_date', [$item->from_date, $item->to_date])
-              ->orWhere(function ($q2) use ($item) {
-                  $q2->where('oi.from_date', '<=', $item->from_date)
-                     ->where('oi.to_date', '>=', $item->to_date);
-              });
-        })
-        ->exists();
+            // 2) Check PAID orders
+            $paidBooked = DB::table('order_items as oi')
+                ->join('orders as o', 'o.id', '=', 'oi.order_id')
+                ->where('oi.media_id', $item->media_id)
+                ->where('o.payment_status', 'PAID')
+                ->where(function ($q) use ($item) {
+                    $q->whereBetween('oi.from_date', [$item->from_date, $item->to_date])
+                        ->orWhereBetween('oi.to_date', [$item->from_date, $item->to_date])
+                        ->orWhere(function ($q2) use ($item) {
+                            $q2->where('oi.from_date', '<=', $item->from_date)
+                                ->where('oi.to_date', '>=', $item->to_date);
+                        });
+                })
+                ->exists();
 
-    if ($paidBooked) {
-        return back()->with('error', 'media already booked by another user.');
-    }
-}
+            if ($paidBooked) {
+                return back()->with('error', 'media already booked by another user.');
+            }
+        }
 
 
         if ($items->isEmpty()) {
@@ -196,93 +196,92 @@ class CheckoutController extends Controller
     //         return response()->json(['error' => $e->getMessage()], 500);
     //     }
     // }
-public function razorpayWebhook(Request $request)
-{
-    $payload   = $request->getContent();
-    $signature = $request->header('X-Razorpay-Signature');
-    $secret    = config('services.razorpay.webhook_secret');
+    public function razorpayWebhook(Request $request)
+    {
+        $payload   = $request->getContent();
+        $signature = $request->header('X-Razorpay-Signature');
+        $secret    = config('services.razorpay.webhook_secret');
 
-    // ✅ LOG 1 — Check if webhook is hitting controller
-    \Log::info('Razorpay Webhook HIT', [
-        'signature' => $signature,
-        'secret_present' => !empty($secret),
-        'payload' => $payload
-    ]);
-
-    if (empty($signature) || empty($secret)) {
-        \Log::warning('Signature missing', [
+        // ✅ LOG 1 — Check if webhook is hitting controller
+        \Log::info('Razorpay Webhook HIT', [
             'signature' => $signature,
-            'secret' => $secret
-        ]);
-
-        return response()->json(['status' => 'signature_missing'], 200);
-    }
-
-    try {
-        $api = new Api(
-            config('services.razorpay.key'),
-            config('services.razorpay.secret')
-        );
-
-        // Verify webhook signature
-        $api->utility->verifyWebhookSignature($payload, $signature, $secret);
-
-        $data  = json_decode($payload, true);
-        $event = $data['event'] ?? null;
-
-        // ✅ LOG 2 — Which event came
-        \Log::info('Razorpay Event Received', [
-            'event' => $event
-        ]);
-
-        if (!in_array($event, ['payment.captured', 'order.paid'])) {
-            return response()->json(['status' => 'ignored'], 200);
-        }
-
-        $payment = $data['payload']['payment']['entity'] ?? null;
-
-        if (!$payment) {
-            \Log::warning('No payment entity found');
-            return response()->json(['status' => 'no_payment'], 200);
-        }
-
-        $razorpayOrderId = $payment['order_id'] ?? null;
-        $paymentId       = $payment['id'] ?? null;
-
-        // ✅ LOG 3 — Payment details
-        \Log::info('Payment Data', [
-            'razorpay_order_id' => $razorpayOrderId,
-            'payment_id' => $paymentId
-        ]);
-
-        if (!$razorpayOrderId || !$paymentId) {
-            return response()->json(['status' => 'invalid_payload'], 200);
-        }
-
-        $order = Order::where('payment_gateway_order_id', $razorpayOrderId)->first();
-
-        if ($order && $order->payment_status !== 'PAID') {
-            $order->update([
-                'payment_status' => 'PAID',
-                'payment_id'     => $paymentId,
-            ]);
-
-            \Log::info('Order marked PAID', [
-                'order_id' => $order->id
-            ]);
-        }
-
-        return response()->json(['status' => 'success'], 200);
-
-    } catch (\Throwable $e) {
-        \Log::error('Razorpay Webhook Error', [
-            'message' => $e->getMessage(),
+            'secret_present' => !empty($secret),
             'payload' => $payload
         ]);
 
-        return response()->json(['status' => 'error_logged'], 200);
+        if (empty($signature) || empty($secret)) {
+            \Log::warning('Signature missing', [
+                'signature' => $signature,
+                'secret' => $secret
+            ]);
+
+            return response()->json(['status' => 'signature_missing'], 200);
+        }
+
+        try {
+            $api = new Api(
+                config('services.razorpay.key'),
+                config('services.razorpay.secret')
+            );
+
+            // Verify webhook signature
+            $api->utility->verifyWebhookSignature($payload, $signature, $secret);
+
+            $data  = json_decode($payload, true);
+            $event = $data['event'] ?? null;
+
+            // ✅ LOG 2 — Which event came
+            \Log::info('Razorpay Event Received', [
+                'event' => $event
+            ]);
+
+            if (!in_array($event, ['payment.captured', 'order.paid'])) {
+                return response()->json(['status' => 'ignored'], 200);
+            }
+
+            $payment = $data['payload']['payment']['entity'] ?? null;
+
+            if (!$payment) {
+                \Log::warning('No payment entity found');
+                return response()->json(['status' => 'no_payment'], 200);
+            }
+
+            $razorpayOrderId = $payment['order_id'] ?? null;
+            $paymentId       = $payment['id'] ?? null;
+
+            // ✅ LOG 3 — Payment details
+            \Log::info('Payment Data', [
+                'razorpay_order_id' => $razorpayOrderId,
+                'payment_id' => $paymentId
+            ]);
+
+            if (!$razorpayOrderId || !$paymentId) {
+                return response()->json(['status' => 'invalid_payload'], 200);
+            }
+
+            $order = Order::where('payment_gateway_order_id', $razorpayOrderId)->first();
+
+            if ($order && $order->payment_status !== 'PAID') {
+                $order->update([
+                    'payment_status' => 'PAID',
+                    'payment_id'     => $paymentId,
+                ]);
+
+                \Log::info('Order marked PAID', [
+                    'order_id' => $order->id
+                ]);
+            }
+
+            return response()->json(['status' => 'success'], 200);
+        } catch (\Throwable $e) {
+            \Log::error('Razorpay Webhook Error', [
+                'message' => $e->getMessage(),
+                'payload' => $payload
+            ]);
+
+            return response()->json(['status' => 'error_logged'], 200);
+        }
     }
-}
 
 
 
@@ -296,8 +295,8 @@ public function razorpayWebhook(Request $request)
         $gstAmount = round(($subTotal * 18) / 100, 2);
         $grandTotal = round($subTotal + $gstAmount, 2);
 
-       //  Razorpay requires INTEGER amount in paise
-    $amountInPaise = (int) round($grandTotal * 100);
+        //  Razorpay requires INTEGER amount in paise
+        $amountInPaise = (int) round($grandTotal * 100);
 
 
         $api = new Api(
@@ -421,15 +420,43 @@ public function razorpayWebhook(Request $request)
         ]);
 
         // return view('website.dashboard');
-       return redirect()->route('dashboard.home')->with('success', 'Payment successful!');
-
-
+        return redirect()->route('dashboard.home')->with('success', 'Payment successful!');
     }
 
 
+    // public function placeCampaignOrder($campaignId)
+    // {
+    //     $campaignId = base64_decode($campaignId);
+
+    //     $items = CartItem::where('campaign_id', $campaignId)
+    //         ->where('cart_type', 'CAMPAIGN')
+    //         ->where('status', 'ACTIVE')
+    //         ->get();
+
+    //     if ($items->isEmpty()) {
+    //         return back()->with('error', 'Campaign is empty');
+    //     }
+
+    //     // $total = $items->sum(fn($i) => $i->price * $i->qty);
+    //     $total = $items->sum(fn($i) => $i->total_price);
+
+    //     // $order = $this->orderRepo->createOrder($total);
+    //      $order = $this->orderRepo->createOrder($total, $campaignId);
+    //     $this->orderRepo->createOrderItems($order->id, $items);
+
+    //     // ONLY STORE ORDER ID
+    //     session([
+    //         'order_id'    => $order->id,
+    //         'campaign_id' => $campaignId,
+    //     ]);
+
+    //     return redirect()->route('checkout.index');
+    // }
     public function placeCampaignOrder($campaignId)
     {
         $campaignId = base64_decode($campaignId);
+
+        $userId = Auth::guard('website')->id();
 
         $items = CartItem::where('campaign_id', $campaignId)
             ->where('cart_type', 'CAMPAIGN')
@@ -440,19 +467,48 @@ public function razorpayWebhook(Request $request)
             return back()->with('error', 'Campaign is empty');
         }
 
-        // $total = $items->sum(fn($i) => $i->price * $i->qty);
         $total = $items->sum(fn($i) => $i->total_price);
 
-        // $order = $this->orderRepo->createOrder($total);
-         $order = $this->orderRepo->createOrder($total, $campaignId);
-        $this->orderRepo->createOrderItems($order->id, $items);
+        DB::beginTransaction();
 
-        // ONLY STORE ORDER ID
-        session([
-            'order_id'    => $order->id,
-            'campaign_id' => $campaignId,
-        ]);
+        try {
 
-        return redirect()->route('checkout.index');
+            // 🔴 STEP 1: CHECK existing pending order for SAME campaign
+            $order = Order::where('user_id', $userId)
+                ->where('campaign_id', $campaignId)
+                ->where('payment_status', 'PENDING')
+                ->latest()
+                ->first();
+
+            if ($order) {
+                // 🟡 Order already exists → DO NOT create new
+                session([
+                    'order_id'    => $order->id,
+                    'campaign_id' => $campaignId,
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('checkout.index');
+            }
+
+            // 🟢 STEP 2: CREATE new order only if none exists
+            $order = $this->orderRepo->createOrder($total, $campaignId);
+
+            // 🧠 Insert items only once
+            $this->orderRepo->createOrderItems($order->id, $items);
+
+            session([
+                'order_id'    => $order->id,
+                'campaign_id' => $campaignId,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('checkout.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
+        }
     }
 }

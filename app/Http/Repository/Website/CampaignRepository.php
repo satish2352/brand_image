@@ -179,6 +179,21 @@ class CampaignRepository
     //         ->groupBy('campaign_id');
     // }
 
+    // public function getOpenCampaigns($userId, $request)
+    // {
+    //     return $this->baseQuery($userId, $request)
+    //         ->whereNotExists(function ($q) {
+    //             $q->select(DB::raw(1))
+    //                 ->from('orders as o')
+    //                 ->whereColumn('o.campaign_id', 'c.id')
+    //                 ->where('o.is_deleted', 0);
+    //         })
+    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
+    //         ->orderBy('c.id', 'DESC')
+    //         ->get()
+    //         ->groupBy('campaign_id');
+    // }
+
     public function getOpenCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)
@@ -186,6 +201,7 @@ class CampaignRepository
                 $q->select(DB::raw(1))
                     ->from('orders as o')
                     ->whereColumn('o.campaign_id', 'c.id')
+                    ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
                     ->where('o.is_deleted', 0);
             })
             ->whereDate('ci.to_date', '>=', now()->toDateString())
@@ -193,6 +209,7 @@ class CampaignRepository
             ->get()
             ->groupBy('campaign_id');
     }
+
     public function fetchBookedCampaigns($userId, $request)
     {
         return DB::table('campaign as c')
