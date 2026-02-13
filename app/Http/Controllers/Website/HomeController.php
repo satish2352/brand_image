@@ -20,11 +20,6 @@ class HomeController extends Controller
     {
         $filters = [];
         $mediaList = $this->homeService->searchMedia($filters);
-
-
-
-
-
         // ADD THIS (ONLY ACTIVE SLIDERS)
         $sliders = HomeSlider::where('is_active', 1)
             ->where('is_deleted', 0)
@@ -71,8 +66,20 @@ class HomeController extends Controller
                 'm.area_type',
                 'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
-                DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price')
+                DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
+                DB::raw("CASE
+                    WHEN EXISTS (
+                        SELECT 1 FROM media_booked_date mbd
+                        WHERE mbd.media_id = m.id
+                        AND mbd.is_deleted = 0
+                        AND mbd.is_active = 1
+                    )
+                    THEN 1 ELSE 0
+                END AS is_booked
+            "),
+
             ])
+
             ->get();
 
 

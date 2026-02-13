@@ -339,7 +339,7 @@
 
                   
                     @foreach ($billboards as $media)
-                    @if ($media->category_id === 1)
+                    @if ((int)$media->category_id === 1)
 
                     {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
                     <div class="swiper-slide">
