@@ -57,6 +57,12 @@ class HordingBookService
                 'to_date'   => $request->to_date,
                 'price'     => $request->total_amount,
                 'qty'       => 1,
+                'total_days'    => $request->total_days,
+                'per_day_price' => ($request->total_days > 0)
+                    ? round($request->total_amount / $request->total_days, 2)
+                    : 0,
+
+                'total_price'   => $request->total_amount,
                 'created_at' => now(),
             ]);
 

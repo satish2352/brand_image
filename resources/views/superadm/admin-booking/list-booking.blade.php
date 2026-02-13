@@ -64,7 +64,7 @@
 
 
 
-                                        <td>{{ date('d-m-Y H:i', strtotime($row->created_at)) }}</td>
+                                        <td>{{ date('d-m-Y', strtotime($row->created_at)) }}</td>
                                         <td>
                                             <a href="{{ route('admin-booking.booking-details', base64_encode($row->id)) }}"
                                                 class="btn btn-sm btn-info">

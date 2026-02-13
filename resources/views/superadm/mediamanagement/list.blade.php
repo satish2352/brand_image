@@ -60,6 +60,8 @@
                                         <option value="">Select City</option>
                                     </select>
                                 </div>
+                                </div>
+                                <div class="row mt-3">
                                 <div class="col-md-3">
                                     <label><b>Year</b></label>
                                     <select name="year" class="form-control">

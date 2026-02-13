@@ -327,7 +327,8 @@
                             <input type="hidden" name="media_id" value="{{ base64_encode($media->id) }}">
                             <input type="hidden" name="from_date" id="from_date">
                             <input type="hidden" name="to_date" id="to_date">
-
+                            <input type="hidden" name="total_days" id="total_days">
+                            <input type="hidden" name="per_day_price" id="per_day_price">
                             <div class="mb-3">
                                 <label>Full Name <span class="text-danger">*</span></label>
                                 <input type="text" name="signup_name"
@@ -544,6 +545,12 @@
                         document.getElementById('total_amount').value = "";
                         document.getElementById('gst_amount').value = "";
                         document.getElementById('grand_total').value = "";
+
+                        document.getElementById('total_days').value = diffDays;
+                        document.getElementById('total_days').value = diffDays;
+                        document.getElementById('per_day_price').value = "";
+
+
                         fromInput.value = "";
                         toInput.value = "";
 
@@ -579,9 +586,13 @@
                     document.getElementById('gstAmount').innerText = gstAmount.toFixed(2);
                     document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
 
-                    document.getElementById('total_amount').value = totalAmount.toFixed(2);
-                    document.getElementById('gst_amount').value = gstAmount.toFixed(2);
-                    document.getElementById('grand_total').value = grandTotal.toFixed(2);
+                document.getElementById('total_amount').value = totalAmount.toFixed(2);
+                document.getElementById('gst_amount').value = gstAmount.toFixed(2);
+                document.getElementById('grand_total').value = grandTotal.toFixed(2);
+
+                document.getElementById('total_days').value = diffDays;
+                document.getElementById('per_day_price').value = (totalAmount / diffDays).toFixed(2);
+
 
                     fromInput.value = flatpickr.formatDate(start, "Y-m-d");
                     toInput.value = flatpickr.formatDate(end, "Y-m-d");
