@@ -190,14 +190,14 @@ CASE
     )
     THEN 1
 
-    WHEN {$days} > 0 AND EXISTS (
-        SELECT 1 FROM media_booked_date mbd
-        WHERE mbd.media_id = m.id
-        AND mbd.is_active = 1
-        AND mbd.is_deleted = 0
-        AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
-    )
-    THEN 1
+    WHEN {$days} > 0 AND (
+    SELECT IFNULL(MAX(mbd.to_date), '{$today}')
+    FROM media_booked_date mbd
+    WHERE mbd.media_id = m.id
+    AND mbd.is_active = 1
+    AND mbd.is_deleted = 0
+) <= DATE_ADD('{$today}', INTERVAL {$days} DAY)
+THEN 1
 
     ELSE 0
 END AS is_available_days
