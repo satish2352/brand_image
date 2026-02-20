@@ -430,7 +430,7 @@ $(document).ready(function () {
     $("#min_price").val(0);
     $("#max_price").val(1000000);
     $("#minRangeLabel").text("₹0");
-    $("#maxRangeLabel").text("₹2,00,000");
+    $("#maxRangeLabel").text("₹10,00,000");
 
     // Reset slider fill
     $("#rangeFill").css({ left: "0%", width: "100%" });
