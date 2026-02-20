@@ -243,20 +243,20 @@
                         </span>
 
                         <span id="maxRangeLabel" style="font-weight:600">
-                            ₹{{ number_format($filters['max_price'] ?? 200000) }}
+                            ₹{{ number_format($filters['max_price'] ?? 1000000) }}
                         </span>
                     </div>
                     <div class="range-slider-container">
                         <input type="hidden" name="min_price" id="min_price" value="{{ $filters['min_price'] ?? 0 }}">
                         <input type="hidden" name="max_price" id="max_price"
-                            value="{{ $filters['max_price'] ?? 200000 }}">
+                            value="{{ $filters['max_price'] ?? 1000000 }}">
 
                         <div class="range-slider-fill" id="rangeFill"></div>
 
-                        <input type="range" id="minRange" min="0" max="200000" step="1000"
+                        <input type="range" id="minRange" min="0" max="1000000" step="1000"
                             value="{{ $filters['min_price'] ?? 0 }}">
-                        <input type="range" id="maxRange" min="0" max="200000" step="1000"
-                            value="{{ $filters['max_price'] ?? 200000 }}">
+                        <input type="range" id="maxRange" min="0" max="1000000" step="1000"
+                            value="{{ $filters['max_price'] ?? 1000000 }}">
 
 
                     </div>
@@ -426,9 +426,9 @@ $(document).ready(function () {
 
     // Reset slider
     $("#minRange").val(0);
-    $("#maxRange").val(200000);
+    $("#maxRange").val(1000000);
     $("#min_price").val(0);
-    $("#max_price").val(200000);
+    $("#max_price").val(1000000);
     $("#minRangeLabel").text("₹0");
     $("#maxRangeLabel").text("₹2,00,000");
 
@@ -680,7 +680,7 @@ $(document).ready(function() {
 
     // ✅ FIXED Blade values
     let savedMin = {{ $filters['min_price'] ?? 0 }};
-    let savedMax = {{ $filters['max_price'] ?? 200000 }};
+    let savedMax = {{ $filters['max_price'] ?? 1000000 }};
 
     minSlider.val(savedMin);
     maxSlider.val(savedMax);
