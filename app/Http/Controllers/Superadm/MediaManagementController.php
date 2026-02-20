@@ -15,7 +15,9 @@ use App\Models\{
     Illumination,
     MediaManagement,
     MediaImage,
-    Vendor
+    Vendor,
+    State,
+    City
 };
 
 class MediaManagementController extends Controller
@@ -576,24 +578,72 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-    public function getNextMediaCode($vendorId)
+    // public function getNextMediaCode($vendorId)
+    // {
+    //     $vendor = Vendor::where('id', $vendorId)
+    //         ->where('is_deleted', 0)
+    //         ->firstOrFail();
+
+    //     $vendorCode = $vendor->vendor_code;
+
+    //     // Get LAST sequence number safely
+    //     $lastMedia = MediaManagement::where('vendor_id', $vendorId)
+    //         ->where('is_deleted', 0)
+    //         ->where('media_code', 'LIKE', $vendorCode . '\_%')
+    //         ->orderByRaw("
+    //             CAST(
+    //                 SUBSTRING_INDEX(media_code, '_', -1
+    //             ) AS UNSIGNED
+    //         ) DESC
+    //         ")
+    //         ->first();
+
+    //     if ($lastMedia) {
+    //         $lastNumber = (int) substr(strrchr($lastMedia->media_code, '_'), 1);
+    //         $next = $lastNumber + 1;
+    //     } else {
+    //         $next = 1;
+    //     }
+
+    //     return response()->json([
+    //         'media_code' => $vendorCode . '_' . str_pad($next, 2, '0', STR_PAD_LEFT)
+    //     ]);
+    // }
+
+    public function getNextMediaCode(Request $request)
     {
+        $vendorId = $request->vendor_id;
+        $stateId  = $request->state_id;
+        $cityId   = $request->city_id;
+
+        // ===== GET DATA =====
         $vendor = Vendor::where('id', $vendorId)
             ->where('is_deleted', 0)
             ->firstOrFail();
 
-        $vendorCode = $vendor->vendor_code;
+        $state = State::findOrFail($stateId);
+        $city  = City::findOrFail($cityId);
 
-        // Get LAST sequence number safely
+        // ===== CREATE CODES =====
+        $stateCode = strtoupper(substr($state->state_name, 0, 3)); // MSH
+        $cityCode  = strtoupper(substr($city->city_name, 0, 3));   // NSK
+        $vendorCode = strtoupper($vendor->vendor_code);
+
+        // PREFIX
+        $prefix = $stateCode . '_' . $cityCode . '_' . $vendorCode;
+
+        // ===== FIND LAST MEDIA =====
         $lastMedia = MediaManagement::where('vendor_id', $vendorId)
+            ->where('state_id', $stateId)
+            ->where('city_id', $cityId)
             ->where('is_deleted', 0)
-            ->where('media_code', 'LIKE', $vendorCode . '\_%')
+            ->where('media_code', 'LIKE', $prefix . '\_%')
             ->orderByRaw("
-                CAST(
-                    SUBSTRING_INDEX(media_code, '_', -1
-                ) AS UNSIGNED
-            ) DESC
-            ")
+            CAST(
+                SUBSTRING_INDEX(media_code, '_', -1)
+            AS UNSIGNED
+        ) DESC
+        ")
             ->first();
 
         if ($lastMedia) {
@@ -604,7 +654,7 @@ class MediaManagementController extends Controller
         }
 
         return response()->json([
-            'media_code' => $vendorCode . '_' . str_pad($next, 2, '0', STR_PAD_LEFT)
+            'media_code' => $prefix . '_' . str_pad($next, 2, '0', STR_PAD_LEFT)
         ]);
     }
 }

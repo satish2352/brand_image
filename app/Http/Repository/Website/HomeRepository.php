@@ -166,7 +166,7 @@ class HomeRepository
         //     END AS is_available_days
         // "));
         //     }
-        if (!empty($filters['available_days'])) {
+        if (isset($filters['available_days']) && $filters['available_days'] !== '') {
 
             $days = (int) $filters['available_days'];
             $today = now()->toDateString();

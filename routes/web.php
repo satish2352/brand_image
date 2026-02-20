@@ -233,7 +233,11 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('delete', [IlluminationController::class, 'delete'])->name('illumination.delete');
         Route::post('update-status', [IlluminationController::class, 'updateStatus'])->name('illumination.updatestatus');
     });
-    Route::get('media/next-code/{vendorId}', [MediaManagementController::class, 'getNextMediaCode'])->name('media.next.code');
+    Route::get(
+        'media/next-code',
+        [MediaManagementController::class, 'getNextMediaCode']
+    )->name('media.next.code');
+    // Route::get('media/next-code/{vendorId}', [MediaManagementController::class, 'getNextMediaCode'])->name('media.next.code');
     Route::get('admin/logout', [LoginController::class, 'logOut'])->name('admin.logout');
 
 
@@ -328,5 +332,3 @@ Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.s
 // Route::get('/{any}', function () {
 //     return view('app');
 // })->where('any', '^(?!api).*$');
-
-

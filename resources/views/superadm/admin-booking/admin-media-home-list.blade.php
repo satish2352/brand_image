@@ -38,7 +38,7 @@
       }
 
       .status-badge.available {
-          background: #28a745;
+          background: #2b64b5;
       }
 
       .status-badge.booked {

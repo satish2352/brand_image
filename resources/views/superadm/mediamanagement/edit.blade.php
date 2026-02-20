@@ -35,9 +35,9 @@
                 <input type="hidden" id="category_slug" value="{{ $slug }}">
 
                 {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
-                <input type="hidden" name="state_id" value="{{ $media->state_id }}">
-                <input type="hidden" name="district_id" value="{{ $media->district_id }}">
-                <input type="hidden" name="city_id" value="{{ $media->city_id }}">
+                <input type="hidden" name="state_id" id="state_id" value="{{ $media->state_id }}">
+                <input type="hidden" name="city_id" id="city_id" value="{{ $media->city_id }}">
+                {{-- <input type="hidden" name="city_id" value="{{ $media->city_id }}"> --}}
 
                 {{-- category disabled → keep value --}}
                 <input type="hidden" name="category_id" value="{{ $media->category_id }}">
@@ -59,7 +59,10 @@
                     {{-- AREA --}}
                     <div class="col-md-4 mb-3">
                         <label>Area <span class="text-danger">*</span></label>
-                        <select name="area_id" class="form-control @error('area_id') is-invalid @enderror">
+                        {{-- <select name="area_id" class="form-control @error('area_id') is-invalid @enderror"> --}}
+
+                            <select name="area_id" id="area_id"
+    class="form-control @error('area_id') is-invalid @enderror">
                             @foreach ($areas as $area)
                                 <option value="{{ $area->id }}"
                                     {{ old('area_id', $media->area_id) == $area->id ? 'selected' : '' }}>
@@ -490,38 +493,7 @@
             //     });
             // });
 
-            $('#vendor_id').on('change', function () {
-
-                let selectedVendorId = $(this).val();
-                let categorySlug = ($('#category_slug').val() || '').toLowerCase();
-
-                // vendor cleared
-                if (!selectedVendorId) {
-                    $('#media_code').val('');
-                    $('#media_code_hidden').val('');
-                    return;
-                }
-
-                // NOT HOARDINGS → no media code logic
-                if (!categorySlug.includes('hoardings')) {
-                    $('#media_code').val('');
-                    $('#media_code_hidden').val('');
-                    return;
-                }
-
-                // SAME vendor → keep old media code
-                if (selectedVendorId == originalVendorId) {
-                    $('#media_code').val(originalMediaCode);
-                    $('#media_code_hidden').val(originalMediaCode);
-                    return;
-                }
-
-                // DIFFERENT vendor (HOARDINGS ONLY) → generate new code
-                $.get("{{ url('media/next-code') }}/" + selectedVendorId, function (res) {
-                    $('#media_code').val(res.media_code);
-                    $('#media_code_hidden').val(res.media_code);
-                });
-            });
+        
 
             let categorySlug = ($('#category_slug').val() || '').toLowerCase();
 
@@ -531,6 +503,81 @@
             }
 
         });
+
+
+
+
+
+
+
+
+         function generateEditMediaCode() {
+
+        let selectedVendorId = $('#vendor_id').val();
+        let categorySlug = ($('#category_slug').val() || '').toLowerCase();
+
+        // NOT HOARDINGS
+        if (!categorySlug.includes('hoardings')) {
+            $('#media_code').val('');
+            $('#media_code_hidden').val('');
+            return;
+        }
+
+        // NO vendor
+        if (!selectedVendorId) {
+            $('#media_code').val('');
+            $('#media_code_hidden').val('');
+            return;
+        }
+
+        // SAME vendor → keep original
+        if (selectedVendorId == originalVendorId) {
+            $('#media_code').val(originalMediaCode);
+            $('#media_code_hidden').val(originalMediaCode);
+            return;
+        }
+
+        // DIFFERENT vendor → generate NEW code
+        $.get("{{ route('media.next.code') }}", {
+            vendor_id: selectedVendorId,
+            state_id: $('#state_id').val(),
+            city_id: $('#city_id').val()
+        }, function (res) {
+
+            $('#media_code').val(res.media_code);
+            $('#media_code_hidden').val(res.media_code);
+
+        });
+    }
+
+
+
+    $('#area_id').on('change', function () {
+
+    let areaId = $(this).val();
+
+    if (!areaId) return;
+
+    // get parent location (state/city)
+    $.get("{{ url('get-area-parents') }}/" + areaId, function (res) {
+
+        // update hidden fields
+        $('#state_id').val(res.state_id);
+        $('#city_id').val(res.city_id);
+
+        // regenerate media code
+        generateEditMediaCode();
+
+    });
+
+});
+
+    // 🔥 RUN ON PAGE LOAD (VERY IMPORTANT)
+    generateEditMediaCode();
+
+    // vendor change
+    $('#vendor_id').on('change', generateEditMediaCode);
+
     </script>
 @endsection
 @endsection

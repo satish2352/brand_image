@@ -210,11 +210,29 @@
                     <label class="form-label">Available Days</label>
                     <select name="available_days" id="available_days" class="form-select">
                         <option value="">Select Days</option>
+
+                        <option value="0"
+                            {{ ($filters['available_days'] ?? '') == '0' ? 'selected' : '' }}>
+                            Instantly Available
+                        </option>
+
+                        <option value="7"
+                            {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>
+                            Available After 7 Days
+                        </option>
+
+                        <option value="15"
+                            {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>
+                            Available After 15 Days
+                        </option>
+                    </select>
+                    {{-- <select name="available_days" id="available_days" class="form-select">
+                        <option value="">Select Days</option>
                         <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>Available After
                             7 Days</option>
                         <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>Available After
                             15 Days</option>
-                    </select>
+                    </select> --}}
                 </div>
                 <div class="col-lg-2 col-md-4 col-sm-6" id="days_wrapper">
 
@@ -586,19 +604,34 @@ form.submit();
             let hasCity = $('#city_id').val();
             let hasArea = $('#area_id').val();
 
-            if (
-                !allowedCategories.includes(categoryId) ||
-                !hasCity ||
-                hasArea
-            ) {
-                $('#radius_id')
-                    .prop('disabled', true)
-                    .addClass('bg-light');
-            } else {
-                $('#radius_id')
-                    .prop('disabled', false)
-                    .removeClass('bg-light');
-            }
+            // if (
+            //     !allowedCategories.includes(categoryId) ||
+            //     !hasCity ||
+            //     hasArea
+            // ) {
+            //     $('#radius_id')
+            //         .prop('disabled', true)
+            //         .addClass('bg-light');
+            // } else {
+            //     $('#radius_id')
+            //         .prop('disabled', false)
+            //         .removeClass('bg-light');
+            // }
+
+               if (
+            !allowedCategories.includes(categoryId) ||
+            !hasCity ||
+            hasArea
+        ) {
+            $('#radius_id')
+                .val('')
+                .prop('disabled', true)
+                .addClass('bg-light');
+        } else {
+            $('#radius_id')
+                .prop('disabled', false)
+                .removeClass('bg-light');
+        }
         }
 
         // 🔥 EVENTS (THIS IS IMPORTANT)

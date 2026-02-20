@@ -636,6 +636,10 @@
                 </option>
             `);
                 });
+                // 🔥 AUTO GENERATE if old values exist
+setTimeout(function () {
+    generateMediaCode();
+}, 200);
             });
 
             $('#area').on('change', function() {
@@ -790,33 +794,92 @@
             //     });
             // });
 
-            $('#vendor_id').on('change', function () {
+            // $('#vendor_id').on('change', function () {
 
-                let vendorId = $(this).val();
-                let categorySlug = $('#category_id').find(':selected').data('category');
+            //     let vendorId = $(this).val();
+            //     let categorySlug = $('#category_id').find(':selected').data('category');
 
-                // reset
-                $('#media_code').val('');
-                $('#media_code_hidden').val('');
+            //     // reset
+            //     $('#media_code').val('');
+            //     $('#media_code_hidden').val('');
 
-                // vendor not selected
-                if (!vendorId) return;
+            //     // vendor not selected
+            //     if (!vendorId) return;
 
-                // ONLY HOARDINGS / BILLBOARDS
-                if (categorySlug && categorySlug.includes('hoardings')) {
+            //     // ONLY HOARDINGS / BILLBOARDS
+            //     if (categorySlug && categorySlug.includes('hoardings')) {
 
-                    $.get("{{ url('media/next-code') }}/" + vendorId, function (res) {
-                        $('#media_code').val(res.media_code);
-                        $('#media_code_hidden').val(res.media_code);
-                    });
+            //         $.get("{{ url('media/next-code') }}/" + vendorId, function (res) {
+            //             $('#media_code').val(res.media_code);
+            //             $('#media_code_hidden').val(res.media_code);
+            //         });
 
-                }
-            });
+            //     }
+            // });
 
 
         });
     </script>
+<script>
+    function generateMediaCode() {
 
+    let vendorId = $('#vendor_id').val();
+    let stateId  = $('#state_id').val();
+    let cityId   = $('#city_id').val();
+
+    let categorySlug = $('#category_id')
+        .find(':selected')
+        .data('category');
+
+    // reset
+    $('#media_code').val('');
+    $('#media_code_hidden').val('');
+
+    // REQUIRED VALUES CHECK
+    if (!vendorId || !stateId || !cityId) {
+        console.log("Missing values", {vendorId,stateId,cityId});
+        return;
+    }
+
+    // ONLY HOARDINGS
+    if (!(categorySlug && categorySlug.includes('hoardings'))) {
+        return;
+    }
+
+   $.get("{{ route('media.next.code') }}", {
+        vendor_id: vendorId,
+        state_id: stateId,
+        city_id: cityId
+    }, function(res) {
+
+        $('#media_code').val(res.media_code);
+        $('#media_code_hidden').val(res.media_code);
+
+    }).fail(function(err){
+        console.log("Media code error:", err.responseText);
+    });
+}
+</script>
+<script>
+    $(document).ready(function () {
+
+    // when vendor changes
+    $('#vendor_id').on('change', generateMediaCode);
+
+    // when area changes (state/city update)
+    $('#area').on('change', function () {
+
+        let selected = $(this).find(':selected');
+
+        $('#state_id').val(selected.data('state'));
+        $('#district_id').val(selected.data('district'));
+        $('#city_id').val(selected.data('city'));
+
+        generateMediaCode(); // ⭐ CALL HERE
+    });
+
+});
+</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
     <script>
