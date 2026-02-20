@@ -172,27 +172,58 @@ class HomeRepository
             $today = now()->toDateString();
 
             $query->addSelect(DB::raw("
-        CASE
-            WHEN NOT EXISTS (
-                SELECT 1 FROM media_booked_date mbd
-                WHERE mbd.media_id = m.id
-                AND mbd.is_active = 1
-                AND mbd.is_deleted = 0
-            )
-            THEN 1
+CASE
+    WHEN NOT EXISTS (
+        SELECT 1 FROM media_booked_date mbd
+        WHERE mbd.media_id = m.id
+        AND mbd.is_active = 1
+        AND mbd.is_deleted = 0
+    )
+    THEN 1
 
-            WHEN EXISTS (
-                SELECT 1 FROM media_booked_date mbd
-                WHERE mbd.media_id = m.id
-                AND mbd.is_active = 1
-                AND mbd.is_deleted = 0
-                AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
-            )
-            THEN 1
+    WHEN {$days} = 0 AND NOT EXISTS (
+        SELECT 1 FROM media_booked_date mbd
+        WHERE mbd.media_id = m.id
+        AND mbd.is_active = 1
+        AND mbd.is_deleted = 0
+        AND '{$today}' BETWEEN mbd.from_date AND mbd.to_date
+    )
+    THEN 1
 
-            ELSE 0
-        END AS is_available_days
-    "));
+    WHEN {$days} > 0 AND EXISTS (
+        SELECT 1 FROM media_booked_date mbd
+        WHERE mbd.media_id = m.id
+        AND mbd.is_active = 1
+        AND mbd.is_deleted = 0
+        AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
+    )
+    THEN 1
+
+    ELSE 0
+END AS is_available_days
+"));
+            //         $query->addSelect(DB::raw("
+            //     CASE
+            //         WHEN NOT EXISTS (
+            //             SELECT 1 FROM media_booked_date mbd
+            //             WHERE mbd.media_id = m.id
+            //             AND mbd.is_active = 1
+            //             AND mbd.is_deleted = 0
+            //         )
+            //         THEN 1
+
+            //         WHEN EXISTS (
+            //             SELECT 1 FROM media_booked_date mbd
+            //             WHERE mbd.media_id = m.id
+            //             AND mbd.is_active = 1
+            //             AND mbd.is_deleted = 0
+            //             AND DATEDIFF(mbd.from_date, '{$today}') >= {$days}
+            //         )
+            //         THEN 1
+
+            //         ELSE 0
+            //     END AS is_available_days
+            // "));
 
             //  THIS LINE IS MISSING
             $query->having('is_available_days', 1);
