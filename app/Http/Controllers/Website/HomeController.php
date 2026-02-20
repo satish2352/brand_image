@@ -165,7 +165,7 @@ class HomeController extends Controller
                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
                 ->where('oi.media_id', $mediaId)
                 ->where('oi.is_deleted', 0)
-                ->where('o.payment_status', 'PAID') // 🔑 KEY FIX
+                ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
                 ->select('oi.from_date', 'oi.to_date')
                 ->orderBy('oi.from_date')
                 ->get();
