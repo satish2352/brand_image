@@ -14,7 +14,7 @@
     </p>
 
     <p>You can now login here:</p>
-    <p><a href="{{ url('/website/login') }}">{{ url('/website/login') }}</a></p>
+    <p><a href="{{ url('/login') }}">{{ url('/login') }}</a></p>
 
     <br>
     <p>Thank You,<br>

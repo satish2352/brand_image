@@ -323,8 +323,142 @@ $(document).ready(function () {
     });
 });
 </script>
-
 <script>
+// ===============================
+// GLOBAL FUNCTION (IMPORTANT)
+// ===============================
+function toggleRadius() {
+
+    const allowedCategories = [1, 2];
+
+    let categoryId = parseInt($('select[name="category_id"]').val());
+    let hasCity = $('#city_id').val();
+    let hasArea = $('#area_id').val();
+
+    if (
+        !allowedCategories.includes(categoryId) ||
+        !hasCity ||
+        hasArea
+    ) {
+        $('#radius_id')
+            .val('')
+            .prop('disabled', true)
+            .addClass('bg-light');
+    } else {
+        $('#radius_id')
+            .prop('disabled', false)
+            .removeClass('bg-light');
+    }
+}
+</script>
+<script>
+$(document).ready(function() {
+
+    const csrf = "{{ csrf_token() }}";
+
+    function loadDistricts(stateId, selected = '') {
+
+        if (!stateId) return;
+
+        $.post("{{ route('ajax.districts') }}", {
+            _token: csrf,
+            state_id: stateId
+        }, function(data) {
+
+            let html = '<option value="">Select District</option>';
+
+            data.forEach(d => {
+                html += `<option value="${d.id}" ${d.id == selected ? 'selected' : ''}>
+                            ${d.district_name}
+                         </option>`;
+            });
+
+            $('#district_id').html(html);
+        });
+    }
+
+    function loadCities(districtId, selected = '') {
+
+        if (!districtId) return;
+
+        $.post("{{ route('ajax.cities') }}", {
+            _token: csrf,
+            district_id: districtId
+        }, function(data) {
+
+            let html = '<option value="">Select Town</option>';
+
+            data.forEach(c => {
+                html += `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>
+                            ${c.city_name}
+                         </option>`;
+            });
+
+            $('#city_id').html(html);
+
+            toggleRadius(); // ⭐ IMPORTANT
+        });
+    }
+
+    function loadAreas(cityId, selected = '') {
+
+        if (!cityId) return;
+
+        $.post("{{ route('ajax.areas') }}", {
+            _token: csrf,
+            city_id: cityId
+        }, function(data) {
+
+            let html = '<option value="">Select Area</option>';
+
+            data.forEach(a => {
+                html += `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>
+                            ${a.area_name}
+                         </option>`;
+            });
+
+            $('#area_id').html(html);
+
+            toggleRadius(); // ⭐ IMPORTANT
+        });
+    }
+
+    // ================= EVENTS =================
+
+    $('#state_id').on('change', function() {
+
+        loadDistricts(this.value);
+
+        $('#city_id').html('<option value="">Select Town</option>');
+        $('#area_id').html('<option value="">Select Area</option>');
+
+        toggleRadius();
+    });
+
+    $('#district_id').on('change', function() {
+
+        loadCities(this.value);
+
+        $('#area_id').html('<option value="">Select Area</option>');
+    });
+
+    $('#city_id').on('change', function() {
+
+        loadAreas(this.value);
+        toggleRadius();
+    });
+
+    $('#area_id').on('change', toggleRadius);
+
+    // INITIAL LOAD
+    if (selectedState) loadDistricts(selectedState, selectedDistrict);
+    if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
+    if (selectedCity) loadAreas(selectedCity, selectedArea);
+
+    toggleRadius();
+});
+</script>
+{{-- <script>
     $(document).ready(function() {
         const csrf = "{{ csrf_token() }}";
 
@@ -357,6 +491,7 @@ $(document).ready(function () {
                         `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>${c.city_name}</option>`;
                 });
                 $('#city_id').html(html);
+                toggleRadius(); // ⭐ ADD THIS
             });
         }
 
@@ -373,6 +508,7 @@ $(document).ready(function () {
                         `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>${a.area_name}</option>`;
                 });
                 $('#area_id').html(html);
+                 toggleRadius(); // ⭐ FINAL FIX
             });
         }
 
@@ -398,7 +534,7 @@ $(document).ready(function () {
         if (selectedCity) loadAreas(selectedCity, selectedArea);
 
     });
-</script>
+</script> --}}
 
 <!-- <script>
     document.getElementById('clearFilters').addEventListener('click', function() {
@@ -478,27 +614,27 @@ form.submit();
 
     });
 </script>
-<script>
+{{-- <script>
     $(document).ready(function() {
 
         const allowedCategories = [1, 2];
 
-        function toggleRadius() {
-            let categoryId = parseInt($('select[name="category_id"]').val());
-            let hasCity = $('#city_id').val();
+        // function toggleRadius() {
+        //     let categoryId = parseInt($('select[name="category_id"]').val());
+        //     let hasCity = $('#city_id').val();
 
-            // No city, OR category not allowed = disable
-            if (!allowedCategories.includes(categoryId) || !hasCity) {
-                $('#radius_id')
-                    .val('')
-                    .prop('disabled', true)
-                    .addClass('bg-light');
-            } else {
-                $('#radius_id')
-                    .prop('disabled', false)
-                    .removeClass('bg-light');
-            }
-        }
+        //     // No city, OR category not allowed = disable
+        //     if (!allowedCategories.includes(categoryId) || !hasCity) {
+        //         $('#radius_id')
+        //             .val('')
+        //             .prop('disabled', true)
+        //             .addClass('bg-light');
+        //     } else {
+        //         $('#radius_id')
+        //             .prop('disabled', false)
+        //             .removeClass('bg-light');
+        //     }
+        // }
 
         // Category change
         $('select[name="category_id"]').on('change', toggleRadius);
@@ -512,7 +648,7 @@ form.submit();
         // On page load (important!)
         toggleRadius();
     });
-</script>
+</script> --}}
 
 {{-- <script>
     $(document).ready(function() {
@@ -598,41 +734,30 @@ form.submit();
 
         const allowedCategories = [1, 2];
 
-        function toggleRadius() {
-            let categoryId = parseInt($('select[name="category_id"]').val());
+       // ⭐ GLOBAL FUNCTION (outside ready)
+// function toggleRadius() {
 
-            let hasCity = $('#city_id').val();
-            let hasArea = $('#area_id').val();
+//     const allowedCategories = [1, 2];
 
-            // if (
-            //     !allowedCategories.includes(categoryId) ||
-            //     !hasCity ||
-            //     hasArea
-            // ) {
-            //     $('#radius_id')
-            //         .prop('disabled', true)
-            //         .addClass('bg-light');
-            // } else {
-            //     $('#radius_id')
-            //         .prop('disabled', false)
-            //         .removeClass('bg-light');
-            // }
+//     let categoryId = parseInt($('select[name="category_id"]').val());
+//     let hasCity = $('#city_id').val();
+//     let hasArea = $('#area_id').val();
 
-               if (
-            !allowedCategories.includes(categoryId) ||
-            !hasCity ||
-            hasArea
-        ) {
-            $('#radius_id')
-                .val('')
-                .prop('disabled', true)
-                .addClass('bg-light');
-        } else {
-            $('#radius_id')
-                .prop('disabled', false)
-                .removeClass('bg-light');
-        }
-        }
+//     if (
+//         !allowedCategories.includes(categoryId) ||
+//         !hasCity ||
+//         hasArea
+//     ) {
+//         $('#radius_id')
+//             .val('')
+//             .prop('disabled', true)
+//             .addClass('bg-light');
+//     } else {
+//         $('#radius_id')
+//             .prop('disabled', false)
+//             .removeClass('bg-light');
+//     }
+// }
 
         // 🔥 EVENTS (THIS IS IMPORTANT)
         $('select[name="category_id"]').on('change', toggleRadius);
