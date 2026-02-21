@@ -341,7 +341,7 @@ function toggleRadius() {
         hasArea
     ) {
         $('#radius_id')
-            .val('')
+            // .val('')
             .prop('disabled', true)
             .addClass('bg-light');
     } else {
