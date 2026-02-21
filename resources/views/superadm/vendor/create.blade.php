@@ -176,17 +176,43 @@
             });
 
             /* ============= AUTO GENERATE VENDOR CODE ============= */
-            $('input[name="vendor_name"]').on('input', function() {
-                let vendorCode = $(this).val()
-                    .trim()
-                    .toLowerCase()
-                    .replace(/[^a-z\s]/g, '')
-                    .replace(/\s+/g, '');
+            // $('input[name="vendor_name"]').on('input', function() {
+            //     let vendorCode = $(this).val()
+            //         .trim()
+            //         .toLowerCase()
+            //         .replace(/[^a-z\s]/g, '')
+            //         .replace(/\s+/g, '');
 
-                $('#vendor_code').val(vendorCode);
-            });
+            //     $('#vendor_code').val(vendorCode);
+            // });
 
-            
+         function generateVendorCode() {
+
+    let stateText = $('#state option:selected').text()
+        .trim()
+        .substring(0,3)
+        .toUpperCase();
+
+    let districtText = $('#district option:selected').text()
+        .trim()
+        .substring(0,3)
+        .toUpperCase();
+
+    let vendorName = $('input[name="vendor_name"]').val()
+        .trim()
+        .replace(/[^a-zA-Z\s]/g, '')
+        .replace(/\s+/g, '');
+
+    if(stateText !== "SEL" && districtText !== "SEL" && vendorName !== ''){
+        $('#vendor_code').val(
+            stateText + '_' +
+            districtText + '_' +
+            vendorName.toUpperCase()
+        );
+    } else {
+        $('#vendor_code').val('');
+    }
+}
             /* ================= REGEX ================= */
     const onlyLettersSpace = /[^a-zA-Z\s]/g;
     const onlyDigits       = /[^0-9]/g;
@@ -199,6 +225,7 @@
     $('input[name="vendor_name"]').on('input', function () {
         this.value = this.value.replace(onlyLettersSpace, '');
         clearError($(this));
+        generateVendorCode(); // 🔥 ADD THIS
     });
 
     // Mobile → only digits

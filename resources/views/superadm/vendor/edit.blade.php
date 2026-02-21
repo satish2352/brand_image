@@ -109,6 +109,36 @@
 @endsection
 
 @section('scripts')
+<script>
+    /* ========= AUTO GENERATE VENDOR CODE ========= */
+function generateVendorCode() {
+
+    let stateText = $('#state option:selected').text()
+        .trim()
+        .substring(0,3)
+        .toUpperCase();
+
+    let districtText = $('#district option:selected').text()
+        .trim()
+        .substring(0,3)
+        .toUpperCase();
+
+    let vendorName = $('input[name="vendor_name"]').val()
+        .trim()
+        .replace(/[^a-zA-Z\s]/g, '')
+        .replace(/\s+/g, '');
+
+    if(stateText !== "SEL" && districtText !== "SEL" && vendorName !== ''){
+        $('#vendor_code').val(
+            stateText + '_' +
+            districtText + '_' +
+            vendorName.toUpperCase()
+        );
+    } else {
+        $('#vendor_code').val('');
+    }
+}
+</script>
     <script>
         $(document).ready(function() {
 
@@ -126,6 +156,7 @@
                 });
 
                 if (selectedState) loadDistricts(selectedState);
+                setTimeout(generateVendorCode, 500);
             });
 
             // Load Districts
@@ -144,6 +175,7 @@
                         });
 
                         if (selectedDistrict) loadCities(selectedDistrict);
+                        generateVendorCode(); 
                     });
             }
 
@@ -187,6 +219,7 @@
     $('input[name="vendor_name"]').on('input', function () {
         this.value = this.value.replace(onlyLettersSpace, '');
         clearError($(this));
+    generateVendorCode();
     });
 
     // Mobile → only digits
