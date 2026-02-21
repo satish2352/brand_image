@@ -11,7 +11,7 @@
     <div class="row">
         <!-- Desktop Image -->
         <div class="col-md-12 d-none d-md-block">
-            <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid">
+            <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid" style="width: inherit !important;">
         </div>
 
         <!-- Mobile Image -->
