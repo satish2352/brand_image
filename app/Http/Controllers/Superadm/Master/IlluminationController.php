@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Superadm\Master;
 use App\Http\Controllers\Controller;
 use App\Http\Services\Superadm\Master\IlluminationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Exception;
+use App\Models\{
+    Illumination
+};
 
 class IlluminationController extends Controller
 {
@@ -26,7 +30,6 @@ class IlluminationController extends Controller
     {
         return view('superadm.illumination.create');
     }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -43,12 +46,37 @@ class IlluminationController extends Controller
 
         try {
             $this->service->store($validated);
+
             return redirect()->route('illumination.list')
                 ->with('success', 'Illumination added successfully');
         } catch (Exception $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+
+            return back()->withInput()
+                ->with('error', $e->getMessage());
         }
     }
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'illumination_name' => [
+    //             'required',
+    //             'max:255',
+    //             'regex:/^[A-Za-z\s\-]+$/'
+    //         ]
+    //     ], [
+    //         'illumination_name.required' => 'Illumination name is required',
+    //         'illumination_name.regex' =>
+    //         'Only letters, spaces and dash (-) are allowed'
+    //     ]);
+
+    //     try {
+    //         $this->service->store($validated);
+    //         return redirect()->route('illumination.list')
+    //             ->with('success', 'Illumination added successfully');
+    //     } catch (Exception $e) {
+    //         return back()->withInput()->with('error', $e->getMessage());
+    //     }
+    // }
 
     public function edit($encodedId)
     {

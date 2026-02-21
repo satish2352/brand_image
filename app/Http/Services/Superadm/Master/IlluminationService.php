@@ -4,6 +4,7 @@ namespace App\Http\Services\Superadm\Master;
 
 use App\Http\Repository\Superadm\Master\IlluminationRepository;
 use Illuminate\Support\Facades\DB;
+use App\Models\Illumination;
 use Exception;
 
 class IlluminationService
@@ -19,16 +20,30 @@ class IlluminationService
     {
         return $this->repo->getAll();
     }
-
     public function store(array $data)
     {
         DB::beginTransaction();
+
         try {
 
+            // restore deleted record
+            $deleted = $this->repo->findDeletedByName(
+                $data['illumination_name']
+            );
+
+            if ($deleted) {
+                $deleted->update([
+                    'is_deleted' => 0,
+                    'is_active'  => 1
+                ]);
+
+                DB::commit();
+                return;
+            }
+
+            // active duplicate check
             if ($this->repo->existsByName($data['illumination_name'])) {
-                throw new Exception(
-                    'This illumination is already created'
-                );
+                throw new Exception('This illumination is already created');
             }
 
             $this->repo->store($data);
@@ -39,6 +54,25 @@ class IlluminationService
             throw $e;
         }
     }
+    // public function store(array $data)
+    // {
+    //     DB::beginTransaction();
+    //     try {
+
+    //         if ($this->repo->existsByName($data['illumination_name'])) {
+    //             throw new Exception(
+    //                 'This illumination is already created'
+    //             );
+    //         }
+
+    //         $this->repo->store($data);
+
+    //         DB::commit();
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         throw $e;
+    //     }
+    // }
 
     public function find($id)
     {

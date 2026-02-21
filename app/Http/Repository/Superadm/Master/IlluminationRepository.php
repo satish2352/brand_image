@@ -29,7 +29,12 @@ class IlluminationRepository
     {
         return Illumination::create($data);
     }
-
+    public function findDeletedByName($name)
+    {
+        return Illumination::where('illumination_name', $name)
+            ->where('is_deleted', 1)
+            ->first();
+    }
     public function find($id)
     {
         return Illumination::where('id', $id)
