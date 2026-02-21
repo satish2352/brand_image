@@ -3,20 +3,33 @@
 @section('title', 'Campaign Details')
 
 @section('content')
-
+<style>
+    .spacing-add{
+        padding: 0rem 1rem 1rem 2rem;
+    }
+</style>
     <!-- breadcrumb-section -->
-    <div class="breadcrumb-section">
-        <div class="container">
-            <div class="row">
+<div class="container-fluid about-banner-img g-0">
+            {{-- <div class="row">
                 <div class="col-lg-8 offset-lg-2 text-center">
                     <div class="breadcrumb-text">
                         <p>Campaign details</p>
                         <h1>Campaign</h1>
                     </div>
                 </div>
-            </div>
+            </div> --}}
+               <div class="row">
+        <!-- Desktop Image -->
+        <div class="col-md-12 d-none d-md-block">
+            <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid" style="width: inherit !important;">
+        </div>
+
+        <!-- Mobile Image -->
+        <div class="col-md-12 d-block d-md-none">
+            <img src="{{ asset('assets/img/mobile_campain_page.png') }}" alt="About Banner" class="img-fluid">
         </div>
     </div>
+      
     <!-- end breadcrumb section -->
 
     <div class="container my-5">
@@ -80,7 +93,7 @@
                     {{-- DETAILS RIGHT --}}
                     <div class="col-md-7">
 
-                        <div class="card-body">
+                        <div class="card-body spacing-add">
                             <h3 class="mb-1 ">
                                 Campaign Name 
                                 <span> : {{ $campaign->first()->campaign_name }}</span>
