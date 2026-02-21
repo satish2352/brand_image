@@ -2,12 +2,7 @@
 
 namespace App\Mail;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
 
 class AdminCampaignCreatedMail extends Mailable
 {
@@ -19,7 +14,7 @@ class AdminCampaignCreatedMail extends Mailable
 
     public function build()
     {
-        return $this->subject('New Campaign Created')
+        return $this->subject('Campaign Created Successfully')
             ->view('emails.admin-campaign-created')
             ->attachData(
                 $this->excelBinary,

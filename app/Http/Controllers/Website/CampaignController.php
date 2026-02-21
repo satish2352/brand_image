@@ -402,7 +402,9 @@ class CampaignController extends Controller
                 try {
                     $shape = $slide->createDrawingShape();
                     $shape->setPath($tempPath)
-                        ->setWidth(200)
+                        ->setResizeProportional(false)
+                        ->setWidth($w)
+                        ->setHeight($h)   // ⭐ VERY IMPORTANT
                         ->setOffsetX($x)
                         ->setOffsetY($y);
 
