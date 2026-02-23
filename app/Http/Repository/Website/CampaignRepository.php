@@ -194,17 +194,71 @@ class CampaignRepository
     //         ->groupBy('campaign_id');
     // }
 
+    // public function getOpenCampaigns($userId, $request)
+    // {
+    //     return $this->baseQuery($userId, $request)
+    //         ->whereNotExists(function ($q) {
+    //             $q->select(DB::raw(1))
+    //                 ->from('orders as o')
+    //                 ->whereColumn('o.campaign_id', 'c.id')
+    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+    //                 ->where('o.is_deleted', 0);
+    //         })
+    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
+    //         ->orderBy('c.id', 'DESC')
+    //         ->get()
+    //         ->groupBy('campaign_id');
+    // }
+    //     public function getOpenCampaigns($userId, $request)
+    // {
+    //     return $this->baseQuery($userId, $request)
+    //         ->whereNotExists(function ($q) use ($userId) {
+
+    //             $q->select(DB::raw(1))
+    //                 ->from('orders as o')
+    //                 ->join('cart_items as ci2', 'ci2.campaign_id', '=', 'o.campaign_id')
+
+    //                 // SAME MEDIA
+    //                 ->whereColumn('ci2.media_id', 'ci.media_id')
+
+    //                 // OTHER USER BOOKED
+    //                 ->where('o.user_id', '!=', $userId)
+
+    //                 // BOOKED STATUS
+    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+    //                 ->where('o.is_deleted', 0)
+
+    //                 // DATE OVERLAP CONDITION
+    //                 ->whereColumn('ci2.from_date', '<=', 'ci.to_date')
+    //                 ->whereColumn('ci2.to_date', '>=', 'ci.from_date');
+    //         })
+
+    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
+    //         ->orderBy('c.id', 'DESC')
+    //         ->get()
+    //         ->groupBy('campaign_id');
+    // }
     public function getOpenCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)
-            ->whereNotExists(function ($q) {
-                $q->select(DB::raw(1))
-                    ->from('orders as o')
-                    ->whereColumn('o.campaign_id', 'c.id')
-                    ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-                    ->where('o.is_deleted', 0);
-            })
+
             ->whereDate('ci.to_date', '>=', now()->toDateString())
+
+            ->selectRaw('
+            EXISTS (
+                SELECT 1
+                FROM orders o
+                JOIN order_items oi ON oi.order_id = o.id
+                WHERE
+                    o.user_id != ?
+                    AND o.payment_status IN ("PAID","ADMIN_BOOKED")
+                    AND o.is_deleted = 0
+                    AND oi.media_id = ci.media_id
+                    AND oi.from_date <= ci.to_date
+                    AND oi.to_date >= ci.from_date
+            ) as is_booked
+        ', [$userId])
+
             ->orderBy('c.id', 'DESC')
             ->get()
             ->groupBy('campaign_id');

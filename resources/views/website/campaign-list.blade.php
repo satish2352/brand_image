@@ -155,6 +155,7 @@
                                                     <th>Booking Days</th>
                                                     <th>Campaign Date</th>
                                                     <th>Details</th>
+                                                      <th>Status</th>
                                                 @endif
                                             </tr>
                                         </thead>
@@ -218,6 +219,13 @@
 </a>
 
                                                         </td>
+                                                        <td>
+    @if($row->is_booked)
+        <span class="badge bg-danger">Other User Booked</span>
+    @else
+        <span class="badge bg-success">Open</span>
+    @endif
+</td>
                                                     @endif
                                                 </tr>
                                             @endforeach
@@ -234,24 +242,70 @@
                                                 </button>
                                             </form>
                                         </div> -->
-                                        @if ($type === 'open')
+ 
+@php
+    // $hasBookedMedia = $items->contains(fn($i) => $i->is_booked);
+    $hasBookedMedia = $items->contains(fn($i) => ($i->is_booked ?? false));
+@endphp
+
+@if ($type === 'open')
+
+    <div class="d-flex justify-content-end p-3 border-top">
+        <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}" method="POST">
+            @csrf
+
+            <button type="submit"
+                class="btn btn-primary"
+                {{ $hasBookedMedia ? 'disabled' : '' }}>
+
+                {{ $hasBookedMedia
+                    ? 'Already Booked By Other User'
+                    : 'Place Order' }}
+            </button>
+        </form>
+    </div>
+
+@elseif ($type === 'booked')
+
+    <div class="d-flex justify-content-end p-3 border-top">
+        {{-- booked UI --}}
+    </div>
+
+@else
+
+    <div class="d-flex justify-content-end p-3 border-top">
+        <button class="btn btn-secondary" disabled>
+            Campaign Closed
+        </button>
+    </div>
+
+@endif
+                                        {{-- @if ($type === 'open')
+                                  
 <div class="d-flex justify-content-end p-3 border-top">
     <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}" method="POST">
         @csrf
+<button type="submit"
+    class="btn btn-primary"
+    {{ $allBooked ? 'disabled' : '' }}>
 
-     <button type="submit"
+    {{ $allBooked
+        ? 'Already Booked By Other User'
+        : 'Place Order' }}
+</button> --}}
+     {{-- <button type="submit"
     class="btn btn-primary"
     {{ $bookedStatus[$campaignId] ? 'disabled' : '' }}>
 
-    {{ $bookedStatus[$campaignId] ? 'Already Booked By Other User' : 'Place Order' }}
+    {{ $bookedStatus[$campaignId] ? 'Already Booked By Other User' : 'Place Order' }} --}}
 
-</button>
+{{-- </button>
 
     </form>
-</div>
+</div> --}}
 
 
-                                    @elseif ($type === 'booked')
+                                    {{-- @elseif ($type === 'booked')
                                         <div class="d-flex justify-content-end p-3 border-top">
                                             <!-- <button class="btn btn-warning" disabled>
                                                 Already Booked
@@ -263,7 +317,7 @@
                                                 Campaign Closed
                                             </button>
                                         </div>
-                                    @endif
+                                    @endif --}}
 
                                 </div>
 
