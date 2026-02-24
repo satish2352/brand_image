@@ -109,7 +109,7 @@
 </style>
 @if ($sliders->count())
 
-<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
 
     <div class="carousel-inner">
 
@@ -406,8 +406,8 @@
                                     <img src="{{ asset('assets/img/105.png') }}" width="30">
                                     <span>View on Map</span>
                                 </a>
-                                @if (!empty($media->video_link))
-                                <a href="{{ $media->video_link }}" target="_blank"
+                                @if (!empty($media->panorama_image))
+                                <a href="{{ $media->panorama_image }}" target="_blank"
                                     class="text-muted d-inline-flex align-items-center gap-1">
                                     <img src="{{ asset('assets/img/360view.png') }}" width="30">
                                     <span>360° View</span>
@@ -571,8 +571,8 @@
                     <img src="{{ asset('assets/img/105.png') }}" width="30">
                     <span>View on Map</span>
                     </a> --}}
-                    @if (!empty($media->video_link))
-                        <a href="{{ $media->video_link }}" target="_blank"
+                    @if (!empty($media->panorama_image))
+                        <a href="{{ $media->panorama_image }}" target="_blank"
                             class="text-muted d-inline-flex align-items-center gap-1 mt-1">
                             <img src="{{ asset('assets/img/360view.png') }}" style="width : 20px">
                             <span>360° View</span>

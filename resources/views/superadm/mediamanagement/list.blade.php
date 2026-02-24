@@ -55,9 +55,9 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label><b>City</b></label>
+                                    <label><b>Town</b></label>
                                     <select name="city_id" id="city_id" class="form-control">
-                                        <option value="">Select City</option>
+                                        <option value="">Select Town</option>
                                     </select>
                                 </div>
                                 </div>

@@ -7,14 +7,14 @@
         .single-latest-news {
             height: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
         }
 
         .news-text-box {
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            padding: 20px 20px 0px 20px;
         }
 
         .news-text-box h3 {
@@ -32,7 +32,7 @@
         .media-price {
             font-size: 18px;
             font-weight: 700;
-            color: #28a745;
+            color: #f28123;
             /* margin: 6px 0 10px; */
         }
 

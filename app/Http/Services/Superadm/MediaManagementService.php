@@ -47,7 +47,8 @@ class MediaManagementService
                 'price',
                 // 'vendor_name',
                 'vendor_id',
-                'video_link',
+                // 'video_link',
+                'panorama_image'
 
             ]);
 
@@ -78,7 +79,8 @@ class MediaManagementService
                 'area_auto',
                 'radius_id',
                 'area_type',
-                'video_link'
+                'video_link',
+                'panorama_image'
             ];
 
             foreach ($optionalFields as $field) {
@@ -104,7 +106,20 @@ class MediaManagementService
                         $image,
                         config('fileConstants.IMAGE_ADD')
                     );
+                    /** -------------------------
+                     * SAVE PANORAMA IMAGE
+                     * ------------------------*/
+                    if ($request->hasFile('panorama_image')) {
 
+                        $panoramaName = uploadImage(
+                            $request->file('panorama_image'),
+                            config('fileConstants.IMAGE_ADD')
+                        );
+
+                        $media->update([
+                            'panorama_image' => $panoramaName
+                        ]);
+                    }
                     MediaImage::create([
                         'media_id'  => $media->id,
                         'images'    => $fileName,
@@ -127,110 +142,60 @@ class MediaManagementService
 
         try {
 
+            // ⭐ FETCH OLD MEDIA FIRST
+            $media = $this->repo->find($id);
+
             $updateData = $request->only([
                 'state_id',
                 'district_id',
                 'city_id',
                 'area_id',
                 'category_id',
-
-                // 'media_code',
                 'media_title',
                 'address',
-
                 'width',
                 'height',
-
                 'illumination_id',
-                'facing_id',
                 'facing',
-
                 'latitude',
                 'longitude',
-
                 'minimum_booking_days',
                 'price',
-                // 'vendor_name',
                 'vendor_id'
-
-
-
             ]);
 
-            // ONLY HOARDINGS CAN UPDATE MEDIA CODE
+            // MEDIA CODE
             if (str_contains($slug, 'hoardings')) {
                 $updateData['media_code'] = $request->media_code;
             } else {
                 $updateData['media_code'] = null;
             }
 
-            // AUTO GENERATE MEDIA CODE
-            // $mediaData['media_code'] = $this->generateMediaCode($request->vendor_id);
-
-            // Optional category fields
-            $optionalFields = [
-                'mall_name',
-                'media_format',
-                'airport_name',
-                'zone_type',
-                'media_type',
-                'transit_type',
-                'branding_type',
-                'vehicle_count',
-                'building_name',
-                'wall_length',
-                'area_auto',
-                'radius_id',
-                'area_type',
-                'video_link'
-            ];
-
-            foreach ($optionalFields as $field) {
-                if ($request->filled($field)) {
-                    $updateData[$field] = $request->$field;
-                }
-            }
-
-            /** 🔹 UPDATE MEDIA */
+            /** UPDATE BASIC DATA */
             $this->repo->update($id, $updateData);
 
-            /** 🔹 REPLACE IMAGES (REMOVE FIRST, THEN ADD) */
-            if ($request->hasFile('images')) {
+            /** 🔥 PANORAMA UPDATE */
+            if ($request->hasFile('panorama_image')) {
 
-                // 1️⃣ Fetch old images
-                $oldImages = MediaImage::where('media_id', $id)
-                    ->where('is_deleted', 0)
-                    ->get();
+                // REMOVE OLD FILE
+                if (!empty($media->panorama_image)) {
 
-                // 2️⃣ REMOVE FILES USING IMAGE_DELETE
-                foreach ($oldImages as $old) {
                     removeImage(
-                        $old->images,
+                        $media->panorama_image,
                         config('fileConstants.IMAGE_DELETE')
                     );
                 }
 
-                // 3️⃣ SOFT DELETE DB RECORDS
-                MediaImage::where('media_id', $id)->update([
-                    'is_active'  => 0,
-                    'is_deleted' => 1
+                // UPLOAD NEW
+                $panoramaName = uploadImage(
+                    $request->file('panorama_image'),
+                    config('fileConstants.IMAGE_ADD')
+                );
+
+                // UPDATE DB
+                $this->repo->update($id, [
+                    'panorama_image' => $panoramaName
                 ]);
-
-                // 4️⃣ UPLOAD NEW FILES USING IMAGE_ADD
-                foreach ($request->file('images') as $image) {
-
-                    $fileName = uploadImage(
-                        $image,
-                        config('fileConstants.IMAGE_ADD')
-                    );
-
-                    MediaImage::create([
-                        'media_id'   => $id,
-                        'images'     => $fileName,
-                        'is_active'  => 1,
-                        'is_deleted' => 0,
-                    ]);
-                }
             }
 
             DB::commit();
@@ -239,6 +204,147 @@ class MediaManagementService
             throw $e;
         }
     }
+    // public function update($id, Request $request, string $slug)
+    // {
+    //     DB::beginTransaction();
+
+    //     try {
+
+    //         $updateData = $request->only([
+    //             'state_id',
+    //             'district_id',
+    //             'city_id',
+    //             'area_id',
+    //             'category_id',
+
+    //             // 'media_code',
+    //             'media_title',
+    //             'address',
+
+    //             'width',
+    //             'height',
+
+    //             'illumination_id',
+    //             'facing_id',
+    //             'facing',
+
+    //             'latitude',
+    //             'longitude',
+
+    //             'minimum_booking_days',
+    //             'price',
+    //             // 'vendor_name',
+    //             'vendor_id'
+
+
+
+    //         ]);
+
+    //         // ONLY HOARDINGS CAN UPDATE MEDIA CODE
+    //         if (str_contains($slug, 'hoardings')) {
+    //             $updateData['media_code'] = $request->media_code;
+    //         } else {
+    //             $updateData['media_code'] = null;
+    //         }
+
+    //         // AUTO GENERATE MEDIA CODE
+    //         // $mediaData['media_code'] = $this->generateMediaCode($request->vendor_id);
+
+    //         // Optional category fields
+    //         $optionalFields = [
+    //             'mall_name',
+    //             'media_format',
+    //             'airport_name',
+    //             'zone_type',
+    //             'media_type',
+    //             'transit_type',
+    //             'branding_type',
+    //             'vehicle_count',
+    //             'building_name',
+    //             'wall_length',
+    //             'area_auto',
+    //             'radius_id',
+    //             'area_type',
+    //             'video_link'
+    //         ];
+
+    //         foreach ($optionalFields as $field) {
+    //             if ($request->filled($field)) {
+    //                 $updateData[$field] = $request->$field;
+    //             }
+    //         }
+
+    //         /** 🔹 UPDATE MEDIA */
+    //         $this->repo->update($id, $updateData);
+
+    //         /** 🔹 REPLACE IMAGES (REMOVE FIRST, THEN ADD) */
+    //         if ($request->hasFile('images')) {
+
+    //             // 1️⃣ Fetch old images
+    //             $oldImages = MediaImage::where('media_id', $id)
+    //                 ->where('is_deleted', 0)
+    //                 ->get();
+
+    //             // 2️⃣ REMOVE FILES USING IMAGE_DELETE
+    //             foreach ($oldImages as $old) {
+    //                 removeImage(
+    //                     $old->images,
+    //                     config('fileConstants.IMAGE_DELETE')
+    //                 );
+    //             }
+
+    //             // 3️⃣ SOFT DELETE DB RECORDS
+    //             MediaImage::where('media_id', $id)->update([
+    //                 'is_active'  => 0,
+    //                 'is_deleted' => 1
+    //             ]);
+
+    //             // 4️⃣ UPLOAD NEW FILES USING IMAGE_ADD
+    //             foreach ($request->file('images') as $image) {
+
+    //                 $fileName = uploadImage(
+    //                     $image,
+    //                     config('fileConstants.IMAGE_ADD')
+    //                 );
+
+    //                 MediaImage::create([
+    //                     'media_id'   => $id,
+    //                     'images'     => $fileName,
+    //                     'is_active'  => 1,
+    //                     'is_deleted' => 0,
+    //                 ]);
+    //             }
+    //         }
+
+
+    //         /** 🔹 UPDATE PANORAMA (OLD REMOVE → NEW SAVE) */
+    //         if ($request->hasFile('panorama_image')) {
+
+    //             // REMOVE OLD FILE
+    //             if (!empty($media->panorama_image)) {
+    //                 removeImage(
+    //                     $media->panorama_image,
+    //                     config('fileConstants.IMAGE_DELETE')
+    //                 );
+    //             }
+
+    //             // UPLOAD NEW
+    //             $panoramaName = uploadImage(
+    //                 $request->file('panorama_image'),
+    //                 config('fileConstants.IMAGE_ADD')
+    //             );
+
+    //             // UPDATE DB
+    //             $this->repo->update($id, [
+    //                 'panorama_image' => $panoramaName
+    //             ]);
+    //         }
+    //         DB::commit();
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         throw $e;
+    //     }
+    // }
     public function toggleStatus($id)
     {
         $this->repo->toggleStatus($id);

@@ -92,8 +92,8 @@
 
                     <li>
                         <i class="bi bi-envelope"></i>
-                        <a href="mailto:brandimage.gmail.com">
-                            brandimage.gmail.com
+                        <a href="mailto:sales@brand-image.co.in">
+                            sales@brand-image.co.in
                         </a>
                     </li>
                 </ul>

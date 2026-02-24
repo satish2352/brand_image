@@ -197,7 +197,7 @@
                     <a href="tel:+917770009506">+91 777 000 9506</a>
                     <br>
                     Email:
-                    <a href="mailto:brandimage@gmail.com">brandimage@gmail.com</a>
+                    <a href="mailto:sales@brand-image.co.in">sales@brand-image.co.in</a>
                 </p>
             </div>
         </div>

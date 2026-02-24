@@ -57,7 +57,7 @@ class HomeController extends Controller
                 'm.width',
                 'm.height',
                 'm.facing',
-                'm.video_link',
+                // 'm.video_link',
                 'ct.category_name',
                 'a.area_name',
                 's.state_name as state_name',
@@ -66,6 +66,7 @@ class HomeController extends Controller
                 'm.area_type',
                 'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
+                'm.panorama_image',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
                 DB::raw("CASE
                     WHEN EXISTS (

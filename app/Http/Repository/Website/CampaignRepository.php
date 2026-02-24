@@ -238,12 +238,49 @@ class CampaignRepository
     //         ->get()
     //         ->groupBy('campaign_id');
     // }
+    // public function getOpenCampaigns($userId, $request)
+    // {
+    //     return $this->baseQuery($userId, $request)
+
+    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
+
+    //         ->selectRaw('
+    //         EXISTS (
+    //             SELECT 1
+    //             FROM orders o
+    //             JOIN order_items oi ON oi.order_id = o.id
+    //             WHERE
+    //                 o.user_id != ?
+    //                 AND o.payment_status IN ("PAID","ADMIN_BOOKED")
+    //                 AND o.is_deleted = 0
+    //                 AND oi.media_id = ci.media_id
+    //                 AND oi.from_date <= ci.to_date
+    //                 AND oi.to_date >= ci.from_date
+    //         ) as is_booked
+    //     ', [$userId])
+
+    //         ->orderBy('c.id', 'DESC')
+    //         ->get()
+    //         ->groupBy('campaign_id');
+    // }
     public function getOpenCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)
 
             ->whereDate('ci.to_date', '>=', now()->toDateString())
 
+            // ❌ hide campaigns already ordered by same user
+            ->whereNotExists(function ($q) use ($userId) {
+
+                $q->select(DB::raw(1))
+                    ->from('orders as o')
+                    ->whereColumn('o.campaign_id', 'c.id')
+                    ->where('o.user_id', $userId)
+                    ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+                    ->where('o.is_deleted', 0);
+            })
+
+            // ✔ show booking status by OTHER user
             ->selectRaw('
             EXISTS (
                 SELECT 1

@@ -27,7 +27,7 @@
         .price {
             font-size: 22px;
             font-weight: 700;
-            color: #28a745;
+            color: #f28123;
         }
 
         .media-info p {
@@ -83,7 +83,7 @@
         .flatpickr-day.inRange,
         .flatpickr-day.startRange,
         .flatpickr-day.endRange {
-            background: #28a745 !important;
+            background: #f28123 !important;
             color: #fff !important;
         }
 
@@ -190,7 +190,7 @@
         .price {
             font-size: 18px;
             font-weight: 700;
-            color: #28a745;
+            color: #f28123;
         }
 
         .per-day {

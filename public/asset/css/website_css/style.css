@@ -1391,7 +1391,7 @@ Header .navbar-custom {
     /* background-color: #051922; */
     background: #051922a8;
     color: #aaa;
-    padding-top: 70px;
+    padding-top: 30px;
 }
 
 /* Brand */
@@ -2177,14 +2177,14 @@ Header .navbar-custom {
 .single-latest-news {
     height: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .news-text-box {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 20px 20px 0px 20px;
 }
 
 .news-text-box h3 {
@@ -2202,7 +2202,7 @@ Header .navbar-custom {
 .media-price {
     font-size: 18px;
     font-weight: 700;
-    color: #28a745;
+    color: #f28123;
     /* margin: 6px 0 10px; */
 }
 

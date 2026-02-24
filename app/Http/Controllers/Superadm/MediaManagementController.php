@@ -120,6 +120,7 @@ class MediaManagementController extends Controller
 
             'images'      => 'nullable|array|max:10',
             'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024|dimensions:width=500,height=600',
+            // 'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ];
 
         switch (true) {

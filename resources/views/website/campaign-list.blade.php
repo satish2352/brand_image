@@ -220,12 +220,19 @@
 
                                                         </td>
                                                         <td>
+@if($row->is_booked ?? false)
+    <span class="badge bg-danger">Other User Booked</span>
+@else
+    <span class="badge bg-success">Open</span>
+@endif
+</td>
+                                                        {{-- <td>
     @if($row->is_booked)
         <span class="badge bg-danger">Other User Booked</span>
     @else
         <span class="badge bg-success">Open</span>
     @endif
-</td>
+</td> --}}
                                                     @endif
                                                 </tr>
                                             @endforeach

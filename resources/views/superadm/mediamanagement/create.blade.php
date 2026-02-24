@@ -565,15 +565,23 @@
                         ">
                         </div>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    {{-- <div class="col-md-4 mb-3">
                         <label>360 View Link </label>
                         <input type="text" name="video_link" value="{{ old('video_link') }}"
                             class="form-control @error('video_link') is-invalid @enderror">
                         @error('video_link')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
+                    </div> --}}
+<div class="col-md-4 mb-3">
+    <label>360 Image</label>
+    <input type="file" name="panorama_image"
+           class="form-control @error('panorama_image') is-invalid @enderror">
 
+    @error('panorama_image')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
 
                 </div>
                 <div class="row" id="wallWrapSection">

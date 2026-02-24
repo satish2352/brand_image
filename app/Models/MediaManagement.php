@@ -44,7 +44,8 @@ class MediaManagement extends Model
         'area_auto',
         'radius_id',
         'area_type',
-        'video_link',
+        // 'video_link',
+        'panorama_image',
         'is_active',
         'is_deleted',
     ];

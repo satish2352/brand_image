@@ -13,6 +13,8 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('asset/theamoriginalalf/images/favicon.png') }}">
 <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css"/>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <!-- fontawesome -->
@@ -150,7 +152,7 @@
     </div>
 
     @yield('scripts')
-
+<script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
 </body>
 
 </html>
