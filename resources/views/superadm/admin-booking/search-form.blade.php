@@ -93,12 +93,15 @@
 
               <div class="col-xl-2 col-lg-3 col-md-6" id="radius_wrapper">
                     <label class="form-label">Radius</label>
-                    <select name="radius_id" id="radius_id" class="form-select form-control">
-                        <option value="">Radius</option>
-                        @foreach ($radiusList as $r)
-                            <option value="{{ $r->radius }}">{{ $r->radius }} KM</option>
-                        @endforeach
-                    </select>
+               <select name="radius_id" id="radius_id" class="form-select form-control">
+                            <option value="">Radius</option>
+                            @foreach ($radiusList as $r)
+                                <option value="{{ $r->radius }}"
+                                    {{ ($filters['radius_id'] ?? '') == $r->radius ? 'selected' : '' }}>
+                                    {{ $r->radius }} KM
+                                </option>
+                            @endforeach
+                        </select>
                 </div>
 
                 <div class="col-xl-3 col-lg-4 col-md-6">
@@ -217,7 +220,7 @@
         $('#radius_id')
             .prop('disabled', true)
             .addClass('bg-light')
-            .val('');
+            
     }
 }
 
