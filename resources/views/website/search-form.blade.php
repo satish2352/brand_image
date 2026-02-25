@@ -239,7 +239,7 @@
     <label class="form-label">Size</label>
 
     <select name="size_id" class="form-select">
-        <option value="">Select Size</option>
+        <option value="">Select Media Size</option>
 
         @foreach($sizes as $id => $size)
             <option value="{{ $size }}"

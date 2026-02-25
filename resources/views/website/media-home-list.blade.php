@@ -90,6 +90,17 @@ $sqft = $width * $height;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+@media (max-width: 768px) {
+    .card-shadow{
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+    transition: all 0.3s ease;
+   margin-bottom: 22px;
+   margin: 10px !important;
+}
+}
+
+
 </style>
 {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
 {{-- <div class="col-12 col-md-12 mb-4"> --}}
