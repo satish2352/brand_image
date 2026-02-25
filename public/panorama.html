@@ -214,11 +214,14 @@
             panorama: img,
             autoLoad: true,
 
-            // ⭐ animation
             autoRotate: 3,
             autoRotateInactivityDelay: 2000,
-            pitch: -5,
-            hfov: 110,
+
+            hfov: 100,
+            minHfov: 0,
+            maxHfov: 120,
+
+            mouseZoom: true,
             showControls: true
         });
     </script>
