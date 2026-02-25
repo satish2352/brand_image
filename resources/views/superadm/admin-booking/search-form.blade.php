@@ -322,8 +322,36 @@
         // if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
         // if (selectedCity) loadAreas(selectedCity, selectedArea);
 
-        if (selectedState) {
-    loadDistricts(selectedState, selectedDistrict);
+//         if (selectedState) {
+//     loadDistricts(selectedState, selectedDistrict);
+// }
+if (selectedState) {
+    $.post("{{ route('ajax.districts') }}", {
+        _token: csrf,
+        state_id: selectedState
+    }, function(data) {
+
+        let html = '<option value="">Select District</option>';
+        data.forEach(d => {
+            html += `<option value="${d.id}" ${d.id == selectedDistrict ? 'selected' : ''}>
+                        ${d.district_name}
+                    </option>`;
+        });
+
+        $('#district_id').html(html);
+
+        // NOW load cities
+        if (selectedDistrict) {
+            loadCities(selectedDistrict, selectedCity);
+
+            // AFTER city loaded → areas
+            setTimeout(function () {
+                if (selectedCity) {
+                    loadAreas(selectedCity, selectedArea);
+                }
+            }, 300);
+        }
+    });
 }
 
 if (selectedDistrict) {

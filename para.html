@@ -3,9 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    <title>360 Panorama Viewer</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
 
     <style>
         html,
@@ -13,12 +15,13 @@
             margin: 0;
             width: 100%;
             height: 100%;
-            background: #000;
+            overflow: hidden;
         }
 
         #panorama {
             width: 100%;
             height: 100vh;
+            background: #000;
         }
     </style>
 </head>
@@ -34,43 +37,37 @@
         const params = new URLSearchParams(window.location.search);
         const img = params.get("img");
 
+        // ❌ image missing check
         if (!img) {
-            alert("Image missing");
-        }
-        else {
+            alert("Image not found from admin panel");
+        } else {
 
             pannellum.viewer('panorama', {
 
                 type: "equirectangular",
-                panorama: img,
+                panorama: img,      // ⭐ dynamic image
 
                 autoLoad: true,
 
-                // ⭐ VERY IMPORTANT (WIDE CAMERA)
-                hfov: 135,     // bigger = more background
+                // ⭐ Animation
+                autoRotate: 2,
+                autoRotateInactivityDelay: 2000,
 
-                // ⭐ CAMERA POSITION (MATCH SIVARAA)
-                pitch: -5,
+                // ⭐ NO STRETCH SETTINGS (IMPORTANT)
+                hfov: 90,
+                minHfov: 50,
+                maxHfov: 120,
+
+                pitch: 0,
                 yaw: 0,
-
-                // ❌ REMOVE THESE COMPLETELY
-                // minHfov
-                // maxHfov
-
-                // Smooth movement
-                friction: 0.15,
-
-                autoRotate: 1,
-                autoRotateInactivityDelay: 3000,
 
                 mouseZoom: true,
                 showControls: true,
-                draggable: true,
 
                 backgroundColor: [0, 0, 0]
             });
-        }
 
+        }
     </script>
 
 </body>
