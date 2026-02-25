@@ -4,72 +4,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>360 Panorama Viewer</title>
+    <title>360 Photo Viewer & Uploader</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
 
     <style>
-        html,
         body {
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #f4f4f4;
         }
 
         #panorama {
             width: 100%;
-            height: 100vh;
-            background: #000;
+            max-width: 800px;
+            height: 500px;
+            background-color: #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .speed-control {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        .share-section {
+            margin-top: 15px;
+            display: none;
+            padding: 10px;
+            background: #e1f5fe;
+            border: 1px solid #81d4fa;
+            border-radius: 4px;
         }
     </style>
 </head>
 
 <body>
 
+    <div class="controls">
+        <h2>Upload 360° Panorama</h2>
+        <input type="file" id="imageInput" accept="image/*">
+
+        <div class="speed-control">
+            <label for="speedRange">Auto-Rotate Speed:</label>
+            <input type="range" id="speedRange" min="-15" max="15" value="0" step="1" oninput="updateSpeed(this.value)">
+            <span id="speedValue">0 (Stopped)</span>
+        </div>
+
+        <div class="share-section" id="shareSection">
+            <p><strong>Shareable Link:</strong></p>
+            <input type="text" id="shareLink" readonly style="width: 100%; padding: 5px;">
+            <button onclick="copyLink()" style="margin-top: 5px; cursor: pointer;">Copy
+                Link</button>
+        </div>
+    </div>
+
     <div id="panorama"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
 
     <script>
+        let viewer;
 
-        const params = new URLSearchParams(window.location.search);
-        const img = params.get("img");
+        // Handle Local File Upload 
+        document.getElementById('imageInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        // ❌ image missing check
-        if (!img) {
-            alert("Image not found from admin panel");
-        } else {
+            const objectURL = URL.createObjectURL(file);
+            loadPanorama(objectURL);
 
-            pannellum.viewer('panorama', {
+            // Upload to server (Requires backend running) 
+            uploadToServer(file);
+        });
 
-                type: "equirectangular",
-                panorama: img,      // ⭐ dynamic image
+        function loadPanorama(imageSrc) {
+            if (viewer) {
+                viewer.destroy();
+            }
 
-                autoLoad: true,
-
-                // ⭐ Animation
-                autoRotate: 2,
-                autoRotateInactivityDelay: 2000,
-
-                // ⭐ NO STRETCH SETTINGS (IMPORTANT)
-                hfov: 90,
-                minHfov: 50,
-                maxHfov: 120,
-
-                pitch: 0,
-                yaw: 0,
-
-                mouseZoom: true,
-                showControls: true,
-
-                backgroundColor: [0, 0, 0]
+            viewer = pannellum.viewer('panorama', {
+                "type": "equirectangular",
+                "panorama": imageSrc,
+                "autoLoad": true,
+                "autoRotate": 0 // Start stopped 
             });
 
+            // Reset slider to 0 when loading new image 
+            document.getElementById('speedRange').value = 0;
+            document.getElementById('speedValue').innerText = "0 (Stopped)";
         }
-    </script>
 
+        // NEW: Function to handle rotation speed 
+        function updateSpeed(speed) {
+            // Update the text label 
+            const label = document.getElementById('speedValue');
+            if (speed == 0) {
+                label.innerText = "0 (Stopped)";
+                viewer.stopAutoRotate();
+            } else {
+                label.innerText = speed + (speed > 0 ? " (Right)" : " (Left)");
+                // Pannellum function to set speed (degrees per second) 
+                viewer.startAutoRotate(parseFloat(speed));
+            }
+        }
+
+        // Server Upload Logic (Same as before) 
+        async function uploadToServer(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                // Ensure this URL matches your backend address 
+                const response = await fetch('http://localhost:3000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.url) {
+                    const shareSection = document.getElementById('shareSection');
+                    const shareLinkInput = document.getElementById('shareLink');
+
+                    shareSection.style.display = 'block';
+                    shareLinkInput.value = window.location.origin + window.location.pathname +
+                        "?img=" + encodeURIComponent(data.url);
+                }
+            } catch (error) {
+                console.error("Backend not running.");
+            }
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("shareLink");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Link copied!");
+        }
+
+        // Check URL for shared image 
+        window.onload = function () {
+            const params = new URLSearchParams(window.location.search);
+            const sharedImg = params.get('img');
+            if (sharedImg) {
+                loadPanorama(sharedImg);
+            }
+        } 
+    </script>
 </body>
 
 </html>
