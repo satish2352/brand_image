@@ -163,7 +163,21 @@ class HordingBookRepository
             $query->where('m.area_id', $filters['area_id']);
         }
 
+        /* SIZE FILTER */
+        if (!empty($filters['size_id'])) {
 
+            // size comes like "32 x 23"
+            $parts = explode(' x ', $filters['size_id']);
+
+            if (count($parts) == 2) {
+
+                $width  = (float) $parts[0];
+                $height = (float) $parts[1];
+
+                $query->where('m.width', $width)
+                    ->where('m.height', $height);
+            }
+        }
         /* ================= AVAILABLE DAYS FILTER ================= */
         // if (!empty($filters['available_days'])) {
         if (isset($filters['available_days']) && $filters['available_days'] !== '') {
@@ -230,7 +244,30 @@ class HordingBookRepository
             'total_count' => $totalCount
         ];
     }
+    public function getUniqueSizes()
+    {
+        return DB::table('media_management')
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->whereNotNull('width')
+            ->whereNotNull('height')
+            ->select(
+                DB::raw('MIN(id) as id'),   // key
+                'width',
+                'height'
+            )
+            ->groupBy('width', 'height')   // ⭐ remove duplicates
+            ->orderBy('width')
+            ->get()
+            ->mapWithKeys(function ($item) {
 
+                $size = (float)$item->width . ' x ' . (float)$item->height;
+
+                return [
+                    $item->id => $size   // key => value
+                ];
+            });
+    }
     public function getMediaDetailsAdmin($mediaId)
     {
         $media = DB::table('media_management as m')

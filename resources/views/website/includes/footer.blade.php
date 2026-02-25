@@ -8,7 +8,7 @@
         <div class="row footer-top">
 
             <!-- Brand -->
-            <div class="col-lg-3 col-md-6 footer-col mb-md-5">
+            <div class="col-lg-3 col-md-6 footer-col pb-3">
                 <div class="footer-brand">
                     <div class="brand-logo">
                         <img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand_Image_Logo"

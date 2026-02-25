@@ -105,7 +105,8 @@ nav.main-menu {
 
 .site-logo {
   float: left;
-  max-width: 150px;
+  // max-width: 150px;
+  width: 16% !important;
 }
 
 ul.sub-menu li:last-child {

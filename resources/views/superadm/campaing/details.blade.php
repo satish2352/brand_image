@@ -72,14 +72,14 @@
                                         <td>{{ number_format($gst, 2) }}</td>
                                         <td><strong>{{ number_format($final, 2) }}</strong></td>
 
-                                        <td>
+                                        {{-- <td>
                                             @if ($item->is_booked)
                                                 <span class="badge badge-danger">Booked</span>
                                             @else
                                                 <span class="badge badge-success">Available</span>
                                             @endif
-                                        </td>                                      
-                                        <td>
+                                        </td>                                       --}}
+                                        {{-- <td>
     @if ($item->is_booked)
         <button class="btn btn-secondary btn-sm" disabled>Booked</button>
     @else
@@ -96,6 +96,52 @@
             <input type="hidden" name="per_day_price" value="{{ $item->per_day_price ?? 0 }}">
 
             <button type="submit" class="btn btn-primary btn-sm">Book</button>
+        </form>
+    @endif
+</td> --}}
+
+<td>
+    @if ($item->booked_by_me)
+        <span class="badge badge-danger">Booked</span>
+
+    @elseif ($item->booked_by_other)
+          <span class="badge badge-pill badge-warning px-3 py-2" style="color: #fff;">
+            <i class="fa fa-lock mr-1"></i>
+            Other User Booked
+        </span>
+
+    @else
+        <span class="badge badge-success">Available</span>
+    @endif
+</td>
+
+<td>
+    @if ($item->booked_by_me)
+        <button class="btn btn-secondary btn-sm" disabled>
+            Booked
+        </button>
+
+    @elseif ($item->booked_by_other)
+        <button class="btn btn-warning btn-sm" disabled>
+            Other User Booked
+        </button>
+
+    @else
+        <form action="{{ route('admin.campaign.book') }}" method="POST">
+            @csrf
+            <input type="hidden" name="campaign_id" value="{{ $item->campaign_id }}">
+            <input type="hidden" name="user_id" value="{{ $item->user_id }}">
+            <input type="hidden" name="media_id" value="{{ $item->media_id }}">
+            <input type="hidden" name="from_date" value="{{ $item->from_date }}">
+            <input type="hidden" name="to_date" value="{{ $item->to_date }}">
+            <input type="hidden" name="price" value="{{ $item->price }}">
+            <input type="hidden" name="total_price" value="{{ $item->total_price }}">
+            <input type="hidden" name="total_days" value="{{ $item->total_days }}">
+            <input type="hidden" name="per_day_price" value="{{ $item->per_day_price ?? 0 }}">
+
+            <button type="submit" class="btn btn-primary btn-sm">
+                Book
+            </button>
         </form>
     @endif
 </td>

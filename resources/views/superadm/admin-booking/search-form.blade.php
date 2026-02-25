@@ -107,7 +107,7 @@
                         <option value="">Select Area</option>
                     </select>
                 </div>
-                <div class="col-xl-3 col-lg-3 col-md-6" id="area_type_wrapper">
+                <div class="col-xl-2 col-lg-3 col-md-6" id="area_type_wrapper">
                     <label class="form-label">Area Type</label>
                     <select name="area_type" id="area_type" class="form-select form-control">
                         <option value="">Select Type</option>
@@ -118,9 +118,22 @@
                     </select>
                 </div>
 
-               
+                  <div class="col-xl-2 col-lg-3 col-md-6">
+    <label class="form-label">Size</label>
 
-                <div class="col-xl-4 col-lg-3 col-md-6">
+    <select name="size_id" class="form-select form-control">
+        <option value="">Select Size</option>
+
+        @foreach($sizes as $id => $size)
+            <option value="{{ $size }}"
+                {{ ($filters['size_id'] ?? '') == $size ? 'selected' : '' }}>
+                {{ $size }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
+                <div class="col-xl-3 col-lg-3 col-md-6">
                     <label class="form-label">Available Days</label>
                     <select name="available_days" class="form-select form-control">
                         <option value="">Select Days</option>
@@ -192,7 +205,27 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+         function toggleRadius() {
+    const cityId = $('#city_id').val();
+    const areaId = $('#area_id').val();
+
+    if (cityId && !areaId) {
+        $('#radius_id')
+            .prop('disabled', false)
+            .removeClass('bg-light');
+    } else {
+        $('#radius_id')
+            .prop('disabled', true)
+            .addClass('bg-light')
+            .val('');
+    }
+}
+
+</script>
+<script>
     $(document).ready(function() {
+
+    
 
         const categoryId = $('#category_id').val();
 
@@ -248,6 +281,7 @@
                         `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>${c.city_name}</option>`;
                 });
                 $('#city_id').html(html);
+                toggleRadius();
             });
         }
 
@@ -284,9 +318,24 @@
         });
 
         // Initial selection
-        if (selectedState) loadDistricts(selectedState, selectedDistrict);
-        if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
-        if (selectedCity) loadAreas(selectedCity, selectedArea);
+        // if (selectedState) loadDistricts(selectedState, selectedDistrict);
+        // if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
+        // if (selectedCity) loadAreas(selectedCity, selectedArea);
+
+        if (selectedState) {
+    loadDistricts(selectedState, selectedDistrict);
+}
+
+if (selectedDistrict) {
+    loadCities(selectedDistrict, selectedCity);
+}
+
+if (selectedCity) {
+    loadAreas(selectedCity, selectedArea);
+}
+
+// ⭐ FINAL CHECK
+
     });
 </script>
 <script>
@@ -298,22 +347,7 @@
 <script>
     $(document).ready(function() {
 
-        function toggleRadius() {
-            const cityId = $('#city_id').val();
-            const areaId = $('#area_id').val();
-
-            //  Enable ONLY when city selected AND area NOT selected
-            if (cityId && !areaId) {
-                $('#radius_id')
-                    .prop('disabled', false)
-                    .removeClass('bg-light');
-            } else {
-                $('#radius_id')
-                    .prop('disabled', true)
-                    .addClass('bg-light')
-                    .val('');
-            }
-        }
+     
 
         // 🔁 When city changes
         $('#city_id').on('change', function() {

@@ -82,12 +82,20 @@ $sqft = $width * $height;
 .card-actions{
         padding-top: 22px;
 }
+
+.media-title a {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;   /* number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 </style>
 {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
 {{-- <div class="col-12 col-md-12 mb-4"> --}}
     {{-- <div class="single-latest-news"> --}}
           <div class="row card-shadow px-0">
-        <div class="col-lg-6 col-md-6 col-sm-6 px-0">
+        <div class="col-lg-5 col-md-5 col-sm-5 px-0">
         {{-- <div class="latest-news-bg"
             style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')" class="card-img-fit">
             @if ($isBillboard)
@@ -111,7 +119,7 @@ $sqft = $width * $height;
     @endif
 </div>
         </div>
-        <div class="col-lg-6 col-md-6 col-sm-6">
+        <div class="col-lg-7 col-md-7 col-sm-7">
         <div class="news-text-box">
             <h3 class="media-title">
                 <a href="{{ route('website.media-details', base64_encode($media->id)) }}">

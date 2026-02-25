@@ -52,7 +52,7 @@
 
 <!-- header -->
 <div class="top-header-area" id="sticker">
-    <div class="container">
+    <div class="container mob-padding">
         <div class="row">
             <div class="col-lg-12 col-sm-12 text-center">
                 <div class="main-menu-wrap">
@@ -60,7 +60,7 @@
                     <div class="site-logo">
                         <a href="{{ url('/') }}">
                             <img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand_Image_Logo"
-                                style="height: 55px;">
+                                >
                         </a>
                     </div>
                     <!-- logo -->

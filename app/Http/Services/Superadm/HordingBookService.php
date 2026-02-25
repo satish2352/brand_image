@@ -26,7 +26,10 @@ class HordingBookService
         return $data_output;
     }
 
-
+    public function getUniqueSizes()
+    {
+        return $this->repo->getUniqueSizes();
+    }
     public function handleAdminBooking($request)
     {
         DB::transaction(function () use ($request) {

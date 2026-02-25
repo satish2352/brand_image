@@ -57,25 +57,60 @@ class CampaingService
                 'm.media_title',
                 'm.width',
                 'm.height',
-                  'm.facing',
+                'm.facing',
                 'a.area_name',
                 'a.common_stdiciar_name'
             )
             ->orderBy('c.id', 'DESC')
             ->get();
-
         foreach ($items as $item) {
-            $item->is_booked = DB::table('media_booked_date')
-                ->where('media_id', $item->media_id)
-                ->where('is_deleted', 0)
+
+            // booking by SAME USER
+            $bookedByMe = DB::table('orders as o')
+                ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+                ->where('oi.media_id', $item->media_id)
+                ->where('o.user_id', $item->user_id)
+                ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+                ->where('o.is_deleted', 0)
                 ->where(function ($q) use ($item) {
-                    $q->whereBetween('from_date', [$item->from_date, $item->to_date])
-                        ->orWhereBetween('to_date', [$item->from_date, $item->to_date])
-                        ->orWhereRaw("'{$item->from_date}' BETWEEN from_date AND to_date")
-                        ->orWhereRaw("'{$item->to_date}' BETWEEN from_date AND to_date");
+                    $q->whereBetween('oi.from_date', [$item->from_date, $item->to_date])
+                        ->orWhereBetween('oi.to_date', [$item->from_date, $item->to_date])
+                        ->orWhereRaw("'{$item->from_date}' BETWEEN oi.from_date AND oi.to_date")
+                        ->orWhereRaw("'{$item->to_date}' BETWEEN oi.from_date AND oi.to_date");
                 })
                 ->exists();
+
+
+            // booking by OTHER USER
+            $bookedByOther = DB::table('orders as o')
+                ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+                ->where('oi.media_id', $item->media_id)
+                ->where('o.user_id', '!=', $item->user_id)
+                ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+                ->where('o.is_deleted', 0)
+                ->where(function ($q) use ($item) {
+                    $q->whereBetween('oi.from_date', [$item->from_date, $item->to_date])
+                        ->orWhereBetween('oi.to_date', [$item->from_date, $item->to_date])
+                        ->orWhereRaw("'{$item->from_date}' BETWEEN oi.from_date AND oi.to_date")
+                        ->orWhereRaw("'{$item->to_date}' BETWEEN oi.from_date AND oi.to_date");
+                })
+                ->exists();
+
+            $item->booked_by_me = $bookedByMe;
+            $item->booked_by_other = $bookedByOther;
         }
+        // foreach ($items as $item) {
+        //     $item->is_booked = DB::table('media_booked_date')
+        //         ->where('media_id', $item->media_id)
+        //         ->where('is_deleted', 0)
+        //         ->where(function ($q) use ($item) {
+        //             $q->whereBetween('from_date', [$item->from_date, $item->to_date])
+        //                 ->orWhereBetween('to_date', [$item->from_date, $item->to_date])
+        //                 ->orWhereRaw("'{$item->from_date}' BETWEEN from_date AND to_date")
+        //                 ->orWhereRaw("'{$item->to_date}' BETWEEN from_date AND to_date");
+        //         })
+        //         ->exists();
+        // }
 
         return $items;
     }

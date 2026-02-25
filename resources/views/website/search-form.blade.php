@@ -234,6 +234,22 @@
                             15 Days</option>
                     </select> --}}
                 </div>
+
+              <div class="col-lg-2 col-md-4 col-sm-6" id="size_wrapper">
+    <label class="form-label">Size</label>
+
+    <select name="size_id" class="form-select">
+        <option value="">Select Size</option>
+
+        @foreach($sizes as $id => $size)
+            <option value="{{ $size }}"
+                {{ ($filters['size_id'] ?? '') == $size ? 'selected' : '' }}>
+                {{ $size }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
                 <div class="col-lg-2 col-md-4 col-sm-6" id="days_wrapper">
 
                     <!-- Budget Slider -->

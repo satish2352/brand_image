@@ -138,7 +138,21 @@ class HomeRepository
         if (!empty($filters['area_id'])) {
             $query->where('m.area_id', $filters['area_id']);
         }
+        /* SIZE FILTER */
+        if (!empty($filters['size_id'])) {
 
+            // size comes like "32 x 23"
+            $parts = explode(' x ', $filters['size_id']);
+
+            if (count($parts) == 2) {
+
+                $width  = (float) $parts[0];
+                $height = (float) $parts[1];
+
+                $query->where('m.width', $width)
+                    ->where('m.height', $height);
+            }
+        }
         //     if (!empty($filters['available_days'])) {
 
         //         $days = (int) $filters['available_days'];
@@ -293,7 +307,30 @@ END AS is_available_days
     }
 
 
+    public function getUniqueSizes()
+    {
+        return DB::table('media_management')
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->whereNotNull('width')
+            ->whereNotNull('height')
+            ->select(
+                DB::raw('MIN(id) as id'),   // key
+                'width',
+                'height'
+            )
+            ->groupBy('width', 'height')   // ⭐ remove duplicates
+            ->orderBy('width')
+            ->get()
+            ->mapWithKeys(function ($item) {
 
+                $size = (float)$item->width . ' x ' . (float)$item->height;
+
+                return [
+                    $item->id => $size   // key => value
+                ];
+            });
+    }
     public function getMediaDetails($mediaId)
     {
         $media = DB::table('media_management as m')
@@ -359,6 +396,7 @@ END AS is_available_days
             ->select([
                 'm.id',
                 'm.media_title',
+                'm.media_title',
                 'm.price',
                 'm.category_id',
                 DB::raw('IFNULL(m.width, 0)  as width'),
@@ -371,7 +409,8 @@ END AS is_available_days
                 'city.city_name',
                 'mi.first_image',
                 'm.latitude',
-                'm.longitude'
+                'm.longitude',
+                'm.panorama_image',
             ])
             ->orderBy('m.created_at', 'DESC')
             ->get();

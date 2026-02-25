@@ -51,7 +51,7 @@
         }
 
         .card-btn.cart {
-            background: #28a745;
+            background: #F28123;
             color: #fff;
         }
 

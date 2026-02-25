@@ -17,13 +17,15 @@ class HordingBookController extends Controller
     public function index()
     {
         $filters = [];
-     // $mediaList = $this->homeService->searchMedia($filters);
+        // $mediaList = $this->homeService->searchMedia($filters);
 
-    $mediaData = $this->homeService->searchMedia($filters);
+        $mediaData = $this->homeService->searchMedia($filters);
 
-    $mediaList  = $mediaData['data'];         // paginator
-    $totalCount = $mediaData['total_count']; // integer
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount'));
+        $mediaList  = $mediaData['data'];         // paginator
+        $totalCount = $mediaData['total_count']; // integer
+
+        $sizes = $this->homeService->getUniqueSizes();
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes'));
     }
 
     public function search(Request $request)
@@ -31,7 +33,7 @@ class HordingBookController extends Controller
         if ($request->filled('clear')) {
             return redirect()->route('admin-booking.index');
         }
-
+        $sizes = $this->homeService->getUniqueSizes();
         $filters = $request->only([
             'category_id',
             'state_id',
@@ -43,11 +45,12 @@ class HordingBookController extends Controller
             'to_date',
             'area_type',
             'available_days',
+            'size_id'
         ]);
 
         $mediaData = $this->homeService->searchMedia($filters);
-  $mediaList  = $mediaData['data'];         // paginator
-    $totalCount = $mediaData['total_count']; // integer
+        $mediaList  = $mediaData['data'];         // paginator
+        $totalCount = $mediaData['total_count']; // integer
         // 🔥 Lazy load AJAX
         if ($request->ajax()) {
             return view('superadm.admin-booking.admin-media-home-list', [
@@ -56,7 +59,7 @@ class HordingBookController extends Controller
         }
 
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount'));
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes'));
     }
     public function getMediaDetailsAdmin($mediaId)
     {

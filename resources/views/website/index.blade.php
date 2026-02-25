@@ -406,13 +406,25 @@
                                     <img src="{{ asset('assets/img/105.png') }}" width="30">
                                     <span>View on Map</span>
                                 </a>
-                                @if (!empty($media->panorama_image))
+                                @if(!empty($media->panorama_image))
+
+<a href="{{ url('./panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW').$media->panorama_image)) }}"
+   target="_blank"
+   class="text-muted d-inline-flex align-items-center gap-1">
+
+    <img src="{{ asset('assets/img/360view.png') }}" width="30">
+    <span>360° View</span>
+
+</a>
+
+@endif
+                                {{-- @if (!empty($media->panorama_image))
                                 <a href="{{ $media->panorama_image }}" target="_blank"
                                     class="text-muted d-inline-flex align-items-center gap-1">
                                     <img src="{{ asset('assets/img/360view.png') }}" width="30">
                                     <span>360° View</span>
                                 </a>
-                                @endif
+                                @endif --}}
                             </div>
                             @php
                             $isBillboard = (int) $media->category_id === 1;

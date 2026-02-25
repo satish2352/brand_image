@@ -83,10 +83,11 @@ class HomeController extends Controller
 
             ->get();
 
+        // dd($billboards);
+        // die();
+        $sizes = $this->homeService->getUniqueSizes();
 
-
-
-        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards'));
+        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'sizes'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
@@ -100,10 +101,12 @@ class HomeController extends Controller
 
             $filters = [];
             $mediaList = $this->homeService->searchMedia($filters);
-            return view('website.search', compact('mediaList', 'filters'));
+            // ADD THIS
+            $sizes = $this->homeService->getUniqueSizes();
+            return view('website.search', compact('mediaList', 'filters', 'sizes'));
         }
 
-
+        $sizes = $this->homeService->getUniqueSizes();
         $filters = $request->only([
             'category_id',
             'state_id',
@@ -117,6 +120,7 @@ class HomeController extends Controller
             'available_days',
             'min_price',   // <- add
             'max_price',   // <- add
+            'size_id'   //  FIXED
         ]);
         // ⭐ SAVE FILTERS IN SESSION
         session(['search_filters' => $filters]);
@@ -128,7 +132,7 @@ class HomeController extends Controller
         }
 
         // IMPORTANT — return the view (NO redirect)
-        return view('website.search', compact('mediaList', 'filters'));
+        return view('website.search', compact('mediaList', 'filters', 'sizes'));
     }
 
     // public function searchView()
@@ -149,7 +153,7 @@ class HomeController extends Controller
 
         $mediaList = $this->homeService->searchMedia($filters);
 
-        return view('website.search', compact('mediaList', 'filters'));
+        return view('website.search', compact('mediaList', 'filters', 'size'));
     }
 
     public function getMediaDetails($mediaId)
