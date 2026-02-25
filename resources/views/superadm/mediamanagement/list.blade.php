@@ -252,7 +252,7 @@
         @section('scripts')
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-            <script>
+            {{-- <script>
                 /* ================= STATUS TOGGLE ================= */
                 $(document).on('change', '.toggle-status', function() {
 
@@ -321,6 +321,116 @@
                     });
 
                 });
-            </script>
+            </script> --}}
+            <script>
+
+$(document).ready(function () {
+
+    // ================= LOAD CITIES =================
+ $(document).ready(function () {
+
+    function loadCities(districtId, selectedCity = '') {
+
+        if (districtId === '') {
+            $('#city_id').html('<option value="">Select Town</option>');
+            return;
+        }
+
+        $('#city_id').html('<option value="">Loading...</option>');
+
+        $.ajax({
+            url: "{{ url('get-cities') }}/" + districtId,
+            type: "GET",
+            success: function (response) {
+
+                let options = '<option value="">Select Town</option>';
+
+                $.each(response, function (key, city) {
+
+                    let selected = (city.id == selectedCity)
+                        ? 'selected'
+                        : '';
+
+                    options += `
+                        <option value="${city.id}" ${selected}>
+                            ${city.city_name}
+                        </option>
+                    `;
+                });
+
+                $('#city_id').html(options);
+            }
+        });
+    }
+
+    // 🔥 ON DISTRICT CHANGE
+    $('#district_id').on('change', function () {
+        loadCities($(this).val());
+    });
+
+    // 🔥 IMPORTANT — PAGE RELOAD CASE
+    let districtId = "{{ request('district_id') }}";
+    let cityId     = "{{ request('city_id') }}";
+
+    if (districtId !== '') {
+        loadCities(districtId, cityId);
+    }
+
+});
+
+});
+
+
+// ================= STATUS TOGGLE =================
+$(document).on('change', '.toggle-status', function() {
+
+    let id = $(this).data('id');
+
+    $.post("{{ route('media.status') }}", {
+        _token: "{{ csrf_token() }}",
+        id: id
+    }, function(response) {
+        toastr.success(response.message);
+    }).fail(function() {
+        toastr.error('Failed to update status');
+    });
+
+});
+
+
+// ================= DELETE =================
+$(document).on('click', '.delete-btn', function() {
+
+    let id = $(this).data('id');
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This media will be permanently deleted.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it'
+    }).then((result) => {
+
+        if (!result.isConfirmed) return;
+
+        $.ajax({
+            url: "{{ route('media.delete') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: id
+            },
+            success: function() {
+                location.reload();
+            }
+        });
+
+    });
+
+});
+
+</script>
         @endsection
     @endsection

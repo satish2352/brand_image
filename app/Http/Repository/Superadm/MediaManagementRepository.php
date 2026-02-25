@@ -45,10 +45,12 @@ class MediaManagementRepository
             $query->where('m.district_id', $filters['district_id']);
         }
 
+        // if (!empty($filters['city_id'])) {
+        //     $query->where('m.city_id', $filters['city_id']);
+        // }
         if (!empty($filters['city_id'])) {
-            $query->where('m.city_id', $filters['city_id']);
+            $query->where('m.city_id', (int)$filters['city_id']);
         }
-
         if (!empty($filters['month'])) {
             $query->whereMonth('m.created_at', $filters['month']);
         }

@@ -137,7 +137,7 @@ class CheckoutController extends Controller
                 ->first();
 
             if ($order) {
-                //  UPDATE order amount only
+
                 $gst = round(($total * 18) / 100, 2);
 
                 $order->update([
@@ -146,8 +146,28 @@ class CheckoutController extends Controller
                     'grand_total'  => $total + $gst,
                 ]);
 
+                // ⭐ INSERT ITEMS IF NOT EXISTS
+                $exists = \App\Models\OrderItem::where('order_id', $order->id)->exists();
+
+                if (!$exists) {
+                    $this->orderRepo->createOrderItems($order->id, $items);
+                }
+
                 return $order;
             }
+
+            // if ($order) {
+            //     //  UPDATE order amount only
+            //     $gst = round(($total * 18) / 100, 2);
+
+            //     $order->update([
+            //         'total_amount' => $total,
+            //         'gst_amount'   => $gst,
+            //         'grand_total'  => $total + $gst,
+            //     ]);
+
+            //     return $order;
+            // }
 
             // 🆕 CREATE order only if none exists
             $order = $this->orderRepo->createOrder($total);
@@ -354,14 +374,19 @@ class CheckoutController extends Controller
 
         //  Notify admins payment done
         $admins = User::where('id', 1)->get();
+
+
         foreach ($admins as $admin) {
-            // $admin->notify(new PaymentReceivedNotification($order));
-            \App\Models\Notification::create([
-                'user_id'  => $admin->id,
-                'order_id' => $order->id,
-                'media_id' => null,   // payment -> no media
-                'is_read'  => 0,      // important
-            ]);
+
+            foreach ($order->items as $item) {
+
+                \App\Models\Notification::create([
+                    'user_id'  => $admin->id,
+                    'order_id' => $order->id,
+                    'media_id' => $item->media_id, // ⭐ REAL MEDIA ID
+                    'is_read'  => 0,
+                ]);
+            }
         }
 
         //  Clear NORMAL cart items (VERY IMPORTANT)
