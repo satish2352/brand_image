@@ -122,7 +122,7 @@
                 </div>
 
                   <div class="col-xl-2 col-lg-3 col-md-6">
-    <label class="form-label">Size</label>
+    <label class="form-label">Media Size</label>
 
     <select name="size_id" class="form-select form-control">
         <option value="">Select Media Size</option>

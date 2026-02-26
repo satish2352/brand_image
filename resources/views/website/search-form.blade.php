@@ -236,7 +236,7 @@
                 </div>
 
               <div class="col-lg-2 col-md-4 col-sm-6" id="size_wrapper">
-    <label class="form-label">Size</label>
+    <label class="form-label">Media Size</label>
 
     <select name="size_id" class="form-select">
         <option value="">Select Media Size</option>
