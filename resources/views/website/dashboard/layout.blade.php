@@ -21,14 +21,7 @@
             background: transparent;
         }
     </style>
-
-    {{-- @php
-$isCampaignPage = request()->routeIs('campaign.list');
-$campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
-@endphp --}}
-
     <!-- breadcrumb-section -->
-   
     <!-- end breadcrumb section -->
     <div class="container-fluid about-banner-img g-0">
         <div class="row g-0">
@@ -44,46 +37,11 @@ $campaignType = $isCampaignPage ? request()->get('type', 'active') : null;
         </div>
         <div class="dashboard-wrapper container my-5">
             <div class="row g-4">
-
                 {{-- SIDEBAR --}}
                 <div class="col-lg-3">
                     <div class="dashboard-sidebar">
                         <h5 class="sidebar-title">My Dashboard</h5>
-
-                        {{-- <ul class="sidebar-menu">
-                       
-                            <li class="{{ request()->routeIs('campaign.*') ? 'active' : '' }}">
-                                <a data-bs-toggle="collapse" href="#campaignMenu" role="button">
-                                    <i class="bi bi-megaphone"></i> Campaign List
-                                </a>
-
-                                <ul class="collapse ps-3 mt-3 {{ request()->routeIs('campaign.list') ? 'show' : '' }}"
-                                    id="campaignMenu">
-
-                                    <li>
-                                        <a href="{{ route('campaign.list', ['type' => 'active']) }}"
-                                            class="{{ $isCampaignPage && $campaignType === 'active' ? 'active' : '' }}">
-                                            Active Campaign List
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a href="{{ route('campaign.list', ['type' => 'past']) }}"
-                                            class="{{ $isCampaignPage && $campaignType === 'past' ? 'active' : '' }}">
-                                            Past Campaign List
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </li>
-                            <li class="{{ request()->routeIs('campaign.payment.history') ? 'active' : '' }}">
-                                <a href="{{ route('campaign.payment.history') }}">
-                                    <i class="bi bi-megaphone"></i> Payment History
-                                </a>
-                            </li>
-                        </ul> --}}
                         <ul class="sidebar-menu">
-
                             <li class="{{ request()->routeIs('campaigns.*') ? 'active' : '' }}">
                                 <a data-bs-toggle="collapse" href="#campaignMenu">
                                     <i class="bi bi-megaphone"></i> Campaign List

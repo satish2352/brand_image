@@ -82,10 +82,6 @@
                                                     <i class="mdi mdi-trash-can-outline icon-medium"></i>
                                                 </button>
                                             </form>
-                                            {{-- <button type="button" class="btn btn-sm btn-danger delete-btn"
-                                                data-id="{{ base64_encode($city->id) }}">
-                                                <i class="mdi mdi-trash-can-outline"></i>
-                                            </button> --}}
                                         </td>
 
 

@@ -57,7 +57,8 @@
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#collapse{{ $campaignId }}">
 
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center w-100 gap-2">
+                                <div
+                                    class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center w-100 gap-2">
 
                                     {{-- Campaign Name --}}
                                     <strong class="text-primary" style="font-size:17px;">
@@ -83,15 +84,10 @@
                                         @else
                                             <span class="badge bg-secondary">Completed</span>
                                         @endif
-
                                     </div>
-
                                 </div>
-
                             </button>
                         </h2>
-
-
                         {{-- BODY --}}
                         <div id="collapse{{ $campaignId }}" class="accordion-collapse collapse"
                             data-bs-parent="#campaignAccordion">
@@ -155,7 +151,7 @@
                                                     <th>Booking Days</th>
                                                     <th>Campaign Date</th>
                                                     <th>Details</th>
-                                                      <th>Status</th>
+                                                    <th>Status</th>
                                                 @endif
                                             </tr>
                                         </thead>
@@ -170,28 +166,16 @@
                                                     @if ($type === 'booked')
                                                         <td>₹ {{ number_format($row->price, 2) }}</td>
                                                         <td>{{ $row->total_days }}</td>
-
-
-
-                                                        {{-- <td>₹ {{ number_format($row->per_day_price, 2) }}</td> --}}
-
                                                         <td>₹ {{ number_format($row->total_price, 2) }}</td>
-
                                                         <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
-
                                                         <td>₹ {{ number_format($row->grand_total, 2) }}</td>
                                                         <td>
                                                             <a href="{{ route('campaign.details', [
-    'cart_item_id' => base64_encode($row->cart_item_id)
-]) }}" class="btn btn-outline-primary btn-sm">
-    View
-</a>
-
-
-                                                            {{-- <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
+                                                                'cart_item_id' => base64_encode($row->cart_item_id),
+                                                            ]) }}"
                                                                 class="btn btn-outline-primary btn-sm">
                                                                 View
-                                                            </a> --}}
+                                                            </a>
                                                         </td>
                                                     @else
                                                         <td>₹ {{ number_format($row->total_price, 2) }}</td>
@@ -206,117 +190,47 @@
 
                                                         <td>{{ \Carbon\Carbon::parse($row->campaign_date)->format('d M Y') }}
                                                         </td>
-
                                                         <td>
-                                                            {{-- <a href="{{ route('campaign.details', base64_encode($row->cart_item_id)) }}"
+                                                            <a href="{{ route('campaign.details', [
+                                                                'cart_item_id' => base64_encode($row->cart_item_id),
+                                                            ]) }}"
                                                                 class="btn btn-outline-primary btn-sm">
                                                                 View
-                                                            </a> --}}
-                                                            <a href="{{ route('campaign.details', [
-    'cart_item_id' => base64_encode($row->cart_item_id)
-]) }}" class="btn btn-outline-primary btn-sm">
-    View
-</a>
-
+                                                            </a>
                                                         </td>
                                                         <td>
-@if($row->is_booked ?? false)
-    <span class="badge bg-danger">Other User Booked</span>
-@else
-    <span class="badge bg-success">Open</span>
-@endif
-</td>
-                                                        {{-- <td>
-    @if($row->is_booked)
-        <span class="badge bg-danger">Other User Booked</span>
-    @else
-        <span class="badge bg-success">Open</span>
-    @endif
-</td> --}}
+                                                            @if ($row->is_booked ?? false)
+                                                                <span class="badge bg-danger">Other User Booked</span>
+                                                            @else
+                                                                <span class="badge bg-success">Open</span>
+                                                            @endif
+                                                        </td>
                                                     @endif
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
-                               
-                                        <!-- <div class="d-flex justify-content-end p-3 border-top">
+                                    @php
+                                        // $hasBookedMedia = $items->contains(fn($i) => $i->is_booked);
+                                        $hasBookedMedia = $items->contains(fn($i) => $i->is_booked ?? false);
+                                    @endphp
+
+                                    @if ($type === 'open')
+                                        <div class="d-flex justify-content-end p-3 border-top">
                                             <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}"
                                                 method="POST">
                                                 @csrf
-                                                
-                                                <button type="submit" class="btn btn-primary">
-                                                    Place Order
+
+                                                <button type="submit" class="btn btn-primary"
+                                                    {{ $hasBookedMedia ? 'disabled' : '' }}>
+
+                                                    {{ $hasBookedMedia ? 'Already Booked By Other User' : 'Place Order' }}
                                                 </button>
                                             </form>
-                                        </div> -->
- 
-@php
-    // $hasBookedMedia = $items->contains(fn($i) => $i->is_booked);
-    $hasBookedMedia = $items->contains(fn($i) => ($i->is_booked ?? false));
-@endphp
-
-@if ($type === 'open')
-
-    <div class="d-flex justify-content-end p-3 border-top">
-        <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}" method="POST">
-            @csrf
-
-            <button type="submit"
-                class="btn btn-primary"
-                {{ $hasBookedMedia ? 'disabled' : '' }}>
-
-                {{ $hasBookedMedia
-                    ? 'Already Booked By Other User'
-                    : 'Place Order' }}
-            </button>
-        </form>
-    </div>
-
-@elseif ($type === 'booked')
-
-    <div class="d-flex justify-content-end p-3 border-top">
-        {{-- booked UI --}}
-    </div>
-
-@else
-
-    <div class="d-flex justify-content-end p-3 border-top">
-        <button class="btn btn-secondary" disabled>
-            Campaign Closed
-        </button>
-    </div>
-
-@endif
-                                        {{-- @if ($type === 'open')
-                                  
-<div class="d-flex justify-content-end p-3 border-top">
-    <form action="{{ route('checkout.campaign', base64_encode($campaignId)) }}" method="POST">
-        @csrf
-<button type="submit"
-    class="btn btn-primary"
-    {{ $allBooked ? 'disabled' : '' }}>
-
-    {{ $allBooked
-        ? 'Already Booked By Other User'
-        : 'Place Order' }}
-</button> --}}
-     {{-- <button type="submit"
-    class="btn btn-primary"
-    {{ $bookedStatus[$campaignId] ? 'disabled' : '' }}>
-
-    {{ $bookedStatus[$campaignId] ? 'Already Booked By Other User' : 'Place Order' }} --}}
-
-{{-- </button>
-
-    </form>
-</div> --}}
-
-
-                                    {{-- @elseif ($type === 'booked')
+                                        </div>
+                                    @elseif ($type === 'booked')
                                         <div class="d-flex justify-content-end p-3 border-top">
-                                            <!-- <button class="btn btn-warning" disabled>
-                                                Already Booked
-                                            </button> -->
+                                            {{-- booked UI --}}
                                         </div>
                                     @else
                                         <div class="d-flex justify-content-end p-3 border-top">
@@ -324,18 +238,13 @@
                                                 Campaign Closed
                                             </button>
                                         </div>
-                                    @endif --}}
-
+                                    @endif
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 @endforeach
-
             </div>
         @endif
-
     </div>
-
 @endsection

@@ -24,43 +24,28 @@ class OrderRepository
             'gst_amount'    => $gstAmount,
             'grand_total'   => $grandTotal,
             'payment_status' => 'PENDING',
-            'campaign_id'   => $campaignId 
+            'campaign_id'   => $campaignId
         ]);
     }
-public function createOrderItems($orderId, $items)
-{
-    foreach ($items as $item) {
-        OrderItem::create([
-            'order_id'       => $orderId,
-            'media_id'       => $item->media_id,
+    public function createOrderItems($orderId, $items)
+    {
+        foreach ($items as $item) {
+            OrderItem::create([
+                'order_id'       => $orderId,
+                'media_id'       => $item->media_id,
 
-            'from_date'      => $item->from_date,
-            'to_date'        => $item->to_date,
+                'from_date'      => $item->from_date,
+                'to_date'        => $item->to_date,
 
-            'price'          => $item->price,          // monthly price
-            'per_day_price'  => $item->per_day_price,  // from cart_items
-            'total_days'     => $item->total_days,     // from cart_items
-            'total_price'    => $item->total_price,    // from cart_items
+                'price'          => $item->price,          // monthly price
+                'per_day_price'  => $item->per_day_price,  // from cart_items
+                'total_days'     => $item->total_days,     // from cart_items
+                'total_price'    => $item->total_price,    // from cart_items
 
-            'qty'            => $item->qty,
-        ]);
+                'qty'            => $item->qty,
+            ]);
+        }
     }
-}
-
-    // public function createOrderItems($orderId, $items)
-    // {
-    //     foreach ($items as $item) {
-    //         OrderItem::create([
-    //             'order_id' => $orderId,
-    //             'media_id' => $item->media_id,
-    //             'from_date' => $item->from_date,
-    //             'to_date' => $item->to_date,
-    //             // 'price'    => $item->price,
-    //             'price' => $item->total_price,
-    //             'qty'      => $item->qty,
-    //         ]);
-    //     }
-    // }
 
     public function findById($id)
     {

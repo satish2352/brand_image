@@ -53,11 +53,8 @@
 
 
                                         <td>
-                                            <button 
-                                                type="button" 
-                                                class="btn btn-sm btn-info view-user mb-2"
-                                                data-id="{{ base64_encode($user->id) }}"
-                                                title="View">
+                                            <button type="button" class="btn btn-sm btn-info view-user mb-2"
+                                                data-id="{{ base64_encode($user->id) }}" title="View">
                                                 <i class="mdi mdi-eye-outline"></i>
                                             </button>
                                             <form action="{{ route('website-user.delete') }}" method="POST"
@@ -155,19 +152,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- <hr>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="row">
-                                <div class="col-3 font-weight-bold">Created At</div>
-                                <div class="col-1">:</div>
-                                <div class="col-8" id="u_created"></div>
-                            </div>
-                        </div>
-                    </div> --}}
-
                 </div>
 
                 <div class="modal-footer">
@@ -179,34 +163,31 @@
             </div>
         </div>
     </div>
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            });
+        </script>
+    @endif
 
-
-
-@if (session('success'))
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: @json(session('success')),
-        timer: 1500,
-        showConfirmButton: false
-    });
-});
-</script>
-@endif
-
-@if (session('error'))
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    Swal.fire({
-        icon: 'error',
-        title: 'Not Allowed',
-        text: @json(session('error'))
-    });
-});
-</script>
-@endif
+    @if (session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Not Allowed',
+                    text: @json(session('error'))
+                });
+            });
+        </script>
+    @endif
 
     {{-- Delete Confirmation --}}
     <script>
@@ -256,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     </script>
     <script>
-        $(document).on('click', '.view-user', function () {
+        $(document).on('click', '.view-user', function() {
             let id = $(this).data('id');
 
             $.ajax({
@@ -266,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     _token: "{{ csrf_token() }}",
                     id: id
                 },
-                success: function (res) {
+                success: function(res) {
 
                     $('#u_name').text(res.name);
                     $('#u_email').text(res.email);
@@ -283,11 +264,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     $('#userDetailsModal').modal('show');
                 },
-                error: function () {
+                error: function() {
                     Swal.fire('Error', 'Unable to fetch user details', 'error');
                 }
             });
         });
     </script>
-
 @endsection

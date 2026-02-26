@@ -82,23 +82,6 @@
     @if (session('success'))
         <div class="alert alert-success mt-2">{{ session('success') }}</div>
     @endif
-
-    {{-- SEARCH RESULTS --}}
-    {{-- @if ($mediaList->count())
-        <div class="container mt-4">
-            <div class="row" id="media-container">
-                @include('website.media-home-list', ['mediaList' => $mediaList])
-            </div>
-        </div>
-
-        <div class="text-center my-4  d-none" id="lazy-loader">
-            <span class="spinner-border text-warning"></span>
-        </div>
-    @else
-        <div class="container mt-4 text-center">
-            <h5>No media found for selected filters</h5>
-        </div>
-    @endif --}}
     @if ($mediaList->count())
         <div class="container-fluid mt-4">
             <div class="row">

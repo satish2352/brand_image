@@ -3,9 +3,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-
             <h4 class="mb-3">Campaign List</h4>
-
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -31,13 +29,6 @@
                                     class="btn btn-success btn-sm">
                                     Export Excel
                                 </a>
-
-                                {{-- <a href="{{ route('campaign.export.excel', base64_encode($row->campaign_id)) }}"
-                                    class="btn btn-success btn-sm">
-                                    Export Excel
-                                </a>
-
-                               --}}
                                 <a href="{{ route('admin.campaign.export.ppt', base64_encode($row->campaign_id)) }}"
                                     class="btn btn-success btn-sm">
                                     Export PPT
@@ -51,11 +42,6 @@
                                     class="btn btn-sm btn-info">
                                     View
                                 </a>
-
-                                {{-- <a href="{{ route('admin.campaign.details', base64_encode($row->user_id) userId) }}"
-                        class="btn btn-sm btn-info">
-                            View
-                        </a> --}}
                             </td>
                         </tr>
                     @endforeach

@@ -97,16 +97,7 @@ class CartRepository
             'is_deleted' => 0,
         ]);
     }
-    // =================
-    // public function getBookedDatesByMedia($mediaId)
-    // {
-    //     return DB::table('order_items as oi')
-    //         ->join('orders as o', 'o.id', '=', 'oi.order_id')
-    //         ->where('oi.media_id', $mediaId)
-    //         ->where('o.payment_status', 'PAID')
-    //         ->select('oi.from_date', 'oi.to_date')
-    //         ->get();
-    // }
+
     public function getBookedDatesByMedia($mediaId)
     {
         try {
@@ -209,22 +200,12 @@ class CartRepository
         $this->ownerCondition($query);
         $query->delete();
     }
-
-
-    // public function removeItem($itemId)
-    // {
-    //     $query = CartItem::where('id', $itemId);
-    //     $this->ownerCondition($query);
-    //     $query->delete();
-    // }
-
     public function clearCart()
     {
         $query = CartItem::query();
         $this->ownerCondition($query);
         $query->delete();
     }
-
     public function softDeleteCartAfterOrder($userId)
     {
         CartItem::where('user_id', $userId)

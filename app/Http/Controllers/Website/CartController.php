@@ -66,21 +66,7 @@ class CartController extends Controller
                 ->with('error', $e->getMessage());
         }
     }
-    // public function getBookedDates($mediaId)
-    // {
-    //     return response()->json(
-    //         $this->service->getBookedDatesByMedia($mediaId)
-    //     );
-    // }
-    // public function getBookedDates($mediaId)
-    // {
-    //     try {
-    //         $bookings = $this->service->getBookedDatesByMedia($mediaId);
-    //         return response()->json($bookings ?? []);
-    //     } catch (\Exception $e) {
-    //         return response()->json([]);
-    //     }
-    // }
+
     public function getBookedDates($mediaId)
     {
         try {

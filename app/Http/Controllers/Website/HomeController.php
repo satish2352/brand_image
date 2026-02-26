@@ -92,9 +92,6 @@ class HomeController extends Controller
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
     {
-        // if ($request->filled('clear')) {
-        //     return redirect()->route('website.home');
-        // }
         //  IF CLEAR BUTTON CLICKED
         if ($request->filled('clear')) {
             session()->forget('search_filters');   // ⭐ IMPORTANT
@@ -134,16 +131,9 @@ class HomeController extends Controller
         // IMPORTANT — return the view (NO redirect)
         return view('website.search', compact('mediaList', 'filters', 'sizes'));
     }
-
-    // public function searchView()
-    // {
-    //     return redirect()->route('website.home');
-    // }
     public function searchView()
     {
         // $filters = [];
-        // $filters = session('search_filters', []);
-        // If page opened directly (reload/manual)
         if (!session()->has('search_filters')) {
             $filters = [];
         } else {

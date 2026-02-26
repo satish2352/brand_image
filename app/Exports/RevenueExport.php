@@ -53,29 +53,28 @@ class RevenueExport implements FromCollection, WithHeadings, WithStyles, ShouldA
 
             /* ========= DATE-WISE ========= */
             if ($this->type === 'date') {
-               if ($this->type === 'date') {
-    return [
-        $index + 1,
-        $row->period,
-        $row->booking_type,
-        round($row->total_amount, 2),
-        round($row->gst_amount, 2),
-        round($row->grand_total, 2),
-    ];
-}
-
+                if ($this->type === 'date') {
+                    return [
+                        $index + 1,
+                        $row->period,
+                        $row->booking_type,
+                        round($row->total_amount, 2),
+                        round($row->gst_amount, 2),
+                        round($row->grand_total, 2),
+                    ];
+                }
             }
 
             /* ========= USER-WISE ========= */
-           return [
-    $index + 1,
-    $row->user_name,
-    $row->booking_type,
-    $row->booked_days,
-    round($row->total_amount, 2),
-    round($row->gst_amount, 2),
-    round($row->grand_total, 2),
-];
+            return [
+                $index + 1,
+                $row->user_name,
+                $row->booking_type,
+                $row->booked_days,
+                round($row->total_amount, 2),
+                round($row->gst_amount, 2),
+                round($row->grand_total, 2),
+            ];
         });
     }
 

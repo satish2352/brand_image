@@ -61,14 +61,6 @@
             /* 🔥 key line */
         }
 
-        /* .login-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 30px 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-            max-width: 600px;
-            margin: auto;
-        } */
         .login-card {
             background: rgba(255, 255, 255, 0.96);
             border-radius: 14px;

@@ -33,35 +33,16 @@
 
             {{-- ================= ROW 1 ================= --}}
             <div class="row g-3 d-flex">
-
-                {{-- <div class="col-xl-3 col-lg-4 col-md-6">
-                    <label class="form-label">Category</label>
-                    <select name="category_id" class="form-select form-control">
-                        <option value="">Select Category</option>
-                        @if ($category)
-                            <option value="{{ $category->id }}"
-                                {{ ($filters['category_id'] ?? '') == $category->id ? 'selected' : '' }}>
-                                {{ $category->category_name }}
-                            </option>
-                        @endif
-                    </select>
-                </div> --}}
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <label class="form-label">Category</label>
                     <input type="text" value="{{ $firstCategoryName }}" class="form-control"
                         style="background-color: #ffe6e6; color: red; font-weight:bold;" readonly>
                 </div>
-
-
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <label class="form-label">State</label>
                     <select name="state_id" id="state_id" class="form-select form-control">
                         <option value="">Select State</option>
                         @foreach ($states as $state)
-                            {{-- <option value="{{ $state->location_id }}"
-                                {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
-                                {{ $state->name }}
-                            </option> --}}
                             <option value="{{ $state->id }}"
                                 {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
                                 {{ $state->state_name }}
@@ -91,17 +72,17 @@
             {{-- ================= ROW 2 ================= --}}
             <div class="row g-3 mt-1">
 
-              <div class="col-xl-2 col-lg-3 col-md-6" id="radius_wrapper">
+                <div class="col-xl-2 col-lg-3 col-md-6" id="radius_wrapper">
                     <label class="form-label">Radius</label>
-               <select name="radius_id" id="radius_id" class="form-select form-control">
-                            <option value="">Radius</option>
-                            @foreach ($radiusList as $r)
-                                <option value="{{ $r->radius }}"
-                                    {{ ($filters['radius_id'] ?? '') == $r->radius ? 'selected' : '' }}>
-                                    {{ $r->radius }} KM
-                                </option>
-                            @endforeach
-                        </select>
+                    <select name="radius_id" id="radius_id" class="form-select form-control">
+                        <option value="">Radius</option>
+                        @foreach ($radiusList as $r)
+                            <option value="{{ $r->radius }}"
+                                {{ ($filters['radius_id'] ?? '') == $r->radius ? 'selected' : '' }}>
+                                {{ $r->radius }} KM
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="col-xl-3 col-lg-4 col-md-6">
@@ -121,27 +102,26 @@
                     </select>
                 </div>
 
-                  <div class="col-xl-2 col-lg-3 col-md-6">
-    <label class="form-label">Media Size</label>
+                <div class="col-xl-2 col-lg-3 col-md-6">
+                    <label class="form-label">Media Size</label>
 
-    <select name="size_id" class="form-select form-control">
-        <option value="">Select Media Size</option>
+                    <select name="size_id" class="form-select form-control">
+                        <option value="">Select Media Size</option>
 
-        @foreach($sizes as $id => $size)
-            <option value="{{ $size }}"
-                {{ ($filters['size_id'] ?? '') == $size ? 'selected' : '' }}>
-                {{ $size }}
-            </option>
-        @endforeach
-    </select>
-</div>
+                        @foreach ($sizes as $id => $size)
+                            <option value="{{ $size }}"
+                                {{ ($filters['size_id'] ?? '') == $size ? 'selected' : '' }}>
+                                {{ $size }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="col-xl-3 col-lg-3 col-md-6">
                     <label class="form-label">Available Days</label>
                     <select name="available_days" class="form-select form-control">
                         <option value="">Select Days</option>
-                           <option value="0"
-                            {{ ($filters['available_days'] ?? '') == '0' ? 'selected' : '' }}>
+                        <option value="0" {{ ($filters['available_days'] ?? '') == '0' ? 'selected' : '' }}>
                             Instantly Available
                         </option>
                         <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>
@@ -157,7 +137,7 @@
 
             {{-- ================= BUTTONS ================= --}}
             <div class="row g-3 mt-1">
- <div class="col-xl-3 col-lg-3 col-md-6">
+                <div class="col-xl-3 col-lg-3 col-md-6">
                     <label class="form-label">From Date</label>
                     <input type="date" name="from_date" class="form-control"
                         value="{{ $filters['from_date'] ?? '' }}">
@@ -167,34 +147,35 @@
                     <label class="form-label">To Date</label>
                     <input type="date" name="to_date" class="form-control" value="{{ $filters['to_date'] ?? '' }}">
                 </div>
-             <div class="col-xl-2 col-lg-2 col-md-6">
-                       @if(isset($totalCount))
-                         <label class="form-label"></label>
+                <div class="col-xl-2 col-lg-2 col-md-6">
+                    @if (isset($totalCount))
+                        <label class="form-label"></label>
                         <div class="result-badge alert alert-info text-center">
                             <span class="icon">📍</span>
                             <span class="count">{{ $totalCount }} Results</span>
-                            
+
                         </div>
-                        @else
-                         <label class="form-label"></label>
+                    @else
+                        <label class="form-label"></label>
                         <div class="result-badge no-result">
                             <span class="icon">❌</span>
                             <span class="count">No Results</span>
-                          
+
                         </div>
-                        @endif
-                    </div>
+                    @endif
+                </div>
 
                 <div class="col-xl-2 col-lg-2 col-md-6">
-                     <label class="form-label"></label>
+                    <label class="form-label"></label>
                     <button type="submit" class="btn btn-success" style = "padding: 11px; width: inherit;">
                         🔍 Search
                     </button>
                 </div>
 
                 <div class="col-xl-2 col-lg-2 col-md-6">
-                     <label class="form-label"></label>
-                    <button type="button" id="clearFilters" class="btn btn-outline-secondary"  style = "padding: 11px; width: inherit;">
+                    <label class="form-label"></label>
+                    <button type="button" id="clearFilters" class="btn btn-outline-secondary"
+                        style = "padding: 11px; width: inherit;">
                         ✖ Clear
                     </button>
                 </div>
@@ -208,27 +189,26 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-         function toggleRadius() {
-    const cityId = $('#city_id').val();
-    const areaId = $('#area_id').val();
+    function toggleRadius() {
+        const cityId = $('#city_id').val();
+        const areaId = $('#area_id').val();
 
-    if (cityId && !areaId) {
-        $('#radius_id')
-            .prop('disabled', false)
-            .removeClass('bg-light');
-    } else {
-        $('#radius_id')
-            .prop('disabled', true)
-            .addClass('bg-light')
-            
+        if (cityId && !areaId) {
+            $('#radius_id')
+                .prop('disabled', false)
+                .removeClass('bg-light');
+        } else {
+            $('#radius_id')
+                .prop('disabled', true)
+                .addClass('bg-light')
+
+        }
     }
-}
-
 </script>
 <script>
     $(document).ready(function() {
 
-    
+
 
         const categoryId = $('#category_id').val();
 
@@ -319,53 +299,44 @@
         $('#city_id').on('change', function() {
             loadAreas(this.value);
         });
+        if (selectedState) {
+            $.post("{{ route('ajax.districts') }}", {
+                _token: csrf,
+                state_id: selectedState
+            }, function(data) {
 
-        // Initial selection
-        // if (selectedState) loadDistricts(selectedState, selectedDistrict);
-        // if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
-        // if (selectedCity) loadAreas(selectedCity, selectedArea);
-
-//         if (selectedState) {
-//     loadDistricts(selectedState, selectedDistrict);
-// }
-if (selectedState) {
-    $.post("{{ route('ajax.districts') }}", {
-        _token: csrf,
-        state_id: selectedState
-    }, function(data) {
-
-        let html = '<option value="">Select District</option>';
-        data.forEach(d => {
-            html += `<option value="${d.id}" ${d.id == selectedDistrict ? 'selected' : ''}>
+                let html = '<option value="">Select District</option>';
+                data.forEach(d => {
+                    html += `<option value="${d.id}" ${d.id == selectedDistrict ? 'selected' : ''}>
                         ${d.district_name}
                     </option>`;
-        });
+                });
 
-        $('#district_id').html(html);
+                $('#district_id').html(html);
 
-        // NOW load cities
+                // NOW load cities
+                if (selectedDistrict) {
+                    loadCities(selectedDistrict, selectedCity);
+
+                    // AFTER city loaded → areas
+                    setTimeout(function() {
+                        if (selectedCity) {
+                            loadAreas(selectedCity, selectedArea);
+                        }
+                    }, 300);
+                }
+            });
+        }
+
         if (selectedDistrict) {
             loadCities(selectedDistrict, selectedCity);
-
-            // AFTER city loaded → areas
-            setTimeout(function () {
-                if (selectedCity) {
-                    loadAreas(selectedCity, selectedArea);
-                }
-            }, 300);
         }
-    });
-}
 
-if (selectedDistrict) {
-    loadCities(selectedDistrict, selectedCity);
-}
+        if (selectedCity) {
+            loadAreas(selectedCity, selectedArea);
+        }
 
-if (selectedCity) {
-    loadAreas(selectedCity, selectedArea);
-}
-
-// ⭐ FINAL CHECK
+        // FINAL CHECK
 
     });
 </script>
@@ -378,7 +349,7 @@ if (selectedCity) {
 <script>
     $(document).ready(function() {
 
-     
+
 
         // 🔁 When city changes
         $('#city_id').on('change', function() {

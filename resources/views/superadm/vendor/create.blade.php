@@ -61,7 +61,8 @@
 
                         <div class="mb-3">
                             <label>Mobile <span class="text-danger">*</span></label>
-                            <input id="mobile" name="mobile" maxlength="10" class="form-control @error('mobile') is-invalid @enderror"
+                            <input id="mobile" name="mobile" maxlength="10"
+                                class="form-control @error('mobile') is-invalid @enderror"
                                 value="{{ old('mobile', $vendor->mobile ?? '') }}">
                             @error('mobile')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -175,165 +176,153 @@
                 loadCities($(this).val());
             });
 
-            /* ============= AUTO GENERATE VENDOR CODE ============= */
-            // $('input[name="vendor_name"]').on('input', function() {
-            //     let vendorCode = $(this).val()
-            //         .trim()
-            //         .toLowerCase()
-            //         .replace(/[^a-z\s]/g, '')
-            //         .replace(/\s+/g, '');
+            function generateVendorCode() {
 
-            //     $('#vendor_code').val(vendorCode);
-            // });
+                let stateText = $('#state option:selected').text()
+                    .trim()
+                    .substring(0, 3)
+                    .toUpperCase();
 
-         function generateVendorCode() {
+                let districtText = $('#district option:selected').text()
+                    .trim()
+                    .substring(0, 3)
+                    .toUpperCase();
 
-    let stateText = $('#state option:selected').text()
-        .trim()
-        .substring(0,3)
-        .toUpperCase();
+                let vendorName = $('input[name="vendor_name"]').val()
+                    .trim()
+                    .replace(/[^a-zA-Z\s]/g, '')
+                    .replace(/\s+/g, '');
 
-    let districtText = $('#district option:selected').text()
-        .trim()
-        .substring(0,3)
-        .toUpperCase();
-
-    let vendorName = $('input[name="vendor_name"]').val()
-        .trim()
-        .replace(/[^a-zA-Z\s]/g, '')
-        .replace(/\s+/g, '');
-
-    if(stateText !== "SEL" && districtText !== "SEL" && vendorName !== ''){
-        $('#vendor_code').val(
-            stateText + '_' +
-            districtText + '_' +
-            vendorName.toUpperCase()
-        );
-    } else {
-        $('#vendor_code').val('');
-    }
-}
+                if (stateText !== "SEL" && districtText !== "SEL" && vendorName !== '') {
+                    $('#vendor_code').val(
+                        stateText + '_' +
+                        districtText + '_' +
+                        vendorName.toUpperCase()
+                    );
+                } else {
+                    $('#vendor_code').val('');
+                }
+            }
             /* ================= REGEX ================= */
-    const onlyLettersSpace = /[^a-zA-Z\s]/g;
-    const onlyDigits       = /[^0-9]/g;
-    const mobileRegex      = /^[6-9][0-9]{9}$/;
-    const emailRegex       = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+            const onlyLettersSpace = /[^a-zA-Z\s]/g;
+            const onlyDigits = /[^0-9]/g;
+            const mobileRegex = /^[6-9][0-9]{9}$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
-    /* ================= LIVE INPUT RESTRICTION ================= */
+            /* ================= LIVE INPUT RESTRICTION ================= */
 
-    // Vendor Name → only letters & space
-    $('input[name="vendor_name"]').on('input', function () {
-        this.value = this.value.replace(onlyLettersSpace, '');
-        clearError($(this));
-        generateVendorCode(); // 🔥 ADD THIS
-    });
+            // Vendor Name → only letters & space
+            $('input[name="vendor_name"]').on('input', function() {
+                this.value = this.value.replace(onlyLettersSpace, '');
+                clearError($(this));
+                generateVendorCode(); // 🔥 ADD THIS
+            });
 
-    // Mobile → only digits
-    $('input[name="mobile"]').on('input', function () {
-        this.value = this.value.replace(onlyDigits, '');
-        clearError($(this));
-    });
+            // Mobile → only digits
+            $('input[name="mobile"]').on('input', function() {
+                this.value = this.value.replace(onlyDigits, '');
+                clearError($(this));
+            });
 
-    // Email → clear error while typing
-    $('input[name="email"]').on('input', function () {
-        clearError($(this));
-    });
+            // Email → clear error while typing
+            $('input[name="email"]').on('input', function() {
+                clearError($(this));
+            });
 
-    /* ================= CLEAR ERROR (CURRENT FIELD ONLY) ================= */
-    function clearError(el) {
-        el.removeClass('is-invalid');
-        el.closest('.mb-3, .form-group')
-          .find('.invalid-feedback')
-          .remove();
-    }
+            /* ================= CLEAR ERROR (CURRENT FIELD ONLY) ================= */
+            function clearError(el) {
+                el.removeClass('is-invalid');
+                el.closest('.mb-3, .form-group')
+                    .find('.invalid-feedback')
+                    .remove();
+            }
 
-    /* ================= FORM SUBMIT VALIDATION ================= */
-    $('form').on('submit.vendorValidation', function (e) {
+            /* ================= FORM SUBMIT VALIDATION ================= */
+            $('form').on('submit.vendorValidation', function(e) {
 
-        let valid = true;
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
+                let valid = true;
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
 
-        function error(el, msg) {
-            el.addClass('is-invalid');
-            el.after(`<div class="invalid-feedback">${msg}</div>`);
-            valid = false;
-        }
+                function error(el, msg) {
+                    el.addClass('is-invalid');
+                    el.after(`<div class="invalid-feedback">${msg}</div>`);
+                    valid = false;
+                }
 
-        /* ===== Vendor Name ===== */
-        let vendorName = $('input[name="vendor_name"]');
-        if (!vendorName.val()) {
-            error(vendorName, 'Vendor name is required');
-        } else if (vendorName.val().length > 255) {
-            error(vendorName, 'Vendor name must not exceed 255 characters');
-        }
+                /* ===== Vendor Name ===== */
+                let vendorName = $('input[name="vendor_name"]');
+                if (!vendorName.val()) {
+                    error(vendorName, 'Vendor name is required');
+                } else if (vendorName.val().length > 255) {
+                    error(vendorName, 'Vendor name must not exceed 255 characters');
+                }
 
-        /* ===== Mobile ===== */
-        let mobile = $('input[name="mobile"]');
-        if (!mobile.val()) {
-            error(mobile, 'Mobile number is required');
-        } else if (!mobileRegex.test(mobile.val())) {
-            error(mobile, 'Mobile number must be 10 digits and start with 6, 7, 8, or 9');
-        }
+                /* ===== Mobile ===== */
+                let mobile = $('input[name="mobile"]');
+                if (!mobile.val()) {
+                    error(mobile, 'Mobile number is required');
+                } else if (!mobileRegex.test(mobile.val())) {
+                    error(mobile, 'Mobile number must be 10 digits and start with 6, 7, 8, or 9');
+                }
 
-        /* ===== Email ===== */
-        let email = $('input[name="email"]');
-        if (!email.val()) {
-            error(email, 'Email is required');
-        } else if (!emailRegex.test(email.val())) {
-            error(email, 'Enter a valid email (example@domain.co)');
-        }
+                /* ===== Email ===== */
+                let email = $('input[name="email"]');
+                if (!email.val()) {
+                    error(email, 'Email is required');
+                } else if (!emailRegex.test(email.val())) {
+                    error(email, 'Enter a valid email (example@domain.co)');
+                }
 
-        /* ===== Address ===== */
-        let address = $('textarea[name="address"]');
-        if (!address.val()) {
-            error(address, 'Address is required');
-        } else if (address.val().length < 5) {
-            error(address, 'Address must be at least 5 characters');
-        }
+                /* ===== Address ===== */
+                let address = $('textarea[name="address"]');
+                if (!address.val()) {
+                    error(address, 'Address is required');
+                } else if (address.val().length < 5) {
+                    error(address, 'Address must be at least 5 characters');
+                }
 
-        if (!valid) e.preventDefault();
-    });
+                if (!valid) e.preventDefault();
+            });
 
         });
     </script>
 
     <script>
-$(document).ready(function () {
+        $(document).ready(function() {
 
-    $('#mobile').on('input', function () {
+            $('#mobile').on('input', function() {
 
-        // फक्त numbers ठेवतो
-        let value = $(this).val().replace(/[^0-9]/g, '');
-        $(this).val(value);
+                // फक्त numbers ठेवतो
+                let value = $(this).val().replace(/[^0-9]/g, '');
+                $(this).val(value);
 
-        let errorMsg = '';
+                let errorMsg = '';
 
-        // Starting digit check
-        if (value.length > 0 && !/^[6-9]/.test(value)) {
-            errorMsg = 'Mobile number must start with 6, 7, 8, or 9';
-        }
-        // Length check
-        else if (value.length > 10) {
-            errorMsg = 'Mobile number must be exactly 10 digits';
-        }
+                // Starting digit check
+                if (value.length > 0 && !/^[6-9]/.test(value)) {
+                    errorMsg = 'Mobile number must start with 6, 7, 8, or 9';
+                }
+                // Length check
+                else if (value.length > 10) {
+                    errorMsg = 'Mobile number must be exactly 10 digits';
+                }
 
-        // Error show / hide
-        // if (errorMsg !== '') {
-            $(this).addClass('is-invalid');
-            if (!$('#mobile-error').length) {
-                $(this).after(`<div id="mobile-error" class="invalid-feedback">${errorMsg}</div>`);
-            } else {
-                $('#mobile-error').text(errorMsg);
-            }
-        // } else {
-        //     $(this).removeClass('is-invalid');
-        //     $('#mobile-error').remove();
-        // }
+                // Error show / hide
+                // if (errorMsg !== '') {
+                $(this).addClass('is-invalid');
+                if (!$('#mobile-error').length) {
+                    $(this).after(`<div id="mobile-error" class="invalid-feedback">${errorMsg}</div>`);
+                } else {
+                    $('#mobile-error').text(errorMsg);
+                }
+                // } else {
+                //     $(this).removeClass('is-invalid');
+                //     $('#mobile-error').remove();
+                // }
 
-    });
+            });
 
-});
-</script>
-
+        });
+    </script>
 @endsection

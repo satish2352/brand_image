@@ -17,7 +17,7 @@ class RevenueGraphController extends Controller
             ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED']) // only valid payments
             ->select(
                 DB::raw('MONTH(o.created_at) as month'),
-                DB::raw('SUM(o.grand_total) as total_revenue') // ✅ FINAL AMOUNT WITH GST
+                DB::raw('SUM(o.grand_total) as total_revenue') //  FINAL AMOUNT WITH GST
             )
             ->groupBy(DB::raw('MONTH(o.created_at)'))
             ->orderBy(DB::raw('MONTH(o.created_at)'))

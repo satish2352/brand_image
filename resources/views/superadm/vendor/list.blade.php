@@ -1,11 +1,11 @@
 @extends('superadm.layout.master')
 
 @section('content')
-<style>
-    table {
-        font-size: 0.875rem !important;
-    }
-</style>
+    <style>
+        table {
+            font-size: 0.875rem !important;
+        }
+    </style>
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -15,10 +15,6 @@
                         <h4>Vendor List</h4>
                         <a href="{{ route('vendor.create') }}" class="btn btn-success">Add Vendor</a>
                     </div>
-                    {{-- <a href="{{ route('vendor.export.excel') }}" class="btn btn-outline-success mt-3">
-                    Export Excel
-                </a> --}}
-
                     @if (session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif

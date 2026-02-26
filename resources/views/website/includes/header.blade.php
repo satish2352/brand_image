@@ -122,9 +122,6 @@
 
             </div>
     </nav>
-
-
-
     <!-- LOGIN / SIGNUP MODAL -->
     <!-- AUTH MODAL -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
@@ -350,7 +347,8 @@
                                     window.location.href = redirectUrl; //  ADD TO CART
                                 } else {
                                     // window.location.reload(); // normal login
-                                    window.location.href = "{{ route('website.search') }}";
+                                    window.location.href =
+                                        "{{ route('website.search') }}";
                                 }
 
                             });
@@ -382,18 +380,6 @@
                             );
                         }
                     }
-
-                    // error: function(xhr){
-                    //     hideLoader();
-
-                    //     $("#authModal").modal("show");
-                    //     showLogin();
-
-                    //     let errors = xhr.responseJSON.errors;
-                    //     $.each(errors, function(field, msg){
-                    //         $(`#loginForm [name="${field}"]`).after(`<span class="text-danger">${msg[0]}</span>`);
-                    //     });
-                    // }
                 });
             });
 
@@ -439,17 +425,6 @@
                             );
                         }
                     }
-                    // error: function(xhr){
-                    //     hideLoader();
-
-                    //     $("#authModal").modal("show");
-                    //     showSignup();
-
-                    //     let errors = xhr.responseJSON.errors;
-                    //     $.each(errors, function(field, msg){
-                    //         $(`#signupForm [name="${field}"]`).after(`<span class="text-danger">${msg[0]}</span>`);
-                    //     });
-                    // }
                 });
             });
 

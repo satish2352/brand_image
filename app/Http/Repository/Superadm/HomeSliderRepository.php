@@ -41,5 +41,4 @@ class HomeSliderRepository
     {
         return HomeSlider::where('id', $id)->update($data);
     }
-
 }

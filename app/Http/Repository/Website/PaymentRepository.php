@@ -21,7 +21,7 @@ class PaymentRepository
                 'o.payment_status',
                 'o.created_at',
                 'o.grand_total',
-               
+
 
                 //  combine multiple media locations into one string
                 DB::raw('GROUP_CONCAT(DISTINCT CONCAT(a.area_name, ", ", m.facing) SEPARATOR " | ") as location'),
@@ -82,7 +82,7 @@ class PaymentRepository
                 'oi.qty',
                 'oi.from_date',
                 'oi.to_date',
-                 'oi.total_days',
+                'oi.total_days',
 
                 // Location
                 'a.area_name',
@@ -105,7 +105,7 @@ class PaymentRepository
                 'oi.from_date',
                 'oi.to_date',
                 'a.area_name',
-                   'oi.total_days',
+                'oi.total_days',
             )
             ->get();
     }

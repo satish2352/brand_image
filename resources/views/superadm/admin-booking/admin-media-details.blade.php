@@ -1,16 +1,13 @@
 @extends('superadm.layout.master')
-
 @section('content')
     {{-- ================= FLATPICKR ================= --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
     <style>
         /* parent must be relative */
         .font-weight-admin {
 
             font-weight: 700 !important;
-
         }
 
         .card {
@@ -87,7 +84,6 @@
             color: #fff !important;
         }
 
-
         /* IMAGE GALLERY */
         .media-gallery {
             display: flex;
@@ -115,7 +111,6 @@
         }
 
         /* ===== IMAGE GALLERY ===== */
-
         .media-main {
             position: relative;
             overflow: hidden;
@@ -181,7 +176,6 @@
             }
         }
 
-
         /* INFO */
         .media-info h4 {
             font-weight: 600;
@@ -213,9 +207,11 @@
             background: #218838 !important;
             color: #fff !important;
         }
-        .flatpickr-day.flatpickr-disabled{
+
+        .flatpickr-day.flatpickr-disabled {
             color: #0f0d0d4d !important;
         }
+
         /* ===== BOOKED DATE HOVER ===== */
         .flatpickr-day.booked-date:hover {
             background: #dc3545 !important;
@@ -235,45 +231,19 @@
         $height = (float) $media->height;
         $sqft = $width * $height;
     @endphp
-
-
-
-
     {{-- ================= MEDIA DETAILS ================= --}}
     <div class="mt-150 mb-150">
         <div class="container-fluid">
-
             <div class="card shadow-sm border-0 p-4">
-
                 <div class="row g-4">
-
                     {{-- ================= LEFT : IMAGE GALLERY ================= --}}
                     <div class="col-lg-5">
-
-                        {{-- <div class="media-main mb-3"
-                     onmousemove="zoomMedia(event,this)"
-                     onmouseleave="resetZoom(this)">
-                    <img class="main-media-image"
-                         id="mainMediaImage"
-                         src="{{ config('fileConstants.IMAGE_VIEW') . $media->images[0]->images }}">
-                </div>
-
-                <div class="media-thumbs-bottom">
-                    @foreach ($media->images as $k => $img)
-                        <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
-                             class="thumb-img {{ $k==0 ? 'active' : '' }}"
-                             onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
-                    @endforeach
-                </div> --}}
                         <h3 class="fw-bold mb-1">{{ $media->area_name }} {{ $media->facing }}</h3>
-
                         <p class="text-muted mb-2">
                             <i class="fas fa-map-marker-alt text-danger"></i>
                             {{ $media->area_name }}, {{ $media->city_name }}
                         </p>
-
                         <hr>
-
                         <div class="row ">
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Category:</strong>
                                 {{ $media->category_name }}</div>
@@ -285,43 +255,30 @@
                                 {{ $media->area_type }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Illumination:</strong>
                                 {{ $media->illumination_name }}</div>
-
                             <div class="col-6 mb-2">
                                 <strong>Size:</strong>
                                 {{ number_format($width, 2) }} × {{ number_format($height, 2) }} ft
                             </div>
-
                             <div class="col-6 mb-2">
                                 <strong>Total Area:</strong>
                                 {{ number_format($sqft, 2) }} SQFT
                             </div>
-
                             <div class="col-12 mb-2">
                                 <strong>Address:</strong> {{ $media->address }}
                             </div>
                         </div>
                         <hr>
-
                         {{-- PRICE --}}
                         <div class="mb-3">
                             <span class="price">₹ {{ number_format($media->price, 2) }}</span>
                             <span class="text-muted"> / month</span>
                             <div class="per-day">₹ {{ number_format($media->per_day_price, 2) }} / day</div>
                         </div>
-
                     </div>
-
                     {{-- ================= RIGHT : DETAILS + CALENDAR ================= --}}
                     <div class="col-lg-7">
-
-
-
-
-
                         {{-- CALENDAR --}}
                         <form id="bookingForm" method="POST" action="{{ route('admin.booking.store') }}" novalidate>
-
-
                             {{-- <form method="POST" action="{{ route('admin.booking.store') }}"> --}}
                             @csrf
                             <input type="hidden" name="media_id" value="{{ base64_encode($media->id) }}">
@@ -334,7 +291,6 @@
                                 <input type="text" name="signup_name"
                                     class="form-control @error('signup_name') is-invalid @enderror"
                                     value="{{ old('signup_name') }}">
-
                                 @error('signup_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -345,37 +301,27 @@
                                     <input type="email" name="signup_email"
                                         class="form-control @error('signup_email') is-invalid @enderror"
                                         value="{{ old('signup_email') }}">
-
                                     @error('signup_email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-
                                 <div class="col-md-6 mb-3">
                                     <label>Mobile Number <span class="text-danger">*</span></label>
                                     <input type="text" name="signup_mobile_number"
                                         class="form-control @error('signup_mobile_number') is-invalid @enderror"
                                         value="{{ old('signup_mobile_number') }}">
-
                                     @error('signup_mobile_number')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-
                             </div>
-
                             <h6 class="fw-bold mt-3">Select Booking Dates</h6>
                             <div class="calendar-wrapper mt-2">
                                 <input type="text" id="booking_range" class="d-none">
                             </div>
-
                             <div class="text-danger small mt-2 d-none" id="dateError">
                                 Please select booking dates
                             </div>
-
-
-
                             <div class="mt-3">
                                 <p>Total Days: <strong id="totalDays">0</strong></p>
                                 <p>Amount: ₹ <strong id="baseAmount">0</strong></p>
@@ -385,50 +331,38 @@
                                     Grand Total: ₹ <span id="grandTotal">0</span>
                                 </p>
                             </div>
-
                             <input type="hidden" name="total_amount" id="total_amount">
                             <input type="hidden" name="gst_amount" id="gst_amount">
                             <input type="hidden" name="grand_total" id="grand_total">
-
-
                             <button type="submit" class="add-to-cart-btn mt-4" id="addToCartBtn" disabled>
                                 <i class="fas fa-shopping-cart"></i> Book
                             </button>
                         </form>
-
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
-
     <script>
         /* ================= REGEX ================= */
         const nameRegex = /^[A-Za-z\s]+$/;
         const mobileRegex = /^[6-9][0-9]{9}$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
-
         /* ================= LIVE INPUT RESTRICTION ================= */
-
         // Full Name → only letters & space
         $('input[name="signup_name"]').on('input', function() {
             this.value = this.value.replace(/[^A-Za-z\s]/g, '');
             clearError($(this));
         });
-
         // Mobile → only digits
         $('input[name="signup_mobile_number"]').on('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
             clearError($(this));
         });
-
         // Email → clear error while typing
         $('input[name="signup_email"]').on('input', function() {
             clearError($(this));
         });
-
         /* ================= CLEAR ERROR ================= */
         function clearError(el) {
             el.removeClass('is-invalid');
@@ -437,29 +371,21 @@
                 .remove();
         }
     </script>
-
-
     <script>
         function changeMediaImage(el, src) {
             document.getElementById('mainMediaImage').src = src;
-
             document.querySelectorAll('.thumb-img').forEach(img => {
                 img.classList.remove('active');
             });
-
             el.classList.add('active');
         }
-
         /* Zoom logic */
         function zoomMedia(e, container) {
             container.classList.add('zoom-active');
-
             const img = container.querySelector('img');
             const rect = container.getBoundingClientRect();
-
             const x = ((e.clientX - rect.left) / rect.width) * 100;
             const y = ((e.clientY - rect.top) / rect.height) * 100;
-
             img.style.transformOrigin = `${x}% ${y}%`;
         }
 
@@ -471,16 +397,13 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
             const bookedRanges = @json($bookedRanges ?? []);
             const pricePerDay = {{ (float) $media->per_day_price }};
             const MIN_DAYS = 15;
-
             const fromInput = document.getElementById('from_date');
             const toInput = document.getElementById('to_date');
             const addBtn = document.getElementById('addToCartBtn');
             const errorBox = document.getElementById('dateError');
-
             flatpickr("#booking_range", {
                 mode: "range",
                 minDate: "today",
@@ -493,119 +416,89 @@
                     from: r.from_date,
                     to: r.to_date
                 })),
-
                 onDayCreate: function(dObj, dStr, fp, dayElem) {
                     const date = fp.formatDate(dayElem.dateObj, "Y-m-d");
                     let isBooked = false;
-
                     bookedRanges.forEach(range => {
                         if (date >= range.from_date && date <= range.to_date) {
                             isBooked = true;
                         }
                     });
-
                     // 🔴 BOOKED DATE
                     if (isBooked) {
                         dayElem.classList.add('booked-date');
                         dayElem.setAttribute('title', 'Already Booked ❌');
                         dayElem.style.cursor = 'not-allowed';
                     }
-
                     // 🟢 AVAILABLE DATE
                     else if (!dayElem.classList.contains('flatpickr-disabled')) {
                         dayElem.setAttribute('title', 'Available ');
                         dayElem.style.cursor = 'pointer';
                     }
                 },
-
                 onChange: function(selectedDates) {
-
                     addBtn.disabled = true;
                     errorBox.classList.add('d-none');
-
                     if (selectedDates.length !== 2) return;
-
                     const start = selectedDates[0];
                     const end = selectedDates[1];
-
                     // Calculate difference days
                     // const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
                     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-
                     if (diffDays < MIN_DAYS) {
                         errorBox.innerText = `Minimum booking period is ${MIN_DAYS} days`;
                         errorBox.classList.remove('d-none');
-
                         document.getElementById('totalDays').innerText = 0;
                         document.getElementById('baseAmount').innerText = "0.00";
                         document.getElementById('gstAmount').innerText = "0.00";
                         document.getElementById('grandTotal').innerText = "0.00";
-
                         document.getElementById('total_amount').value = "";
                         document.getElementById('gst_amount').value = "";
                         document.getElementById('grand_total').value = "";
-
                         document.getElementById('total_days').value = diffDays;
                         document.getElementById('total_days').value = diffDays;
                         document.getElementById('per_day_price').value = "";
-
-
                         fromInput.value = "";
                         toInput.value = "";
-
                         addBtn.disabled = true;
                         return;
                     }
-
                     // ===========================
                     // MONTH WISE BILLING START
                     // ===========================
                     const monthlyPrice = {{ (float) $media->price }};
-
                     let totalAmount = 0;
                     let cursor = new Date(start);
-
                     while (cursor <= end) {
                         const year = cursor.getFullYear();
                         const month = cursor.getMonth(); // 0 index
-
                         const daysInMonth = new Date(year, month + 1, 0).getDate();
                         const perDayPrice = monthlyPrice / daysInMonth;
-
                         totalAmount += perDayPrice;
-
                         cursor.setDate(cursor.getDate() + 1);
                     }
-
                     const gstAmount = +(totalAmount * 0.18).toFixed(2);
                     const grandTotal = +(totalAmount + gstAmount).toFixed(2);
-
                     document.getElementById('totalDays').innerText = diffDays;
                     document.getElementById('baseAmount').innerText = totalAmount.toFixed(2);
                     document.getElementById('gstAmount').innerText = gstAmount.toFixed(2);
                     document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
-
-                document.getElementById('total_amount').value = totalAmount.toFixed(2);
-                document.getElementById('gst_amount').value = gstAmount.toFixed(2);
-                document.getElementById('grand_total').value = grandTotal.toFixed(2);
-
-                document.getElementById('total_days').value = diffDays;
-                document.getElementById('per_day_price').value = (totalAmount / diffDays).toFixed(2);
-
+                    document.getElementById('total_amount').value = totalAmount.toFixed(2);
+                    document.getElementById('gst_amount').value = gstAmount.toFixed(2);
+                    document.getElementById('grand_total').value = grandTotal.toFixed(2);
+                    document.getElementById('total_days').value = diffDays;
+                    document.getElementById('per_day_price').value = (totalAmount / diffDays).toFixed(
+                        2);
 
                     fromInput.value = flatpickr.formatDate(start, "Y-m-d");
                     toInput.value = flatpickr.formatDate(end, "Y-m-d");
 
                     addBtn.disabled = false;
                 }
-
-                
             });
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     @if (session('success'))
         <script>
             Swal.fire({
@@ -621,8 +514,6 @@
             });
         </script>
     @endif
-
-
     @if (session('error'))
         <script>
             Swal.fire({
@@ -634,39 +525,7 @@
             });
         </script>
     @endif
-
-
-    {{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        @if (session('success'))
-            <
-            script >
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Booking Confirmed 🎉',
-                    text: "{{ session('success') }}",
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#f28123'
-                });
-    </script>
-    @endif
-
-    @if (session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Booking Failed ❌',
-                text: "{{ session('error') }}",
-                confirmButtonText: 'Try Again',
-                confirmButtonColor: '#dc3545'
-            });
-        </script>
-    @endif
-
-    </script> --}}
-
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
-
     <script>
         $(document).ready(function() {
 
@@ -754,25 +613,4 @@
 
         });
     </script>
-
-    {{-- <script>
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // stop normal submit
-
-            Swal.fire({
-                title: "Confirm Booking?",
-                text: "Do you want to book this media for selected dates?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#d33',
-                confirmButtonText: "Yes, Book Now",
-                cancelButtonText: "Cancel"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    e.target.submit(); // SUBMIT if user confirms 🚀
-                }
-            });
-        });
-    </script> --}}
 @endsection

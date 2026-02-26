@@ -32,65 +32,62 @@
         </div>
     </div>
 
-    @section('scripts')
-<script>
-$(document).ready(function () {
+@section('scripts')
+    <script>
+        $(document).ready(function() {
 
-    /* ================= STRICT NUMERIC INPUT ================= */
+            /* ================= STRICT NUMERIC INPUT ================= */
 
-    $('input[name="radius"]')
-        .on('input', function () {
-            // allow ONLY digits 0–9
-            this.value = this.value.replace(/[^0-9]/g, '');
-            clearError($(this));
-        })
-        .on('paste', function (e) {
-            let pasted = (e.originalEvent || e).clipboardData.getData('text');
-            if (!/^\d+$/.test(pasted)) {
-                e.preventDefault(); // block paste if non-numeric
+            $('input[name="radius"]')
+                .on('input', function() {
+                    // allow ONLY digits 0–9
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    clearError($(this));
+                })
+                .on('paste', function(e) {
+                    let pasted = (e.originalEvent || e).clipboardData.getData('text');
+                    if (!/^\d+$/.test(pasted)) {
+                        e.preventDefault(); // block paste if non-numeric
+                    }
+                });
+
+            /* ================= CLEAR ERROR ================= */
+            function clearError(el) {
+                el.removeClass('is-invalid');
+                el.closest('.form-group')
+                    .find('.invalid-feedback, .text-danger')
+                    .remove();
             }
+
+            /* ================= FORM SUBMIT VALIDATION ================= */
+            $('form').on('submit.radiusValidation', function(e) {
+
+                let valid = true;
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback, .text-danger').remove();
+
+                function error(el, msg) {
+                    el.addClass('is-invalid');
+                    el.after(`<div class="invalid-feedback">${msg}</div>`);
+                    valid = false;
+                }
+
+                let radius = $('input[name="radius"]');
+                let value = radius.val();
+                let maxVal = radius.data('max') ? parseInt(radius.data('max')) : 500;
+
+                if (!value) {
+                    error(radius, 'Radius is required.');
+                } else if (parseInt(value) < 1) {
+                    error(radius, 'Radius must be at least 1.');
+                } else if (parseInt(value) > maxVal) {
+                    error(radius, `Radius must not exceed ${maxVal}.`);
+                }
+
+                if (!valid) e.preventDefault();
+            });
+
         });
-
-    /* ================= CLEAR ERROR ================= */
-    function clearError(el) {
-        el.removeClass('is-invalid');
-        el.closest('.form-group')
-          .find('.invalid-feedback, .text-danger')
-          .remove();
-    }
-
-    /* ================= FORM SUBMIT VALIDATION ================= */
-    $('form').on('submit.radiusValidation', function (e) {
-
-        let valid = true;
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback, .text-danger').remove();
-
-        function error(el, msg) {
-            el.addClass('is-invalid');
-            el.after(`<div class="invalid-feedback">${msg}</div>`);
-            valid = false;
-        }
-
-        let radius = $('input[name="radius"]');
-        let value  = radius.val();
-        let maxVal = radius.data('max') ? parseInt(radius.data('max')) : 500;
-
-        if (!value) {
-            error(radius, 'Radius is required.');
-        }
-        else if (parseInt(value) < 1) {
-            error(radius, 'Radius must be at least 1.');
-        }
-        else if (parseInt(value) > maxVal) {
-            error(radius, `Radius must not exceed ${maxVal}.`);
-        }
-
-        if (!valid) e.preventDefault();
-    });
-
-});
-</script>
+    </script>
 @endsection
-
 @endsection

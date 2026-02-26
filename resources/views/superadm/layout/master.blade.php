@@ -9,8 +9,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/theamoriginalalf/images/logo.png') }}"> -->
-     <link rel="icon" type="image/svg+xml" href="{{ asset('asset/theamoriginalalf/images/favicon.png') }}">
-   <title>Printing | Branding | Outdoor Advertising Agency
+    <link rel="icon" type="image/svg+xml" href="{{ asset('asset/theamoriginalalf/images/favicon.png') }}">
+    <title>Printing | Branding | Outdoor Advertising Agency
         Nashik | Brand Image</title>
     <link href="{{ asset('asset/css/style.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
@@ -23,15 +23,16 @@
     <script src="{{ asset('asset/plugins/jquery/jquery-3.6.0.min.js') }}"></script>
 
     <style>
-        .scroll-sidebar{
+        .scroll-sidebar {
             overflow: auto !important;
             scroll-behavior: smooth;
             scrollbar-width: thin;
             scrollbar-color: #888 #f1f1f1;
             height: 100dvh !important;
         }
+
         .scroll-sidebar::-webkit-scrollbar {
-            width: 6px; 
+            width: 6px;
         }
 
         .scroll-sidebar::-webkit-scrollbar-track {
@@ -39,7 +40,7 @@
         }
 
         .scroll-sidebar::-webkit-scrollbar-thumb {
-            background: #888; 
+            background: #888;
             border-radius: 10px;
         }
 
@@ -97,18 +98,6 @@
                         //  dump(session()->all());
                         ?>
                         <li class="nav-item">
-                            {{-- <a class="nav-link text-muted waves-effect waves-dark" 
-       href="{{ route('admin.notifications') }}"
-       title="Notifications">
-        <i class="fa fa-bell"></i>
-
-        @if ($notifyCount > 0)
-            <span class="badge badge-danger" 
-                  style="position:absolute; top:5px; right:5px;">
-                {{ $notifyCount }}
-            </span>
-        @endif
-    </a> --}}
                             <a class="nav-link text-muted waves-effect waves-dark" href="javascript:void(0)"
                                 data-toggle="modal" data-target="#notificationModal">
 
@@ -131,23 +120,13 @@
                                     class="profile-pic" /></a>
                             <div class="dropdown-menu dropdown-menu-right scale-up">
                                 <ul class="dropdown-user">
-                                    {{-- <li><a href="{{ route('change-password') }}"><i class="fa fa-key"></i> Change Password</a></li> --}}
                                     <li>
-                                        {{-- @if (session('role') == 'admin') --}}
                                         <a href="{{ route('admin.change-password') }}"><i class="fa fa-key"></i> Change
                                             Password</a>
-                                        {{-- @else
-                                            <a href="{{ route('employee.change-password') }}"><i class="fa fa-key"></i> Change Password</a>
-                                        @endif --}}
                                     </li>
-                                    {{-- <li><a href="{{ route('logout') }}"><i class="fa fa-power-off"></i> Logout</a></li> --}}
                                     <li>
-                                        {{-- @if (session('role') == 'admin') --}}
                                         <a href="{{ route('admin.logout') }}"><i class="fa fa-power-off"></i>
                                             Logout</a>
-                                        {{-- @else
-                                            <a href="{{ route('emp.logout') }}"><i class="fa fa-power-off"></i> Logout</a>
-                                        @endif --}}
                                     </li>
                                 </ul>
                             </div>
@@ -170,35 +149,15 @@
         <aside class="left-sidebar">
             <div class="scroll-sidebar">
                 <div class="user-profile" style="margin-top: 28px;"></div>
-                {{-- @if (session('role') == 'admin') --}}
                 @include('superadm.layout.super-menu')
-                {{-- @else
-                    @include('superadm.layout.emp-menu')
-                @endif --}}
-
-
-
-
-
-
             </div>
-
         </aside>
         <div class="page-wrapper">
             <div class="container-fluid">
                 <div class="row page-titles">
                     <div class="col-md-5 col-12 align-self-right ">
-                        <?php
-                        // <ol class="breadcrumb">
-                        //   <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
-                        //   <li class="breadcrumb-item active">Icon</li>
-                        // </ol>
-                        ?>
                     </div>
-
                 </div>
-
-
                 <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
@@ -255,14 +214,6 @@
                         });
                     });
                 </script>
-                {{-- <script>
-$('#notificationModal').on('shown.bs.modal', function () {
-    $.get("{{ route('admin.notifications.data') }}", function(res){
-        $('#notificationList').html(res);
-    });
-});
-</script> --}}
-
                 @yield('content')
                 @include('toast')
                 @include('superadm.layout.footer')

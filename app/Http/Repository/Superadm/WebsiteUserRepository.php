@@ -14,22 +14,22 @@ class WebsiteUserRepository
             ->get();
     }
 
- public function delete($id)
-{
-    // 🔍 Check if user has orders
-    $hasOrders = DB::table('orders')
-        ->where('user_id', $id)
-        ->exists();
+    public function delete($id)
+    {
+        // 🔍 Check if user has orders
+        $hasOrders = DB::table('orders')
+            ->where('user_id', $id)
+            ->exists();
 
-    if ($hasOrders) {
-        return false; // ❌ do not delete
+        if ($hasOrders) {
+            return false; // ❌ do not delete
+        }
+
+        // ✅ safe to delete
+        return DB::table('website_users')
+            ->where('id', $id)
+            ->update(['is_deleted' => 1]);
     }
-
-    // ✅ safe to delete
-    return DB::table('website_users')
-        ->where('id', $id)
-        ->update(['is_deleted' => 1]);
-}
 
     public function toggleStatus($id)
     {
@@ -48,5 +48,4 @@ class WebsiteUserRepository
             ->where('id', $id)
             ->first();
     }
-
 }

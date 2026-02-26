@@ -9,29 +9,6 @@
             @if (session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
-
-            {{-- ================= ADD MEDIA FORM ================= --}}
-            {{-- <form id="imageUploadForm" enctype="multipart/form-data">
-                @csrf
-                <input type="hidden" name="media_id" value="{{ $media->id }}">
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Upload Images</label>
-                        <input type="file" name="images[]" multiple class="form-control" accept="image/*">
-                    </div>
-
-                    <div class="col-md-6 d-flex align-items-end gap-2 mt-2 mt-md-0">
-                        <a href="{{ route('media.list') }}" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left"></i> Back
-                        </a>
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-upload"></i> Submit
-                        </button>
-                    </div>
-                </div>
-            </form> --}}
             <form id="imageUploadForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="media_id" value="{{ $media->id }}">
@@ -39,7 +16,8 @@
                 {{-- IMAGE INPUT FIELD --}}
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Upload Images (upload image size must be less then 1mb) <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">Upload Images (upload image size must be less then 1mb) <span
+                                class="text-danger">*</span></label>
                         <input type="file" name="images[]" multiple class="form-control" accept="image/*">
                         <label class="form-label fw-semibold">
                             Upload Images (500×600 px)
@@ -82,32 +60,8 @@
                 </div>
 
             </form>
-
             {{-- ================= IMAGE GALLERY ================= --}}
             <hr>
-
-            {{-- <div class="row mt-3">
-                @forelse($media->images as $img)
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4" id="img-{{ $img->id }}">
-                        <div class="border rounded position-relative overflow-hidden">
-
-                            <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}" class="img-fluid w-100"
-                                style="height:170px; object-fit:cover;">
-
-                            <button type="button" class="btn btn-danger btn-sm position-absolute"
-                                style="top:6px; right:6px;" onclick="deleteImage({{ $img->id }})">
-                                <i class="fa fa-trash"></i>
-                            </button>
-
-                        </div>
-                    </div>
-                @empty
-                    <div class="col-12 text-center py-4">
-                        <p class="text-muted">No images uploaded yet.</p>
-                    </div>
-                @endforelse
-            </div> --}}
-
         </div>
     </div>
 @endsection
@@ -150,28 +104,14 @@
 
                     // Laravel validation errors
                     if (xhr.status === 422) {
-
-                        // CASE 1: custom message (total > 10 images)
-                        // if (xhr.responseJSON.message) {
-                        //     // alert(xhr.responseJSON.message);
-                        //     showAlert('warning', xhr.responseJSON.message);
-                        //     return;
-                        // }
-                    if (xhr.responseJSON.errors) {
-                                let firstError = Object.values(xhr.responseJSON.errors)[0][0];
-                                showAlert('error', firstError);
-                                return;
-                            }
-
-                        
+                        if (xhr.responseJSON.errors) {
+                            let firstError = Object.values(xhr.responseJSON.errors)[0][0];
+                            showAlert('error', firstError);
+                            return;
+                        }
                         // CASE 2: normal validation errors
                         if (xhr.responseJSON.errors) {
                             let errorMessage = '';
-
-                            // $.each(xhr.responseJSON.errors, function(key, value) {
-                            //     errorMessage += value[0] + '\n';
-                            // }); //one more error
-
                             // ONLY FIRST ERROR MESSAGE
                             let firstError = Object.values(xhr.responseJSON.errors)[0][0];
 
@@ -180,40 +120,11 @@
                             showAlert('error', errorMessage);
                             return;
                         }
-
-                        //if want to show multiple error
-
-                        // if (xhr.responseJSON.errors) {
-
-                        //     let errorHtml = '<ul style="text-align:left; margin-left:15px;">';
-
-                        //     $.each(xhr.responseJSON.errors, function (key, messages) {
-                        //         messages.forEach(function (msg) {
-                        //             errorHtml += `<li>${msg}</li>`;
-                        //         });
-                        //     });
-
-                        //     errorHtml += '</ul>';
-
-                        //     Swal.fire({
-                        //         icon: 'error',
-                        //         title: 'Validation Errors',
-                        //         html: errorHtml,
-                        //         confirmButtonText: 'OK'
-                        //     });
-
-                        //     return;
-                        // }
-                        
                     }
-
                     // Other errors
                     // alert('Image upload failed. Please try again.');
                     showAlert('error', 'Image upload failed. Please try again.');
                 }
-                // error: function () {
-                //     alert('Image upload failed');
-                // }
             });
         });
     </script>

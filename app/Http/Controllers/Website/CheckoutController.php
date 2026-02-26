@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\MediaBookedDate;
@@ -155,20 +156,6 @@ class CheckoutController extends Controller
 
                 return $order;
             }
-
-            // if ($order) {
-            //     //  UPDATE order amount only
-            //     $gst = round(($total * 18) / 100, 2);
-
-            //     $order->update([
-            //         'total_amount' => $total,
-            //         'gst_amount'   => $gst,
-            //         'grand_total'  => $total + $gst,
-            //     ]);
-
-            //     return $order;
-            // }
-
             // 🆕 CREATE order only if none exists
             $order = $this->orderRepo->createOrder($total);
 
@@ -182,55 +169,21 @@ class CheckoutController extends Controller
 
         return redirect()->route('checkout.index');
     }
-
-
-    // public function razorpayWebhook(Request $request)
-    // {
-    //     $payload   = $request->getContent();
-    //     $signature = $request->header('X-Razorpay-Signature');
-    //     $secret    = config('services.razorpay.webhook_secret');
-
-    //     try {
-    //         //  VERIFY WEBHOOK SIGNATURE
-    //         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-    //         $api->utility->verifyWebhookSignature($payload, $signature, $secret);
-
-    //         $data = json_decode($payload, true);
-
-    //         $razorpayOrderId = $data['payload']['payment']['entity']['order_id'];
-    //         $paymentId       = $data['payload']['payment']['entity']['id'];
-
-    //         $order = \App\Models\Order::where('payment_gateway_order_id', $razorpayOrderId)->first();
-
-    //         if (!$order) {
-    //             return response()->json(['status' => 'order_not_found'], 404);
-    //         }
-
-    //         $order->update([
-    //             'payment_status' => 'PAID',
-    //             'payment_id' => $paymentId
-    //         ]);
-
-    //         return response()->json(['status' => 'success'], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // }
     public function razorpayWebhook(Request $request)
     {
         $payload   = $request->getContent();
         $signature = $request->header('X-Razorpay-Signature');
         $secret    = config('services.razorpay.webhook_secret');
 
-        // ✅ LOG 1 — Check if webhook is hitting controller
-        \Log::info('Razorpay Webhook HIT', [
+        //  LOG 1 — Check if webhook is hitting controller
+        Log::info('Razorpay Webhook HIT', [
             'signature' => $signature,
             'secret_present' => !empty($secret),
             'payload' => $payload
         ]);
 
         if (empty($signature) || empty($secret)) {
-            \Log::warning('Signature missing', [
+            Log::warning('Signature missing', [
                 'signature' => $signature,
                 'secret' => $secret
             ]);
@@ -250,8 +203,8 @@ class CheckoutController extends Controller
             $data  = json_decode($payload, true);
             $event = $data['event'] ?? null;
 
-            // ✅ LOG 2 — Which event came
-            \Log::info('Razorpay Event Received', [
+            // LOG 2 — Which event came
+            Log::info('Razorpay Event Received', [
                 'event' => $event
             ]);
 
@@ -262,15 +215,15 @@ class CheckoutController extends Controller
             $payment = $data['payload']['payment']['entity'] ?? null;
 
             if (!$payment) {
-                \Log::warning('No payment entity found');
+                Log::warning('No payment entity found');
                 return response()->json(['status' => 'no_payment'], 200);
             }
 
             $razorpayOrderId = $payment['order_id'] ?? null;
             $paymentId       = $payment['id'] ?? null;
 
-            // ✅ LOG 3 — Payment details
-            \Log::info('Payment Data', [
+            //  LOG 3 — Payment details
+            Log::info('Payment Data', [
                 'razorpay_order_id' => $razorpayOrderId,
                 'payment_id' => $paymentId
             ]);
@@ -287,14 +240,14 @@ class CheckoutController extends Controller
                     'payment_id'     => $paymentId,
                 ]);
 
-                \Log::info('Order marked PAID', [
+                Log::info('Order marked PAID', [
                     'order_id' => $order->id
                 ]);
             }
 
             return response()->json(['status' => 'success'], 200);
         } catch (\Throwable $e) {
-            \Log::error('Razorpay Webhook Error', [
+            Log::error('Razorpay Webhook Error', [
                 'message' => $e->getMessage(),
                 'payload' => $payload
             ]);
@@ -302,10 +255,6 @@ class CheckoutController extends Controller
             return response()->json(['status' => 'error_logged'], 200);
         }
     }
-
-
-
-
     public function pay()
     {
         $orderId = session('order_id');
@@ -447,36 +396,6 @@ class CheckoutController extends Controller
         // return view('website.dashboard');
         return redirect()->route('dashboard.home')->with('success', 'Payment successful!');
     }
-
-
-    // public function placeCampaignOrder($campaignId)
-    // {
-    //     $campaignId = base64_decode($campaignId);
-
-    //     $items = CartItem::where('campaign_id', $campaignId)
-    //         ->where('cart_type', 'CAMPAIGN')
-    //         ->where('status', 'ACTIVE')
-    //         ->get();
-
-    //     if ($items->isEmpty()) {
-    //         return back()->with('error', 'Campaign is empty');
-    //     }
-
-    //     // $total = $items->sum(fn($i) => $i->price * $i->qty);
-    //     $total = $items->sum(fn($i) => $i->total_price);
-
-    //     // $order = $this->orderRepo->createOrder($total);
-    //      $order = $this->orderRepo->createOrder($total, $campaignId);
-    //     $this->orderRepo->createOrderItems($order->id, $items);
-
-    //     // ONLY STORE ORDER ID
-    //     session([
-    //         'order_id'    => $order->id,
-    //         'campaign_id' => $campaignId,
-    //     ]);
-
-    //     return redirect()->route('checkout.index');
-    // }
     public function placeCampaignOrder($campaignId)
     {
         $campaignId = base64_decode($campaignId);

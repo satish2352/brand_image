@@ -26,48 +26,47 @@ class RevenueReportController extends Controller
         /* ======================
        MONTH-WISE (ONE ROW / MONTH)
     ======================= */
-if ($type === 'date') {
+        if ($type === 'date') {
 
-    $query->select(
-        DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
+            $query->select(
+                DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
 
-        DB::raw("
+                DB::raw("
             CASE 
                 WHEN o.payment_status = 'PAID' THEN 'ONLINE'
                 WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
             END AS booking_type
         "),
 
-        DB::raw('COUNT(DISTINCT o.id) as total_bookings'),
-        DB::raw('MIN(oi.from_date) as sort_date'),
+                DB::raw('COUNT(DISTINCT o.id) as total_bookings'),
+                DB::raw('MIN(oi.from_date) as sort_date'),
 
-        DB::raw('SUM(oi.total_price) as total_amount'),
-        DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
-        DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
-    )
-    ->groupBy(
-        DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"),
-        'o.payment_status'
-    )
-    ->orderBy('sort_date', 'desc');
-}
+                DB::raw('SUM(oi.total_price) as total_amount'),
+                DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
+                DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
+            )
+                ->groupBy(
+                    DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"),
+                    'o.payment_status'
+                )
+                ->orderBy('sort_date', 'desc');
+        }
 
 
-/* ================= MEDIA-WISE ================= */
-elseif ($type === 'media') {
+        /* ================= MEDIA-WISE ================= */ elseif ($type === 'media') {
 
-    $query->select(
-        'm.media_code',
-        'cat.category_name',
-        'm.media_title',
-        's.state_name',
-        'd.district_name',
-        'c.city_name',
-        'a.area_name',
-        'm.width',
-        'm.height',
+            $query->select(
+                'm.media_code',
+                'cat.category_name',
+                'm.media_title',
+                's.state_name',
+                'd.district_name',
+                'c.city_name',
+                'a.area_name',
+                'm.width',
+                'm.height',
 
-        DB::raw("
+                DB::raw("
             CASE 
                 WHEN o.payment_status = 'PAID' THEN 'ONLINE'
                 WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
@@ -75,62 +74,59 @@ elseif ($type === 'media') {
             END AS booking_type
         "),
 
-        DB::raw('COUNT(oi.id) as total_bookings'),
-        DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+                DB::raw('COUNT(oi.id) as total_bookings'),
+                DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
 
-        DB::raw('SUM(oi.total_price) as total_amount'),
-        DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
-        DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
-    )
-    ->groupBy(
-        'm.media_code',
-        'cat.category_name',
-        'm.media_title',
-        's.state_name',
-        'd.district_name',
-        'c.city_name',
-        'a.area_name',
-        'm.width',
-        'm.height',
-        'o.payment_status'
-    )
-    ->orderByDesc('grand_total');
+                DB::raw('SUM(oi.total_price) as total_amount'),
+                DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
+                DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
+            )
+                ->groupBy(
+                    'm.media_code',
+                    'cat.category_name',
+                    'm.media_title',
+                    's.state_name',
+                    'd.district_name',
+                    'c.city_name',
+                    'a.area_name',
+                    'm.width',
+                    'm.height',
+                    'o.payment_status'
+                )
+                ->orderByDesc('grand_total');
+        }
 
-}
+        /* ================= USER-WISE (ORDER-ID BASED) ================= */ elseif ($type === 'user') {
 
-/* ================= USER-WISE (ORDER-ID BASED) ================= */
+            $query->select(
+                'o.id as order_id',
+                'u.name as user_name',
 
-elseif ($type === 'user') {
-
-    $query->select(
-        'o.id as order_id',
-        'u.name as user_name',
-
-        DB::raw("
+                DB::raw("
             CASE 
                 WHEN o.payment_status = 'PAID' THEN 'ONLINE'
                 WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
             END AS booking_type
         "),
 
-        DB::raw('COUNT(DISTINCT o.id) as total_bookings'), // ✅ REQUIRED
-        DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+                DB::raw('COUNT(DISTINCT o.id) as total_bookings'), // ✅ REQUIRED
+                DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
 
-        DB::raw('SUM(oi.total_price) as total_amount'),
-        DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
-        DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
-    )
-    ->groupBy(
-        'o.id',
-        'u.name',
-        'o.payment_status'
-    )
-    ->orderByDesc('grand_total');
-}
+                DB::raw('SUM(oi.total_price) as total_amount'),
+                DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
+                DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
+            )
+                ->groupBy(
+                    'o.id',
+                    'u.name',
+                    'o.payment_status'
+                )
+                ->orderByDesc('grand_total');
+        }
 
 
 
-        
+
 
         $reports = $query->paginate(10)->withQueryString();
 
@@ -234,324 +230,181 @@ elseif ($type === 'user') {
         return $query;
     }
     private function exportQuery(Request $request)
-{
-    $type = $request->report_type ?? 'media';
-    $query = $this->baseQuery($request);
+    {
+        $type = $request->report_type ?? 'media';
+        $query = $this->baseQuery($request);
 
-    /* ========= DATE ========= */
-  if ($type === 'date') {
+        /* ========= DATE ========= */
+        if ($type === 'date') {
 
-    $query->select(
-        DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
+            $query->select(
+                DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
 
-        DB::raw("
+                DB::raw("
             CASE 
                 WHEN o.payment_status = 'PAID' THEN 'ONLINE'
                 WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
             END AS booking_type
         "),
 
-        DB::raw('COUNT(DISTINCT o.id) as total_bookings'),
+                DB::raw('COUNT(DISTINCT o.id) as total_bookings'),
 
-        DB::raw('SUM(oi.total_price) as total_amount'),
-        DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
-        DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
-    )
-    ->groupBy(
-        DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"),
-        'o.payment_status'
-    )
-    ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
-}
+                DB::raw('SUM(oi.total_price) as total_amount'),
+                DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
+                DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
+            )
+                ->groupBy(
+                    DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"),
+                    'o.payment_status'
+                )
+                ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
+        }
 
 
-    /* ========= MEDIA ========= */
-    elseif ($type === 'media') {
+        /* ========= MEDIA ========= */ elseif ($type === 'media') {
 
-        $query->select(
-            'm.media_code',
-            'cat.category_name',
-            'm.media_title',
-            's.state_name',
-            'd.district_name',
-            'c.city_name',
-            'a.area_name',
-            'm.width',
-            'm.height',
+            $query->select(
+                'm.media_code',
+                'cat.category_name',
+                'm.media_title',
+                's.state_name',
+                'd.district_name',
+                'c.city_name',
+                'a.area_name',
+                'm.width',
+                'm.height',
 
-            DB::raw("
+                DB::raw("
                 CASE 
                     WHEN o.payment_status = 'PAID' THEN 'ONLINE'
                     WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
                 END AS booking_type
             "),
 
-            DB::raw('COUNT(oi.id) as total_bookings'),
-            DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+                DB::raw('COUNT(oi.id) as total_bookings'),
+                DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
 
-            DB::raw('SUM(oi.total_price) as total_amount'),
-            DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
-            DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
-        )
-        ->groupBy(
-            'm.media_code',
-            'cat.category_name',
-            'm.media_title',
-            's.state_name',
-            'd.district_name',
-            'c.city_name',
-            'a.area_name',
-            'm.width',
-            'm.height',
-            'o.payment_status'
-        )
-        ->orderByDesc('grand_total');
-    }
+                DB::raw('SUM(oi.total_price) as total_amount'),
+                DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
+                DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
+            )
+                ->groupBy(
+                    'm.media_code',
+                    'cat.category_name',
+                    'm.media_title',
+                    's.state_name',
+                    'd.district_name',
+                    'c.city_name',
+                    'a.area_name',
+                    'm.width',
+                    'm.height',
+                    'o.payment_status'
+                )
+                ->orderByDesc('grand_total');
+        }
 
-    /* ========= USER ========= */
-   elseif ($type === 'user') {
+        /* ========= USER ========= */ elseif ($type === 'user') {
 
-    $query->select(
-        'o.id as order_id',
-        'u.name as user_name',
+            $query->select(
+                'o.id as order_id',
+                'u.name as user_name',
 
-        DB::raw("
+                DB::raw("
             CASE 
                 WHEN o.payment_status = 'PAID' THEN 'ONLINE'
                 WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
             END AS booking_type
         "),
 
-        DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+                DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
 
-        DB::raw('SUM(oi.total_price) as total_amount'),
-        DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
-        DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
-    )
-    ->groupBy(
-        'o.id',
-        'u.name',
-        'o.payment_status'
-    )
-    ->orderByDesc('grand_total');
-}
-
-
-    return $query->get();
-}
-
-//     private function exportQuery(Request $request)
-//     {
-//         $type = $request->report_type ?? 'media';
-//         $query = $this->baseQuery($request);
-
-//         /* ========= DATE ========= */
-//         if ($type === 'date') {
-
-//             $query->select(
-//                 DB::raw("DATE_FORMAT(oi.from_date, '%b %Y') as period"),
-
-//                 DB::raw("
-//             CASE 
-//                 WHEN o.payment_status = 'PAID' THEN 'ONLINE'
-//                 WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
-//                 ELSE o.payment_status
-//             END AS booking_type
-//         "),
-
-//                 DB::raw('COUNT(oi.id) as total_bookings'),
-//                 DB::raw('SUM(o.total_amount) as total_amount'),
-//                 DB::raw('SUM(o.gst_amount) as gst_amount'),
-//                 DB::raw('SUM(o.grand_total) as grand_total')
-//             )
-//                 ->groupBy(
-//                     DB::raw("DATE_FORMAT(oi.from_date, '%b %Y')"),
-//                     'o.payment_status'
-//                 )
-//                 ->orderBy(DB::raw('MIN(oi.from_date)'), 'desc');
-//         }
+                DB::raw('SUM(oi.total_price) as total_amount'),
+                DB::raw('SUM(oi.total_price * 18 / 100) as gst_amount'),
+                DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
+            )
+                ->groupBy(
+                    'o.id',
+                    'u.name',
+                    'o.payment_status'
+                )
+                ->orderByDesc('grand_total');
+        }
 
 
-//         /* ========= MEDIA ========= */ elseif ($type === 'media') {
+        return $query->get();
+    }
+    public function monthDetails(Request $request)
+    {
+        [$month, $year] = explode(' ', $request->period);
+        $monthNum = date('m', strtotime($month));
 
-//             $query->select(
-//                 'm.media_code',
-//                 'cat.category_name',
-//                 'm.media_title',
-//                 's.state_name',
-//                 'd.district_name',
-//                 'c.city_name',
-//                 'a.area_name',
-//                 'm.width',
-//                 'm.height',
+        $data = DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('website_users as u', 'u.id', '=', 'o.user_id')
+            ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+            ->join('category as c', 'c.id', '=', 'm.category_id')
+            ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+            ->whereYear('oi.from_date', $year)
+            ->whereMonth('oi.from_date', $monthNum)
+            ->select(
+                'u.name as user_name',
+                'm.media_code',
+                'm.media_title',
+                'c.category_name',
 
-//                 DB::raw("
-//             CASE 
-//                 WHEN o.payment_status = 'PAID' THEN 'ONLINE'
-//                 WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
-//                 ELSE o.payment_status
-//             END AS booking_type
-//         "),
+                DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
 
-//                 DB::raw('COUNT(oi.id) as total_bookings'),
-//                 DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-//                 DB::raw('SUM(o.total_amount) as total_amount'),
-//                 DB::raw('SUM(o.gst_amount) as gst_amount'),
-//                 DB::raw('SUM(o.grand_total) as grand_total')
-//             )
-//                 ->groupBy(
-//                     'm.media_code',
-//                     'cat.category_name',
-//                     'm.media_title',
-//                     's.state_name',
-//                     'd.district_name',
-//                     'c.city_name',
-//                     'a.area_name',
-//                     'm.width',
-//                     'm.height',
-//                     'o.payment_status'
-//                 )
-//                 ->orderByDesc('grand_total');
-//         } else { // USER
-
-//         $query->select(
-//     'u.id',
-//     'u.name as user_name',
-
-//     DB::raw('COUNT(DISTINCT o.id) as total_bookings'),
-//     DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-
-//     DB::raw('SUM(o.total_amount) as total_amount'),
-//     DB::raw('SUM(o.gst_amount) as gst_amount'),
-//     DB::raw('SUM(o.grand_total) as grand_total')
-// )
-// ->groupBy('u.id')
-// ->orderByDesc('grand_total');
-//         //     $query->select(
-//         //         'u.name as user_name',
-
-//         //         DB::raw("
-//         //     CASE 
-//         //         WHEN o.payment_status = 'PAID' THEN 'ONLINE'
-//         //         WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
-//         //         ELSE o.payment_status
-//         //     END AS booking_type
-//         // "),
-
-//         //         DB::raw('COUNT(oi.id) as total_bookings'),
-//         //         DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-//         //         DB::raw('SUM(o.total_amount) as total_amount'),
-//         //         DB::raw('SUM(o.gst_amount) as gst_amount'),
-//         //         DB::raw('SUM(o.grand_total) as grand_total')
-//         //     )
-//                 // ->groupBy('u.name', 'o.payment_status')
-//                 // ->orderByDesc('grand_total');
-//         }
-
-
-//         return $query->get();
-//     }
-
-
- public function monthDetails(Request $request)
-{
-    [$month, $year] = explode(' ', $request->period);
-    $monthNum = date('m', strtotime($month));
-
-    $data = DB::table('order_items as oi')
-        ->join('orders as o', 'o.id', '=', 'oi.order_id')
-        ->join('website_users as u', 'u.id', '=', 'o.user_id')
-        ->join('media_management as m', 'm.id', '=', 'oi.media_id')
-        ->join('category as c', 'c.id', '=', 'm.category_id')
-        ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-        ->whereYear('oi.from_date', $year)
-        ->whereMonth('oi.from_date', $monthNum)
-        ->select(
-            'u.name as user_name',
-            'm.media_code',
-            'm.media_title',
-            'c.category_name',
-
-            DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
-
-            DB::raw("
+                DB::raw("
                 CASE 
                     WHEN o.payment_status = 'PAID' THEN 'ONLINE'
                     WHEN o.payment_status = 'ADMIN_BOOKED' THEN 'OFFLINE'
                 END AS payment_status
             "),
 
-            DB::raw('oi.total_price as amount'),
-            DB::raw('(oi.total_price * 18 / 100) as gst_amount'),
-            DB::raw('(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
-        )
-        ->orderBy('oi.from_date', 'desc')
-        ->get();
+                DB::raw('oi.total_price as amount'),
+                DB::raw('(oi.total_price * 18 / 100) as gst_amount'),
+                DB::raw('(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
+            )
+            ->orderBy('oi.from_date', 'desc')
+            ->get();
 
-    return response()->json($data);
-}
+        return response()->json($data);
+    }
 
+    public function userDetails(Request $request)
+    {
+        $rows = DB::table('order_items as oi')
+            ->join('orders as o', 'o.id', '=', 'oi.order_id')
+            ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+            ->join('category as cat', 'cat.id', '=', 'm.category_id')
+            ->where('o.user_id', $request->user_id)
+            ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
+            ->select(
+                'm.id as media_id',
+                'm.media_code',
+                'm.media_title',
+                'cat.category_name',
 
+                DB::raw('MIN(oi.from_date) as from_date'),
+                DB::raw('MAX(oi.to_date) as to_date'),
 
-    // public function userDetails(Request $request)
-    // {
-    //     $rows = DB::table('order_items as oi')
-    //         ->join('orders as o', 'o.id', '=', 'oi.order_id')
-    //         ->join('media_management as m', 'm.id', '=', 'oi.media_id')
-    //         ->join('category as cat', 'cat.id', '=', 'm.category_id')
-    //         ->where('o.user_id', $request->user_id)
-    //         // ->where('o.payment_status', 'paid')
-    //         ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-    //         ->select(
-    //             'm.media_code',
-    //             'm.media_title',
-    //             'cat.category_name',
-    //             'oi.from_date',
-    //             'oi.to_date',
-    //             DB::raw('DATEDIFF(oi.to_date, oi.from_date)+1 as booked_days'),
-    //             'oi.price',
-    //             'o.payment_status'
-    //         )
-    //         ->orderBy('oi.from_date', 'desc')
-    //         ->get();
+                DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
+                DB::raw('SUM(oi.price) as revenue'),
 
-    //     return response()->json($rows);
-    // }
+                'o.payment_status'
+            )
+            ->groupBy(
+                'm.id',
+                'm.media_code',
+                'm.media_title',
+                'cat.category_name',
+                'o.payment_status'
+            )
+            ->orderBy('from_date', 'desc')
+            ->get();
 
-public function userDetails(Request $request)
-{
-    $rows = DB::table('order_items as oi')
-        ->join('orders as o', 'o.id', '=', 'oi.order_id')
-        ->join('media_management as m', 'm.id', '=', 'oi.media_id')
-        ->join('category as cat', 'cat.id', '=', 'm.category_id')
-        ->where('o.user_id', $request->user_id)
-        ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-        ->select(
-            'm.id as media_id',
-            'm.media_code',
-            'm.media_title',
-            'cat.category_name',
-
-            DB::raw('MIN(oi.from_date) as from_date'),
-            DB::raw('MAX(oi.to_date) as to_date'),
-
-            DB::raw('SUM(DATEDIFF(oi.to_date, oi.from_date) + 1) as booked_days'),
-            DB::raw('SUM(oi.price) as revenue'),
-
-            'o.payment_status'
-        )
-        ->groupBy(
-            'm.id',
-            'm.media_code',
-            'm.media_title',
-            'cat.category_name',
-            'o.payment_status'
-        )
-        ->orderBy('from_date', 'desc')
-        ->get();
-
-    return response()->json($rows);
-}
+        return response()->json($rows);
+    }
 
     /* ======================
        EXPORTS

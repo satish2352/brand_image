@@ -37,7 +37,7 @@
         color: #dc3545;
     }
 
-  
+
     /* Uniform height for all inputs & selects */
     .media-search-card .form-select,
     .media-search-card .form-control {
@@ -115,10 +115,10 @@
                     <select name="category_id" class="form-select">
                         <option value="">Select Category</option>
                         @foreach ($categories as $cat)
-                        <option value="{{ $cat->id }}"
-                            {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
-                            {{ $cat->category_name }}
-                        </option>
+                            <option value="{{ $cat->id }}"
+                                {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
+                                {{ $cat->category_name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -129,14 +129,14 @@
                     <select name="state_id" id="state_id" class="form-select">
                         <option value="">Select State</option>
                         @foreach ($states as $state)
-                        {{-- <option value="{{ $state->location_id }}"
+                            {{-- <option value="{{ $state->location_id }}"
                         {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
                         {{ $state->name }} --}}
-                        <option value="{{ $state->id }}"
-                            {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
-                            {{ $state->state_name }}
+                            <option value="{{ $state->id }}"
+                                {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
+                                {{ $state->state_name }}
 
-                        </option>
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -171,10 +171,10 @@
                     <select name="radius_id" class="form-select" id="radius_id">
                         <option value="">Radius</option>
                         @foreach ($radiusList as $r)
-                        <option value="{{ $r->radius }}"
-                            {{ (string) ($filters['radius_id'] ?? '') === (string) $r->radius ? 'selected' : '' }}>
-                            {{ $r->radius }} KM
-                        </option>
+                            <option value="{{ $r->radius }}"
+                                {{ (string) ($filters['radius_id'] ?? '') === (string) $r->radius ? 'selected' : '' }}>
+                                {{ $r->radius }} KM
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -211,44 +211,34 @@
                     <select name="available_days" id="available_days" class="form-select">
                         <option value="">Select Days</option>
 
-                        <option value="0"
-                            {{ ($filters['available_days'] ?? '') == '0' ? 'selected' : '' }}>
+                        <option value="0" {{ ($filters['available_days'] ?? '') == '0' ? 'selected' : '' }}>
                             Instantly Available
                         </option>
 
-                        <option value="7"
-                            {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>
+                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>
                             Available After 7 Days
                         </option>
 
-                        <option value="15"
-                            {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>
+                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>
                             Available After 15 Days
                         </option>
                     </select>
-                    {{-- <select name="available_days" id="available_days" class="form-select">
-                        <option value="">Select Days</option>
-                        <option value="7" {{ ($filters['available_days'] ?? '') == '7' ? 'selected' : '' }}>Available After
-                            7 Days</option>
-                        <option value="15" {{ ($filters['available_days'] ?? '') == '15' ? 'selected' : '' }}>Available After
-                            15 Days</option>
-                    </select> --}}
                 </div>
 
-              <div class="col-lg-2 col-md-4 col-sm-6" id="size_wrapper">
-    <label class="form-label">Media Size</label>
+                <div class="col-lg-2 col-md-4 col-sm-6" id="size_wrapper">
+                    <label class="form-label">Media Size</label>
 
-    <select name="size_id" class="form-select">
-        <option value="">Select Media Size</option>
+                    <select name="size_id" class="form-select">
+                        <option value="">Select Media Size</option>
 
-        @foreach($sizes as $id => $size)
-            <option value="{{ $size }}"
-                {{ ($filters['size_id'] ?? '') == $size ? 'selected' : '' }}>
-                {{ $size }}
-            </option>
-        @endforeach
-    </select>
-</div>
+                        @foreach ($sizes as $id => $size)
+                            <option value="{{ $size }}"
+                                {{ ($filters['size_id'] ?? '') == $size ? 'selected' : '' }}>
+                                {{ $size }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div class="col-lg-2 col-md-4 col-sm-6" id="days_wrapper">
 
@@ -263,7 +253,8 @@
                         </span>
                     </div>
                     <div class="range-slider-container">
-                        <input type="hidden" name="min_price" id="min_price" value="{{ $filters['min_price'] ?? 0 }}">
+                        <input type="hidden" name="min_price" id="min_price"
+                            value="{{ $filters['min_price'] ?? 0 }}">
                         <input type="hidden" name="max_price" id="max_price"
                             value="{{ $filters['max_price'] ?? 1000000 }}">
 
@@ -294,23 +285,23 @@
                         </button>
                     </div>
                     @if (($filters['category_id'] ?? '') != '')
-                    @php $catName = $mediaList->first()->category_name ?? ''; @endphp
+                        @php $catName = $mediaList->first()->category_name ?? ''; @endphp
 
-                    <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
-                        @if ($mediaList->total() > 0)
-                        <div class="result-badge">
-                            <span class="icon">📍</span>
-                            <span class="count">{{ $mediaList->total() }} Results</span>
-                            {{-- <span class="label">for {{ $catName }}</span> --}}
+                        <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
+                            @if ($mediaList->total() > 0)
+                                <div class="result-badge">
+                                    <span class="icon">📍</span>
+                                    <span class="count">{{ $mediaList->total() }} Results</span>
+                                    {{-- <span class="label">for {{ $catName }}</span> --}}
+                                </div>
+                            @else
+                                <div class="result-badge no-result">
+                                    <span class="icon">❌</span>
+                                    <span class="count">No Results</span>
+                                    {{-- <span class="label">for {{ $catName }}</span> --}}
+                                </div>
+                            @endif
                         </div>
-                        @else
-                        <div class="result-badge no-result">
-                            <span class="icon">❌</span>
-                            <span class="count">No Results</span>
-                            {{-- <span class="label">for {{ $catName }}</span> --}}
-                        </div>
-                        @endif
-                    </div>
                     @endif
                 </div>
 
@@ -329,278 +320,189 @@
     const selectedArea = "{{ $filters['area_id'] ?? '' }}";
 </script>
 <script>
-$(document).ready(function () {
-    let today = new Date().toISOString().split('T')[0];
-    $('#from_date').attr('min', today);
-
-    // Optional: also restrict "To Date" not to be before From Date
-    $('#from_date').on('change', function () {
-        $('#to_date').attr('min', $(this).val());
-    });
-});
-</script>
-<script>
-// ===============================
-// GLOBAL FUNCTION (IMPORTANT)
-// ===============================
-function toggleRadius() {
-
-    const allowedCategories = [1, 2];
-
-    let categoryId = parseInt($('select[name="category_id"]').val());
-    let hasCity = $('#city_id').val();
-    let hasArea = $('#area_id').val();
-
-    if (
-        !allowedCategories.includes(categoryId) ||
-        !hasCity ||
-        hasArea
-    ) {
-        $('#radius_id')
-            // .val('')
-            .prop('disabled', true)
-            .addClass('bg-light');
-    } else {
-        $('#radius_id')
-            .prop('disabled', false)
-            .removeClass('bg-light');
-    }
-}
-</script>
-<script>
-$(document).ready(function() {
-
-    const csrf = "{{ csrf_token() }}";
-
-    function loadDistricts(stateId, selected = '') {
-
-        if (!stateId) return;
-
-        $.post("{{ route('ajax.districts') }}", {
-            _token: csrf,
-            state_id: stateId
-        }, function(data) {
-
-            let html = '<option value="">Select District</option>';
-
-            data.forEach(d => {
-                html += `<option value="${d.id}" ${d.id == selected ? 'selected' : ''}>
-                            ${d.district_name}
-                         </option>`;
-            });
-
-            $('#district_id').html(html);
-        });
-    }
-
-    function loadCities(districtId, selected = '') {
-
-        if (!districtId) return;
-
-        $.post("{{ route('ajax.cities') }}", {
-            _token: csrf,
-            district_id: districtId
-        }, function(data) {
-
-            let html = '<option value="">Select Town</option>';
-
-            data.forEach(c => {
-                html += `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>
-                            ${c.city_name}
-                         </option>`;
-            });
-
-            $('#city_id').html(html);
-
-            toggleRadius(); // ⭐ IMPORTANT
-        });
-    }
-
-    function loadAreas(cityId, selected = '') {
-
-        if (!cityId) return;
-
-        $.post("{{ route('ajax.areas') }}", {
-            _token: csrf,
-            city_id: cityId
-        }, function(data) {
-
-            let html = '<option value="">Select Area</option>';
-
-            data.forEach(a => {
-                html += `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>
-                            ${a.area_name}
-                         </option>`;
-            });
-
-            $('#area_id').html(html);
-
-            toggleRadius(); // ⭐ IMPORTANT
-        });
-    }
-
-    // ================= EVENTS =================
-
-    $('#state_id').on('change', function() {
-
-        loadDistricts(this.value);
-
-        $('#city_id').html('<option value="">Select Town</option>');
-        $('#area_id').html('<option value="">Select Area</option>');
-
-        toggleRadius();
-    });
-
-    $('#district_id').on('change', function() {
-
-        loadCities(this.value);
-
-        $('#area_id').html('<option value="">Select Area</option>');
-    });
-
-    $('#city_id').on('change', function() {
-
-        loadAreas(this.value);
-        toggleRadius();
-    });
-
-    $('#area_id').on('change', toggleRadius);
-
-    // INITIAL LOAD
-    if (selectedState) loadDistricts(selectedState, selectedDistrict);
-    if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
-    if (selectedCity) loadAreas(selectedCity, selectedArea);
-
-    toggleRadius();
-});
-</script>
-{{-- <script>
     $(document).ready(function() {
+        let today = new Date().toISOString().split('T')[0];
+        $('#from_date').attr('min', today);
+
+        // Optional: also restrict "To Date" not to be before From Date
+        $('#from_date').on('change', function() {
+            $('#to_date').attr('min', $(this).val());
+        });
+    });
+</script>
+<script>
+    // ===============================
+    // GLOBAL FUNCTION (IMPORTANT)
+    // ===============================
+    function toggleRadius() {
+
+        const allowedCategories = [1, 2];
+
+        let categoryId = parseInt($('select[name="category_id"]').val());
+        let hasCity = $('#city_id').val();
+        let hasArea = $('#area_id').val();
+
+        if (
+            !allowedCategories.includes(categoryId) ||
+            !hasCity ||
+            hasArea
+        ) {
+            $('#radius_id')
+                // .val('')
+                .prop('disabled', true)
+                .addClass('bg-light');
+        } else {
+            $('#radius_id')
+                .prop('disabled', false)
+                .removeClass('bg-light');
+        }
+    }
+</script>
+<script>
+    $(document).ready(function() {
+
         const csrf = "{{ csrf_token() }}";
 
-        // Load Districts
         function loadDistricts(stateId, selected = '') {
+
             if (!stateId) return;
+
             $.post("{{ route('ajax.districts') }}", {
                 _token: csrf,
                 state_id: stateId
             }, function(data) {
+
                 let html = '<option value="">Select District</option>';
+
                 data.forEach(d => {
-                    html +=
-                        `<option value="${d.id}" ${d.id == selected ? 'selected' : ''}>${d.district_name}</option>`;
+                    html += `<option value="${d.id}" ${d.id == selected ? 'selected' : ''}>
+                            ${d.district_name}
+                         </option>`;
                 });
+
                 $('#district_id').html(html);
             });
         }
 
-        // Load Cities
         function loadCities(districtId, selected = '') {
+
             if (!districtId) return;
+
             $.post("{{ route('ajax.cities') }}", {
                 _token: csrf,
                 district_id: districtId
             }, function(data) {
+
                 let html = '<option value="">Select Town</option>';
+
                 data.forEach(c => {
-                    html +=
-                        `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>${c.city_name}</option>`;
+                    html += `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>
+                            ${c.city_name}
+                         </option>`;
                 });
+
                 $('#city_id').html(html);
-                toggleRadius(); // ⭐ ADD THIS
+
+                toggleRadius(); // ⭐ IMPORTANT
             });
         }
 
-        // Load Areas
         function loadAreas(cityId, selected = '') {
+
             if (!cityId) return;
+
             $.post("{{ route('ajax.areas') }}", {
                 _token: csrf,
                 city_id: cityId
             }, function(data) {
+
                 let html = '<option value="">Select Area</option>';
+
                 data.forEach(a => {
-                    html +=
-                        `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>${a.area_name}</option>`;
+                    html += `<option value="${a.id}" ${a.id == selected ? 'selected' : ''}>
+                            ${a.area_name}
+                         </option>`;
                 });
+
                 $('#area_id').html(html);
-                 toggleRadius(); // ⭐ FINAL FIX
+
+                toggleRadius(); // ⭐ IMPORTANT
             });
         }
 
-        // Change Events
+        // ================= EVENTS =================
+
         $('#state_id').on('change', function() {
+
             loadDistricts(this.value);
+
             $('#city_id').html('<option value="">Select Town</option>');
             $('#area_id').html('<option value="">Select Area</option>');
+
+            toggleRadius();
         });
 
         $('#district_id').on('change', function() {
+
             loadCities(this.value);
+
             $('#area_id').html('<option value="">Select Area</option>');
         });
 
         $('#city_id').on('change', function() {
+
             loadAreas(this.value);
+            toggleRadius();
         });
 
-        // Initial selection
+        $('#area_id').on('change', toggleRadius);
+
+        // INITIAL LOAD
         if (selectedState) loadDistricts(selectedState, selectedDistrict);
         if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
         if (selectedCity) loadAreas(selectedCity, selectedArea);
 
+        toggleRadius();
     });
-</script> --}}
-
-<!-- <script>
-    document.getElementById('clearFilters').addEventListener('click', function() {
-        document.getElementById('clearFlag').value = '1';
-        this.closest('form').submit();
-    });
-</script> -->
-
-{{-- <script>
-    document.getElementById('clearFilters').addEventListener('click', function() {
-        document.getElementById('clearFlag').value = '1';
-        this.closest('form').submit();
-    });
-</script> --}}
+</script>
 <script>
-    document.getElementById('clearFilters').addEventListener('click', function () {
+    document.getElementById('clearFilters').addEventListener('click', function() {
 
-    // Reset form fields
-    document.getElementById('searchForm').reset();
+        // Reset form fields
+        document.getElementById('searchForm').reset();
 
-    // Reset dependent dropdowns
-    $('#district_id').html('<option value="">Select District</option>');
-    $('#city_id').html('<option value="">Select Town</option>');
-    $('#area_id').html('<option value="">Select Area</option>');
+        // Reset dependent dropdowns
+        $('#district_id').html('<option value="">Select District</option>');
+        $('#city_id').html('<option value="">Select Town</option>');
+        $('#area_id').html('<option value="">Select Area</option>');
 
-    // Reset slider
-    $("#minRange").val(0);
-    $("#maxRange").val(1000000);
-    $("#min_price").val(0);
-    $("#max_price").val(1000000);
-    $("#minRangeLabel").text("₹0");
-    $("#maxRangeLabel").text("₹10,00,000");
+        // Reset slider
+        $("#minRange").val(0);
+        $("#maxRange").val(1000000);
+        $("#min_price").val(0);
+        $("#max_price").val(1000000);
+        $("#minRangeLabel").text("₹0");
+        $("#maxRangeLabel").text("₹10,00,000");
 
-    // Reset slider fill
-    $("#rangeFill").css({ left: "0%", width: "100%" });
+        // Reset slider fill
+        $("#rangeFill").css({
+            left: "0%",
+            width: "100%"
+        });
 
-    // Optional: reload default media via form submit
-    // (keeps layout stable)
-   let form = document.getElementById('searchForm');
+        // Optional: reload default media via form submit
+        // (keeps layout stable)
+        let form = document.getElementById('searchForm');
 
-let input = document.createElement("input");
-input.type = "hidden";
-input.name = "clear";
-input.value = "1";
+        let input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "clear";
+        input.value = "1";
 
-form.appendChild(input);
-form.submit();
+        form.appendChild(input);
+        form.submit();
 
-});
-
+    });
 </script>
 <script>
     $(document).ready(function() {
@@ -630,84 +532,7 @@ form.submit();
 
     });
 </script>
-{{-- <script>
-    $(document).ready(function() {
 
-        const allowedCategories = [1, 2];
-
-        // function toggleRadius() {
-        //     let categoryId = parseInt($('select[name="category_id"]').val());
-        //     let hasCity = $('#city_id').val();
-
-        //     // No city, OR category not allowed = disable
-        //     if (!allowedCategories.includes(categoryId) || !hasCity) {
-        //         $('#radius_id')
-        //             .val('')
-        //             .prop('disabled', true)
-        //             .addClass('bg-light');
-        //     } else {
-        //         $('#radius_id')
-        //             .prop('disabled', false)
-        //             .removeClass('bg-light');
-        //     }
-        // }
-
-        // Category change
-        $('select[name="category_id"]').on('change', toggleRadius);
-
-        // City change
-        $('#city_id').on('change', toggleRadius);
-
-        // Always run after AJAX loads dropdowns
-        setTimeout(toggleRadius, 500);
-
-        // On page load (important!)
-        toggleRadius();
-    });
-</script> --}}
-
-{{-- <script>
-    $(document).ready(function() {
-
-        function toggleFields(categoryId, clearValues = false) {
-
-            // Hide & disable all
-            $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
-                .hide()
-                .find('select, input')
-                .prop('disabled', true);
-
-            // ❗ Clear only when explicitly requested
-            if (clearValues) {
-                $('#radius_id, #area_type, #from_date, #to_date, #available_days').val('');
-            }
-
-            // 🔹 Hoardings (ID = 1)
-            if (categoryId == 1) {
-                $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
-                    .show()
-                    .find('select, input')
-                    .prop('disabled', false);
-            }
-
-            // 🔹 Digital Wall Painting (ID = 2)
-            if (categoryId == 2) {
-                $('#radius_wrapper')
-                    .show()
-                    .find('select')
-                    .prop('disabled', false);
-            }
-        }
-
-        // 🔥 Category change → CLEAR values
-        $('select[name="category_id"]').on('change', function() {
-            toggleFields($(this).val(), true);
-        });
-
-        // 🔥 Page load → KEEP values
-        toggleFields($('select[name="category_id"]').val(), false);
-    });
-</script> --}}
 <script>
     $(document).ready(function() {
 
@@ -749,32 +574,6 @@ form.submit();
     $(document).ready(function() {
 
         const allowedCategories = [1, 2];
-
-       // ⭐ GLOBAL FUNCTION (outside ready)
-// function toggleRadius() {
-
-//     const allowedCategories = [1, 2];
-
-//     let categoryId = parseInt($('select[name="category_id"]').val());
-//     let hasCity = $('#city_id').val();
-//     let hasArea = $('#area_id').val();
-
-//     if (
-//         !allowedCategories.includes(categoryId) ||
-//         !hasCity ||
-//         hasArea
-//     ) {
-//         $('#radius_id')
-//             .val('')
-//             .prop('disabled', true)
-//             .addClass('bg-light');
-//     } else {
-//         $('#radius_id')
-//             .prop('disabled', false)
-//             .removeClass('bg-light');
-//     }
-// }
-
         // 🔥 EVENTS (THIS IS IMPORTANT)
         $('select[name="category_id"]').on('change', toggleRadius);
         $('#city_id').on('change', toggleRadius);
@@ -786,50 +585,50 @@ form.submit();
 </script>
 
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    let minSlider = $("#minRange");
-    let maxSlider = $("#maxRange");
-    let fill = $("#rangeFill");
-    let minLabel = $("#minRangeLabel");
-    let maxLabel = $("#maxRangeLabel");
-    let maxValue = parseInt(maxSlider.attr("max"));
+        let minSlider = $("#minRange");
+        let maxSlider = $("#maxRange");
+        let fill = $("#rangeFill");
+        let minLabel = $("#minRangeLabel");
+        let maxLabel = $("#maxRangeLabel");
+        let maxValue = parseInt(maxSlider.attr("max"));
 
-    function updateSlider() {
-        let minVal = parseInt(minSlider.val());
-        let maxVal = parseInt(maxSlider.val());
+        function updateSlider() {
+            let minVal = parseInt(minSlider.val());
+            let maxVal = parseInt(maxSlider.val());
 
-        if (minVal > maxVal - 1000) {
-            minVal = maxVal - 1000;
-            minSlider.val(minVal);
+            if (minVal > maxVal - 1000) {
+                minVal = maxVal - 1000;
+                minSlider.val(minVal);
+            }
+
+            let minPercent = (minVal / maxValue) * 100;
+            let maxPercent = (maxVal / maxValue) * 100;
+
+            fill.css({
+                left: minPercent + "%",
+                width: (maxPercent - minPercent) + "%"
+            });
+
+            minLabel.text("₹" + minVal.toLocaleString('en-IN'));
+            maxLabel.text("₹" + maxVal.toLocaleString('en-IN'));
+
+            $("#min_price").val(minVal);
+            $("#max_price").val(maxVal);
         }
 
-        let minPercent = (minVal / maxValue) * 100;
-        let maxPercent = (maxVal / maxValue) * 100;
+        // ✅ FIXED Blade values
+        let savedMin = {{ $filters['min_price'] ?? 0 }};
+        let savedMax = {{ $filters['max_price'] ?? 1000000 }};
 
-        fill.css({
-            left: minPercent + "%",
-            width: (maxPercent - minPercent) + "%"
-        });
+        minSlider.val(savedMin);
+        maxSlider.val(savedMax);
 
-        minLabel.text("₹" + minVal.toLocaleString('en-IN'));
-        maxLabel.text("₹" + maxVal.toLocaleString('en-IN'));
+        updateSlider();
 
-        $("#min_price").val(minVal);
-        $("#max_price").val(maxVal);
-    }
+        minSlider.on("input change", updateSlider);
+        maxSlider.on("input change", updateSlider);
 
-    // ✅ FIXED Blade values
-    let savedMin = {{ $filters['min_price'] ?? 0 }};
-    let savedMax = {{ $filters['max_price'] ?? 1000000 }};
-
-    minSlider.val(savedMin);
-    maxSlider.val(savedMax);
-
-    updateSlider();
-
-    minSlider.on("input change", updateSlider);
-    maxSlider.on("input change", updateSlider);
-
-});
+    });
 </script>

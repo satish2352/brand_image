@@ -21,13 +21,6 @@
 
         {{-- SEARCH --}}
         @include('superadm.admin-booking.search-form')
-
-        {{-- RESULTS --}}
-        {{-- <div class="row mt-4" id="media-container">
-            @includeWhen($mediaList->count(), 'superadm.admin-booking.admin-media-home-list', [
-                'mediaList' => $mediaList,
-            ])
-        </div> --}}
         {{-- EMPTY RESULT MESSAGE --}}
         @if (request()->isMethod('post') && $mediaList->isEmpty())
             <div class="alert alert-light text-center mt-4 ">

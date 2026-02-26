@@ -68,7 +68,7 @@ class AuthController extends Controller
             'email' => $req->signup_email,
             'mobile_number' => $req->signup_mobile_number,
             'organisation' => $req->signup_organisation ?? null,
-            'gst' => $req->signup_gst ?? null, 
+            'gst' => $req->signup_gst ?? null,
             'password' => Hash::make($req->signup_password),
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(2),
@@ -194,15 +194,6 @@ class AuthController extends Controller
                 'message' => 'Invalid password.'
             ]);
         }
-
-        // CHECK LOGIN
-        // if (!$user || !Hash::check($req->login_password, $user->password)) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'Invalid email or password.'
-        //     ]);
-        // }
-
         //  ACCOUNT INACTIVE CHECK ( MAIN FIX)
         if ($user->is_active == 0) {
             return response()->json([
@@ -210,7 +201,6 @@ class AuthController extends Controller
                 'message' => 'Your account is inactive. Please contact admin to activate your account.'
             ]);
         }
-
         // STORE SESSION
         // session(['website_user' => $user]);
         Auth::guard('website')->login($user);

@@ -9,35 +9,6 @@ use Carbon\Carbon;
 
 class CampaignRepository
 {
-    // public function createCampaignAndMoveCart($userId, $campaignName)
-    // {
-    //     return DB::transaction(function () use ($userId, $campaignName) {
-
-    //         // 1️⃣ Create campaign
-    //         $campaign = Campaign::create([
-    //             'user_id'       => $userId,
-    //             'campaign_name' => $campaignName,
-    //             'is_active'     => 1,
-    //             'is_deleted'    => 0,
-    //         ]);
-
-    //         // 2️⃣ Update existing NORMAL cart items
-    //         $query = CartItem::where('status', 'ACTIVE')
-    //             ->where('cart_type', 'NORMAL')
-    //             ->where('user_id', $userId);
-
-    //         if (!$query->exists()) {
-    //             throw new \Exception('Cart is empty');
-    //         }
-
-    //         $query->update([
-    //             'cart_type'   => 'CAMPAIGN',
-    //             'campaign_id' => $campaign->id,
-    //         ]);
-
-    //         return true;
-    //     });
-    // }
     public function createCampaignAndMoveCart($userId, $campaignName)
     {
         return DB::transaction(function () use ($userId, $campaignName) {
@@ -160,109 +131,6 @@ class CampaignRepository
             'a.area_name'
         );
     }
-
-    // public function fetchOpenCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
-    //         ->where('ci.status', 'ACTIVE') // only active cart media
-    //         ->whereNotExists(function ($q) {
-    //             $q->select(DB::raw(1))
-    //                 ->from('order_items as oi')
-    //                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
-    //                 ->whereColumn('oi.media_id', 'ci.media_id') // media-wise
-    //                 ->where('ci.cart_type', 'CAMPAIGN') // booked ones
-    //                 ->where('o.is_deleted', 0);
-    //         })
-    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
-
-    // public function getOpenCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
-    //         ->whereNotExists(function ($q) {
-    //             $q->select(DB::raw(1))
-    //                 ->from('orders as o')
-    //                 ->whereColumn('o.campaign_id', 'c.id')
-    //                 ->where('o.is_deleted', 0);
-    //         })
-    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
-
-    // public function getOpenCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
-    //         ->whereNotExists(function ($q) {
-    //             $q->select(DB::raw(1))
-    //                 ->from('orders as o')
-    //                 ->whereColumn('o.campaign_id', 'c.id')
-    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-    //                 ->where('o.is_deleted', 0);
-    //         })
-    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
-    //     public function getOpenCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
-    //         ->whereNotExists(function ($q) use ($userId) {
-
-    //             $q->select(DB::raw(1))
-    //                 ->from('orders as o')
-    //                 ->join('cart_items as ci2', 'ci2.campaign_id', '=', 'o.campaign_id')
-
-    //                 // SAME MEDIA
-    //                 ->whereColumn('ci2.media_id', 'ci.media_id')
-
-    //                 // OTHER USER BOOKED
-    //                 ->where('o.user_id', '!=', $userId)
-
-    //                 // BOOKED STATUS
-    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-    //                 ->where('o.is_deleted', 0)
-
-    //                 // DATE OVERLAP CONDITION
-    //                 ->whereColumn('ci2.from_date', '<=', 'ci.to_date')
-    //                 ->whereColumn('ci2.to_date', '>=', 'ci.from_date');
-    //         })
-
-    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
-    // public function getOpenCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
-
-    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
-
-    //         ->selectRaw('
-    //         EXISTS (
-    //             SELECT 1
-    //             FROM orders o
-    //             JOIN order_items oi ON oi.order_id = o.id
-    //             WHERE
-    //                 o.user_id != ?
-    //                 AND o.payment_status IN ("PAID","ADMIN_BOOKED")
-    //                 AND o.is_deleted = 0
-    //                 AND oi.media_id = ci.media_id
-    //                 AND oi.from_date <= ci.to_date
-    //                 AND oi.to_date >= ci.from_date
-    //         ) as is_booked
-    //     ', [$userId])
-
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
     public function getOpenCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)
@@ -300,24 +168,7 @@ class CampaignRepository
             ->get()
             ->groupBy('campaign_id');
     }
-    // public function getOpenCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
 
-    //         ->whereNotExists(function ($q) {
-    //             $q->select(DB::raw(1))
-    //                 ->from('order_items as oi')
-    //                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
-    //                 ->whereColumn('oi.media_id', 'ci.media_id')
-    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
-    //                 ->where('o.is_deleted', 0);
-    //         })
-
-    //         ->whereDate('ci.to_date', '>=', now()->toDateString())
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
     public function fetchBookedCampaigns($userId, $request)
     {
         return DB::table('campaign as c')
@@ -361,37 +212,6 @@ class CampaignRepository
             ->get()
             ->groupBy('campaign_id');
     }
-
-    // public function fetchBookedCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
-    //         ->whereExists(function ($q) {
-    //             $q->select(DB::raw(1))
-    //                 ->from('order_items as oi')
-    //                 ->join('orders as o', 'o.id', '=', 'oi.order_id')
-    //                 ->whereColumn('oi.media_id', 'ci.media_id') // 🔑 media-level check
-    //                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED']) //  FIX
-    //                 ->where('o.is_deleted', 0);
-    //         })
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
-
-    // public function fetchBookedCampaigns($userId, $request)
-    // {
-    //     return $this->baseQuery($userId, $request)
-    //         ->whereExists(function ($q) {
-    //             $q->select(DB::raw(1))
-    //                 ->from('orders as o')
-    //                 ->whereColumn('o.campaign_id', 'c.id')
-    //                 ->where('o.is_deleted', 0);
-    //         })
-    //         ->orderBy('c.id', 'DESC')
-    //         ->get()
-    //         ->groupBy('campaign_id');
-    // }
-
     public function fetchPastCampaigns($userId, $request)
     {
         return $this->baseQuery($userId, $request)

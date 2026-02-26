@@ -60,8 +60,8 @@
                                         <option value="">Select Town</option>
                                     </select>
                                 </div>
-                                </div>
-                                <div class="row mt-3">
+                            </div>
+                            <div class="row mt-3">
                                 <div class="col-md-3">
                                     <label><b>Year</b></label>
                                     <select name="year" class="form-control">
@@ -160,29 +160,6 @@
                                                     <span class="slider"></span>
                                                 </label>
                                             </td>
-                                            {{-- <td class="d-flex">
-
-                                            <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
-                                                class="btn btn-info btn-sm mr-1" title="View Details">
-                                                <i class="fa fa-eye"></i>
-                                            </a>
-
-                                            <a href="{{ route('media.view', base64_encode($media->id)) }}"
-                                                class="btn btn-warning btn-sm mr-1" title="View Images">
-                                                <i class="fa fa-image"></i>
-                                            </a>
-
-
-                                            <a href="{{ route('media.edit', base64_encode($media->id)) }}"
-                                                class="btn btn-sm btn-primary mr-1 ">
-                                                <i class="mdi mdi-square-edit-outline"></i>
-                                            </a>
-
-                                            <button type="button" class="btn btn-sm btn-danger delete-btn"
-                                                data-id="{{ base64_encode($media->id) }}">
-                                                <i class="mdi mdi-trash-can-outline"></i>
-                                            </button>
-                                        </td> --}}
                                             <td class="d-flex">
 
                                                 {{-- View Details --}}
@@ -234,15 +211,7 @@
                                 <div>
                                     {{ $mediaList->appends(request()->query())->links() }}
                                 </div>
-
                             </div>
-
-                            {{-- <div class="text-muted">
-                                Showing {{ $mediaList->firstItem() }} to {{ $mediaList->lastItem() }}
-                                of {{ $mediaList->total() }} rows
-                            </div>
-
-                            {{ $mediaList->appends(request()->query())->links() }} --}}
                         </div>
 
                     </div>
@@ -251,9 +220,65 @@
         </div>
         @section('scripts')
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                $(document).ready(function() {
 
-            {{-- <script>
-                /* ================= STATUS TOGGLE ================= */
+                    // ================= LOAD CITIES =================
+                    $(document).ready(function() {
+
+                        function loadCities(districtId, selectedCity = '') {
+
+                            if (districtId === '') {
+                                $('#city_id').html('<option value="">Select Town</option>');
+                                return;
+                            }
+
+                            $('#city_id').html('<option value="">Loading...</option>');
+
+                            $.ajax({
+                                url: "{{ url('get-cities') }}/" + districtId,
+                                type: "GET",
+                                success: function(response) {
+
+                                    let options = '<option value="">Select Town</option>';
+
+                                    $.each(response, function(key, city) {
+
+                                        let selected = (city.id == selectedCity) ?
+                                            'selected' :
+                                            '';
+
+                                        options += `
+                        <option value="${city.id}" ${selected}>
+                            ${city.city_name}
+                        </option>
+                    `;
+                                    });
+
+                                    $('#city_id').html(options);
+                                }
+                            });
+                        }
+
+                        // 🔥 ON DISTRICT CHANGE
+                        $('#district_id').on('change', function() {
+                            loadCities($(this).val());
+                        });
+
+                        // 🔥 IMPORTANT — PAGE RELOAD CASE
+                        let districtId = "{{ request('district_id') }}";
+                        let cityId = "{{ request('city_id') }}";
+
+                        if (districtId !== '') {
+                            loadCities(districtId, cityId);
+                        }
+
+                    });
+
+                });
+
+
+                // ================= STATUS TOGGLE =================
                 $(document).on('change', '.toggle-status', function() {
 
                     let id = $(this).data('id');
@@ -269,7 +294,8 @@
 
                 });
 
-                /* ================= DELETE (FIXED) ================= */
+
+                // ================= DELETE =================
                 $(document).on('click', '.delete-btn', function() {
 
                     let id = $(this).data('id');
@@ -281,8 +307,7 @@
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
                         cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Yes, delete it',
-                        cancelButtonText: 'Cancel'
+                        confirmButtonText: 'Yes, delete it'
                     }).then((result) => {
 
                         if (!result.isConfirmed) return;
@@ -294,143 +319,14 @@
                                 _token: "{{ csrf_token() }}",
                                 id: id
                             },
-                            success: function(response) {
-
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Deleted!',
-                                    text: 'Media deleted successfully.',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-
-                                // Remove row without reload
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 1200);
-                            },
-                            error: function() {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Failed!',
-                                    text: 'Delete failed. Please try again.'
-                                });
+                            success: function() {
+                                location.reload();
                             }
                         });
 
                     });
 
                 });
-            </script> --}}
-            <script>
-
-$(document).ready(function () {
-
-    // ================= LOAD CITIES =================
- $(document).ready(function () {
-
-    function loadCities(districtId, selectedCity = '') {
-
-        if (districtId === '') {
-            $('#city_id').html('<option value="">Select Town</option>');
-            return;
-        }
-
-        $('#city_id').html('<option value="">Loading...</option>');
-
-        $.ajax({
-            url: "{{ url('get-cities') }}/" + districtId,
-            type: "GET",
-            success: function (response) {
-
-                let options = '<option value="">Select Town</option>';
-
-                $.each(response, function (key, city) {
-
-                    let selected = (city.id == selectedCity)
-                        ? 'selected'
-                        : '';
-
-                    options += `
-                        <option value="${city.id}" ${selected}>
-                            ${city.city_name}
-                        </option>
-                    `;
-                });
-
-                $('#city_id').html(options);
-            }
-        });
-    }
-
-    // 🔥 ON DISTRICT CHANGE
-    $('#district_id').on('change', function () {
-        loadCities($(this).val());
-    });
-
-    // 🔥 IMPORTANT — PAGE RELOAD CASE
-    let districtId = "{{ request('district_id') }}";
-    let cityId     = "{{ request('city_id') }}";
-
-    if (districtId !== '') {
-        loadCities(districtId, cityId);
-    }
-
-});
-
-});
-
-
-// ================= STATUS TOGGLE =================
-$(document).on('change', '.toggle-status', function() {
-
-    let id = $(this).data('id');
-
-    $.post("{{ route('media.status') }}", {
-        _token: "{{ csrf_token() }}",
-        id: id
-    }, function(response) {
-        toastr.success(response.message);
-    }).fail(function() {
-        toastr.error('Failed to update status');
-    });
-
-});
-
-
-// ================= DELETE =================
-$(document).on('click', '.delete-btn', function() {
-
-    let id = $(this).data('id');
-
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "This media will be permanently deleted.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Yes, delete it'
-    }).then((result) => {
-
-        if (!result.isConfirmed) return;
-
-        $.ajax({
-            url: "{{ route('media.delete') }}",
-            type: "POST",
-            data: {
-                _token: "{{ csrf_token() }}",
-                id: id
-            },
-            success: function() {
-                location.reload();
-            }
-        });
-
-    });
-
-});
-
-</script>
+            </script>
         @endsection
     @endsection

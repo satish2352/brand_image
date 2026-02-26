@@ -76,21 +76,6 @@
                                 @endforeach
                             </select>
                         </div>
-
-                        {{-- Category --}}
-                        {{-- <div class="col-md-2">
-                        <label class="form-label mb-1">Category</label>
-                        <select name="category_id" class="form-control">
-                            <option value="">All Categories</option>
-                            @foreach ($categories as $c)
-                                <option value="{{ $c->id }}"
-                                    {{ request('category_id')==$c->id?'selected':'' }}>
-                                    {{ $c->category_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div> --}}
-
                         {{-- Search --}}
                         <div class="col-md-4 mt-2">
                             <label class="form-label mb-1"><b>Search</b></label>
@@ -150,7 +135,7 @@
                                     <th>Booked Days</th>
                                     <th>Total (₹)</th>
                                     <th class="text-end">GST (18%) (₹)</th>
-                                   <th class="text-end">Final Total (₹)</th>
+                                    <th class="text-end">Final Total (₹)</th>
                                 </tr>
                             </thead>
 
@@ -166,11 +151,11 @@
                                         <td>{{ \Carbon\Carbon::parse($row->from_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($row->to_date)->format('d-m-Y') }}</td>
                                         <td>{{ $row->booked_days }}</td>
-                                       
 
-                                          <td>₹ {{ number_format($row->total_amount, 2) }}</td>
-                                            <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
-                                              <td>₹ {{ number_format($row->grand_total, 2) }}</td>
+
+                                        <td>₹ {{ number_format($row->total_amount, 2) }}</td>
+                                        <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
+                                        <td>₹ {{ number_format($row->grand_total, 2) }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -181,12 +166,6 @@
 
                         </table>
                     </div>
-
-                    {{-- PAGINATION --}}
-                    {{-- <div class="mt-3">
-                    {{ $reports->links() }}
-                </div> --}}
-
                     {{-- @if ($reports->hasPages()) --}}
                     <div class="d-flex justify-content-between align-items-center mt-3">
 

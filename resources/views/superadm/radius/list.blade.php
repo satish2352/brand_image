@@ -3,19 +3,14 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-
             <div class="card">
                 <div class="card-body">
-
                     <div class="d-flex justify-content-between mb-3">
                         <h4>Radius List</h4>
                         <a href="{{ route('radius.create') }}" class="btn btn-success">
                             Add Radius
                         </a>
                     </div>
-
-
-
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}</div>
                     @endif
@@ -66,27 +61,21 @@
                                                 </button>
                                             </form>
                                         </td>
-
                                     </tr>
                                 @endforeach
                             </tbody>
-
                         </table>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
-
     <script>
         // STATUS UPDATE
         $(document).on('change', '.toggle-status', function() {
             let cb = $(this);
             let id = cb.data('id');
             let is_active = cb.is(':checked') ? 1 : 0;
-
             Swal.fire({
                 title: "Are you sure?",
                 text: "Do you want to change the status?",
@@ -122,9 +111,7 @@
                                 title: "Success",
                                 text: resp.message,
                             });
-
                         }
-
                     }).fail(() => {
                         Swal.fire({
                             icon: "error",

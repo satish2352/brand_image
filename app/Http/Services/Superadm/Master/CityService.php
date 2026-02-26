@@ -84,11 +84,9 @@ class CityService
 
             DB::commit();
             return true;
-
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
     }
-
 }

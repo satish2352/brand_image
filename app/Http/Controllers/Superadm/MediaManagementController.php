@@ -27,15 +27,6 @@ class MediaManagementController extends Controller
     {
         $this->mediaService = $mediaService;
     }
-    // public function index()
-    // {
-    //     try {
-    //         $mediaList = $this->mediaService->getAll();
-    //         return view('superadm.mediamanagement.list', compact('mediaList'));
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error', 'Something went wrong');
-    //     }
-    // }
     public function index(Request $request)
     {
         try {
@@ -579,38 +570,6 @@ class MediaManagementController extends Controller
                 ->get()
         );
     }
-    // public function getNextMediaCode($vendorId)
-    // {
-    //     $vendor = Vendor::where('id', $vendorId)
-    //         ->where('is_deleted', 0)
-    //         ->firstOrFail();
-
-    //     $vendorCode = $vendor->vendor_code;
-
-    //     // Get LAST sequence number safely
-    //     $lastMedia = MediaManagement::where('vendor_id', $vendorId)
-    //         ->where('is_deleted', 0)
-    //         ->where('media_code', 'LIKE', $vendorCode . '\_%')
-    //         ->orderByRaw("
-    //             CAST(
-    //                 SUBSTRING_INDEX(media_code, '_', -1
-    //             ) AS UNSIGNED
-    //         ) DESC
-    //         ")
-    //         ->first();
-
-    //     if ($lastMedia) {
-    //         $lastNumber = (int) substr(strrchr($lastMedia->media_code, '_'), 1);
-    //         $next = $lastNumber + 1;
-    //     } else {
-    //         $next = 1;
-    //     }
-
-    //     return response()->json([
-    //         'media_code' => $vendorCode . '_' . str_pad($next, 2, '0', STR_PAD_LEFT)
-    //     ]);
-    // }
-
     public function getNextMediaCode(Request $request)
     {
         $vendorId = $request->vendor_id;

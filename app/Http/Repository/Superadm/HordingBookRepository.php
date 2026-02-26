@@ -155,10 +155,6 @@ class HordingBookRepository
         if (!empty($filters['city_id']) && empty($filters['radius_id'])) {
             $query->where('m.city_id', $filters['city_id']);
         }
-        // if (!empty($filters['city_id'])) {
-        //     $query->where('m.city_id', $filters['city_id']);
-        // }
-
         if (!empty($filters['area_id'])) {
             $query->where('m.area_id', $filters['area_id']);
         }

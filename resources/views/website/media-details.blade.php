@@ -276,16 +276,6 @@
             'OTHER' => 8,
         ];
     @endphp
-
-
-    {{-- ================= BREADCRUMB ================= --}}
-    <!-- <div class="container-fluid about-banner-img g-0">
-                                                                                                                                                                    <div class="row">
-                                                                                                                                                                        <div class="col-md-12">
-                                                                                                                                                                            <img src="{{ asset('assets/img/viewdetail.png') }}" alt="About Banner" class="img-fluid">
-                                                                                                                                                                        </div>
-                                                                                                                                                                    </div> -->
-
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
             <!-- Desktop Image -->
@@ -301,19 +291,14 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                                                                                                                                   </div> -->
+                                                                                                                                                                       </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-80">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-7">
                         <div class="card shadow-sm border-0 p-3">
-
                             {{-- MAIN IMAGE --}}
-                            {{-- <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
-                            <img class="main-media-image" id="mainMediaImage"
-                                src="{{ config('fileConstants.IMAGE_VIEW') . $media->images[0]->images }}">
-                    </div> --}}
                             @php
                                 $mainImage = $media->images->first();
                             @endphp
@@ -321,15 +306,7 @@
                                 <img class="main-media-image" id="mainMediaImage"
                                     src="{{ $mainImage ? config('fileConstants.IMAGE_VIEW') . $mainImage->images : asset('assets/img/no-image.jpg') }}">
                             </div>
-
                             {{-- THUMBNAILS --}}
-                            {{-- <div class="media-thumbs-bottom">
-                            @foreach ($media->images as $k => $img)
-                                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
-                    class="thumb-img {{ $k == 0 ? 'active' : '' }}"
-                    onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
-                    @endforeach
-                </div> --}}
                             @if ($media->images->count())
                                 <div class="media-thumbs-bottom">
                                     @foreach ($media->images as $k => $img)
@@ -472,11 +449,6 @@
                                     <span class="text-muted">/ month</span>
 
                                     @if ($isBillboard)
-                                       
-
-                                        {{-- <div class="per-day">
-                    ₹ {{ number_format($media->per_day_price,2) }} / day
-                </div> --}}
                                     @endif
                                 </div>
 

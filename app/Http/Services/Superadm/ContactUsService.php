@@ -46,6 +46,4 @@ class ContactUsService
 
         return $contact;
     }
-
-
 }

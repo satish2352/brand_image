@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                display: none;
-                            } */
+                                        display: none;
+                                    } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -61,8 +61,7 @@
                         <label>Area <span class="text-danger">*</span></label>
                         {{-- <select name="area_id" class="form-control @error('area_id') is-invalid @enderror"> --}}
 
-                            <select name="area_id" id="area_id"
-    class="form-control @error('area_id') is-invalid @enderror">
+                        <select name="area_id" id="area_id" class="form-control @error('area_id') is-invalid @enderror">
                             @foreach ($areas as $area)
                                 <option value="{{ $area->id }}"
                                     {{ old('area_id', $media->area_id) == $area->id ? 'selected' : '' }}>
@@ -76,20 +75,6 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label>Vendor <span class="text-danger">*</span></label>
-
-                        {{-- <select name="vendor_id"
-                        class="form-control @error('vendor_id') is-invalid @enderror">
-
-                        <option value="">Select Vendor</option>
-
-                        @foreach ($vendors as $vendor)
-                            <option value="{{ $vendor->id }}"
-                                {{ old('vendor_id', $media->vendor_id ?? '') == $vendor->id ? 'selected' : '' }}>
-                                {{ $vendor->vendor_name }} - {{ $vendor->vendor_code }}
-                            </option>
-                        @endforeach
-
-                    </select> --}}
                         <select name="vendor_id" id="vendor_id"
                             class="form-control @error('vendor_id') is-invalid @enderror">
 
@@ -111,13 +96,6 @@
 
                 {{-- ================= BILLBOARD ================= --}}
                 <div class="row" id="billboardsId">
-                    {{-- <div class="col-md-4 mb-3">
-                    <label>Media Code *</label>
-                    <input type="text" name="media_code"
-                        value="{{ old('media_code', $media->media_code) }}"
-                        class="form-control @error('media_code') is-invalid @enderror">
-                </div> --}}
-
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
 
@@ -135,20 +113,6 @@
                         <input type="text" name="media_title" value="{{ old('media_title', $media->media_title) }}"
                             class="form-control @error('media_title') is-invalid @enderror">
                     </div>
-
-                    {{-- <div class="col-md-4 mb-3">
-                    <label>Facing *</label>
-                    <select name="facing_id"
-                        class="form-control @error('facing_id') is-invalid @enderror">
-                        @foreach ($facings as $face)
-                            <option value="{{ $face->id }}"
-                                {{ old('facing_id', $media->facing_id) == $face->id ? 'selected' : '' }}>
-                                {{ $face->facing_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div> --}}
-
                     <div class="col-md-4 mb-3">
                         <label>Facing <span class="text-danger">*</span></label>
                         <input type="text" name="facing" class="form-control @error('facing') is-invalid @enderror"
@@ -190,14 +154,6 @@
                             @endforeach
                         </select>
                     </div>
-
-                    {{-- <div class="col-md-4 mb-3">
-                    <label>Min Booking Days *</label>
-                    <input type="number" name="minimum_booking_days"
-                        value="{{ old('minimum_booking_days', $media->minimum_booking_days) }}"
-                        class="form-control">
-                </div> --}}
-
                     <div class="col-md-4 mb-3">
                         <label>Address <span class="text-danger">*</span></label>
                         <textarea name="address" class="form-control">{{ old('address', $media->address) }}</textarea>
@@ -362,41 +318,22 @@
                         <input type="number" step="0.01" name="price" value="{{ old('price', $media->price) }}"
                             class="form-control">
                     </div>
-
-                    {{-- <div class="col-md-4 mb-3">
-                    <label>Vendor Name<span class="text-danger">*</span></label>
-                    <input type="text" name="vendor_name"
-                        value="{{ old('vendor_name', $media->vendor_name) }}"
-                        class="form-control">
-                </div> --}}
-
-                    {{-- <div class="col-md-3 mb-3">
-                        <label>360 View Link </label>
-                        <input type="text" name="video_link" value="{{ old('video_link', $media->video_link) }}"
-                            class="form-control @error('video_link') is-invalid @enderror">
-                        @error('video_link')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div> --}}
-
                     <div class="col-md-4 mb-3">
-    <label>360 Image</label>
+                        <label>360 Image</label>
 
-    <input type="file"
-           name="panorama_image"
-           id="panorama_image"
-           class="form-control @error('panorama_image') is-invalid @enderror">
+                        <input type="file" name="panorama_image" id="panorama_image"
+                            class="form-control @error('panorama_image') is-invalid @enderror">
 
-    <small class="text-muted">
-        Allowed: JPG, JPEG, PNG, WEBP (Max 2MB)
-    </small>
+                        <small class="text-muted">
+                            Allowed: JPG, JPEG, PNG, WEBP (Max 2MB)
+                        </small>
 
-    @error('panorama_image')
-        <div class="invalid-feedback d-block">
-            {{ $message }}
-        </div>
-    @enderror
-</div>
+                        @error('panorama_image')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
 
                 </div>
                 {{-- ================= WALL WRAP ================= --}}
@@ -486,34 +423,6 @@
 
             // safety sync on load
             $('#media_code_hidden').val($('#media_code').val());
-
-            // $('#vendor_id').on('change', function() {
-
-            //     let selectedVendorId = $(this).val();
-
-            //     // vendor cleared
-            //     if (!selectedVendorId) {
-            //         $('#media_code').val('');
-            //         $('#media_code_hidden').val('');
-            //         return;
-            //     }
-
-            //     //  SAME vendor → restore original code (NO increment)
-            //     if (selectedVendorId == originalVendorId) {
-            //         $('#media_code').val(originalMediaCode);
-            //         $('#media_code_hidden').val(originalMediaCode);
-            //         return;
-            //     }
-
-            //     //  DIFFERENT vendor → generate NEW code
-            //     $.get("{{ url('media/next-code') }}/" + selectedVendorId, function(res) {
-            //         $('#media_code').val(res.media_code);
-            //         $('#media_code_hidden').val(res.media_code);
-            //     });
-            // });
-
-        
-
             let categorySlug = ($('#category_slug').val() || '').toLowerCase();
 
             if (!categorySlug.includes('hoardings')) {
@@ -523,80 +432,72 @@
 
         });
 
+        function generateEditMediaCode() {
 
+            let selectedVendorId = $('#vendor_id').val();
+            let categorySlug = ($('#category_slug').val() || '').toLowerCase();
 
+            // NOT HOARDINGS
+            if (!categorySlug.includes('hoardings')) {
+                $('#media_code').val('');
+                $('#media_code_hidden').val('');
+                return;
+            }
 
+            // NO vendor
+            if (!selectedVendorId) {
+                $('#media_code').val('');
+                $('#media_code_hidden').val('');
+                return;
+            }
 
+            // SAME vendor → keep original
+            if (selectedVendorId == originalVendorId) {
+                $('#media_code').val(originalMediaCode);
+                $('#media_code_hidden').val(originalMediaCode);
+                return;
+            }
 
+            // DIFFERENT vendor → generate NEW code
+            $.get("{{ route('media.next.code') }}", {
+                vendor_id: selectedVendorId,
+                state_id: $('#state_id').val(),
+                city_id: $('#city_id').val()
+            }, function(res) {
 
+                $('#media_code').val(res.media_code);
+                $('#media_code_hidden').val(res.media_code);
 
-         function generateEditMediaCode() {
-
-        let selectedVendorId = $('#vendor_id').val();
-        let categorySlug = ($('#category_slug').val() || '').toLowerCase();
-
-        // NOT HOARDINGS
-        if (!categorySlug.includes('hoardings')) {
-            $('#media_code').val('');
-            $('#media_code_hidden').val('');
-            return;
+            });
         }
 
-        // NO vendor
-        if (!selectedVendorId) {
-            $('#media_code').val('');
-            $('#media_code_hidden').val('');
-            return;
-        }
 
-        // SAME vendor → keep original
-        if (selectedVendorId == originalVendorId) {
-            $('#media_code').val(originalMediaCode);
-            $('#media_code_hidden').val(originalMediaCode);
-            return;
-        }
 
-        // DIFFERENT vendor → generate NEW code
-        $.get("{{ route('media.next.code') }}", {
-            vendor_id: selectedVendorId,
-            state_id: $('#state_id').val(),
-            city_id: $('#city_id').val()
-        }, function (res) {
+        $('#area_id').on('change', function() {
 
-            $('#media_code').val(res.media_code);
-            $('#media_code_hidden').val(res.media_code);
+            let areaId = $(this).val();
+
+            if (!areaId) return;
+
+            // get parent location (state/city)
+            $.get("{{ url('get-area-parents') }}/" + areaId, function(res) {
+
+                // update hidden fields
+                $('#state_id').val(res.state_id);
+                $('#city_id').val(res.city_id);
+
+                // regenerate media code
+                generateEditMediaCode();
+
+            });
 
         });
-    }
 
-
-
-    $('#area_id').on('change', function () {
-
-    let areaId = $(this).val();
-
-    if (!areaId) return;
-
-    // get parent location (state/city)
-    $.get("{{ url('get-area-parents') }}/" + areaId, function (res) {
-
-        // update hidden fields
-        $('#state_id').val(res.state_id);
-        $('#city_id').val(res.city_id);
-
-        // regenerate media code
+        // RUN ON PAGE LOAD (VERY IMPORTANT)
         generateEditMediaCode();
 
-    });
-
-});
-
-    // 🔥 RUN ON PAGE LOAD (VERY IMPORTANT)
-    generateEditMediaCode();
-
-    // vendor change
-    $('#vendor_id').on('change', generateEditMediaCode);
-
+        // vendor change
+        $('#vendor_id').on('change', generateEditMediaCode);
     </script>
 @endsection
 @endsection

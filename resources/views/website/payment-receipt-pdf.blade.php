@@ -6,43 +6,44 @@
     <style>
         @media print {
 
-    body {
-        font-size: 12px;
-    }
+            body {
+                font-size: 12px;
+            }
 
-    table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-    }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
 
-    th, td {
-        padding: 5px !important;
-        font-size: 12px !important;
-    }
+            th,
+            td {
+                padding: 5px !important;
+                font-size: 12px !important;
+            }
 
-    .items-table th,
-    .items-table td {
-        border: 1px solid #000 !important;
-    }
+            .items-table th,
+            .items-table td {
+                border: 1px solid #000 !important;
+            }
 
-    .summary-label,
-    .summary-value {
-        font-size: 12px !important;
-    }
+            .summary-label,
+            .summary-value {
+                font-size: 12px !important;
+            }
 
-    .header-title {
-        font-size: 20px !important;
-    }
+            .header-title {
+                font-size: 20px !important;
+            }
 
-    img {
-        max-height: 40px;
-    }
+            img {
+                max-height: 40px;
+            }
 
-    /* Prevent row breaking */
-    tr {
-        page-break-inside: avoid;
-    }
-}
+            /* Prevent row breaking */
+            tr {
+                page-break-inside: avoid;
+            }
+        }
 
 
         body {
@@ -207,7 +208,7 @@
     </table>
 
     <!-- INFO -->
-   
+
 
     <table class="info-table">
         <tr>
@@ -220,13 +221,13 @@
                     <tr>
                         <td><b>Status</b> : <span class="badge">PAID</span> </td>
                     </tr>
-                     <tr>
-                         @if (!empty($order->campaign_name))
-                         <td>
+                    <tr>
+                        @if (!empty($order->campaign_name))
+                            <td>
                                 <b>Campaign Name : </b> {{ $order->campaign_name }}
-                        </td>
-                          @endif
-                     </tr>
+                            </td>
+                        @endif
+                    </tr>
 
                 </table>
             </td>
@@ -249,10 +250,10 @@
                 <th>Sr. No.</th>
                 <th>Location</th>
                 <th>Media</th>
-                  <th>Size</th> 
+                <th>Size</th>
                 <th>From Date</th>
                 <th>To Date</th>
-                  <th>Total Days</th>
+                <th>Total Days</th>
             </tr>
         </thead>
         <tbody>
@@ -263,7 +264,7 @@
                     <td>
                         {{ $item->media_title }}
                     </td>
-                     <td> <small>{{ $item->width }} × {{ $item->height }}</small></td>
+                    <td> <small>{{ $item->width }} × {{ $item->height }}</small></td>
                     <td>
                         {{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}
                     </td>
@@ -271,8 +272,8 @@
                     <td>
                         {{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}
                     </td>
-                  
-                   <td>{{ number_format($item->total_days) }}</td>
+
+                    <td>{{ number_format($item->total_days) }}</td>
                 </tr>
             @endforeach
 
@@ -301,23 +302,6 @@
             </tr>
         </tfoot>
     </table>
-
-    <!-- TOTAL -->
-    {{-- <table class="total-table">
-        <tr>
-            <td>Subtotal</td>
-            <td>₹ {{ number_format($order->total_amount, 2) }}</td>
-        </tr>
-        <tr>
-            <td>GST (18%)</td>
-            <td>₹ {{ number_format($order->gst_amount, 2) }}</td>
-        </tr>
-        <tr class="bold">
-            <td>Total</td>
-            <td>₹ {{ number_format($order->grand_total, 2) }}</td>
-        </tr>
-    </table> --}}
-
 </body>
 
 </html>

@@ -82,17 +82,10 @@
                                             </form>
                                         </td>
                                         <td class="d-flex">
-                                            {{-- <a href="{{ route('area.view', base64_encode($area->id)) }}"
-                                            class="btn btn-sm btn-primary mr-2"
-                                            title="View">
-                                                <i class="mdi mdi-eye-outline"></i>
-                                            </a> --}}
                                             <a href="javascript:void(0);" class="btn btn-sm btn-success mr-2 view-area"
                                                 data-id="{{ base64_encode($area->id) }}" title="View">
                                                 <i class="mdi mdi-eye-outline icon-medium"></i>
                                             </a>
-
-
                                             <a href="{{ route('area.edit', base64_encode($area->id)) }}"
                                                 class="btn btn-sm btn-primary mr-1">
                                                 <i class="mdi mdi-square-edit-outline icon-medium"></i>

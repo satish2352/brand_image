@@ -1,5 +1,3 @@
-<!-- Right sidebar -->
-<!-- ============================================================== -->
 <!-- .right-sidebar -->
 <div class="right-sidebar">
     <div class="slimscrollright">
@@ -67,35 +65,12 @@
         </div>
     </div>
 </div>
-<!-- ============================================================== -->
-<!-- End Right sidebar -->
-<!-- ============================================================== -->
 </div>
-<!-- ============================================================== -->
-<!-- End Container fluid  -->
-<!-- ============================================================== -->
-<!-- ============================================================== -->
-<!-- footer -->
-<!-- ============================================================== -->
 <footer class="footer">
     © {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights reserved.
 </footer>
-<!-- ============================================================== -->
-<!-- End footer -->
-<!-- ============================================================== -->
 </div>
-<!-- ============================================================== -->
-<!-- End Page wrapper  -->
-<!-- ============================================================== -->
 </div>
-<!-- ============================================================== -->
-<!-- End Wrapper -->
-<!-- ============================================================== -->
-<!-- ============================================================== -->
-<!-- All Jquery -->
-<!-- ============================================================== -->
-
-
 <!-- <script src="{{ asset('asset/plugins/jquery/jquery.min.js') }}"></script> -->
 <!-- Bootstrap tether Core JavaScript -->
 
@@ -146,29 +121,6 @@
             }
         }, 600);
     });
-    // SweetAlert Delete Confirmation
-    // $(document).ready(function() {
-    //     document.querySelectorAll('.delete-btn').forEach(button => {
-    //         button.addEventListener('click', function() {
-    //             let form = this.closest('form');
-
-    //             Swal.fire({
-    //                 title: 'Are you sure?',
-    //                 text: "This action cannot be undone!",
-    //                 icon: 'warning',
-    //                 showCancelButton: true,
-    //                 confirmButtonColor: '#d33',
-    //                 cancelButtonColor: '#3085d6',
-    //                 confirmButtonText: 'Yes, delete it!',
-    //                 cancelButtonText: 'Cancel'
-    //             }).then((result) => {
-    //                 if (result.isConfirmed) {
-    //                     form.submit();
-    //                 }
-    //             });
-    //         });
-    //     });
-    // });
 </script>
 <script>
     setTimeout(function() {
@@ -226,11 +178,6 @@
 </script>
 
 {{-- for brand image --}}
-
-
-
-
-
 <script src="{{ asset('asset/plugins/popper/popper.min.js') }}"></script>
 <script src="{{ asset('asset/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
 <!-- slimscrollbar scrollbar JavaScript -->

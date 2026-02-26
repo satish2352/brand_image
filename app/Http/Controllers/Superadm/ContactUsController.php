@@ -28,21 +28,19 @@ class ContactUsController extends Controller
     }
 
     public function viewDetails($encodedId)
-{
-    $id = base64_decode($encodedId, true);
+    {
+        $id = base64_decode($encodedId, true);
 
-    if (!$id || !is_numeric($id)) {
-        abort(404);
+        if (!$id || !is_numeric($id)) {
+            abort(404);
+        }
+
+        $contact = $this->service->getById($id);
+
+        if (!$contact) {
+            abort(404);
+        }
+
+        return view('superadm.contact-us.view-details', compact('contact'));
     }
-
-    $contact = $this->service->getById($id);
-
-    if (!$contact) {
-        abort(404);
-    }
-
-    return view('superadm.contact-us.view-details', compact('contact'));
-}
-
-
 }

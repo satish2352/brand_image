@@ -99,19 +99,6 @@ class CampaingService
             $item->booked_by_me = $bookedByMe;
             $item->booked_by_other = $bookedByOther;
         }
-        // foreach ($items as $item) {
-        //     $item->is_booked = DB::table('media_booked_date')
-        //         ->where('media_id', $item->media_id)
-        //         ->where('is_deleted', 0)
-        //         ->where(function ($q) use ($item) {
-        //             $q->whereBetween('from_date', [$item->from_date, $item->to_date])
-        //                 ->orWhereBetween('to_date', [$item->from_date, $item->to_date])
-        //                 ->orWhereRaw("'{$item->from_date}' BETWEEN from_date AND to_date")
-        //                 ->orWhereRaw("'{$item->to_date}' BETWEEN from_date AND to_date");
-        //         })
-        //         ->exists();
-        // }
-
         return $items;
     }
 }

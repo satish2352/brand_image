@@ -1,45 +1,45 @@
 <style>
-.otp-box-wrapper {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
+    .otp-box-wrapper {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
 
-.otp-box {
-    width: 45px;
-    height: 50px;
-    text-align: center;
-    font-size: 22px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
+    .otp-box {
+        width: 45px;
+        height: 50px;
+        text-align: center;
+        font-size: 22px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
 
-.otp-box:focus {
-    border-color: #000;
-    outline: none;
-}
-.user-btn {
-    width: 55px;
-    height: 46px;
-    padding: 0;
-    background: #f28123;
-    border-radius: 6px;
-    justify-content: center;
-    gap: 5px;
-}
+    .otp-box:focus {
+        border-color: #000;
+        outline: none;
+    }
 
-.user-avatar {
-    width: 22px;
-    height: 22px;
-    object-fit: cover;
-    border-radius: 50%;
-}
+    .user-btn {
+        width: 55px;
+        height: 46px;
+        padding: 0;
+        background: #f28123;
+        border-radius: 6px;
+        justify-content: center;
+        gap: 5px;
+    }
 
-.dropdown-arrow {
-    font-size: 12px;
-    margin-right: 2px;
-}
+    .user-avatar {
+        width: 22px;
+        height: 22px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
 
+    .dropdown-arrow {
+        font-size: 12px;
+        margin-right: 2px;
+    }
 </style>
 
 <!--PreLoader-->
@@ -59,8 +59,7 @@
                     <!-- logo -->
                     <div class="site-logo">
                         <a href="{{ url('/') }}">
-                            <img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand_Image_Logo"
-                                >
+                            <img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand_Image_Logo">
                         </a>
                     </div>
                     <!-- logo -->
@@ -74,12 +73,6 @@
                                     href="{{ route('website.about') }}">About Us</a></li>
                             <li class="{{ request()->is('contact-us') ? 'active' : '' }}"><a
                                     href="{{ url('/contact-us') }}">Contact Us</a></li>
-                            {{-- <li><a href="{{ url('/media-search') }}">Search Media</a></li> --}}
-                            {{-- <li>
-									<a href="{{ route('campaign.list') }}">
-										Campaign List
-									</a>
-								</li> --}}
                         </ul>
                     </nav>
 
@@ -105,9 +98,6 @@
                                 @endunless
                             </button>
                         @endauth
-                        {{-- <a class="shopping-cart" href="cart.html"><i class="fas fa-shopping-cart"></i></a> --}}
-                        {{-- <a class="mobile-hide search-bar-icon" href="#"><i class="fas fa-search"></i></a> --}}
-
                         @auth('website')
 
                             <div class="dropdown user-dropdown">
@@ -156,21 +146,14 @@
 
                             @endif
                         </div>
-
-
-
-                        {{-- <a class="mobile-show search-bar-icon" href="#"><i class="fas fa-search"></i></a> --}}
-                       
                         <!-- menu end -->
                     </div>
-                     <div class="mobile-menu"></div>
+                    <div class="mobile-menu"></div>
                 </div>
             </div>
         </div>
     </div>
     <!-- end header -->
-
-
     <!-- LOGIN / SIGNUP MODAL -->
     <!-- AUTH MODAL -->
     <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
@@ -183,15 +166,7 @@
                 </div>
                 <div class="modal-body p-0">
                     <div class="row g-0">
-
-                        <!-- LEFT IMAGE -->
-                        {{-- <div class="col-md-5 auth-modal-left">
-                        <img src="/images/login-banner.png" alt="Image">
-                    </div> --}}
-
-                        <!-- RIGHT SIDE -->
                         <div class="col-md-12 p-4">
-
                             <!-- LOGIN FORM -->
                             <div id="loginArea">
 
@@ -214,7 +189,7 @@
                                         </div>
                                     </div>
 
-                                        <!-- Google reCAPTCHA -->
+                                    <!-- Google reCAPTCHA -->
                                     <div class="col-md-12 mt-3">
                                         <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
 
@@ -229,7 +204,8 @@
 
                                     <div class="social-login mt-4">
                                         <a href="{{ route('auth.google.redirect') }}" class="google-btn">
-                                            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                                            <img src="https://developers.google.com/identity/images/g-logo.png"
+                                                alt="Google">
                                             Continue with Google
                                         </a>
                                     </div>
@@ -261,7 +237,8 @@
 
                                     <div class="mb-3">
                                         <label>Mobile Number <span class="text-danger">*</span></label>
-                                        <input type="text" name="signup_mobile_number" class="form-control" maxlength="10" inputmode="numeric" autocomplete="off">
+                                        <input type="text" name="signup_mobile_number" class="form-control"
+                                            maxlength="10" inputmode="numeric" autocomplete="off">
                                     </div>
 
                                     <div class="mb-3">
@@ -381,26 +358,26 @@
     <script>
         $(document).ready(function() {
 
-            const nameRegex   = /^[A-Za-z\s]{2,50}$/;  
-            const mobileRegex = /^[6-9][0-9]{9}$/; 
-            const emailRegex  = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const nameRegex = /^[A-Za-z\s]{2,50}$/;
+            const mobileRegex = /^[6-9][0-9]{9}$/;
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
-            $('input[name="signup_name"]').on('input', function () {
+            $('input[name="signup_name"]').on('input', function() {
                 this.value = this.value.replace(/[^A-Za-z\s]/g, '');
             });
 
-            $('input[name="signup_mobile_number"]').on('input', function () {
+            $('input[name="signup_mobile_number"]').on('input', function() {
                 this.value = this.value
-                    .replace(/[^0-9]/g, '')   // block letters
-                    .substring(0, 10);        // max 10 digits
+                    .replace(/[^0-9]/g, '') // block letters
+                    .substring(0, 10); // max 10 digits
             });
 
-            $('input[name="signup_gst"]').on('input', function () {
+            $('input[name="signup_gst"]').on('input', function() {
                 this.value = this.value
-                    .toUpperCase()                 // auto uppercase
-                    .replace(/[^0-9A-Z]/g, '')     // only A–Z & 0–9
-                    .substring(0, 15);             // GST = 15 chars
+                    .toUpperCase() // auto uppercase
+                    .replace(/[^0-9A-Z]/g, '') // only A–Z & 0–9
+                    .substring(0, 15); // GST = 15 chars
             });
 
             /* ---------- SWITCH TABS ---------- */
@@ -427,89 +404,8 @@
                 $("#globalLoader").attr("aria-hidden", "true");
                 $("body").css("overflow", "");
             }
-
-
-            /* ---------------- LOGIN ---------------- */
-            // $("#loginForm").on("submit", function(e) {
-            //     e.preventDefault();
-
-            //     $(".text-danger").remove();
-            //     showLoader();
-
-            //     $.ajax({
-            //         url: "{{ route('website.login') }}",
-            //         method: "POST",
-            //         data: $(this).serialize(),
-
-            //         success: function(res) {
-            //             hideLoader();
-
-            //             // if(res.status){
-            //             //     Swal.fire("Success!", res.message, "success")
-            //             //     .then(() => window.location.reload());
-            //             // } 
-            //             if (res.status) {
-
-            //                 let redirectUrl = sessionStorage.getItem('redirect_after_login');
-
-            //                 Swal.fire("Success!", res.message, "success").then(() => {
-
-            //                     if (redirectUrl) {
-            //                         sessionStorage.removeItem('redirect_after_login');
-            //                         window.location.href = redirectUrl; //  ADD TO CART
-            //                     } else {
-            //                         window.location.reload(); // normal login
-            //                     }
-
-            //                 });
-            //             } else {
-            //                 // Swal.fire("Error!", res.message, "error");
-            //                 $("#loginForm").prepend(
-            //                     `<div class="text-danger mb-2">${res.message}</div>`
-            //                 );
-            //             }
-            //         },
-
-            //         error: function(xhr) {
-            //             hideLoader();
-
-            //             // If validation error (422)
-            //             if (xhr.status === 422) {
-            //                 $("#authModal").modal("show");
-            //                 showLogin();
-
-            //                 let errors = xhr.responseJSON.errors;
-            //                 $.each(errors, function(field, msg) {
-            //                     $(`#loginForm [name="${field}"]`).after(
-            //                         `<span class="text-danger">${msg[0]}</span>`);
-            //                 });
-
-            //             } else {
-            //                 // Any other server/API/database error
-            //                 Swal.fire(
-            //                     "Oops!",
-            //                     "Something went wrong. Please try again!",
-            //                     "error"
-            //                 );
-            //             }
-            //         }
-
-            //         // error: function(xhr){
-            //         //     hideLoader();
-
-            //         //     $("#authModal").modal("show");
-            //         //     showLogin();
-
-            //         //     let errors = xhr.responseJSON.errors;
-            //         //     $.each(errors, function(field, msg){
-            //         //         $(`#loginForm [name="${field}"]`).after(`<span class="text-danger">${msg[0]}</span>`);
-            //         //     });
-            //         // }
-            //     });
-            // });
-
             /* ================= LOGIN VALIDATION + AJAX ================= */
-            $("#loginForm").on("submit", function (e) {
+            $("#loginForm").on("submit", function(e) {
                 e.preventDefault();
 
                 let valid = true;
@@ -521,7 +417,7 @@
                 }
 
                 const email = $('[name="login_email"]');
-                const pass  = $('[name="login_password"]');
+                const pass = $('[name="login_password"]');
 
                 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -550,56 +446,57 @@
                 // AJAX only if validation passes
                 showLoader();
 
-            $.ajax({
-                url: "{{ route('website.login') }}",
-                method: "POST",
-                data: $(this).serialize(),
+                $.ajax({
+                    url: "{{ route('website.login') }}",
+                    method: "POST",
+                    data: $(this).serialize(),
 
-                success: function (res) {
-                    hideLoader();
+                    success: function(res) {
+                        hideLoader();
 
-                    if (res.status) {
-                        let redirectUrl = sessionStorage.getItem('redirect_after_login');
+                        if (res.status) {
+                            let redirectUrl = sessionStorage.getItem('redirect_after_login');
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Welcome!',
-                            text: 'Login successful. Start adding your outdoor media now.',
-                            confirmButtonText: 'Continue'
-                        }).then(() => {
-                            if (redirectUrl) {
-                                sessionStorage.removeItem('redirect_after_login');
-                                window.location.href = redirectUrl;
-                            } else {
-                                window.location.reload();
-                            }
-                        });
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Welcome!',
+                                text: 'Login successful. Start adding your outdoor media now.',
+                                confirmButtonText: 'Continue'
+                            }).then(() => {
+                                if (redirectUrl) {
+                                    sessionStorage.removeItem('redirect_after_login');
+                                    window.location.href = redirectUrl;
+                                } else {
+                                    window.location.reload();
+                                }
+                            });
 
-                    } else {
-                        $("#loginForm").prepend(
-                            `<div class="text-danger mb-2">${res.message}</div>`
-                        );
+                        } else {
+                            $("#loginForm").prepend(
+                                `<div class="text-danger mb-2">${res.message}</div>`
+                            );
+                        }
+                    },
+
+                    error: function(xhr) {
+                        hideLoader();
+
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            $.each(errors, function(field, msg) {
+                                $(`#loginForm [name="${field}"]`)
+                                    .after(
+                                    `<span class="text-danger">${msg[0]}</span>`);
+                            });
+                        } else {
+                            Swal.fire(
+                                "Oops!",
+                                "Something went wrong. Please try again!",
+                                "error"
+                            );
+                        }
                     }
-                },
-
-                error: function (xhr) {
-                    hideLoader();
-
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        $.each(errors, function (field, msg) {
-                            $(`#loginForm [name="${field}"]`)
-                                .after(`<span class="text-danger">${msg[0]}</span>`);
-                        });
-                    } else {
-                        Swal.fire(
-                            "Oops!",
-                            "Something went wrong. Please try again!",
-                            "error"
-                        );
-                    }
-                }
-            });
+                });
             });
 
 
@@ -608,16 +505,6 @@
             let otpTime = 120; // ⏱ 2 minutes
             let otpInterval = null;
             let resendLocked = false;
-
-            /* ================= LOADER ================= */
-            // function showLoader() {
-            //     $(".loader").fadeIn();
-            // }
-
-            // function hideLoader() {
-            //     $(".loader").fadeOut();
-            // }
-
             /* ================= OTP TIMER ================= */
             function validateOtp() {
                 const otp = $("#otpInput").val();
@@ -678,51 +565,7 @@
                 // focus first box
                 otpBoxes[0]?.focus();
             }
-
-            /* ================= VERIFY ACCOUNT (SEND OTP) ================= */
-            // $("#sendOtpBtn").click(function() {
-
-            //     if ($(this).prop("disabled")) return;
-
-            //     // $(".text-danger").remove();
-            //     $("#signupForm .text-danger").remove();
-            //     $("#loginForm .text-danger").remove();
-            //     showLoader();
-
-            //     $.ajax({
-            //         url: "{{ route('website.signup') }}",
-            //         method: "POST",
-            //         data: $("#signupForm").serialize(),
-
-            //         success: function(res) {
-            //             hideLoader();
-
-            //             if (res.status) {
-            //                 $("#signupArea").hide();
-            //                 $("#otpArea").fadeIn();
-
-            //                 $("#otpEmail").val($("#signupEmail").val());
-
-            //                 startOtpTimer();
-            //             }
-            //         },
-
-            //         error: function(xhr) {
-            //             hideLoader();
-
-            //             if (xhr.status === 422) {
-            //                 let errors = xhr.responseJSON.errors;
-            //                 $.each(errors, function(field, msg) {
-            //                     $(`[name="${field}"]`)
-            //                         .after(
-            //                             `<span class="text-danger">${msg[0]}</span>`);
-            //                 });
-            //             }
-            //         }
-            //     });
-            // });
-
-            $("#sendOtpBtn").on("click", function (e) {
+            $("#sendOtpBtn").on("click", function(e) {
                 e.preventDefault();
 
                 let valid = true;
@@ -733,10 +576,10 @@
                     valid = false;
                 }
 
-                const name   = $('[name="signup_name"]');
-                const email  = $('[name="signup_email"]');
+                const name = $('[name="signup_name"]');
+                const email = $('[name="signup_email"]');
                 const mobile = $('[name="signup_mobile_number"]');
-                const pass   = $('[name="signup_password"]');
+                const pass = $('[name="signup_password"]');
                 const gst = $('[name="signup_gst"]');
 
                 // FULL NAME
@@ -781,7 +624,7 @@
                     method: "POST",
                     data: $("#signupForm").serialize(),
 
-                    success: function (res) {
+                    success: function(res) {
                         hideLoader();
                         if (res.status) {
                             $("#signupArea").hide();
@@ -791,13 +634,14 @@
                         }
                     },
 
-                    error: function (xhr) {
+                    error: function(xhr) {
                         hideLoader();
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
-                            $.each(errors, function (field, msg) {
+                            $.each(errors, function(field, msg) {
                                 $(`[name="${field}"]`)
-                                    .after(`<span class="text-danger">${msg[0]}</span>`);
+                                    .after(
+                                    `<span class="text-danger">${msg[0]}</span>`);
                             });
                         }
                     }
@@ -805,7 +649,7 @@
             });
 
             /* ================= VERIFY OTP ================= */
-            $("#verifyOtpBtn").click(function () {
+            $("#verifyOtpBtn").click(function() {
 
                 $("#otpError").text("");
 
@@ -871,9 +715,9 @@
 
                     success: function() {
                         hideLoader();
-                        clearOtpInputs();   // CLEAR OLD OTP
+                        clearOtpInputs(); // CLEAR OLD OTP
                         startOtpTimer(); // restart 2 min
-                        showOtpSuccessMessage();   // show success msg
+                        showOtpSuccessMessage(); // show success msg
                     }
                 });
             });

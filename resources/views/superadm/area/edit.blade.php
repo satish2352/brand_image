@@ -5,12 +5,9 @@
         <div class="col-lg-8 mx-auto">
             <div class="card shadow-sm">
                 <div class="card-body">
-
                     <h4 class="mb-4">Edit Area</h4>
-
                     <form action="{{ route('area.update', $encodedId) }}" method="POST" novalidate>
                         @csrf
-
                         {{-- STATE --}}
                         <div class="form-group mb-3">
                             <label>State <span class="text-danger">*</span></label>
@@ -48,22 +45,6 @@
                             <input type="text" name="common_stdiciar_name" class="form-control"
                                 value="{{ old('common_stdiciar_name', $area->common_stdiciar_name) }}">
                         </div>
-                        {{-- <div class="row">
-                         <div class="col-md-6 mb-3">
-                    <label>Latitude <span class="text-danger">*</span></label>
-                    <input type="text" name="latitude"
-                        value="{{ old('latitude', $area->latitude) }}"
-                        class="form-control">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label>Longitude <span class="text-danger">*</span></label>
-                    <input type="text" name="longitude"
-                        value="{{ old('longitude', $area->longitude) }}"
-                        class="form-control">
-                </div>
-                    </div> --}}
-
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('area.list') }}" class="btn btn-secondary mr-3">Cancel</a>
                             <button type="submit" class="btn btn-success">Update Area</button>
@@ -182,25 +163,13 @@
                 if (!common.val()) error(common, 'Please enter the common standard name.');
                 else if (common.val().length > 255) error(common,
                     'Common standard name must not exceed 255 characters.');
-
-                // let lat = $('input[name="latitude"]');
-                // if (!lat.val()) error(lat, 'Latitude is required.');
-                // else if (isNaN(lat.val())) error(lat, 'Latitude must be numeric.');
-
-                // let lng = $('input[name="longitude"]');
-                // if (!lng.val()) error(lng, 'Longitude is required.');
-                // else if (isNaN(lng.val())) error(lng, 'Longitude must be numeric.');
-
                 if (!valid) e.preventDefault();
             });
-
-            // 
 
             function clearError(element) {
                 element.removeClass('is-invalid');
                 element.next('.invalid-feedback').remove();
             }
-
             // Text inputs
             $('input[type="text"]').on('input', function() {
                 clearError($(this));
@@ -222,12 +191,6 @@
             $('input[name="area_name"]').on('input', function() {
                 this.value = this.value.replace(onlyLetters, '');
             });
-
-            // Latitude & Longitude → numbers + dot only
-            // $('input[name="latitude"], input[name="longitude"]').on('input', function() {
-            //     this.value = this.value.replace(onlyNumbersDot, '');
-            // });
-
             /* ===== CLEAR ERROR ONLY FOR CURRENT FIELD ===== */
             function clearError(el) {
                 el.removeClass('is-invalid');
@@ -272,19 +235,6 @@
                 } else if (common.val().length > 255) {
                     error(common, 'Common standard name must not exceed 255 characters.');
                 }
-
-                // Latitude
-                // let lat = $('input[name="latitude"]');
-                // if (!lat.val()) {
-                //     error(lat, 'Latitude is required.');
-                // }
-
-                // Longitude
-                // let lng = $('input[name="longitude"]');
-                // if (!lng.val()) {
-                //     error(lng, 'Longitude is required.');
-                // }
-
                 if (!valid) e.preventDefault();
             });
 

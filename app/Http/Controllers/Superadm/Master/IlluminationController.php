@@ -55,29 +55,6 @@ class IlluminationController extends Controller
                 ->with('error', $e->getMessage());
         }
     }
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'illumination_name' => [
-    //             'required',
-    //             'max:255',
-    //             'regex:/^[A-Za-z\s\-]+$/'
-    //         ]
-    //     ], [
-    //         'illumination_name.required' => 'Illumination name is required',
-    //         'illumination_name.regex' =>
-    //         'Only letters, spaces and dash (-) are allowed'
-    //     ]);
-
-    //     try {
-    //         $this->service->store($validated);
-    //         return redirect()->route('illumination.list')
-    //             ->with('success', 'Illumination added successfully');
-    //     } catch (Exception $e) {
-    //         return back()->withInput()->with('error', $e->getMessage());
-    //     }
-    // }
-
     public function edit($encodedId)
     {
         $id = base64_decode($encodedId);

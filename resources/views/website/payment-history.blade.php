@@ -1,19 +1,14 @@
 @extends('website.dashboard.layout')
-
 @section('title', 'Payment History')
-
 @section('dashboard-content')
-<style>
-     /* Mobile */
+    <style>
+        /* Mobile */
         @media (max-width: 768px) {
             .mob-bottmo-spacing {
-                margin-bottom:10px !important ;
+                margin-bottom: 10px !important;
             }
-
-           
         }
-
-</style>
+    </style>
     <h4 class="mb-4 fw-bold">Payment History</h4>
 
     @if ($payments->isEmpty())

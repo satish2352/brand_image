@@ -70,7 +70,7 @@
                 @elseif($type === 'user')
                     <th>User Name</th>
                     <th>Booking Type</th>
-                 
+
                     <th>Booked Days</th>
                     {{-- <th>Total Revenue (₹)</th> --}}
                     <th>Amount (₹)</th>
@@ -110,14 +110,13 @@
                         <td>₹{{ number_format($row->gst_amount, 2) }}</td>
                         <td><strong>₹ {{ number_format($row->grand_total, 2) }}</strong></td>
                     @elseif($type === 'user')
-                       <td>{{ $row->user_name }}</td>
+                        <td>{{ $row->user_name }}</td>
                         <td>{{ $row->booking_type }}</td>
-                     
+
                         <td>{{ $row->booked_days }}</td>
                         <td>₹{{ number_format($row->total_amount, 2) }}</td>
                         <td>₹{{ number_format($row->gst_amount, 2) }}</td>
                         <td><strong>₹{{ number_format($row->grand_total, 2) }}</strong></td>
-
                     @endif
                 </tr>
             @endforeach

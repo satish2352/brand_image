@@ -128,9 +128,6 @@
                 </li>
             </ul>
         </li>
-
-
-
         <li
             class="nav-item {{ request()->is('media/list') || request()->is('media/add') || request()->is('media/edit/*') ? 'active' : '' }}">
             <a href="{{ route('media.list') }}">
@@ -154,10 +151,6 @@
                 </button>
             </form>
         </li>
-
-
-
-
         <li class="nav-item {{ request()->is('admin-campaing/list') ? 'active' : '' }}">
             <a href="{{ route('admin-campaing.list') }}">
                 <i class="mdi mdi-account-key"></i>
@@ -185,12 +178,6 @@
                 <span>User Payment</span>
             </a>
         </li>
-        {{-- <li class="nav-item {{ request()->routeIs('reports.media.utilisation') ? 'active' : '' }}">
-            <a href="{{ route('reports.media.utilisation') }}">
-                <i class="mdi mdi-account-key"></i>
-                <span>Media Utilisation</span>
-            </a>
-        </li> --}}
         <li
             class="nav-item has-sub {{ request()->is('reports/revenue*') || request()->is('reports/media*') ? 'active open' : '' }}">
             <a href="javascript:void(0)" class="has-sub-toggle">
@@ -223,23 +210,14 @@
                 </li>
             </ul>
         </li>
-        {{-- <li class="nav-item">
-            <a href="{{ route('admin.logout') }}">
-                <i class="mdi mdi-logout"></i>
-                <span>Logout</span>
-            </a>
-        </li> --}}
         <li class="nav-item">
             <a href="javascript:void(0)" class="logout-btn">
                 <i class="mdi mdi-logout"></i>
                 <span>Logout</span>
             </a>
         </li>
-
-
     </ul>
 </nav>
-
 <script>
     $(document).on('click', '.logout-btn', function(e) {
         e.preventDefault();

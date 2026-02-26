@@ -116,5 +116,4 @@ class AreaService
             throw $e;
         }
     }
-
 }

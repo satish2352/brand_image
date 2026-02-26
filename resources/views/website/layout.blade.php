@@ -11,11 +11,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="icon" type="image/svg+xml" href="{{ asset('asset/theamoriginalalf/images/favicon.png') }}">
-<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css"/>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <!-- fontawesome -->
     <link rel="stylesheet" href="{{ asset('assets/css/all.min.css') }}">
@@ -67,61 +66,62 @@ href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css"/>
 </head>
 <style>
     .header-icons .btn,
-.header-icons a {
-    width: 55px;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
+    .header-icons a {
+        width: 55px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
 
-.header-icons {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+    .header-icons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-.header-icons a {
-     /* width: 55px;
+    .header-icons a {
+        /* width: 55px;
     height: 46px; */
-    background: #f28123;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    position: relative;
-}
+        background: #f28123;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        position: relative;
+    }
 
-.header-icons i,
-.header-icons img {
-    font-size: 18px;
-    /* width: 22px;
+    .header-icons i,
+    .header-icons img {
+        font-size: 18px;
+        /* width: 22px;
     height: 22px; */
-}
-.cart-count {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: #007bff;
-    color: #fff;
-    font-size: 12px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    }
 
-.user-icon img {
-    width: 22px;
-    height: 22px;
-    object-fit: cover;
-    border-radius: 50%;
-}
+    .cart-count {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #007bff;
+        color: #fff;
+        font-size: 12px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
+    .user-icon img {
+        width: 22px;
+        height: 22px;
+        object-fit: cover;
+        border-radius: 50%;
+    }
 </style>
+
 <body class="d-flex flex-column min-vh-100 {{ auth('website')->check() ? 'user-logged-in' : 'user-guest' }}">
 
     {{-- Include Header --}}
@@ -152,7 +152,7 @@ href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css"/>
     </div>
 
     @yield('scripts')
-<script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
 </body>
 
 </html>

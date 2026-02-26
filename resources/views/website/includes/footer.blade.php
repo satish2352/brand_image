@@ -1,7 +1,3 @@
-{{-- <footer class="bg-dark text-white text-center py-3 mt-5">
-    <p class="mb-0">© {{ date('Y') }} MyWebsite. All Rights Reserved.</p>
-</footer> --}}
-
 <!-- footer -->
 <footer class="premium-footer">
     <div class="container">
@@ -122,31 +118,31 @@
 
 {{-- if admin deactive or delete user then run below --}}
 @if (session('auto_logout_message'))
-<script>
-    Swal.fire({
-        icon: 'warning',
-        title: 'Logged Out',
-        text: "{{ session('auto_logout_message') }}",
-        confirmButtonText: 'OK'
-    });
-</script>
-@endif
-
-<script>
-$(document).ajaxError(function (event, xhr) {
-
-    if (xhr.status === 401 && xhr.responseJSON?.message) {
-
+    <script>
         Swal.fire({
             icon: 'warning',
             title: 'Logged Out',
-            text: xhr.responseJSON.message,
+            text: "{{ session('auto_logout_message') }}",
             confirmButtonText: 'OK'
-        }).then(() => {
-            window.location.href = "/";
         });
-    }
-});
+    </script>
+@endif
+
+<script>
+    $(document).ajaxError(function(event, xhr) {
+
+        if (xhr.status === 401 && xhr.responseJSON?.message) {
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Logged Out',
+                text: xhr.responseJSON.message,
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = "/";
+            });
+        }
+    });
 </script>
 {{-- end --}}
 
@@ -287,8 +283,8 @@ $(document).ajaxError(function (event, xhr) {
 </script>
 
 <script>
-    $(window).on("load", function () {
-        setTimeout(function () {
+    $(window).on("load", function() {
+        setTimeout(function() {
             $(".loader").fadeOut(100); // smooth hide
         }, 400); // 1 second only
     });
@@ -323,6 +319,5 @@ $(document).ajaxError(function (event, xhr) {
 
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 <script>
-  AOS.init();
+    AOS.init();
 </script>
-

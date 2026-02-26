@@ -1,156 +1,123 @@
-<!-- home page slider -->
-{{-- <div class="homepage-slider">
-		<!-- single home slider -->
-		<div class="single-homepage-slider homepage-bg-1">
-			<div class="container">
-				<div class="row">
-					<div class="col-md-12 col-lg-7 offset-lg-1 offset-xl-0">
-						<div class="hero-text">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- single home slider -->
-		<div class="single-homepage-slider homepage-bg-2">
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-10 offset-lg-1 text-center">
-						<div class="hero-text">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- single home slider -->
-		<div class="single-homepage-slider homepage-bg-3">
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-10 offset-lg-1 text-right">
-						<div class="hero-text">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div> --}}
-<!-- end home page slider -->
 <style>
     .media-card-hording {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
 
-/* IMAGE TOP */
-.media-img {
-    height: 250px;   /* FIXED HEIGHT */
-    width: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
+    /* IMAGE TOP */
+    .media-img {
+        height: 250px;
+        /* FIXED HEIGHT */
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
 
-/* TEXT AREA */
-.media-content {
-    padding: 15px;
-}
-.carousel-control-prev,
-        .carousel-control-next {
-            top: 50%;
-            bottom: unset;
-            transform: translateY(-50%);
-            height: 500px;
-            align-items: center;
-        }
+    /* TEXT AREA */
+    .media-content {
+        padding: 15px;
+    }
 
-        .carousel-control-prev-icon,
-        .carousel-control-next-icon {
-            filter: invert(1) opacity(1);
-            background: none !important;
-        }
+    .carousel-control-prev,
+    .carousel-control-next {
+        top: 50%;
+        bottom: unset;
+        transform: translateY(-50%);
+        height: 500px;
+        align-items: center;
+    }
 
-        /* CARD FULL HEIGHT FIX */
-.single-latest-news,
-.media-card-hording {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1) opacity(1);
+        background: none !important;
+    }
 
-/* IMAGE FIXED HEIGHT */
-.latest-news-bg,
-.media-img {
-    height: 220px;
-    background-size: cover;
-    background-position: center;
-    flex-shrink: 0;
-}
+    /* CARD FULL HEIGHT FIX */
+    .single-latest-news,
+    .media-card-hording {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
 
-/* CONTENT AREA FLEX */
-.news-text-box,
-.media-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* PUSH BUTTONS TO BOTTOM */
-.card-actions {
-    margin-top: auto;
-}
-@media (max-width: 768px) {
+    /* IMAGE FIXED HEIGHT */
     .latest-news-bg,
     .media-img {
-        height: 180px;
+        height: 220px;
+        background-size: cover;
+        background-position: center;
+        flex-shrink: 0;
     }
-}
+
+    /* CONTENT AREA FLEX */
+    .news-text-box,
+    .media-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* PUSH BUTTONS TO BOTTOM */
+    .card-actions {
+        margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+
+        .latest-news-bg,
+        .media-img {
+            height: 180px;
+        }
+    }
 </style>
 @if ($sliders->count())
 
-<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
 
-    <div class="carousel-inner">
+        <div class="carousel-inner">
 
-        @foreach ($sliders as $key => $slider)
-        <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
+            @foreach ($sliders as $key => $slider)
+                <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
 
-            <img src="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
-                class="d-block w-100 carousel-img"
-                data-desktop="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
-                data-mobile="{{ config('fileConstants.IMAGE_VIEW') . $slider->mobile_image }}"
-                alt="Home Slider {{ $key + 1 }}">
+                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
+                        class="d-block w-100 carousel-img"
+                        data-desktop="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
+                        data-mobile="{{ config('fileConstants.IMAGE_VIEW') . $slider->mobile_image }}"
+                        alt="Home Slider {{ $key + 1 }}">
+
+                </div>
+            @endforeach
 
         </div>
-        @endforeach
+
+        {{-- CONTROLS --}}
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
 
     </div>
-   
-    {{-- CONTROLS --}}
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
-        data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-    </button>
-
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
-        data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-    </button>
-
-</div>
 @else
-{{-- NO SLIDER IMAGE --}}
-<div class="d-flex align-items-center justify-content-center"
-    style="height: calc(100vh - 90px); background:#f5f5f5;">
+    {{-- NO SLIDER IMAGE --}}
+    <div class="d-flex align-items-center justify-content-center"
+        style="height: calc(100vh - 90px); background:#f5f5f5;">
 
-    <div class="text-center">
-        <i class="bi bi-image text-muted" style="font-size:60px;"></i>
-        <h4 class="mt-3 text-muted">No image uploaded</h4>
-        <p class="text-muted">Please upload home slider images from admin panel</p>
+        <div class="text-center">
+            <i class="bi bi-image text-muted" style="font-size:60px;"></i>
+            <h4 class="mt-3 text-muted">No image uploaded</h4>
+            <p class="text-muted">Please upload home slider images from admin panel</p>
+        </div>
+
     </div>
-
-</div>
 
 @endif
 
@@ -210,21 +177,9 @@
 <!-- Search Bar Section -->
 @include('website.search-form')
 <!-- end Bar Section -->
-{{-- <div class="container">
-<div class="row" id="media-container">
-    @include('website.media-home-list', ['mediaList' => $mediaList])
-</div>
-	</div>
-<div class="text-center my-4" id="lazy-loader" style="display:none;">
-    <span class="spinner-border text-warning"></span>
-</div> --}}
-
-
 <!-- SERVICES SECTION -->
 <section class="services-section">
     <div class="container">
-
-
         <div class="services-header text-center">
             <span class="services-subtitle">OUR SERVICES</span>
             <h2 class="services-title">
@@ -337,155 +292,148 @@
             <div class="swiper hoarding-slider mb-4">
                 <div class="swiper-wrapper">
 
-                  
+
                     @foreach ($billboards as $media)
-                    @if ((int)$media->category_id === 1)
+                        @if ((int) $media->category_id === 1)
 
-                    {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
-                    <div class="swiper-slide">
-                        <div class="single-latest-news">
+                            {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
+                            <div class="swiper-slide">
+                                <div class="single-latest-news">
 
-                            {{-- <div class="latest-news-bg"
+                                    {{-- <div class="latest-news-bg"
                                     style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
                         </div> --}}
-                        @php
-                        $isBillboard = (int) $media->category_id === 1;
-                        $isBooked = (int) ($media->is_booked ?? 0);
-                        $width = (float) ($media->width ?? 0);
-                        $height = (float) ($media->height ?? 0);
-                        $sqft = $width * $height;
-                        @endphp
-                        <div class="latest-news-bg"
-                            style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
+                                    @php
+                                        $isBillboard = (int) $media->category_id === 1;
+                                        $isBooked = (int) ($media->is_booked ?? 0);
+                                        $width = (float) ($media->width ?? 0);
+                                        $height = (float) ($media->height ?? 0);
+                                        $sqft = $width * $height;
+                                    @endphp
+                                    <div class="latest-news-bg"
+                                        style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"
+                                        class="card-img-fit">
 
-                            @if ($isBooked === 1)
-                            <span class="media-badge booked">Booked</span>
-                            @else
-                            <span class="media-badge available">Available</span>
-                            @endif
+                                        @if ($isBooked === 1)
+                                            <span class="media-badge booked">Booked</span>
+                                        @else
+                                            <span class="media-badge available">Available</span>
+                                        @endif
 
-                        </div>
+                                    </div>
 
-                        <div class="news-text-box">
+                                    <div class="news-text-box">
 
-                            {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
-                            <h3 style="font-size: 21px;">
-                                <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                                    {{ \Illuminate\Support\Str::limit(($media->area_name ?? $media->category_name).' '.$media->facing, 25, '...') }}
-                                </a>
-                            </h3>
+                                        {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
+                                        <h3 style="font-size: 21px;">
+                                            <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
+                                                {{ \Illuminate\Support\Str::limit(($media->area_name ?? $media->category_name) . ' ' . $media->facing, 25, '...') }}
+                                            </a>
+                                        </h3>
 
 
-                            <p class="blog-meta">
-                                <i class="fas fa-map-marker-alt"></i>
-                                {{ $media->area_name }}, {{ $media->city_name }}
-                            </p>
+                                        <p class="blog-meta">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            {{ $media->area_name }}, {{ $media->city_name }}
+                                        </p>
 
-                            <div class="col-12 mb-2">
-                                <strong>Size:</strong>
-                                {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
+                                        <div class="col-12 mb-2">
+                                            <strong>Size:</strong>
+                                            {{ number_format($media->width, 2) }} x
+                                            {{ number_format($media->height, 2) }} ft
 
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <strong>Total Area:</strong>
+                                            {{ number_format($sqft, 2) }} SQFT
+                                        </div>
+
+                                        <div class="media-price">
+                                            ₹ {{ number_format($media->price, 2) }}
+                                            <small class="pricepermonth">/Month</small>
+                                        </div>
+
+                                        {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
+                                        <div
+                                            class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
+                                            {{-- <a href="https://www.google.com/maps"> --}}
+                                            {{-- </a> --}}
+
+                                            <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
+                                                target="_blank"
+                                                class="text-muted d-inline-flex align-items-center gap-1">
+                                                <img src="{{ asset('assets/img/105.png') }}" width="30">
+                                                <span>View on Map</span>
+                                            </a>
+                                            @if (!empty($media->panorama_image))
+                                                <a href="{{ url('./panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image)) }}"
+                                                    target="_blank"
+                                                    class="text-muted d-inline-flex align-items-center gap-1">
+
+                                                    <img src="{{ asset('assets/img/360view.png') }}" width="30">
+                                                    <span>360° View</span>
+
+                                                </a>
+                                            @endif
+                                        </div>
+                                        @php
+                                            $isBillboard = (int) $media->category_id === 1;
+                                            $isBooked = (int) ($media->is_booked ?? 0);
+                                        @endphp
+
+                                        <div class="card-actions">
+
+                                            {{-- ================= BILLBOARDS ================= --}}
+                                            @if ($isBillboard)
+                                                @if ($isBooked === 0)
+                                                    {{-- READ MORE --}}
+                                                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                                        class="card-btn read">
+                                                        Read More →
+                                                    </a>
+
+                                                    {{-- ADD TO CART --}}
+                                                    @auth('website')
+                                                        <a href="{{ route('cart.add', base64_encode($media->id)) }}"
+                                                            class="btn card-btn cart">
+                                                            Add to Cart
+                                                        </a>
+                                                    @else
+                                                        <button class="btn card-btn cart" data-bs-toggle="modal"
+                                                            data-bs-target="#authModal"
+                                                            onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+                                                            Add to Cart
+                                                        </button>
+                                                    @endauth
+                                                @else
+                                                    {{-- BOOKED → ONLY READ MORE --}}
+                                                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                                        class="card-btn read">
+                                                        Read More →
+                                                    </a>
+                                                @endif
+
+                                                {{-- ================= OTHER MEDIA ================= --}}
+                                            @else
+                                                <a href="{{ route('contact.create') }}#contact-form"
+                                                    class="card-btn contact">
+                                                    Contact Us
+                                                </a>
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-12 mb-2">
-                                <strong>Total Area:</strong>
-                                {{ number_format($sqft, 2) }} SQFT
-                            </div>
 
-                            <div class="media-price">
-                                ₹ {{ number_format($media->price, 2) }}
-                                <small class="pricepermonth">/Month</small>
-                            </div>
-
-                            {{-- href="https://www.google.com/maps/search/?api=1&query={{ urlencode($media->area_name . ', ' . $media->city_name) }}" --}}
-                            <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
-                                {{-- <a href="https://www.google.com/maps"> --}}
-                                {{-- </a> --}}
-
-                                <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
-                                    target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-                                    <img src="{{ asset('assets/img/105.png') }}" width="30">
-                                    <span>View on Map</span>
-                                </a>
-                                @if(!empty($media->panorama_image))
-
-<a href="{{ url('./panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW').$media->panorama_image)) }}"
-   target="_blank"
-   class="text-muted d-inline-flex align-items-center gap-1">
-
-    <img src="{{ asset('assets/img/360view.png') }}" width="30">
-    <span>360° View</span>
-
-</a>
-
-@endif
-                                {{-- @if (!empty($media->panorama_image))
-                                <a href="{{ $media->panorama_image }}" target="_blank"
-                                    class="text-muted d-inline-flex align-items-center gap-1">
-                                    <img src="{{ asset('assets/img/360view.png') }}" width="30">
-                                    <span>360° View</span>
-                                </a>
-                                @endif --}}
-                            </div>
-                            @php
-                            $isBillboard = (int) $media->category_id === 1;
-                            $isBooked = (int) ($media->is_booked ?? 0);
-                            @endphp
-
-                            <div class="card-actions">
-
-                                {{-- ================= BILLBOARDS ================= --}}
-                                @if ($isBillboard)
-                                @if ($isBooked === 0)
-                                {{-- READ MORE --}}
-                                <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                                    class="card-btn read">
-                                    Read More →
-                                </a>
-
-                                {{-- ADD TO CART --}}
-                                @auth('website')
-                                <a href="{{ route('cart.add', base64_encode($media->id)) }}"
-                                    class="btn card-btn cart">
-                                    Add to Cart
-                                </a>
-                                @else
-                                <button class="btn card-btn cart" data-bs-toggle="modal"
-                                    data-bs-target="#authModal"
-                                    onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-                                    Add to Cart
-                                </button>
-                                @endauth
-                                @else
-                                {{-- BOOKED → ONLY READ MORE --}}
-                                <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                                    class="card-btn read">
-                                    Read More →
-                                </a>
-                                @endif
-
-                                {{-- ================= OTHER MEDIA ================= --}}
-                                @else
-                                <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
-                                    Contact Us
-                                </a>
-                                @endif
-
-                            </div>
-
-                        </div>
-                    </div>
+                        @endif
+                    @endforeach
                 </div>
-
-                @endif
-                @endforeach
             </div>
+            <!-- Arrows -->
         </div>
-
-        <!-- Arrows -->
-        {{-- <div class="swiper-button-next"></div>
-				<div class="swiper-button-prev"></div> --}}
     </div>
-</div>
 
 </div>
 </div>
@@ -507,157 +455,112 @@
         <div class="row">
 
             @foreach ($otherMedia as $media)
-            @if ($media->category_name !== 'Hoardings/Billboards')
-            @php
-            $width = (float) ($media->width ?? 0);
-            $height = (float) ($media->height ?? 0);
-            $sqft = $width * $height;
-            @endphp
+                @if ($media->category_name !== 'Hoardings/Billboards')
+                    @php
+                        $width = (float) ($media->width ?? 0);
+                        $height = (float) ($media->height ?? 0);
+                        $sqft = $width * $height;
+                    @endphp
+                    <div class="col-lg-4 col-md-6 mb-5">
+                        <div class="media-card-hording">
+                            <div class="media-img"
+                                style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                            </div>
+                            <div class="media-content">
+                                <h3 style="font-size: 21px;">
+                                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                        style="color: black">
+                                        {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
+                                    </a>
+                                </h3>
+                                <p class="blog-meta">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ $media->area_name }}, {{ $media->city_name }}
+                                </p>
 
+                                <div class="col-12 mb-2 d-flex">
+                                    <strong>Size : </strong>
+                                    {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
 
+                                </div>
+                                <div class="col-12 mb-2 d-flex">
+                                    <strong>Area : </strong>
+                                    {{ number_format($sqft, 2) }} SQFT
+                                </div>
+                                <div class="media-price">
+                                    ₹ {{ number_format($media->price, 2) }}
+                                </div>
 
+                                <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
+                                    @if (!empty($media->panorama_image))
+                                        <a href="{{ $media->panorama_image }}" target="_blank"
+                                            class="text-muted d-inline-flex align-items-center gap-1 mt-1">
+                                            <img src="{{ asset('assets/img/360view.png') }}" style="width : 20px">
+                                            <span>360° View</span>
+                                        </a>
+                                    @endif
+                                </div>
+                                @php
+                                    $isBillboard = (int) $media->category_id === 1;
+                                    $isBooked = (int) ($media->is_booked ?? 0);
+                                @endphp
 
+                                <div class="card-actions">
 
+                                    {{-- ================= BILLBOARDS ================= --}}
+                                    @if ($isBillboard)
+                                        @if ($isBooked === 0)
+                                            {{-- READ MORE --}}
+                                            <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                                class="card-btn read">
+                                                Read More →
+                                            </a>
 
+                                            {{-- ADD TO CART --}}
+                                            @auth('website')
+                                                <a href="{{ route('cart.add', base64_encode($media->id)) }}"
+                                                    class="btn card-btn cart">
+                                                    Add to Cart
+                                                </a>
+                                            @else
+                                                <button class="btn card-btn cart" data-bs-toggle="modal"
+                                                    data-bs-target="#authModal"
+                                                    onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
+                                                    Add to Cart
+                                                </button>
+                                            @endauth
+                                        @else
+                                            {{-- BOOKED → ONLY READ MORE --}}
+                                            <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                                class="card-btn read">
+                                                Read More →
+                                            </a>
+                                        @endif
 
+                                        {{-- ================= OTHER MEDIA ================= --}}
+                                    @else
+                                        <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}#contact-form"
+                                            class="card-btn contact">
+                                            Contact Us
+                                        </a>
 
+                                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
+                                            class="card-btn read">
+                                            Read More →
+                                        </a>
+                                    @endif
 
+                                </div>
 
+                            </div>
+                        </div>
+                    </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <div class="col-lg-4 col-md-6 mb-5">
-              
-
-                   <div class="media-card-hording">
-
-        <div class="media-img"
-             style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
+                @endif
+            @endforeach
         </div>
 
-              
-
-                <div class="media-content">
-
-                    {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
-                    <h3 style="font-size: 21px;">
-                        <a href="{{ route('website.media-details', base64_encode($media->id)) }}" style="color: black">
-                            {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
-                        </a>
-                    </h3>
-
-                    <p class="blog-meta">
-                        <i class="fas fa-map-marker-alt"></i>
-                        {{ $media->area_name }}, {{ $media->city_name }}
-                    </p>
-
-                    <div class="col-12 mb-2 d-flex">
-                        <strong>Size : </strong>
-                        {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
-
-                    </div>
-                    <div class="col-12 mb-2 d-flex">
-                        <strong>Area : </strong>
-                        {{ number_format($sqft, 2) }} SQFT
-                    </div>
-                    <div class="media-price">
-                        ₹ {{ number_format($media->price, 2) }}
-                    </div>
-
-                <div class="media-map mt-4 d-flex align-items-center justify-content-between gap-3">
-                    {{-- <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"
-                    target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-                    <img src="{{ asset('assets/img/105.png') }}" width="30">
-                    <span>View on Map</span>
-                    </a> --}}
-                    @if (!empty($media->panorama_image))
-                        <a href="{{ $media->panorama_image }}" target="_blank"
-                            class="text-muted d-inline-flex align-items-center gap-1 mt-1">
-                            <img src="{{ asset('assets/img/360view.png') }}" style="width : 20px">
-                            <span>360° View</span>
-                        </a>
-                    @endif
-                </div>
-                @php
-                $isBillboard = (int) $media->category_id === 1;
-                $isBooked = (int) ($media->is_booked ?? 0);
-                @endphp
-
-                <div class="card-actions">
-
-                    {{-- ================= BILLBOARDS ================= --}}
-                    @if ($isBillboard)
-                    @if ($isBooked === 0)
-                    {{-- READ MORE --}}
-                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                        class="card-btn read">
-                        Read More →
-                    </a>
-
-                    {{-- ADD TO CART --}}
-                    @auth('website')
-                    <a href="{{ route('cart.add', base64_encode($media->id)) }}"
-                        class="btn card-btn cart">
-                        Add to Cart
-                    </a>
-                    @else
-                    <button class="btn card-btn cart" data-bs-toggle="modal"
-                        data-bs-target="#authModal"
-                        onclick="setRedirect('{{ route('cart.add', base64_encode($media->id)) }}')">
-                        Add to Cart
-                    </button>
-                    @endauth
-                    @else
-                    {{-- BOOKED → ONLY READ MORE --}}
-                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                        class="card-btn read">
-                        Read More →
-                    </a>
-                    @endif
-
-                    {{-- ================= OTHER MEDIA ================= --}}
-                    @else
-                    {{-- <a href="{{ route('contact.create') }}" class="card-btn contact">
-                    Contact Us
-                    </a> --}}
-                    {{-- <a href="{{ route('contact.create') }}#contact-form" class="card-btn contact">
-                    Contact Us
-                    </a> --}}
-                    <a href="{{ route('contact.create', ['media' => base64_encode($media->id)]) }}#contact-form"
-                        class="card-btn contact">
-                        Contact Us
-                    </a>
-
-                    <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                        class="card-btn read">
-                        Read More →
-                    </a>
-                    @endif
-
-                </div>
-
-            </div>
-        </div>
     </div>
-
-    @endif
-    @endforeach
-</div>
-
-</div>
 </div>
 
 <!-- PROCESS SECTION -->
@@ -751,9 +654,15 @@
                 </h2>
 
                 <p>
-                    Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising agency that specializes in assisting clients in reaching their target audiences through innovative and customized solutions. With our team of experienced professionals, we take great pride in our ability to comprehend your specific needs and offer creative services that can truly make a difference. </p>
+                    Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising agency that specializes in
+                    assisting clients in reaching their target audiences through innovative and customized solutions.
+                    With our team of experienced professionals, we take great pride in our ability to comprehend your
+                    specific needs and offer creative services that can truly make a difference. </p>
 
-                <p>With over 12 years of valuable experience in the field of Printing, Branding, Advertising, and Events, we have gained extensive knowledge and expertise in executing successful campaigns. Our agency, Brand Image Advertising, has been recognized with prestigious awards for our compelling advertising campaigns ...</p>
+                <p>With over 12 years of valuable experience in the field of Printing, Branding, Advertising, and
+                    Events, we have gained extensive knowledge and expertise in executing successful campaigns. Our
+                    agency, Brand Image Advertising, has been recognized with prestigious awards for our compelling
+                    advertising campaigns ...</p>
 
                 <a href="{{ route('website.about') }}" class="about-btn">Know More</a>
             </div>
@@ -821,55 +730,37 @@
     </div>
 </section>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
 
-new Swiper(".hoarding-slider", {
-    slidesPerView: 4,
-    spaceBetween: 20,
-    loop: true,
-    centeredSlides: false,
+        new Swiper(".hoarding-slider", {
+            slidesPerView: 4,
+            spaceBetween: 20,
+            loop: true,
+            centeredSlides: false,
 
-    navigation: {
-        nextEl: ".swiper-btn-next",
-        prevEl: ".swiper-btn-prev",
-    },
+            navigation: {
+                nextEl: ".swiper-btn-next",
+                prevEl: ".swiper-btn-prev",
+            },
 
-    breakpoints: {
-        0: { slidesPerView: 1 },
-        576: { slidesPerView: 2 },
-        768: { slidesPerView: 3 },
-        992: { slidesPerView: 4 },
-        1200: { slidesPerView: 4 }
-    }
-});
+            breakpoints: {
+                0: {
+                    slidesPerView: 1
+                },
+                576: {
+                    slidesPerView: 2
+                },
+                768: {
+                    slidesPerView: 3
+                },
+                992: {
+                    slidesPerView: 4
+                },
+                1200: {
+                    slidesPerView: 4
+                }
+            }
+        });
 
-});
+    });
 </script>
-
-<!-- logo carousel -->
-{{-- <div class="logo-carousel-section">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="logo-carousel-inner">
-						<div class="single-logo-item">
-							<img src="assets/img/company-logos/1.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="assets/img/company-logos/2.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="assets/img/company-logos/3.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="assets/img/company-logos/4.png" alt="">
-						</div>
-						<div class="single-logo-item">
-							<img src="assets/img/company-logos/5.png" alt="">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div> --}}
-<!-- end logo carousel -->

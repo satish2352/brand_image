@@ -60,8 +60,6 @@
           margin-bottom: 8px;
       }
 
-
-
       /* META */
       .media-meta {
           font-size: 14px;
@@ -103,48 +101,36 @@
           $sqft = $width * $height;
       @endphp
       @php $isBooked = (int) ($media->is_booked ?? 0); @endphp
-
-
-
       <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
           <div class="media-card h-100">
-
               {{-- IMAGE --}}
               <div class="media-img-wrap">
                   <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" alt="">
-
                   <!-- @if ($media->from_date && $media->to_date)
+<span class="status-badge booked">Booked</span>
+@else
+<span class="status-badge available">Available</span>
+@endif -->
+                  @if ($media->is_booked == 1)
                       <span class="status-badge booked">Booked</span>
                   @else
                       <span class="status-badge available">Available</span>
-                  @endif -->
-                  @if ($media->is_booked == 1)
-    <span class="status-badge booked">Booked</span>
-@else
-    <span class="status-badge available">Available</span>
-@endif
-
+                  @endif
               </div>
-
               {{-- BODY --}}
               <div class="media-body">
-
                   <h5 class="media-title">
                       {{ $media->area_name }} {{ $media->facing }}
-
                   </h5>
-
                   <div class="media-meta">
                       <div><strong>Size:</strong> {{ number_format($media->width, 2) }} ×
                           {{ number_format($media->height, 2) }} ft</div>
                       <div><strong>Area:</strong> {{ number_format($sqft, 2) }} SQFT</div>
                   </div>
-
                   <div class="media-price">
                       ₹ {{ number_format($media->price, 2) }}
                       <span>/ month</span>
                   </div>
-
                   @if ($media->from_date && $media->to_date)
                       <div class="media-date">
                           {{ \Carbon\Carbon::parse($media->from_date)->format('d M Y') }}
@@ -152,14 +138,12 @@
                           {{ \Carbon\Carbon::parse($media->to_date)->format('d M Y') }}
                       </div>
                   @endif
-
                   <div class="media-actions">
                       <a href="{{ route('admin-booking.admin-media-details', base64_encode($media->id)) }}"
                           class=" btn-sm btn btn-success">
                           View Details
                       </a>
                   </div>
-
               </div>
           </div>
       </div>

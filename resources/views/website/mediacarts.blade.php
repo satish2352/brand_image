@@ -1,7 +1,3 @@
-@php
-    // $cart = session()->get('cart', []);
-@endphp
-
 <div class="container my-5">
     <div class="row">
 

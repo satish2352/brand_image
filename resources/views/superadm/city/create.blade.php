@@ -1,15 +1,12 @@
 @extends('superadm.layout.master')
-
 @section('content')
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card shadow-sm">
                 <div class="card-body">
-
                     <h4 class="mb-4">Add City</h4>
                     <form action="{{ route('city.store') }}" method="POST" novalidate>
                         @csrf
-
                         {{-- STATE --}}
                         <div class="form-group mb-3">
                             <label>State <span class="text-danger">*</span></label>
@@ -21,7 +18,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
                         {{-- DISTRICT --}}
                         <div class="form-group mb-3">
                             <label>District <span class="text-danger">*</span></label>
@@ -62,28 +58,22 @@
                                 @enderror
                             </div>
                         </div>
-
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('city.list') }}" class="btn btn-secondary mr-3">Cancel</a>
                             <button type="submit" class="btn btn-success">Save City</button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
 @endsection
-
-
 @section('scripts')
     <script>
-        let oldState    = "{{ old('state_id') }}";
+        let oldState = "{{ old('state_id') }}";
         let oldDistrict = "{{ old('district_id') }}";
         $(document).ready(function() {
-
             console.log('Area create page loaded');
-
             // ================= LOAD STATES =================
             $.get("{{ route('ajax.states') }}", function(response) {
 
@@ -113,15 +103,10 @@
 
                 loadDistricts(stateId);
             });
-
-
-
         });
 
         function loadDistricts(stateId) {
-
             $('#district').html('<option value="">Select District</option>');
-
             $.post("{{ route('ajax.districts') }}", {
                 _token: "{{ csrf_token() }}",
                 state_id: stateId
@@ -136,78 +121,77 @@
             });
         }
 
-            const onlyLetters    = /[^a-zA-Z\s]/g;
-    const onlyNumbersDot = /[^0-9.]/g;
+        const onlyLetters = /[^a-zA-Z\s]/g;
+        const onlyNumbersDot = /[^0-9.]/g;
 
-    /* ===== LIVE INPUT RESTRICTION ===== */
+        /* ===== LIVE INPUT RESTRICTION ===== */
 
-    // City Name → letters only
-    $('input[name="city_name"]').on('input', function () {
-        this.value = this.value.replace(onlyLetters, '');
-    });
+        // City Name → letters only
+        $('input[name="city_name"]').on('input', function() {
+            this.value = this.value.replace(onlyLetters, '');
+        });
 
-    // Latitude & Longitude → numbers + dot
-    $('input[name="latitude"], input[name="longitude"]').on('input', function () {
-        this.value = this.value.replace(onlyNumbersDot, '');
-    });
+        // Latitude & Longitude → numbers + dot
+        $('input[name="latitude"], input[name="longitude"]').on('input', function() {
+            this.value = this.value.replace(onlyNumbersDot, '');
+        });
 
-    /* ===== CLEAR ERROR (ONLY CURRENT FIELD) ===== */
-    function clearError(el) {
-        el.removeClass('is-invalid');
-        el.closest('.form-group, .col-md-6')
-          .find('.invalid-feedback').remove();
-    }
-
-    $('input, select').on('input change', function () {
-        clearError($(this));
-    });
-
-    /* ===== FORM SUBMIT VALIDATION ===== */
-    $('form').on('submit.cityValidation', function (e) {
-
-        let valid = true;
-
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
-
-        function error(el, msg) {
-            el.addClass('is-invalid');
-            el.after(`<div class="invalid-feedback">${msg}</div>`);
-            valid = false;
+        /* ===== CLEAR ERROR (ONLY CURRENT FIELD) ===== */
+        function clearError(el) {
+            el.removeClass('is-invalid');
+            el.closest('.form-group, .col-md-6')
+                .find('.invalid-feedback').remove();
         }
 
-        // State
-        if (!$('#state').val()) {
-            error($('#state'), 'Please select a state.');
-        }
+        $('input, select').on('input change', function() {
+            clearError($(this));
+        });
 
-        // District
-        if (!$('#district').val()) {
-            error($('#district'), 'Please select a district.');
-        }
+        /* ===== FORM SUBMIT VALIDATION ===== */
+        $('form').on('submit.cityValidation', function(e) {
 
-        // City Name
-        let city = $('input[name="city_name"]');
-        if (!city.val()) {
-            error(city, 'Please enter the city name.');
-        } else if (city.val().length > 255) {
-            error(city, 'City name must not exceed 255 characters.');
-        }
+            let valid = true;
 
-        // Latitude
-        let lat = $('input[name="latitude"]');
-        if (!lat.val()) {
-            error(lat, 'Latitude is required.');
-        }
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
 
-        // Longitude
-        let lng = $('input[name="longitude"]');
-        if (!lng.val()) {
-            error(lng, 'Longitude is required.');
-        }
+            function error(el, msg) {
+                el.addClass('is-invalid');
+                el.after(`<div class="invalid-feedback">${msg}</div>`);
+                valid = false;
+            }
 
-        if (!valid) e.preventDefault();
-    });
+            // State
+            if (!$('#state').val()) {
+                error($('#state'), 'Please select a state.');
+            }
 
+            // District
+            if (!$('#district').val()) {
+                error($('#district'), 'Please select a district.');
+            }
+
+            // City Name
+            let city = $('input[name="city_name"]');
+            if (!city.val()) {
+                error(city, 'Please enter the city name.');
+            } else if (city.val().length > 255) {
+                error(city, 'City name must not exceed 255 characters.');
+            }
+
+            // Latitude
+            let lat = $('input[name="latitude"]');
+            if (!lat.val()) {
+                error(lat, 'Latitude is required.');
+            }
+
+            // Longitude
+            let lng = $('input[name="longitude"]');
+            if (!lng.val()) {
+                error(lng, 'Longitude is required.');
+            }
+
+            if (!valid) e.preventDefault();
+        });
     </script>
 @endsection

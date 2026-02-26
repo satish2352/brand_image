@@ -1,14 +1,11 @@
 @extends('superadm.layout.master')
-
 @section('content')
     <div class="card">
         <div class="card-body">
-
             <div class="d-flex justify-content-between mb-3">
                 <h4>Home Sliders</h4>
                 <a href="{{ route('homeslider.create') }}" class="btn btn-add">Add Slider</a>
             </div>
-
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -33,14 +30,6 @@
                                 </label>
                             </td>
                             <td class="text-nowrap">
-
-                                {{-- VIEW --}}
-                                {{-- <a href="{{ config('fileConstants.IMAGE_VIEW') . $row->desktop_image }}"
-                        target="_blank"
-                        class="btn btn-sm btn-info">
-                            <i class="mdi mdi-eye"></i>
-                        </a> --}}
-
                                 {{-- EDIT --}}
                                 <a href="{{ route('homeslider.edit', base64_encode($row->id)) }}"
                                     class="btn btn-sm btn-primary">
@@ -58,19 +47,15 @@
                     @endforeach
                 </tbody>
             </table>
-
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         $(document).on('change', '.toggle-status', function() {
 
             let checkbox = $(this);
             let id = checkbox.data('id');
             let isChecked = checkbox.is(':checked');
-
             Swal.fire({
                 title: 'Are you sure?',
                 text: isChecked ?
@@ -86,7 +71,6 @@
                     checkbox.prop('checked', !isChecked);
                     return;
                 }
-
                 $.ajax({
                     url: "{{ route('homeslider.status') }}",
                     type: "POST",

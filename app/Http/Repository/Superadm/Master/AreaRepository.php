@@ -57,8 +57,6 @@ class AreaRepository
             'city_id'               => $data['city_id'],
             'area_name'             => $data['area_name'],
             'common_stdiciar_name'  => $data['common_stdiciar_name'],
-            // 'latitude'              => $data['latitude'],
-            // 'longitude'             => $data['longitude'],
         ]);
     }
 

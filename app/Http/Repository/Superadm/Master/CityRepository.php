@@ -110,5 +110,4 @@ class CityRepository
             })
             ->exists();
     }
-
 }

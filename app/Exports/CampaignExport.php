@@ -99,33 +99,6 @@ class CampaignExport implements
             number_format($final, 2),   // NEW
         ];
     }
-
-    // public function map($row): array
-    // {
-    //     $this->srNo++;
-
-    //     $totalSqft = ($row->width ?? 0) * ($row->height ?? 0);
-
-    //     // Add to grand total
-    //     $this->grandTotal += ($row->total_price ?? 0);
-
-    //     return [
-    //         $this->srNo,
-    //         $row->district_name ?? '-',
-    //         $row->city_name ?? '-',
-    //         $row->media_code ?? '-',
-    //         $row->area_name ?? '-',
-    //         $row->width ?? 0,
-    //         $row->height ?? 0,
-    //         $totalSqft,
-    //         number_format($row->monthly_price, 2),
-    //         number_format($row->per_day_price, 2),
-    //         $row->total_days ?? 0,
-    //         // number_format($row->total_price, 2),
-    //         number_format($row->total_price, 2),
-    //     ];
-    // }
-
     public function headings(): array
     {
         return [
@@ -165,31 +138,6 @@ class CampaignExport implements
             ],
         ];
     }
-
-    /** Add GRAND TOTAL row after data */
-    // public function registerEvents(): array
-    // {
-    //     return [
-    //         AfterSheet::class => function (AfterSheet $event) {
-    //             $lastDataRow = $this->srNo + 1; // header + rows
-    //             $totalRow    = $lastDataRow + 1; // grand total row
-
-    //             // Label cell
-    //             $event->sheet->setCellValue('A' . $totalRow, 'GRAND TOTAL');
-
-    //             // Merge first 11 columns
-    //             $event->sheet->mergeCells("A{$totalRow}:K{$totalRow}");
-
-    //             // Amount & Total Amount columns (L & M)
-    //             $event->sheet->setCellValue('L' . $totalRow, number_format($this->grandTotal, 2));
-
-    //             // Bold row
-    //             $event->sheet->getStyle("A{$totalRow}:M{$totalRow}")->applyFromArray([
-    //                 'font' => ['bold' => true],
-    //             ]);
-    //         },
-    //     ];
-    // }
     public function registerEvents(): array
     {
         return [

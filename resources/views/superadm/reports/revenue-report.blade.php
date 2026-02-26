@@ -8,58 +8,57 @@
         }
 
         /* Revenue Tabs */
-    .revenue-tabs {
-        gap: 12px;
-    }
+        .revenue-tabs {
+            gap: 12px;
+        }
 
-    .revenue-tabs .nav-link {
-        background: #f4f6f9;
-        color: #555;
-        border-radius: 10px;
-        padding: 10px 14px;
-        min-width: 150px;
-        text-align: left;
-        transition: all 0.25s ease;
-        border: 1px solid #e2e6ea;
-        text-align: center;
-    }
+        .revenue-tabs .nav-link {
+            background: #f4f6f9;
+            color: #555;
+            border-radius: 10px;
+            padding: 10px 14px;
+            min-width: 150px;
+            text-align: left;
+            transition: all 0.25s ease;
+            border: 1px solid #e2e6ea;
+            text-align: center;
+        }
 
-    .revenue-tabs .nav-link i {
-        font-size: 22px;
-        display: block;
-        margin-bottom: 4px;
-        color: #6c757d;
-    }
+        .revenue-tabs .nav-link i {
+            font-size: 22px;
+            display: block;
+            margin-bottom: 4px;
+            color: #6c757d;
+        }
 
-    .revenue-tabs .nav-link span {
-        font-weight: 600;
-        display: block;
-    }
+        .revenue-tabs .nav-link span {
+            font-weight: 600;
+            display: block;
+        }
 
-    .revenue-tabs .nav-link small {
-        font-size: 12px;
-        color: #888;
-    }
+        .revenue-tabs .nav-link small {
+            font-size: 12px;
+            color: #888;
+        }
 
-    .revenue-tabs .nav-link:hover {
-        background: #e9f2ff;
-        transform: translateY(-1px);
-    }
+        .revenue-tabs .nav-link:hover {
+            background: #e9f2ff;
+            transform: translateY(-1px);
+        }
 
-    .revenue-tabs .nav-link.active {
-        /* background: linear-gradient(135deg, #5b6cff, #6a5cff); */
-        background: linear-gradient(135deg, #008f97, #00aab3);
-        color: #fff;
-        box-shadow: 0 6px 18px rgba(91,108,255,0.25);
-        border: none;
-        text-align: center;
-    }
+        .revenue-tabs .nav-link.active {
+            /* background: linear-gradient(135deg, #5b6cff, #6a5cff); */
+            background: linear-gradient(135deg, #008f97, #00aab3);
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(91, 108, 255, 0.25);
+            border: none;
+            text-align: center;
+        }
 
-    .revenue-tabs .nav-link.active i,
-    .revenue-tabs .nav-link.active small {
-        color: #fff;
-    }
-
+        .revenue-tabs .nav-link.active i,
+        .revenue-tabs .nav-link.active small {
+            color: #fff;
+        }
     </style>
 
     <div class="card">
@@ -130,10 +129,10 @@
                 </div>
 
                 @php
-                    $searchPlaceholder = match($type) {
+                    $searchPlaceholder = match ($type) {
                         'media' => 'Search media',
-                        'user'  => 'Search user',
-                        default => 'Search'
+                        'user' => 'Search user',
+                        default => 'Search',
                     };
                 @endphp
                 @if ($type !== 'date')
@@ -214,7 +213,7 @@
                                 <th>Final Total (₹)</th>
                             @elseif($type === 'user')
                                 <th>User Name</th>
-                            
+
                                 <th>Booked Days</th>
                                 <th>Payment Mode</th>
                                 {{-- <th>Total Revenue (₹)</th> --}}
@@ -234,14 +233,14 @@
                                     <td>{{ $row->period }}</td>
                                     {{-- <td>{{ $row->total_bookings }}</td> --}}
                                     <!-- <td>
-                                        <button class="btn btn-sm btn-outline-primary"
-                                            onclick="openBookingModal('{{ $row->period }}')">
-                                            <i class="mdi mdi-eye"></i> {{ $row->total_bookings }}
-                                        </button>
-                                    </td> -->
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    onclick="openBookingModal('{{ $row->period }}')">
+                                                    <i class="mdi mdi-eye"></i> {{ $row->total_bookings }}
+                                                </button>
+                                            </td> -->
                                     {{-- PAYMENT MODE --}}
 
-                                   
+
 
                                     {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
                                     <td>₹ {{ number_format($row->total_amount, 2) }}</td>
@@ -260,14 +259,14 @@
                                     <td>{{ $row->booked_days }}</td>
                                     <td>
                                         @if ($row->booking_type === 'ONLINE')
-    <span class="badge badge-success">ONLINE</span>
-@elseif ($row->booking_type === 'OFFLINE')
-    <span class="badge badge-offline">OFFLINE (Admin Booked)</span>
-@else
-    <span class="badge badge-secondary">{{ $row->booking_type }}</span>
-@endif
+                                            <span class="badge badge-success">ONLINE</span>
+                                        @elseif ($row->booking_type === 'OFFLINE')
+                                            <span class="badge badge-offline">OFFLINE (Admin Booked)</span>
+                                        @else
+                                            <span class="badge badge-secondary">{{ $row->booking_type }}</span>
+                                        @endif
 
-                                     
+
                                     </td>
 
                                     {{-- <td>₹ {{ number_format($row->total_revenue, 2) }}</td> --}}
@@ -277,7 +276,7 @@
                                 @elseif($type === 'user')
                                     <td>{{ $row->user_name }}</td>
                                     {{-- <td>{{ $row->total_bookings }}</td> --}}
-                                   
+
                                     <td>{{ $row->booked_days }}</td>
                                     <td>
                                         @if ($row->booking_type === 'ONLINE')

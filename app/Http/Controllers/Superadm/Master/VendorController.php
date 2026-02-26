@@ -52,8 +52,7 @@ class VendorController extends Controller
         try {
             $this->service->store($validated);
             return redirect()->route('vendor.list')->with('success', 'Vendor added successfully');
-        } 
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return back()
                 ->withInput()
                 ->withErrors(['vendor_code' => $e->getMessage()]);
@@ -95,8 +94,7 @@ class VendorController extends Controller
         try {
             $this->service->update($id, $validated);
             return redirect()->route('vendor.list')->with('success', 'Vendor updated successfully');
-        } 
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return back()
                 ->withInput()
                 ->withErrors(['vendor_code' => $e->getMessage()]);

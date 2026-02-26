@@ -6,9 +6,6 @@
         #airportBranding,
         #transmitMedia,
         #officeBranding,
-        /* #wallWrap {
-                                                                                                                                                display: none;
-                                                                                                                                            } */
         #wallWrapSection,
         #radiusSection {
             display: none;
@@ -104,68 +101,33 @@
     </style>
 @endsection
 @section('content')
-
-
     <div class="card shadow-sm">
         <div class="card-body">
             <h4 class="mb-4">Add Media</h4>
-
-            {{-- @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif --}}
-
             <form id="mediaForm" method="POST" action="{{ route('media.store') }}" enctype="multipart/form-data">
                 @csrf
-
                 {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
                 <input type="hidden" name="state_id" id="state_id">
                 <input type="hidden" name="district_id" id="district_id">
                 <input type="hidden" name="city_id" id="city_id">
-
                 <div class="row">
-
                     {{-- ================= BASIC INFO ================= --}}
                     <div class="col-md-4 mb-3">
                         <label>Category <span class="text-danger">*</span></label>
                         @php use Illuminate\Support\Str; @endphp
-
                         <select name="category_id" id="category_id"
                             class="form-control @error('category_id') is-invalid @enderror">
                             <option value="">Select Category</option>
-
                             @foreach ($categories as $cat)
                                 @php
                                     $slug = \Illuminate\Support\Str::slug($cat->slug ?? $cat->category_name);
                                 @endphp
-
                                 <option value="{{ $cat->id }}" data-category="{{ $slug }}"
                                     {{ old('category_id') == $cat->id ? 'selected' : '' }}>
                                     {{ $cat->category_name }}
                                 </option>
                             @endforeach
                         </select>
-
-
-                        {{-- <select name="category_id" id="category_id"
-                                class="form-control @error('category_id') is-invalid @enderror">
-                            <option value="">Select Category</option>
-
-                            @foreach ($categories as $cat)
-                               
-                                                        <option value="{{ $cat->id }}"
-                                data-category="{{ \Illuminate\Support\Str::slug($cat->slug ?? $cat->category_name) }}">
-                                {{ $cat->category_name }}
-                            </option>
-
-
-                            @endforeach
-                        </select> --}}
                         @error('category_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -202,16 +164,6 @@
                     {{-- ================= DIMENSIONS ================= --}}
                 </div>
                 <div class="row" id="billboardsId">
-                    {{-- <div class="col-md-4 mb-3">
-                    <label>Media Code <span class="text-danger">*</span></label>
-                    <input type="text" name="media_code"
-                           value="{{ old('media_code') }}"
-                           class="form-control @error('media_code') is-invalid @enderror">
-                    @error('media_code')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
-
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
                         <input type="text" id="media_code" class="form-control"
@@ -229,21 +181,6 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- <div class="col-md-4 mb-3">
-                    <label>Facing <span class="text-danger">*</span></label>
-                    <select name="facing_id" class="form-control @error('facing_id') is-invalid @enderror">
-                        <option value="">Select Facing</option>
-                        @foreach ($facings as $face)
-                            <option value="{{ $face->id }}"
-                                {{ old('facing_id') == $face->id ? 'selected' : '' }}>
-                                {{ $face->facing_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                     @error('facing_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
                     <div class="col-md-4 mb-3">
                         <label>Facing <span class="text-danger">*</span></label>
                         <input type="text" name="facing" class="form-control @error('facing') is-invalid @enderror"
@@ -265,25 +202,6 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-
-
-                    {{-- <div class="col-md-3 mb-3">
-                    <label>Radius <span class="text-danger">*</span></label>
-                    <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
-                        <option value="">Select</option>
-                        @foreach ($radius as $radiusdata)
-                            <option value="{{ $radiusdata->id }}"
-                                {{ old('radius_id') == $radiusdata->id ? 'selected' : '' }}>
-                                {{ $radiusdata->radius }}
-                            </option>
-                        @endforeach
-                    </select>
-                     @error('radius_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
-
-
                     <div class="col-md-3 mb-3">
                         <label>Illumination <span class="text-danger">*</span></label>
                         <select name="illumination_id" class="form-control @error('illumination_id') is-invalid @enderror">
@@ -299,15 +217,6 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- <div class="col-md-3 mb-3">
-                    <label>Minimum Booking Days <span class="text-danger">*</span></label>
-                    <input type="number" name="minimum_booking_days"
-                           value="{{ old('minimum_booking_days',1) }}"
-                           class="form-control @error('minimum_booking_days') is-invalid @enderror">
-                            @error('minimum_booking_days')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
                     <div class="col-md-6 mb-3">
                         <label>Address <span class="text-danger">*</span></label>
                         <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="2">{{ old('address') }}</textarea>
@@ -496,33 +405,6 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- <div class="col-md-3 mb-3">
-                    <label>Vendor Name <span class="text-danger">*</span></label>
-                    <input type="text" name="vendor_name"
-                           value="{{ old('vendor_name') }}"
-                           class="form-control @error('vendor_name') is-invalid @enderror">
-                           @error('vendor_name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
-
-
-                    {{-- <div class="col-md-3 mb-3" id="radiusSection">
-    <label>Radius <span class="text-danger">*</span></label>
-    <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
-        <option value="">Select</option>
-        @foreach ($radius as $radiusdata)
-            <option value="{{ $radiusdata->id }}"
-                {{ old('radius_id') == $radiusdata->id ? 'selected' : '' }}>
-                {{ $radiusdata->radius }}
-            </option>
-        @endforeach
-    </select>
-
-    @error('radius_id')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div> --}}
                     <div class="col-md-4 mb-4">
                         <label>Images <small>(image size must be less then 1mb)</small><span
                                 class="text-danger">*</span></label>
@@ -565,41 +447,18 @@
                         ">
                         </div>
                     </div>
-                    {{-- <div class="col-md-4 mb-3">
-                        <label>360 View Link </label>
-                        <input type="text" name="video_link" value="{{ old('video_link') }}"
-                            class="form-control @error('video_link') is-invalid @enderror">
-                        @error('video_link')
+                    <div class="col-md-4 mb-3">
+                        <label>360 Image</label>
+                        <input type="file" name="panorama_image"
+                            class="form-control @error('panorama_image') is-invalid @enderror">
+
+                        @error('panorama_image')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div> --}}
-<div class="col-md-4 mb-3">
-    <label>360 Image</label>
-    <input type="file" name="panorama_image"
-           class="form-control @error('panorama_image') is-invalid @enderror">
-
-    @error('panorama_image')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
+                    </div>
 
                 </div>
                 <div class="row" id="wallWrapSection">
-                    {{-- <div class="col-md-3 mb-3">
-                    <label>Radius <span class="text-danger">*</span></label>
-                    <select name="radius_id" class="form-control @error('radius_id') is-invalid @enderror">
-                        <option value="">Select</option>
-                        @foreach ($radius as $radiusdata)
-                            <option value="{{ $radiusdata->id }}"
-                                {{ old('radius_id') == $radiusdata->id ? 'selected' : '' }}>
-                                {{ $radiusdata->radius }}
-                            </option>
-                        @endforeach
-                    </select>
-                     @error('radius_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
                     <div class="col-md-3 mb-3">
                         <label>Area (sq.ft)</label>
                         <input type="text" name="area_auto" id="area_auto" value="{{ old('area_auto') }}"
@@ -645,9 +504,9 @@
             `);
                 });
                 // 🔥 AUTO GENERATE if old values exist
-setTimeout(function () {
-    generateMediaCode();
-}, 200);
+                setTimeout(function() {
+                    generateMediaCode();
+                }, 200);
             });
 
             $('#area').on('change', function() {
@@ -739,18 +598,18 @@ setTimeout(function () {
             let selectedCategory = $('#category_id').find(':selected').data('category');
             showSection(selectedCategory);
 
-                $('#category_id').on('change', function () {
+            $('#category_id').on('change', function() {
 
-                    let categorySlug = $(this).find(':selected').data('category');
+                let categorySlug = $(this).find(':selected').data('category');
 
-                    showSection(categorySlug);
+                showSection(categorySlug);
 
-                    // Reset media code if not hoardings
-                    if (!categorySlug || !categorySlug.includes('hoardings')) {
-                        $('#media_code').val('');
-                        $('#media_code_hidden').val('');
-                    }
-                });
+                // Reset media code if not hoardings
+                if (!categorySlug || !categorySlug.includes('hoardings')) {
+                    $('#media_code').val('');
+                    $('#media_code_hidden').val('');
+                }
+            });
 
             //  FORCE OPEN SECTION IF VALIDATION ERROR EXISTS
             @if ($errors->any())
@@ -758,10 +617,6 @@ setTimeout(function () {
             @else
                 showSection(selectedCategory);
             @endif
-
-            // $('#category_id').on('change', function() {
-            //     showSection($(this).find(':selected').data('category'));
-            // });
         });
     </script>
 
@@ -781,113 +636,72 @@ setTimeout(function () {
 
             $('#width, #height').on('input', calculateArea);
             calculateArea();
+        });
+    </script>
+    <script>
+        function generateMediaCode() {
 
-            // 
+            let vendorId = $('#vendor_id').val();
+            let stateId = $('#state_id').val();
+            let cityId = $('#city_id').val();
 
-            // $('#vendor_id').on('change', function() {
+            let categorySlug = $('#category_id')
+                .find(':selected')
+                .data('category');
 
-            //     let vendorId = $(this).val();
+            // reset
+            $('#media_code').val('');
+            $('#media_code_hidden').val('');
 
-            //     if (!vendorId) {
-            //         $('#media_code').val('');
-            //         $('#media_code_hidden').val('');
-            //         return;
-            //     }
+            // REQUIRED VALUES CHECK
+            if (!vendorId || !stateId || !cityId) {
+                console.log("Missing values", {
+                    vendorId,
+                    stateId,
+                    cityId
+                });
+                return;
+            }
 
-            //     $.get("{{ url('media/next-code') }}/" + vendorId, function(res) {
+            // ONLY HOARDINGS
+            if (!(categorySlug && categorySlug.includes('hoardings'))) {
+                return;
+            }
 
-            //         $('#media_code').val(res.media_code);
-            //         $('#media_code_hidden').val(res.media_code);
+            $.get("{{ route('media.next.code') }}", {
+                vendor_id: vendorId,
+                state_id: stateId,
+                city_id: cityId
+            }, function(res) {
 
-            //     });
-            // });
+                $('#media_code').val(res.media_code);
+                $('#media_code_hidden').val(res.media_code);
 
-            // $('#vendor_id').on('change', function () {
+            }).fail(function(err) {
+                console.log("Media code error:", err.responseText);
+            });
+        }
+    </script>
+    <script>
+        $(document).ready(function() {
 
-            //     let vendorId = $(this).val();
-            //     let categorySlug = $('#category_id').find(':selected').data('category');
+            // when vendor changes
+            $('#vendor_id').on('change', generateMediaCode);
 
-            //     // reset
-            //     $('#media_code').val('');
-            //     $('#media_code_hidden').val('');
+            // when area changes (state/city update)
+            $('#area').on('change', function() {
 
-            //     // vendor not selected
-            //     if (!vendorId) return;
+                let selected = $(this).find(':selected');
 
-            //     // ONLY HOARDINGS / BILLBOARDS
-            //     if (categorySlug && categorySlug.includes('hoardings')) {
+                $('#state_id').val(selected.data('state'));
+                $('#district_id').val(selected.data('district'));
+                $('#city_id').val(selected.data('city'));
 
-            //         $.get("{{ url('media/next-code') }}/" + vendorId, function (res) {
-            //             $('#media_code').val(res.media_code);
-            //             $('#media_code_hidden').val(res.media_code);
-            //         });
-
-            //     }
-            // });
-
+                generateMediaCode(); // ⭐ CALL HERE
+            });
 
         });
     </script>
-<script>
-    function generateMediaCode() {
-
-    let vendorId = $('#vendor_id').val();
-    let stateId  = $('#state_id').val();
-    let cityId   = $('#city_id').val();
-
-    let categorySlug = $('#category_id')
-        .find(':selected')
-        .data('category');
-
-    // reset
-    $('#media_code').val('');
-    $('#media_code_hidden').val('');
-
-    // REQUIRED VALUES CHECK
-    if (!vendorId || !stateId || !cityId) {
-        console.log("Missing values", {vendorId,stateId,cityId});
-        return;
-    }
-
-    // ONLY HOARDINGS
-    if (!(categorySlug && categorySlug.includes('hoardings'))) {
-        return;
-    }
-
-   $.get("{{ route('media.next.code') }}", {
-        vendor_id: vendorId,
-        state_id: stateId,
-        city_id: cityId
-    }, function(res) {
-
-        $('#media_code').val(res.media_code);
-        $('#media_code_hidden').val(res.media_code);
-
-    }).fail(function(err){
-        console.log("Media code error:", err.responseText);
-    });
-}
-</script>
-<script>
-    $(document).ready(function () {
-
-    // when vendor changes
-    $('#vendor_id').on('change', generateMediaCode);
-
-    // when area changes (state/city update)
-    $('#area').on('change', function () {
-
-        let selected = $(this).find(':selected');
-
-        $('#state_id').val(selected.data('state'));
-        $('#district_id').val(selected.data('district'));
-        $('#city_id').val(selected.data('city'));
-
-        generateMediaCode(); // ⭐ CALL HERE
-    });
-
-});
-</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
     <script>

@@ -48,59 +48,56 @@
         </div>
     </div>
 
-    @section('scripts')
-<script>
-$(document).ready(function () {
+@section('scripts')
+    <script>
+        $(document).ready(function() {
 
-    /* ================= REGEX ================= */
-    const onlyLettersSpaceDash = /[^A-Za-z\s\-]/g;
+            /* ================= REGEX ================= */
+            const onlyLettersSpaceDash = /[^A-Za-z\s\-]/g;
 
-    /* ================= LIVE INPUT RESTRICTION ================= */
-    $('input[name="illumination_name"]').on('input', function () {
-        this.value = this.value.replace(onlyLettersSpaceDash, '');
-    });
+            /* ================= LIVE INPUT RESTRICTION ================= */
+            $('input[name="illumination_name"]').on('input', function() {
+                this.value = this.value.replace(onlyLettersSpaceDash, '');
+            });
 
-    /* ================= CLEAR ERROR (CURRENT FIELD ONLY) ================= */
-    function clearError(el) {
-        el.removeClass('is-invalid');
-        el.closest('.mb-3, .form-group')
-          .find('.invalid-feedback').remove();
-    }
+            /* ================= CLEAR ERROR (CURRENT FIELD ONLY) ================= */
+            function clearError(el) {
+                el.removeClass('is-invalid');
+                el.closest('.mb-3, .form-group')
+                    .find('.invalid-feedback').remove();
+            }
 
-    $('input[name="illumination_name"]').on('input', function () {
-        clearError($(this));
-    });
+            $('input[name="illumination_name"]').on('input', function() {
+                clearError($(this));
+            });
 
-    /* ================= FORM SUBMIT VALIDATION ================= */
-    $('form').on('submit.illuminationValidation', function (e) {
+            /* ================= FORM SUBMIT VALIDATION ================= */
+            $('form').on('submit.illuminationValidation', function(e) {
 
-        let valid = true;
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
+                let valid = true;
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
 
-        function error(el, msg) {
-            el.addClass('is-invalid');
-            el.after(`<div class="invalid-feedback">${msg}</div>`);
-            valid = false;
-        }
+                function error(el, msg) {
+                    el.addClass('is-invalid');
+                    el.after(`<div class="invalid-feedback">${msg}</div>`);
+                    valid = false;
+                }
 
-        let name = $('input[name="illumination_name"]');
+                let name = $('input[name="illumination_name"]');
 
-        if (!name.val()) {
-            error(name, 'Illumination name is required');
-        }
-        else if (name.val().length > 255) {
-            error(name, 'Illumination name must not exceed 255 characters');
-        }
-        else if (!/^[A-Za-z\s\-]+$/.test(name.val())) {
-            error(name, 'Only letters, spaces and dash (-) are allowed');
-        }
+                if (!name.val()) {
+                    error(name, 'Illumination name is required');
+                } else if (name.val().length > 255) {
+                    error(name, 'Illumination name must not exceed 255 characters');
+                } else if (!/^[A-Za-z\s\-]+$/.test(name.val())) {
+                    error(name, 'Only letters, spaces and dash (-) are allowed');
+                }
 
-        if (!valid) e.preventDefault();
-    });
+                if (!valid) e.preventDefault();
+            });
 
-});
-</script>
+        });
+    </script>
 @endsection
-
 @endsection

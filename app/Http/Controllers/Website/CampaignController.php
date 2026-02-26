@@ -96,21 +96,6 @@ class CampaignController extends Controller
             'bookedStatus' => $bookedStatus
         ]);
     }
-
-
-    // public function openCampaigns(Request $request)
-    // {
-    //     $campaigns = $this->campaignService->getOpenCampaigns(
-    //         Auth::guard('website')->id(),
-    //         $request
-    //     );
-
-    //     return view('website.campaign-list', [
-    //         'campaigns' => $campaigns,
-    //         'type'      => 'open',
-    //     ]);
-    // }
-
     // 🔵 BOOKED (Order placed)
     public function bookedCampaigns(Request $request)
     {
@@ -196,18 +181,6 @@ class CampaignController extends Controller
             dd($e->getMessage());
         }
     }
-    // public function exportExcel($campaignId)
-    // {
-    //     $campaignId = base64_decode($campaignId);
-
-    //     return Excel::download(
-    //         new CampaignExport(
-    //             Auth::guard('website')->id(),
-    //             $campaignId
-    //         ),
-    //         'campaign_items.xlsx'
-    //     );
-    // }
     public function exportExcel($campaignId)
     {
         $campaignId = base64_decode($campaignId);
@@ -453,19 +426,6 @@ class CampaignController extends Controller
 
             $details->getActiveParagraph()->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_LEFT);
-
-            // $details->createTextRun(
-            //     "SITE DETAILS\n\n" .
-            //     "Location  : {$item->common_stdiciar_name}\n" .
-            //     "Area      : {$item->area_name}\n" .
-            //     "City      : {$item->city_name}\n" .
-            //     "Size      : {$item->width} × {$item->height}\n" .
-            //     "Media type: {$item->media_type}\n" .
-            //     "Price     : ₹ " . number_format($item->price) . "\n" .
-            //     "From Date : $from\n" .
-            //     "To Date   : $to\n" .
-            //     "Lighting  : {$item->illumination_name}\n"
-            // )->getFont()->setSize(18);
             // Heading
             $details->createTextRun("SITE DETAILS\n\n")
                 ->getFont()->setBold(true)->setSize(18);

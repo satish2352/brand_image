@@ -54,26 +54,6 @@ class IlluminationService
             throw $e;
         }
     }
-    // public function store(array $data)
-    // {
-    //     DB::beginTransaction();
-    //     try {
-
-    //         if ($this->repo->existsByName($data['illumination_name'])) {
-    //             throw new Exception(
-    //                 'This illumination is already created'
-    //             );
-    //         }
-
-    //         $this->repo->store($data);
-
-    //         DB::commit();
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-    // }
-
     public function find($id)
     {
         return $this->repo->find($id);

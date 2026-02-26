@@ -21,19 +21,19 @@ class WebsiteUserController extends Controller
 		return view('superadm.website-user.website-user-list', compact('users'));
 	}
 
-	
-public function delete(Request $request)
-{
-    $id = base64_decode($request->id);
 
-    $result = $this->service->delete($id);
+	public function delete(Request $request)
+	{
+		$id = base64_decode($request->id);
 
-    if (!$result) {
-        return back()->with('error', 'This user cannot be deleted because orders exist.');
-    }
+		$result = $this->service->delete($id);
 
-    return back()->with('success', 'User deleted successfully');
-}
+		if (!$result) {
+			return back()->with('error', 'This user cannot be deleted because orders exist.');
+		}
+
+		return back()->with('success', 'User deleted successfully');
+	}
 
 	public function toggleStatus(Request $request)
 	{
@@ -59,6 +59,4 @@ public function delete(Request $request)
 
 		return response()->json($user);
 	}
-
-
 }
