@@ -26,7 +26,7 @@ $sqft = $width * $height;
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     transition: all 0.3s ease;
     margin-bottom:20px;
-    padding: 12px;
+    padding: 7px;
     overflow: hidden;
     background:#fff;
     border-radius:10px;
@@ -109,6 +109,9 @@ $sqft = $width * $height;
     overflow:hidden;
 
 }
+.mob-right-spacing{
+    padding-left: 10px;
+}
 }
 
 
@@ -143,8 +146,8 @@ $sqft = $width * $height;
 </div>
         </div>
        
-        <div class="col-lg-7 col-md-7 col-sm-7">
-        <div class="news-text-box">
+        <div class="col-lg-7 col-md-7 col-sm-7 px-0">
+        <div class="news-text-box mob-right-spacing">
             <h3 class="media-title">
                 <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
                     {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
