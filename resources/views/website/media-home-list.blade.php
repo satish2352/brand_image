@@ -19,14 +19,23 @@ $sqft = $width * $height;
     pointer-events: auto;
 }
 #media-container{
-    padding: 10px;
+    /* padding: 10px; */
+    margin: 5px;
 }
 .card-shadow{
-       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     transition: all 0.3s ease;
-   margin-bottom: 22px;
-   margin-left: 10px;
+    margin-bottom:20px;
+    padding: 12px;
+    overflow: hidden;
+    background:#fff;
+    border-radius:10px;
+}
+
+/* ⭐ IMPORTANT FIX */
+.card-shadow .row{
+    margin-left:0 !important;
+    margin-right:0 !important;
 }
 .latest-news-bg{
     width:100%;
@@ -95,8 +104,10 @@ $sqft = $width * $height;
        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 
     transition: all 0.3s ease;
-   margin-bottom: 22px;
-   margin: 10px !important;
+  margin-bottom:20px;
+    padding:12px;
+    overflow:hidden;
+
 }
 }
 
@@ -105,7 +116,8 @@ $sqft = $width * $height;
 {{-- <div class="col-lg-4 col-md-6 mb-5"> --}}
 {{-- <div class="col-12 col-md-12 mb-4"> --}}
     {{-- <div class="single-latest-news"> --}}
-          <div class="row card-shadow px-0">
+          <div class=" card-shadow">
+            <div class="row">
         <div class="col-lg-5 col-md-5 col-sm-5 px-0">
         {{-- <div class="latest-news-bg"
             style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')" class="card-img-fit">
@@ -130,6 +142,7 @@ $sqft = $width * $height;
     @endif
 </div>
         </div>
+       
         <div class="col-lg-7 col-md-7 col-sm-7">
         <div class="news-text-box">
             <h3 class="media-title">
@@ -241,6 +254,7 @@ $sqft = $width * $height;
             </div>
         </div>
         </div>
+         </div>
           </div>
     {{-- </div> --}}
 {{-- </div> --}}
