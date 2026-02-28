@@ -32,9 +32,9 @@
         }
 
         /* .cart-img-wrapper {
-                                                                                                                                                                    display: flex;
-                                                                                                                                                                    gap: 10px;
-                                                                                                                                                                } */
+                                                                                                                                                                        display: flex;
+                                                                                                                                                                        gap: 10px;
+                                                                                                                                                                    } */
 
         .cart-img-wrapper {
             display: flex;
@@ -577,7 +577,7 @@
                     <div class="col-md-8 text-md-end mt-3 mt-md-0">
 
                         <!-- <a href="{{ route('website.search.view') }}" class="btn cart-btn btn-cart-outline">
-                                Continue Booking </a> -->
+                                    Continue Booking </a> -->
                         <a href="{{ route('website.search') }}" class="btn cart-btn btn-cart-outline">
                             Continue Booking
                         </a>
@@ -588,9 +588,9 @@
                         <form action="{{ route('checkout.create') }}" method="POST" class="d-inline"
                             onsubmit="return validateCartDates();">
                             @csrf
-                            <button class="btn cart-btn cart-btn-primary ms-md-2">
+                            {{-- <button class="btn cart-btn cart-btn-primary ms-md-2">
                                 Proceed to Checkout
-                            </button>
+                            </button> --}}
                         </form>
                     </div>
                 </div>

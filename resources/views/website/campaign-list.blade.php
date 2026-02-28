@@ -221,11 +221,11 @@
                                                 method="POST">
                                                 @csrf
 
-                                                <button type="submit" class="btn btn-primary"
+                                                {{-- <button type="submit" class="btn btn-primary"
                                                     {{ $hasBookedMedia ? 'disabled' : '' }}>
 
                                                     {{ $hasBookedMedia ? 'Already Booked By Other User' : 'Place Order' }}
-                                                </button>
+                                                </button> --}}
                                             </form>
                                         </div>
                                     @elseif ($type === 'booked')
