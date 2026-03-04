@@ -762,11 +762,11 @@
                         required: true
                     },
 
-                    "images[]": {
-                        required: true,
-                        extension: "jpg|jpeg|png|webp",
-                        filesize: 1048576 // 1MB
-                    },
+                    // "images[]": {
+                    //     required: true,
+                    //     extension: "jpg|jpeg|png|webp",
+                    //     filesize: 1048576 
+                    // },
 
                     // HOARDINGS
                     media_title: {
@@ -859,10 +859,10 @@
                     area_id: "Please select an area",
                     category_id: "Please select a category",
                     vendor_id: "Please select a vendor",
-                    "images[]": {
-                        required: "Please upload at least 1 image",
-                        extension: "Only JPG, JPEG, PNG, WEBP allowed",
-                    }
+                    // "images[]": {
+                    //     required: "Please upload at least 1 image",
+                    //     extension: "Only JPG, JPEG, PNG, WEBP allowed",
+                    // }
                 },
                 errorClass: "text-danger",
                 submitHandler: function(form) {

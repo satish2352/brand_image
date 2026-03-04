@@ -25,7 +25,15 @@ class HordingBookController extends Controller
         $totalCount = $mediaData['total_count']; // integer
 
         $sizes = $this->homeService->getUniqueSizes();
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes'));
+
+        $areaRange = DB::table('media_management')
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->whereNotNull('area_auto')
+            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->first();
+
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange'));
     }
 
     public function search(Request $request)
@@ -45,12 +53,21 @@ class HordingBookController extends Controller
             'to_date',
             'area_type',
             'available_days',
-            'size_id'
+            'size_id',
+            'min_area',   // ADD THIS
+            'max_area'    // ADD THIS
         ]);
 
         $mediaData = $this->homeService->searchMedia($filters);
         $mediaList  = $mediaData['data'];         // paginator
         $totalCount = $mediaData['total_count']; // integer
+
+        $areaRange = DB::table('media_management')
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->whereNotNull('area_auto')
+            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->first();
         // 🔥 Lazy load AJAX
         if ($request->ajax()) {
             return view('superadm.admin-booking.admin-media-home-list', [
@@ -59,7 +76,7 @@ class HordingBookController extends Controller
         }
 
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes'));
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange'));
     }
     public function getMediaDetailsAdmin($mediaId)
     {

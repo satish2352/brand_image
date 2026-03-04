@@ -160,19 +160,26 @@ class HordingBookRepository
         }
 
         /* SIZE FILTER */
-        if (!empty($filters['size_id'])) {
+        // if (!empty($filters['size_id'])) {
 
-            // size comes like "32 x 23"
-            $parts = explode(' x ', $filters['size_id']);
+        //     // size comes like "32 x 23"
+        //     $parts = explode(' x ', $filters['size_id']);
 
-            if (count($parts) == 2) {
+        //     if (count($parts) == 2) {
 
-                $width  = (float) $parts[0];
-                $height = (float) $parts[1];
+        //         $width  = (float) $parts[0];
+        //         $height = (float) $parts[1];
 
-                $query->where('m.width', $width)
-                    ->where('m.height', $height);
-            }
+        //         $query->where('m.width', $width)
+        //             ->where('m.height', $height);
+        //     }
+        // }
+        if (!empty($filters['min_area']) || !empty($filters['max_area'])) {
+
+            $min = $filters['min_area'] ?? 0;
+            $max = $filters['max_area'] ?? 999999999;
+
+            $query->whereBetween('m.area_auto', [$min, $max]);
         }
         /* ================= AVAILABLE DAYS FILTER ================= */
         // if (!empty($filters['available_days'])) {

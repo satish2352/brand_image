@@ -87,22 +87,50 @@ class HomeController extends Controller
         // die();
         $sizes = $this->homeService->getUniqueSizes();
 
-        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'sizes'));
+        $areaRange = DB::table('media_management')
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->first();
+
+
+        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'sizes',  'areaRange'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
     {
         //  IF CLEAR BUTTON CLICKED
+        // if ($request->filled('clear')) {
+        //     session()->forget('search_filters');   // ⭐ IMPORTANT
+
+        //     $filters = [];
+        //     $mediaList = $this->homeService->searchMedia($filters);
+        //     // ADD THIS
+        //     $sizes = $this->homeService->getUniqueSizes();
+        //     return view('website.search', compact('mediaList', 'filters', 'sizes'));
+        // }
         if ($request->filled('clear')) {
-            session()->forget('search_filters');   // ⭐ IMPORTANT
+
+            session()->forget('search_filters');
 
             $filters = [];
             $mediaList = $this->homeService->searchMedia($filters);
-            // ADD THIS
             $sizes = $this->homeService->getUniqueSizes();
-            return view('website.search', compact('mediaList', 'filters', 'sizes'));
-        }
 
+            $areaRange = DB::table('media_management')
+                ->where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->whereNotNull('area_auto')
+                ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+                ->first();
+
+            return view('website.search', compact(
+                'mediaList',
+                'filters',
+                'sizes',
+                'areaRange'
+            ));
+        }
         $sizes = $this->homeService->getUniqueSizes();
         $filters = $request->only([
             'category_id',
@@ -117,9 +145,11 @@ class HomeController extends Controller
             'available_days',
             'min_price',   // <- add
             'max_price',   // <- add
-            'size_id'   //  FIXED
+            'size_id',   //  FIXED
+            'min_area',   //  add
+            'max_area'    //  add
         ]);
-        // ⭐ SAVE FILTERS IN SESSION
+        //  SAVE FILTERS IN SESSION
         session(['search_filters' => $filters]);
         $mediaList = $this->homeService->searchMedia($filters);
 
@@ -128,8 +158,16 @@ class HomeController extends Controller
             return view('website.media-home-list', compact('mediaList'))->render();
         }
 
+        $areaRange = DB::table('media_management')
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->whereNotNull('area_auto')
+            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->first();
+
+
         // IMPORTANT — return the view (NO redirect)
-        return view('website.search', compact('mediaList', 'filters', 'sizes'));
+        return view('website.search', compact('mediaList', 'filters', 'sizes', 'areaRange'));
     }
     public function searchView()
     {

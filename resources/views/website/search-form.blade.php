@@ -98,6 +98,43 @@
         border-radius: 3px;
         z-index: 2;
     }
+
+    /* FIX MEDIA SIZE RANGE */
+    .range-slider-container {
+        position: relative;
+        width: 100%;
+        height: 30px;
+    }
+
+    .range-slider-container input[type=range] {
+        position: absolute;
+        width: 100%;
+        height: 6px;
+        top: 10px;
+        background: none;
+        pointer-events: none;
+    }
+
+    .range-slider-container input[type=range]::-webkit-slider-runnable-track {
+        height: 6px;
+        background: #d7d7d7;
+        border-radius: 5px;
+    }
+
+    .range-slider-container input[type=range]::-webkit-slider-thumb {
+        pointer-events: auto;
+        position: relative;
+        z-index: 3;
+    }
+
+    .range-slider-fill {
+        position: absolute;
+        height: 6px;
+        background: #f28123;
+        top: 10px;
+        border-radius: 5px;
+        z-index: 2;
+    }
 </style>
 <div class="container-fluid mt-5 mb-5">
     <h3 class="text-center orange-text">Discover Media Spaces Near You</h3>
@@ -224,8 +261,42 @@
                         </option>
                     </select>
                 </div>
+                <div class="col-lg-2 col-md-4 col-sm-6">
 
-                <div class="col-lg-2 col-md-4 col-sm-6" id="size_wrapper">
+                    <label class="form-label">Media Size (sq.ft)</label>
+
+                    <div class="d-flex justify-content-between">
+                        <span id="minAreaLabel">
+                            {{ number_format($filters['min_area'] ?? $areaRange->min_area) }} sqft
+                        </span>
+
+                        <span id="maxAreaLabel">
+                            {{ number_format($filters['max_area'] ?? $areaRange->max_area) }} sqft
+                        </span>
+                    </div>
+
+                    <div class="range-slider-container">
+
+                        <input type="hidden" name="min_area" id="min_area"
+                            value="{{ $filters['min_area'] ?? $areaRange->min_area }}">
+
+                        <input type="hidden" name="max_area" id="max_area"
+                            value="{{ $filters['max_area'] ?? $areaRange->max_area }}">
+
+                        <div class="range-slider-fill" id="areaRangeFill"></div>
+
+                        <input type="range" id="minAreaRange" min="{{ $areaRange->min_area }}"
+                            max="{{ $areaRange->max_area }}" step="1"
+                            value="{{ $filters['min_area'] ?? $areaRange->min_area }}">
+
+                        <input type="range" id="maxAreaRange" min="{{ $areaRange->min_area }}"
+                            max="{{ $areaRange->max_area }}" step="1"
+                            value="{{ $filters['max_area'] ?? $areaRange->max_area }}">
+
+                    </div>
+
+                </div>
+                {{-- <div class="col-lg-2 col-md-4 col-sm-6" id="size_wrapper">
                     <label class="form-label">Media Size</label>
 
                     <select name="size_id" class="form-select">
@@ -238,9 +309,10 @@
                             </option>
                         @endforeach
                     </select>
-                </div>
+                </div> --}}
 
                 <div class="col-lg-2 col-md-4 col-sm-6" id="days_wrapper">
+                    <label class="form-label">Budget</label>
 
                     <!-- Budget Slider -->
                     <div class="d-flex justify-content-between">
@@ -318,6 +390,52 @@
     const selectedDistrict = "{{ $filters['district_id'] ?? '' }}";
     const selectedCity = "{{ $filters['city_id'] ?? '' }}";
     const selectedArea = "{{ $filters['area_id'] ?? '' }}";
+</script>
+<script>
+    $(document).ready(function() {
+
+        let minSlider = $("#minAreaRange");
+        let maxSlider = $("#maxAreaRange");
+        let fill = $("#areaRangeFill");
+
+        let minLabel = $("#minAreaLabel");
+        let maxLabel = $("#maxAreaLabel");
+
+        let minLimit = Number(minSlider.attr("min"));
+        let maxLimit = Number(maxSlider.attr("max"));
+
+        function updateAreaSlider() {
+
+            let minVal = parseInt(minSlider.val());
+            let maxVal = parseInt(maxSlider.val());
+
+            if (minVal > maxVal - 1) {
+                minVal = maxVal - 1;
+                minSlider.val(minVal);
+            }
+
+            // correct percent calculation
+            let minPercent = ((minVal - minLimit) / (maxLimit - minLimit)) * 100;
+            let maxPercent = ((maxVal - minLimit) / (maxLimit - minLimit)) * 100;
+
+            fill.css({
+                left: minPercent + "%",
+                width: (maxPercent - minPercent) + "%"
+            });
+
+            minLabel.text(minVal + " sqft");
+            maxLabel.text(maxVal + " sqft");
+
+            $("#min_area").val(minVal);
+            $("#max_area").val(maxVal);
+        }
+
+        updateAreaSlider();
+
+        minSlider.on("input change", updateAreaSlider);
+        maxSlider.on("input change", updateAreaSlider);
+
+    });
 </script>
 <script>
     $(document).ready(function() {

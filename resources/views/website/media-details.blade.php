@@ -170,9 +170,9 @@
 
         .media-main img {
             width: 100%;
-            height: 420px;
+            /* height: 420px; */
             /* object-fit: cover; */
-            object-fit: inherit;
+            object-fit: contain !important;
             transition: transform 0.35s ease;
         }
 
@@ -291,12 +291,12 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                                                                                                                                       </div> -->
+                                                                                                                                                                               </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-80">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-7">
+                    <div class="col-lg-6">
                         <div class="card shadow-sm border-0 p-3">
                             {{-- MAIN IMAGE --}}
                             @php
@@ -322,7 +322,7 @@
 
                         </div>
                     </div>
-                    <div class="col-lg-5">
+                    <div class="col-lg-6">
                         <div class="card shadow-sm border-0 p-4">
 
                             <h3 class="fw-bold mb-2 detail-title">{{ $media->area_name }} {{ $media->facing }}</h3>

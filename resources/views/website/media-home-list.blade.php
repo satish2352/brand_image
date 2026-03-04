@@ -19,11 +19,15 @@
             margin: 5px;
         }
 
+        .news-text-box h3 {
+            margin: 0 0 10 0;
+        }
+
         .card-shadow {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
             transition: all 0.3s ease;
-            margin-bottom: 20px;
-            padding: 7px;
+            margin-bottom: 15px;
+            padding: 10px;
             overflow: hidden;
             background: #fff;
             border-radius: 10px;
@@ -35,11 +39,16 @@
             margin-right: 0 !important;
         }
 
-        .latest-news-bg {
+        /* .latest-news-bg {
             width: 100%;
             height: 220px;
-            /* control image height */
             position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+        } */
+        .latest-news-bg {
+            width: 100%;
+            /* height: 180px; */
             overflow: hidden;
             border-radius: 8px;
         }
@@ -47,8 +56,14 @@
         .media-img {
             width: 100%;
             height: 100%;
-
             object-fit: cover;
+        }
+
+        .media-img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: contain !important;
             /* ⭐ fills area perfectly */
             object-position: center;
         }
@@ -83,7 +98,7 @@
             border: none !important;
             color: #fff !important;
             border-radius: 30px;
-            padding: 8px 18px;
+            padding: 5px 9px;
             font-weight: 600;
             transition: 0.3s;
         }
@@ -94,7 +109,7 @@
         }
 
         .card-actions {
-            padding-top: 22px;
+            padding-top: 1px;
         }
 
         .media-title a {
@@ -112,7 +127,7 @@
 
                 transition: all 0.3s ease;
                 margin-bottom: 20px;
-                padding: 12px;
+                padding: 7px;
                 overflow: hidden;
 
             }
@@ -148,7 +163,7 @@
                         </a>
                     </h3>
 
-                    <div class="col-12 mb-2 d-flex">
+                    <div class="col-12 mb-1 d-flex">
                         <strong>Size : </strong>
                         {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
                         &nbsp;&nbsp;&nbsp;<strong>Area : </strong>
@@ -160,7 +175,7 @@
                     <div class="media-price">
                         ₹ {{ number_format($media->price, 2) }}
                     </div>
-                    <div class="media-map my-2 d-flex align-items-center justify-content-between gap-3">
+                    <div class="media-map my-1  d-flex align-items-center justify-content-between gap-3">
 
                         {{-- View on Map --}}
                         <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}"

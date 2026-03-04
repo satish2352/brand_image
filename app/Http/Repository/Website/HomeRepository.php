@@ -235,8 +235,17 @@ END AS is_available_days
         if (isset($filters['max_price']) && $filters['max_price'] !== '') {
             $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
         }
+        if (!empty($filters['min_area']) || !empty($filters['max_area'])) {
 
+            $min = $filters['min_area'] ?? 0;
+            $max = $filters['max_area'] ?? 999999999;
 
+            $query->whereBetween('m.area_auto', [$min, $max]);
+        }
+        Log::info('AREA FILTER', [
+            'min_area' => $filters['min_area'] ?? null,
+            'max_area' => $filters['max_area'] ?? null
+        ]);
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
         $results = $query
             ->orderBy('m.id', 'DESC')

@@ -161,7 +161,8 @@ class MediaManagementService
                 'longitude',
                 'minimum_booking_days',
                 'price',
-                'vendor_id'
+                'vendor_id',
+                'area_auto'
             ]);
 
             // MEDIA CODE

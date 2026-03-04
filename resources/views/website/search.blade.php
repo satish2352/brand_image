@@ -14,7 +14,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 20px 20px 0px 20px;
+            padding: 10px 10px 0px 10px;
         }
 
         .news-text-box h3 {
@@ -30,7 +30,7 @@
         }
 
         .media-price {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: #f28123;
             /* margin: 6px 0 10px; */

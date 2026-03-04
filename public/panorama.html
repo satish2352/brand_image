@@ -40,35 +40,30 @@
         else {
 
             pannellum.viewer('panorama', {
-
                 type: "equirectangular",
                 panorama: img,
-
                 autoLoad: true,
 
-                // ⭐ VERY IMPORTANT (WIDE CAMERA)
-                hfov: 135,     // bigger = more background
+                // Better camera settings
+                hfov: 100,
+                minHfov: 50,
+                maxHfov: 120,
 
-                // ⭐ CAMERA POSITION (MATCH SIVARAA)
-                pitch: -5,
+                pitch: 0,
                 yaw: 0,
-
-                // ❌ REMOVE THESE COMPLETELY
-                // minHfov
-                // maxHfov
-
-                // Smooth movement
-                friction: 0.15,
 
                 autoRotate: 1,
                 autoRotateInactivityDelay: 3000,
 
                 mouseZoom: true,
-                showControls: true,
                 draggable: true,
+                showControls: true,
 
-                backgroundColor: [0, 0, 0]
+                // Improve quality rendering
+                compass: false,
+                friction: 0.1
             });
+
         }
 
     </script>

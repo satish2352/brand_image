@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                        display: none;
-                                    } */
+                                                                    display: none;
+                                                                } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -340,8 +340,10 @@
                 <div class="row" id="wallWrap">
                     <div class="col-md-3 mb-3">
                         <label>Area (sq.ft) <span class="text-danger">*</span></label>
-                        <input type="text" name="area_auto" value="{{ old('area_auto', $media->area_auto) }}"
-                            class="form-control" readonly>
+                        {{-- <input type="text" id="area_auto" name="area_auto"
+                            value="{{ old('area_auto', $media->area_auto) }}" class="form-control" readonly> --}}
+                        <input type="text" id="area_auto" name="area_auto"
+                            value="{{ old('area_auto', $media->area_auto) }}" class="form-control" readonly>
                     </div>
                 </div>
 
@@ -406,13 +408,34 @@
         $(document).ready(function() {
 
             function calculateArea() {
+
                 let width = parseFloat($('#width').val()) || 0;
                 let height = parseFloat($('#height').val()) || 0;
 
                 if (width > 0 && height > 0) {
-                    $('input[name="area_auto"]').val((width * height).toFixed(2));
+
+                    let area = (width * height).toFixed(2);
+
+                    $('#area_auto').val(area);
+
+                } else {
+                    $('#area_auto').val('');
                 }
             }
+
+            $('#width, #height').on('input', function() {
+
+                calculateArea();
+
+            });
+
+            // run on page load
+            calculateArea();
+
+
+
+
+
 
             $('#width, #height').on('input', calculateArea);
             calculateArea(); // run on load

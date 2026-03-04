@@ -16,6 +16,64 @@
         display: block !important;
         visibility: visible !important;
     }
+
+    .range-slider-container {
+        position: relative;
+        width: 100%;
+        height: 35px;
+    }
+
+    /* grey background track */
+    .range-slider-container::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 6px;
+        background: #dcdcdc;
+        top: 14px;
+        border-radius: 5px;
+    }
+
+    /* blue selected range */
+    .range-slider-fill {
+        position: absolute;
+        height: 6px;
+        background: #0d6efd;
+        top: 14px;
+        border-radius: 5px;
+        z-index: 1;
+    }
+
+    /* slider inputs */
+    .range-slider-container input[type="range"] {
+        position: absolute;
+        width: 100%;
+        background: none;
+        pointer-events: none;
+        appearance: none;
+        height: 35px;
+        z-index: 2;
+    }
+
+    /* slider circle */
+    .range-slider-container input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        pointer-events: auto;
+        width: 16px;
+        height: 16px;
+        background: #0d6efd;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .range-slider-container input[type="range"]::-moz-range-thumb {
+        pointer-events: auto;
+        width: 16px;
+        height: 16px;
+        background: #0d6efd;
+        border-radius: 50%;
+        cursor: pointer;
+    }
 </style>
 <div class="card shadow-sm mb-4">
     <div class="card-body">
@@ -101,8 +159,42 @@
                         </option>
                     </select>
                 </div>
-
                 <div class="col-xl-2 col-lg-3 col-md-6">
+
+                    <label class="form-label">Media Size (sq.ft)</label>
+
+                    <div class="d-flex justify-content-between">
+                        <span id="minAreaLabel">
+                            {{ $filters['min_area'] ?? $areaRange->min_area }} sqft
+                        </span>
+
+                        <span id="maxAreaLabel">
+                            {{ $filters['max_area'] ?? $areaRange->max_area }} sqft
+                        </span>
+                    </div>
+
+                    <div class="range-slider-container">
+
+                        <input type="hidden" name="min_area" id="min_area"
+                            value="{{ $filters['min_area'] ?? $areaRange->min_area }}">
+
+                        <input type="hidden" name="max_area" id="max_area"
+                            value="{{ $filters['max_area'] ?? $areaRange->max_area }}">
+
+                        <div class="range-slider-fill" id="areaRangeFill"></div>
+
+                        <input type="range" id="minAreaRange" min="{{ $areaRange->min_area }}"
+                            max="{{ $areaRange->max_area }}"
+                            value="{{ $filters['min_area'] ?? $areaRange->min_area }}">
+
+                        <input type="range" id="maxAreaRange" min="{{ $areaRange->min_area }}"
+                            max="{{ $areaRange->max_area }}"
+                            value="{{ $filters['max_area'] ?? $areaRange->max_area }}">
+
+                    </div>
+
+                </div>
+                {{-- <div class="col-xl-2 col-lg-3 col-md-6">
                     <label class="form-label">Media Size</label>
 
                     <select name="size_id" class="form-select form-control">
@@ -115,7 +207,7 @@
                             </option>
                         @endforeach
                     </select>
-                </div>
+                </div> --}}
 
                 <div class="col-xl-3 col-lg-3 col-md-6">
                     <label class="form-label">Available Days</label>
@@ -145,7 +237,8 @@
 
                 <div class="col-xl-3 col-lg-3 col-md-6">
                     <label class="form-label">To Date</label>
-                    <input type="date" name="to_date" class="form-control" value="{{ $filters['to_date'] ?? '' }}">
+                    <input type="date" name="to_date" class="form-control"
+                        value="{{ $filters['to_date'] ?? '' }}">
                 </div>
                 <div class="col-xl-2 col-lg-2 col-md-6">
                     @if (isset($totalCount))
@@ -364,6 +457,51 @@
 
         // 🔁 On page load (important for search reload)
         toggleRadius();
+
+    });
+</script>
+<script>
+    $(document).ready(function() {
+
+        let minSlider = $("#minAreaRange");
+        let maxSlider = $("#maxAreaRange");
+
+        let minLabel = $("#minAreaLabel");
+        let maxLabel = $("#maxAreaLabel");
+
+        function updateAreaSlider() {
+
+            let minVal = parseInt(minSlider.val());
+            let maxVal = parseInt(maxSlider.val());
+
+            if (minVal >= maxVal) {
+                minVal = maxVal - 1;
+                minSlider.val(minVal);
+            }
+
+            minLabel.text(minVal + " sqft");
+            maxLabel.text(maxVal + " sqft");
+
+            $("#min_area").val(minVal);
+            $("#max_area").val(maxVal);
+
+            let min = parseInt(minSlider.attr("min"));
+            let max = parseInt(minSlider.attr("max"));
+
+            let percent1 = ((minVal - min) / (max - min)) * 100;
+            let percent2 = ((maxVal - min) / (max - min)) * 100;
+
+            $("#areaRangeFill").css({
+                left: percent1 + "%",
+                width: (percent2 - percent1) + "%"
+            });
+
+        }
+
+        updateAreaSlider();
+
+        minSlider.on("input", updateAreaSlider);
+        maxSlider.on("input", updateAreaSlider);
 
     });
 </script>
