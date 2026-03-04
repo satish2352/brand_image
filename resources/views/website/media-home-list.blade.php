@@ -169,9 +169,10 @@
                             <span>View on Map</span>
                         </a>
                         @if (!empty($media->panorama_image))
-                            <a href="{{ url('./panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image)) }}"
+                            {{-- <a href="{{ asset('panorama.html') }}?img={{ urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image) }}"
+                                target="_blank" class="text-muted d-inline-flex align-items-center gap-1"> --}}
+                            <a href="{{ url('public/panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image)) }}"
                                 target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
-
                                 <img src="{{ asset('assets/img/360view.png') }}" width="30">
                                 <span>360° View</span>
 
