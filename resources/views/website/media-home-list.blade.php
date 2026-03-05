@@ -48,6 +48,7 @@
         } */
         .latest-news-bg {
             width: 100%;
+            height: 193px;
             /* height: 180px; */
             overflow: hidden;
             border-radius: 8px;
@@ -138,7 +139,7 @@
         }
     </style>
 
-    <div class=" card-shadow">
+    <div class=" card-shadow" style="height: 215px;">
         <div class="row">
             <div class="col-lg-5 col-md-5 col-sm-5 px-0">
 
