@@ -4,6 +4,10 @@
 
 @section('content')
     <style>
+        .leaflet-popup-content {
+            width: 200px !important;
+        }
+
         .single-latest-news {
             height: 100%;
             display: flex;
@@ -188,15 +192,15 @@
                 .bindPopup(`
     <div style="text-align:center;">
         <img src="{{ config('fileConstants.IMAGE_VIEW') . $m->first_image }}" 
-             style="width:100%;max-width:150px;border-radius:6px;margin-bottom:5px;">
+             style="width:100%;max-width:500px;border-radius:6px;margin-bottom:5px;">
 
         <a href="{{ route('website.media-details', base64_encode($m->id)) }}" 
-           style="font-weight:bold; text-decoration:none; color:#007bff;"
+           style="font-weight:bold; text-decoration:none; color:#007bff;font-size: 15px;"
           >
-            {{ $m->media_title }}
+            {{ $m->area_name ?? $m->category_name }} {{ $m->facing }}
         </a><br>
 
-        <span style="color:#555;">{{ $m->area_name }}</span>
+
     </div>
 `);
         @endforeach
