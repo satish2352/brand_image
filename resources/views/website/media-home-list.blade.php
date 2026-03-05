@@ -139,7 +139,7 @@
         }
     </style>
 
-    <div class=" card-shadow" style="height: 215px;">
+    <div class=" card-shadow">
         <div class="row">
             <div class="col-lg-5 col-md-5 col-sm-5 px-0">
 
