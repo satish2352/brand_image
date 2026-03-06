@@ -57,15 +57,8 @@
         .media-img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-        }
-
-        .media-img {
-            width: 100%;
-            height: 100%;
-
-            object-fit: contain !important;
-            /* ⭐ fills area perfectly */
+            object-fit: cover !important;
+            /* object-fit: contain !important; */
             object-position: center;
         }
 
