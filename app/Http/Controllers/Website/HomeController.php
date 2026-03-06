@@ -90,7 +90,10 @@ class HomeController extends Controller
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
             ->where('is_active', 1)
-            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->selectRaw('
+        CAST(MIN(width * height) AS UNSIGNED) as min_area,
+        CAST(MAX(width * height) AS UNSIGNED) as max_area
+    ')
             ->first();
 
 
@@ -120,8 +123,10 @@ class HomeController extends Controller
             $areaRange = DB::table('media_management')
                 ->where('is_deleted', 0)
                 ->where('is_active', 1)
-                ->whereNotNull('area_auto')
-                ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+                ->selectRaw('
+        CAST(MIN(width * height) AS UNSIGNED) as min_area,
+        CAST(MAX(width * height) AS UNSIGNED) as max_area
+    ')
                 ->first();
 
             return view('website.search', compact(
@@ -161,8 +166,10 @@ class HomeController extends Controller
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
             ->where('is_active', 1)
-            ->whereNotNull('area_auto')
-            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->selectRaw('
+        CAST(MIN(width * height) AS UNSIGNED) as min_area,
+        CAST(MAX(width * height) AS UNSIGNED) as max_area
+    ')
             ->first();
 
 
@@ -198,8 +205,10 @@ class HomeController extends Controller
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
             ->where('is_active', 1)
-            ->whereNotNull('area_auto')
-            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->selectRaw('
+        CAST(MIN(width * height) AS UNSIGNED) as min_area,
+        CAST(MAX(width * height) AS UNSIGNED) as max_area
+    ')
             ->first();
 
         return view('website.search', compact('mediaList', 'filters', 'sizes', 'areaRange'));
