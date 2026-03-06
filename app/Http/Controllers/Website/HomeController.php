@@ -169,21 +169,41 @@ class HomeController extends Controller
         // IMPORTANT — return the view (NO redirect)
         return view('website.search', compact('mediaList', 'filters', 'sizes', 'areaRange'));
     }
+    // public function searchView()
+    // {
+    //     // $filters = [];
+    //     if (!session()->has('search_filters')) {
+    //         $filters = [];
+    //     } else {
+    //         $filters = session('search_filters');
+    //     }
+
+
+    //     $mediaList = $this->homeService->searchMedia($filters);
+
+    //     return view('website.search', compact('mediaList', 'filters', 'size'));
+    // }
     public function searchView()
     {
-        // $filters = [];
         if (!session()->has('search_filters')) {
             $filters = [];
         } else {
             $filters = session('search_filters');
         }
 
-
         $mediaList = $this->homeService->searchMedia($filters);
 
-        return view('website.search', compact('mediaList', 'filters', 'size'));
-    }
+        $sizes = $this->homeService->getUniqueSizes();
 
+        $areaRange = DB::table('media_management')
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->whereNotNull('area_auto')
+            ->selectRaw('MIN(area_auto) as min_area, MAX(area_auto) as max_area')
+            ->first();
+
+        return view('website.search', compact('mediaList', 'filters', 'sizes', 'areaRange'));
+    }
     public function getMediaDetails($mediaId)
     {
         try {
