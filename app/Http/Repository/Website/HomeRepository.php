@@ -153,7 +153,8 @@ class HomeRepository
                     ->where('m.height', $height);
             }
         }
-        if (isset($filters['available_days']) && $filters['available_days'] !== '') {
+        // if (isset($filters['available_days']) && $filters['available_days'] !== '') {
+        if (isset($filters['available_days']) && $filters['available_days'] > 0) {
 
             $days = (int) $filters['available_days'];
             $today = now()->toDateString();
