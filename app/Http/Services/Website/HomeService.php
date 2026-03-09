@@ -21,6 +21,8 @@ class HomeService
 
         $data_output =  $this->repo->searchMedia($filters);
 
+        // dd($data_output);
+        // die();
         return  $data_output;
     }
     public function getUniqueSizes()

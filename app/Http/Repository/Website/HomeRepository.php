@@ -235,12 +235,19 @@ END AS is_available_days
         if (isset($filters['max_price']) && $filters['max_price'] !== '') {
             $query->whereRaw('CAST(m.price AS UNSIGNED) <= ?', [(int)$filters['max_price']]);
         }
-        if (!empty($filters['min_area']) || !empty($filters['max_area'])) {
+        // if (!empty($filters['min_area']) || !empty($filters['max_area'])) {
 
-            $min = $filters['min_area'] ?? 0;
-            $max = $filters['max_area'] ?? 999999999;
+        //     $min = $filters['min_area'] ?? 0;
+        //     $max = $filters['max_area'] ?? 999999999;
 
-            $query->whereBetween('m.area_auto', [$min, $max]);
+        //     $query->whereBetween('m.area_auto', [$min, $max]);
+        // }
+        if (isset($filters['min_area']) && $filters['min_area'] !== '') {
+            $query->where('m.area_auto', '>=', $filters['min_area']);
+        }
+
+        if (isset($filters['max_area']) && $filters['max_area'] !== '') {
+            $query->where('m.area_auto', '<=', $filters['max_area']);
         }
         Log::info('AREA FILTER', [
             'min_area' => $filters['min_area'] ?? null,
