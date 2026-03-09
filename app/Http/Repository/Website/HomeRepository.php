@@ -244,12 +244,19 @@ END AS is_available_days
         //     $query->whereBetween('m.area_auto', [$min, $max]);
         // }
         if (isset($filters['min_area']) && $filters['min_area'] !== '') {
-            $query->where('m.area_auto', '>=', $filters['min_area']);
+            $query->whereRaw('(m.width * m.height) >= ?', [$filters['min_area']]);
         }
 
         if (isset($filters['max_area']) && $filters['max_area'] !== '') {
-            $query->where('m.area_auto', '<=', $filters['max_area']);
+            $query->whereRaw('(m.width * m.height) <= ?', [$filters['max_area']]);
         }
+        // if (isset($filters['min_area']) && $filters['min_area'] !== '') {
+        //     $query->where('m.area_auto', '>=', $filters['min_area']);
+        // }
+
+        // if (isset($filters['max_area']) && $filters['max_area'] !== '') {
+        //     $query->where('m.area_auto', '<=', $filters['max_area']);
+        // }
         Log::info('AREA FILTER', [
             'min_area' => $filters['min_area'] ?? null,
             'max_area' => $filters['max_area'] ?? null
