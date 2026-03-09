@@ -85,7 +85,7 @@ class HomeController extends Controller
 
         // dd($billboards);
         // die();
-        $sizes = $this->homeService->getUniqueSizes();
+        // $sizes = $this->homeService->getUniqueSizes();
 
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
@@ -97,7 +97,7 @@ class HomeController extends Controller
             ->first();
 
 
-        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'sizes',  'areaRange'));
+        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'areaRange'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
@@ -118,7 +118,7 @@ class HomeController extends Controller
 
             $filters = [];
             $mediaList = $this->homeService->searchMedia($filters);
-            $sizes = $this->homeService->getUniqueSizes();
+            // $sizes = $this->homeService->getUniqueSizes();
 
             $areaRange = DB::table('media_management')
                 ->where('is_deleted', 0)
@@ -132,11 +132,10 @@ class HomeController extends Controller
             return view('website.search', compact(
                 'mediaList',
                 'filters',
-                'sizes',
                 'areaRange'
             ));
         }
-        $sizes = $this->homeService->getUniqueSizes();
+        // $sizes = $this->homeService->getUniqueSizes();
         $filters = $request->only([
             'category_id',
             'state_id',
@@ -174,7 +173,7 @@ class HomeController extends Controller
 
 
         // IMPORTANT — return the view (NO redirect)
-        return view('website.search', compact('mediaList', 'filters', 'sizes', 'areaRange'));
+        return view('website.search', compact('mediaList', 'filters',  'areaRange'));
     }
     // public function searchView()
     // {
@@ -200,7 +199,7 @@ class HomeController extends Controller
 
         $mediaList = $this->homeService->searchMedia($filters);
 
-        $sizes = $this->homeService->getUniqueSizes();
+        // $sizes = $this->homeService->getUniqueSizes();
 
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
@@ -211,7 +210,7 @@ class HomeController extends Controller
     ')
             ->first();
 
-        return view('website.search', compact('mediaList', 'filters', 'sizes', 'areaRange'));
+        return view('website.search', compact('mediaList', 'filters',  'areaRange'));
     }
     public function getMediaDetails($mediaId)
     {

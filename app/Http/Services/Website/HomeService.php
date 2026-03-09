@@ -25,10 +25,10 @@ class HomeService
         // die();
         return  $data_output;
     }
-    public function getUniqueSizes()
-    {
-        return $this->repo->getUniqueSizes();
-    }
+    // public function getUniqueSizes()
+    // {
+    //     return $this->repo->getUniqueSizes();
+    // }
     public function getMediaDetails($mediaId)
     {
         try {

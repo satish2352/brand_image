@@ -243,20 +243,17 @@ END AS is_available_days
 
         //     $query->whereBetween('m.area_auto', [$min, $max]);
         // }
-        if (isset($filters['min_area']) && $filters['min_area'] !== '') {
-            $query->whereRaw('(m.width * m.height) >= ?', [$filters['min_area']]);
-        }
-
-        if (isset($filters['max_area']) && $filters['max_area'] !== '') {
-            $query->whereRaw('(m.width * m.height) <= ?', [$filters['max_area']]);
-        }
         // if (isset($filters['min_area']) && $filters['min_area'] !== '') {
-        //     $query->where('m.area_auto', '>=', $filters['min_area']);
+        //     $query->whereRaw('(m.width * m.height) >= ?', [$filters['min_area']]);
         // }
 
-        // if (isset($filters['max_area']) && $filters['max_area'] !== '') {
-        //     $query->where('m.area_auto', '<=', $filters['max_area']);
-        // }
+        if (!empty($filters['min_area'])) {
+            $query->where('m.area_auto', '>=', (float)$filters['min_area']);
+        }
+
+        if (!empty($filters['max_area'])) {
+            $query->where('m.area_auto', '<=', (float)$filters['max_area']);
+        }
         Log::info('AREA FILTER', [
             'min_area' => $filters['min_area'] ?? null,
             'max_area' => $filters['max_area'] ?? null
@@ -270,30 +267,30 @@ END AS is_available_days
     }
 
 
-    public function getUniqueSizes()
-    {
-        return DB::table('media_management')
-            ->where('is_deleted', 0)
-            ->where('is_active', 1)
-            ->whereNotNull('width')
-            ->whereNotNull('height')
-            ->select(
-                DB::raw('MIN(id) as id'),   // key
-                'width',
-                'height'
-            )
-            ->groupBy('width', 'height')   // ⭐ remove duplicates
-            ->orderBy('width')
-            ->get()
-            ->mapWithKeys(function ($item) {
+    // public function getUniqueSizes()
+    // {
+    //     return DB::table('media_management')
+    //         ->where('is_deleted', 0)
+    //         ->where('is_active', 1)
+    //         ->whereNotNull('width')
+    //         ->whereNotNull('height')
+    //         ->select(
+    //             DB::raw('MIN(id) as id'),   // key
+    //             'width',
+    //             'height'
+    //         )
+    //         // ->groupBy('width', 'height')   //  remove duplicates
+    //         ->orderBy('width')
+    //         ->get()
+    //         ->mapWithKeys(function ($item) {
 
-                $size = (float)$item->width . ' x ' . (float)$item->height;
+    //             $size = (float)$item->width . ' x ' . (float)$item->height;
 
-                return [
-                    $item->id => $size   // key => value
-                ];
-            });
-    }
+    //             return [
+    //                 $item->id => $size   // key => value
+    //             ];
+    //         });
+    // }
     public function getMediaDetails($mediaId)
     {
         $media = DB::table('media_management as m')
