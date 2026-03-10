@@ -360,11 +360,16 @@
                         @php $catName = $mediaList->first()->category_name ?? ''; @endphp
 
                         <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
-                            @if ($mediaList->total() > 0)
+                            {{-- @if ($mediaList->total() > 0)
                                 <div class="result-badge">
                                     <span class="icon">📍</span>
                                     <span class="count">{{ $mediaList->total() }} Results</span>
-                                    {{-- <span class="label">for {{ $catName }}</span> --}}
+                                </div>
+                            @else --}}
+                            @if ($mediaList->count() > 0)
+                                <div class="result-badge">
+                                    <span class="icon">📍</span>
+                                    <span class="count">{{ $mediaList->count() }} Results</span>
                                 </div>
                             @else
                                 <div class="result-badge no-result">
