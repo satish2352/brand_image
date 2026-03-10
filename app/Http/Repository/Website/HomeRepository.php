@@ -264,13 +264,9 @@ END AS is_available_days
             'max_area' => $filters['max_area'] ?? null
         ]);
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
-        $results = DB::query()
-            ->fromSub($query, 'media')
-            ->orderBy('id', 'DESC')
+        $results = $query
+            ->orderBy('m.id', 'DESC')
             ->paginate(config('fileConstants.PAGINATION'));
-        // $results = $query
-        //     ->orderBy('m.id', 'DESC')
-        //     ->paginate(config('fileConstants.PAGINATION'));
 
         return $results;
     }
