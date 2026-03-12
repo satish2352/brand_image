@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                                                    display: none;
-                                                                } */
+                                                                        display: none;
+                                                                    } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -133,6 +133,10 @@
 
                             <option value="urban" {{ old('area_type', $media->area_type) == 'urban' ? 'selected' : '' }}>
                                 Urban
+                            </option>
+                            <option value="highway"
+                                {{ old('area_type', $media->area_type) == 'highway' ? 'selected' : '' }}>
+                                Highway
                             </option>
 
                         </select>

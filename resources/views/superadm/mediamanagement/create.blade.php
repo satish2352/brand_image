@@ -196,6 +196,8 @@
                             <option value="">Select Area Type</option>
                             <option value="rural" {{ old('area_type') == 'rural' ? 'selected' : '' }}>Rural</option>
                             <option value="urban" {{ old('area_type') == 'urban' ? 'selected' : '' }}>Urban</option>
+                            <option value="highway" {{ old('area_type') == 'highway' ? 'selected' : '' }}>Highway</option>
+
                         </select>
 
                         @error('area_type')
