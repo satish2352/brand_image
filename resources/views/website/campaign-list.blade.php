@@ -45,7 +45,8 @@
                         $campaignName = $items->first()->campaign_name;
 
                         if ($type === 'booked') {
-                            $totalAmount = $items->sum(fn($i) => $i->grand_total);
+                            // $totalAmount = $items->sum(fn($i) => $i->grand_total);
+                            $totalAmount = $items->sum(fn($i) => $i->final_amount);
                         } else {
                             $totalAmount = $items->sum(fn($i) => $i->total_price);
                         }
@@ -167,8 +168,10 @@
                                                         <td>₹ {{ number_format($row->price, 2) }}</td>
                                                         <td>{{ $row->total_days }}</td>
                                                         <td>₹ {{ number_format($row->total_price, 2) }}</td>
+                                                        {{-- <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
+                                                        <td>₹ {{ number_format($row->grand_total, 2) }}</td> --}}
                                                         <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
-                                                        <td>₹ {{ number_format($row->grand_total, 2) }}</td>
+                                                        <td>₹ {{ number_format($row->final_amount, 2) }}</td>
                                                         <td>
                                                             <a href="{{ route('campaign.details', [
                                                                 'cart_item_id' => base64_encode($row->cart_item_id),

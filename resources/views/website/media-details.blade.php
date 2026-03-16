@@ -291,7 +291,7 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                                                                                                                                               </div> -->
+                                                                                                                                                                                   </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-80">
             <div class="container">

@@ -195,8 +195,8 @@ class CampaignRepository
                 'ci.per_day_price',
                 'ci.total_price',
 
-                'o.gst_amount',
-                'o.grand_total',
+                DB::raw('(ci.total_price * 0.18) as gst_amount'),
+                DB::raw('(ci.total_price + (ci.total_price * 0.18)) as final_amount'),
 
                 'ci.from_date',
                 'ci.to_date',
@@ -208,6 +208,30 @@ class CampaignRepository
                 'a.area_name',
                 'm.facing'
             )
+            // ->select(
+            //     'ci.media_id',
+            //     'ci.id as cart_item_id',
+            //     'c.id as campaign_id',
+            //     'c.campaign_name',
+
+            //     'ci.total_days',
+            //     'ci.price',
+            //     'ci.per_day_price',
+            //     'ci.total_price',
+
+            //     'o.gst_amount',
+            //     'o.grand_total',
+
+            //     'ci.from_date',
+            //     'ci.to_date',
+            //     'ci.created_at as campaign_date',
+
+            //     'm.media_title',
+            //     'm.width',
+            //     'm.height',
+            //     'a.area_name',
+            //     'm.facing'
+            // )
             ->orderBy('c.id', 'DESC')
             ->get()
             ->groupBy('campaign_id');
