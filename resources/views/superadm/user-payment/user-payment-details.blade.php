@@ -49,16 +49,32 @@
                         <p><strong>Order No:</strong> {{ $order->order_no }}</p>
 
                         <!-- <p>
-                                    <strong>Payment Status:</strong>
-                                     <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}">
-            {{ $order->payment_status }}
-        </span>
+                                        <strong>Payment Status:</strong>
+                                         <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}">
+                {{ $order->payment_status }}
+            </span>
 
-                                </p> -->
+                                    </p> -->
                         <p>
                             <strong>Payment Status:</strong>
-
                             @php
+                                $statusText = match ($order->payment_status) {
+                                    'PAID' => 'Paid',
+                                    'ADMIN_BOOKED' => 'Admin Booked',
+                                    'PENDING' => 'Pending',
+                                    'FAILED' => 'Failed',
+                                    default => 'Unknown',
+                                };
+
+                                $statusClass = match ($order->payment_status) {
+                                    'PAID' => 'bg-success',
+                                    'ADMIN_BOOKED' => 'bg-info',
+                                    'PENDING' => 'bg-warning',
+                                    'FAILED' => 'bg-danger',
+                                    default => 'bg-secondary',
+                                };
+                            @endphp
+                            {{-- @php
                                 $statusText = match ($order->payment_status) {
                                     'PAID' => 'Paid',
                                     'ADMIN_BOOKED' => 'Admin Booked',
@@ -68,7 +84,7 @@
                                     'PAID' => 'bg-success',
                                     'ADMIN_BOOKED' => 'bg-info',
                                 };
-                            @endphp
+                            @endphp --}}
 
                             <span class="badge {{ $statusClass }}" style="color:#fff;">
                                 {{ $statusText }}
