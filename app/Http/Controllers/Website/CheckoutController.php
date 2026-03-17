@@ -148,12 +148,17 @@ class CheckoutController extends Controller
                 ]);
 
                 // ⭐ INSERT ITEMS IF NOT EXISTS
-                $exists = \App\Models\OrderItem::where('order_id', $order->id)->exists();
+                // $exists = \App\Models\OrderItem::where('order_id', $order->id)->exists();
 
-                if (!$exists) {
-                    $this->orderRepo->createOrderItems($order->id, $items);
-                }
+                // if (!$exists) {
+                //     $this->orderRepo->createOrderItems($order->id, $items);
+                // }
 
+                //  DELETE old items first
+                \App\Models\OrderItem::where('order_id', $order->id)->delete();
+
+                //  INSERT fresh items
+                $this->orderRepo->createOrderItems($order->id, $items);
                 return $order;
             }
             // 🆕 CREATE order only if none exists
