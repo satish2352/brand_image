@@ -43,7 +43,7 @@ class MediaManagement extends Model
         'wall_length',
         'area_auto',
         'radius_id',
-        'area_type',
+        'areatype_id',
         // 'video_link',
         'panorama_image',
         'is_active',

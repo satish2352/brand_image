@@ -106,6 +106,13 @@
                     </a>
                 </li>
                 <li
+                    class="{{ request()->is('areatype/list') || request()->is('areatype/add') || request()->is('areatype/edit/*') ? 'active' : '' }}">
+                    <a href="{{ route('areatype.list') }}">
+                        <i class="mdi mdi-store"></i>
+                        <span>Area Type</span>
+                    </a>
+                </li>
+                <li
                     class="{{ request()->is('category/list') || request()->is('category/add') || request()->is('category/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('category.list') }}">
                         <i class="mdi mdi-domain"></i>

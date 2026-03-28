@@ -98,7 +98,7 @@
 
                                 <h5 class="card-title mb-2">
                                     <i class="fas fa-map-marker-alt text-danger"></i>
-                                    {{ $row->area_name }}, {{ $row->city_name }}
+                                    {{ ucwords(trim(($row->media_title ?? '') . ' ' . ($row->area_name ?? ''))) ?: '-' }}
                                 </h5>
 
 

@@ -86,6 +86,11 @@ class HomeController extends Controller
         // dd($billboards);
         // die();
         // $sizes = $this->homeService->getUniqueSizes();
+        $areaTypes = DB::table('areatype')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
+
 
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
@@ -97,7 +102,7 @@ class HomeController extends Controller
             ->first();
 
 
-        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'areaRange'));
+        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'areaRange', 'areaTypes'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
@@ -128,11 +133,16 @@ class HomeController extends Controller
         CAST(MAX(width * height) AS UNSIGNED) as max_area
     ')
                 ->first();
+            $areaTypes = DB::table('areatype')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->get();
 
             return view('website.search', compact(
                 'mediaList',
                 'filters',
-                'areaRange'
+                'areaRange',
+                'areaTypes'
             ));
         }
         // $sizes = $this->homeService->getUniqueSizes();
@@ -161,6 +171,10 @@ class HomeController extends Controller
         if ($request->ajax()) {
             return view('website.media-home-list', compact('mediaList'))->render();
         }
+        $areaTypes = DB::table('areatype')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
 
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
@@ -173,7 +187,7 @@ class HomeController extends Controller
 
 
         // IMPORTANT — return the view (NO redirect)
-        return view('website.search', compact('mediaList', 'filters',  'areaRange'));
+        return view('website.search', compact('mediaList', 'filters',  'areaRange', 'areaTypes'));
     }
     // public function searchView()
     // {
@@ -200,6 +214,10 @@ class HomeController extends Controller
         $mediaList = $this->homeService->searchMedia($filters);
 
         // $sizes = $this->homeService->getUniqueSizes();
+        $areaTypes = DB::table('areatype')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
 
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
@@ -210,7 +228,7 @@ class HomeController extends Controller
     ')
             ->first();
 
-        return view('website.search', compact('mediaList', 'filters',  'areaRange'));
+        return view('website.search', compact('mediaList', 'filters',  'areaRange', 'areaTypes'));
     }
     public function getMediaDetails($mediaId)
     {

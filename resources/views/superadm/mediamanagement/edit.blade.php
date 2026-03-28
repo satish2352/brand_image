@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                                                        display: none;
-                                                                    } */
+                                                                                                            display: none;
+                                                                                                        } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -123,7 +123,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    {{-- <div class="col-md-4 mb-3">
                         <label>Area Type <span class="text-danger">*</span></label>
                         <select name="area_type" class="form-control @error('area_type') is-invalid @enderror">
                             <option value="">Select Area Type</option>
@@ -144,8 +144,27 @@
                         @error('area_type')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
+                    </div> --}}
 
+                    <div class="col-md-4 mb-3">
+                        <label>Area Type <span class="text-danger">*</span></label>
+                        <select name="areatype_id" id="areatype_id"
+                            class="form-control @error('areatype_id') is-invalid @enderror">
+
+                            <option value="">Select Vendor</option>
+
+                            @foreach ($areatype as $data)
+                                <option value="{{ $data->id }}" data-vendor-code="{{ $data->areatype_name }}"
+                                    {{ old('areatype_id', $media->areatype_id ?? '') == $data->id ? 'selected' : '' }}>
+                                    {{ $data->areatype_name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('vendor_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Illumination <span class="text-danger">*</span></label>

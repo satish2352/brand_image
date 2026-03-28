@@ -240,8 +240,8 @@
         }
 
         /* ===========================
-           MOBILE RESPONSIVE
-        =========================== */
+                   MOBILE RESPONSIVE
+                =========================== */
 
         .table-responsive {
             width: 100%;
@@ -301,8 +301,8 @@
             }
 
             /* .invoice-actions {
-                flex-direction: column;
-            } */
+                        flex-direction: column;
+                    } */
 
             .invoice-actions .btn {
                 width: 100%;
@@ -396,7 +396,7 @@
                         @foreach ($items as $i => $item)
                             <tr>
                                 <td>{{ $i + 1 }}</td>
-                                <td>{{ $item->area_name }} {{ $item->facing }}</td>
+                                <td>{{ ucwords($item->media_title . ' ' . $item->area_name) }}</td>
                                 <td>
                                     {{ $item->media_title }}
                                 </td>

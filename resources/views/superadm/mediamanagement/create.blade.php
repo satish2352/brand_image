@@ -190,7 +190,9 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-3 mb-3">
+
+
+                    {{-- <div class="col-md-3 mb-3">
                         <label>Area Type <span class="text-danger">*</span></label>
                         <select name="area_type" class="form-control @error('area_type') is-invalid @enderror">
                             <option value="">Select Area Type</option>
@@ -203,7 +205,24 @@
                         @error('area_type')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div> --}}
+
+                    <div class="col-md-3 mb-3">
+                        <label>Area Type <span class="text-danger">*</span></label>
+                        <select name="areatype_id" class="form-control @error('areatype_id') is-invalid @enderror">
+                            <option value="">Select</option>
+                            @foreach ($areatype as $ill)
+                                <option value="{{ $ill->id }}"
+                                    {{ old('areatype_id') == $ill->id ? 'selected' : '' }}>
+                                    {{ $ill->areatype_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('areatype_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="col-md-3 mb-3">
                         <label>Illumination <span class="text-danger">*</span></label>
                         <select name="illumination_id" class="form-control @error('illumination_id') is-invalid @enderror">
@@ -786,7 +805,7 @@
                             return $('#billboardsId').is(':visible');
                         }
                     },
-                    area_type: {
+                    areatype_id: {
                         required: function() {
                             return $('#billboardsId').is(':visible');
                         }

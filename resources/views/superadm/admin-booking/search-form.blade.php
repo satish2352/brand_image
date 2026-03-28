@@ -151,12 +151,16 @@
                 </div>
                 <div class="col-xl-2 col-lg-3 col-md-6" id="area_type_wrapper">
                     <label class="form-label">Area Type</label>
-                    <select name="area_type" id="area_type" class="form-select form-control">
-                        <option value="">Select Type</option>
-                        <option value="urban" {{ ($filters['area_type'] ?? '') == 'urban' ? 'selected' : '' }}>Urban
-                        </option>
-                        <option value="rural" {{ ($filters['area_type'] ?? '') == 'rural' ? 'selected' : '' }}>Rural
-                        </option>
+                    <select name="areatype_id" class="form-control">
+                        <option value="">All Types</option>
+
+                        @foreach ($areaTypes as $type)
+                            <option value="{{ $type->id }}"
+                                {{ request('area_type') == $type->id ? 'selected' : '' }}>
+                                {{ $type->areatype_name }}
+                            </option>
+                        @endforeach
+
                     </select>
                 </div>
                 <div class="col-xl-2 col-lg-3 col-md-6">

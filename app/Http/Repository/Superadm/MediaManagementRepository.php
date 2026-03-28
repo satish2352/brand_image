@@ -102,6 +102,7 @@ class MediaManagementRepository
             ->leftJoin('category as cat', 'cat.id', '=', 'mm.category_id')
             ->leftJoin('vendors as vd', 'vd.id', '=', 'mm.vendor_id')
             ->leftJoin('illuminations as il', 'il.id', '=', 'mm.illumination_id')
+            ->leftJoin('areatype as art', 'art.id', '=', 'mm.areatype_id')
             ->leftJoin('radius_master as rm', 'rm.id', '=', 'mm.radius_id')
             ->leftJoin('media_images as mi', function ($join) {
                 $join->on('mi.media_id', '=', 'mm.id')
@@ -111,12 +112,12 @@ class MediaManagementRepository
             ->where('mm.is_deleted', 0)
             ->select(
                 'mm.*',
-                'mm.area_type',
+                // 'mm.area_type',
+                'art.areatype_name',
                 'cat.category_name',
                 'st.state_name',
                 'dt.district_name',
                 'ct.city_name',
-                'ar.area_name',
                 'vd.vendor_name',
                 'il.illumination_name',
                 'rm.radius',

@@ -25,7 +25,10 @@ class HordingBookController extends Controller
         $totalCount = $mediaData['total_count']; // integer
 
         $sizes = $this->homeService->getUniqueSizes();
-
+        $areaTypes = DB::table('areatype')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
             ->where('is_active', 1)
@@ -35,7 +38,7 @@ class HordingBookController extends Controller
     ')
             ->first();
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange'));
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange', 'areaTypes'));
     }
 
     public function search(Request $request)
@@ -53,7 +56,7 @@ class HordingBookController extends Controller
             'radius_id',
             'from_date',
             'to_date',
-            'area_type',
+            'areatype_id',
             'available_days',
             'size_id',
             'min_area',   // ADD THIS
@@ -63,7 +66,10 @@ class HordingBookController extends Controller
         $mediaData = $this->homeService->searchMedia($filters);
         $mediaList  = $mediaData['data'];         // paginator
         $totalCount = $mediaData['total_count']; // integer
-
+        $areaTypes = DB::table('areatype')
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->get();
         $areaRange = DB::table('media_management')
             ->where('is_deleted', 0)
             ->where('is_active', 1)
@@ -80,7 +86,7 @@ class HordingBookController extends Controller
         }
 
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange'));
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange', 'areaTypes'));
     }
     public function getMediaDetailsAdmin($mediaId)
     {

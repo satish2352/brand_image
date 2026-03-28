@@ -215,7 +215,7 @@
                         <div class="info-row">
                             <div class="info-col">
                                 <div class="info-label">Area Type</div>
-                                <div class="info-value">{{ ucfirst($media->area_type ?? '-') }}</div>
+                                <div class="info-value">{{ ucfirst($media->areatype_name ?? '-') }}</div>
                             </div>
                             <div class="info-col">
                                 <div class="info-label">Address</div>

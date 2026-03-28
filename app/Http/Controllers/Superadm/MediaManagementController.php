@@ -17,7 +17,8 @@ use App\Models\{
     MediaImage,
     Vendor,
     State,
-    City
+    City,
+    AreaType
 };
 
 class MediaManagementController extends Controller
@@ -81,12 +82,17 @@ class MediaManagementController extends Controller
             ->where('is_deleted', 0)
             ->orderBy('vendor_name')
             ->get();
+        $areatype = AreaType::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('areatype_name')
+            ->get();
 
         return view('superadm.mediamanagement.create', compact(
             'categories',
             'facings',
             'illuminations',
-            'vendors'
+            'vendors',
+            'areatype'
         ));
     }
     public function store(Request $request)
@@ -126,7 +132,7 @@ class MediaManagementController extends Controller
                     'illumination_id' => 'required',
 
                     // 'minimum_booking_days' => 'required|integer|min:1',
-                    'area_type' => 'required',
+                    // 'area_type' => 'required',
                     'address' => 'required',
                 ];
                 break;
@@ -227,7 +233,10 @@ class MediaManagementController extends Controller
                 ->where('is_deleted', 0)
                 ->orderBy('vendor_name')
                 ->get();
-
+            $areatype = AreaType::where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->orderBy('areatype_name')
+                ->get();
             return view('superadm.mediamanagement.edit', compact(
                 'media',
                 'categories',
@@ -236,7 +245,8 @@ class MediaManagementController extends Controller
                 'encodedId',
                 'areas',
                 // 'radius',
-                'vendors'
+                'vendors',
+                'areatype'
             ));
         } catch (\Exception $e) {
             return redirect()->route('media.list')->with('error', 'Invalid media ID');
@@ -274,7 +284,7 @@ class MediaManagementController extends Controller
                     'illumination_id' => 'required',
 
                     // 'minimum_booking_days' => 'required|integer|min:1',
-                    'area_type' => 'required',
+                    // 'area_type' => 'required',
                     'address' => 'required',
                 ];
                 break;

@@ -252,7 +252,7 @@
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Facing:</strong> {{ $media->facing }}
                             </div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Area Type:</strong>
-                                {{ $media->area_type }}</div>
+                                {{ $media->areatype_name }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Illumination:</strong>
                                 {{ $media->illumination_name }}</div>
                             <div class="col-6 mb-2">

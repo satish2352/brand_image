@@ -5,7 +5,7 @@
 @section('content')
     <style>
         .leaflet-popup-content {
-            width: 200px !important;
+            width: 400px !important;
         }
 
         .single-latest-news {
@@ -174,6 +174,8 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+    let mediaDetailsRoute = "{{ route('website.media-details', 'ID_PLACEHOLDER') }}";
+
     function initLeafletMap() {
         let defaultLat = {{ $mediaList[0]->latitude ?? 19.997453 }};
         let defaultLng = {{ $mediaList[0]->longitude ?? 73.789803 }};
@@ -186,24 +188,61 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        @foreach ($mediaList as $m)
-            L.marker([{{ $m->latitude }}, {{ $m->longitude }}])
-                .addTo(map)
-                .bindPopup(`
-    <div style="text-align:center;">
-        <img src="{{ config('fileConstants.IMAGE_VIEW') . $m->first_image }}" 
-             style="width:100%;max-width:500px;border-radius:6px;margin-bottom:5px;">
+        // let mediaList = @json($mediaList);
+        let mediaList = @json($mediaList->values());
 
-        <a href="{{ route('website.media-details', base64_encode($m->id)) }}" 
-           style="font-weight:bold; text-decoration:none; color:#007bff;font-size: 15px;"
-          >
-            {{ $m->area_name ?? $m->category_name }} {{ $m->facing }}
-        </a><br>
+        let grouped = {};
+
+        // 👉 Step 1: Group by lat/lng
+        mediaList.forEach(m => {
+            let key = m.latitude + ',' + m.longitude;
+
+            if (!grouped[key]) {
+                grouped[key] = [];
+            }
+
+            grouped[key].push(m);
+        });
+
+        // 👉 Step 2: Create ONE marker per location
+        for (let key in grouped) {
+
+            let items = grouped[key];
+            let lat = items[0].latitude;
+            let lng = items[0].longitude;
+
+            let marker = L.marker([lat, lng]).addTo(map);
+
+            marker.on('click', function() {
 
 
-    </div>
-`);
-        @endforeach
+                let html = `
+        <div style="
+            display:flex;
+            gap:10px;
+            overflow-x:auto;
+            max-width:400px;
+        ">
+    `;
+                items.forEach(m => {
+                    let url = mediaDetailsRoute.replace('ID_PLACEHOLDER', btoa(m.id));
+                    html += `
+                <div style="margin-bottom:10px;">
+                    <img src="{{ config('fileConstants.IMAGE_VIEW') }}/${m.first_image}" 
+                         style="width:100%;border-radius:6px;">
+                    <b>${m.media_title}${m.area_name}</b><br>
+                    <a  href="${url}">View Details</a>
+                   
+                </div>
+            `;
+                });
+
+                L.popup()
+                    .setLatLng([lat, lng])
+                    .setContent(html)
+                    .openOn(map);
+            });
+        }
     }
 
     window.onload = initLeafletMap;

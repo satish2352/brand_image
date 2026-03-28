@@ -153,7 +153,7 @@
                 <div class="news-text-box mob-right-spacing">
                     <h3 class="media-title">
                         <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                            {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
+                            {{ ucfirst($media->media_title ?? $media->category_name) }} {{ $media->area_name }}
                         </a>
                     </h3>
 

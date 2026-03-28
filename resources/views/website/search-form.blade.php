@@ -216,8 +216,20 @@
                     </select>
                 </div>
 
-                <!-- Area Type -->
-                <div class="col-lg-2 col-md-4 col-sm-6" id="area_type_wrapper">
+                <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
+                    <label class="form-label">Radius</label>
+                    <select name="area_type" class="form-select" id="area_type">
+                        <option value="">Select Type</option>
+
+                        @foreach ($areaTypes as $type)
+                            <option value="{{ $type->id }}"
+                                {{ ($filters['area_type'] ?? '') == $type->id ? 'selected' : '' }}>
+                                {{ $type->areatype_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                {{-- <div class="col-lg-2 col-md-4 col-sm-6" id="area_type_wrapper">
                     <label class="form-label">Area Type</label>
                     <select name="area_type" class="form-select" id="area_type">
                         <option value="">Select Type</option>
@@ -226,7 +238,7 @@
                         <option value="urban" {{ ($filters['area_type'] ?? '') == 'urban' ? 'selected' : '' }}>Urban
                         </option>
                     </select>
-                </div>
+                </div> --}}
 
                 <!-- From Date -->
                 <div class="col-lg-2 col-md-4 col-sm-6" id="date_wrapper">

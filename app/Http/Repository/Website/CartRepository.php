@@ -25,6 +25,7 @@ class CartRepository
         $items = $query
             ->join('media_management as m', 'm.id', '=', 'cart_items.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('areatype as art', 'art.id', '=', 'm.areatype_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
             ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
             ->leftJoin('cities as cit', 'cit.id', '=', 'm.city_id')
@@ -45,7 +46,7 @@ class CartRepository
                 'm.facing',
                 'm.width',
                 'm.height',
-                'm.area_type',
+                'art.areatype_name',
                 'a.area_name',
                 'a.common_stdiciar_name',
                 'c.category_name'

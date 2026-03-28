@@ -32,9 +32,9 @@
         }
 
         /* .cart-img-wrapper {
-                                                                                                                                                                                display: flex;
-                                                                                                                                                                                gap: 10px;
-                                                                                                                                                                            } */
+                                                                                                                                                                                                    display: flex;
+                                                                                                                                                                                                    gap: 10px;
+                                                                                                                                                                                                } */
 
         .cart-img-wrapper {
             display: flex;
@@ -487,7 +487,7 @@
                                         </button>
                                     </div>
                                     <div class="cart-info mt-2">
-                                        <h6>{{ $item->area_name ?? $item->category_name }} {{ $item->facing }}</h6>
+                                        <h6>{{ ucwords(($item->media_title ?? '') . ' ' . ($item->area_name ?? '')) }}</h6>
 
                                         <p class="text-muted mb-2">
                                             <i class="fas fa-map-marker-alt text-danger"></i>
@@ -495,11 +495,11 @@
                                         </p>
 
                                         <div class="row">
-                                            <div class="col-6 mb-2"><strong>Media Title</strong></div>
-                                            <div class="col-6 mb-2"> : {{ $item->media_title ?? 'N/A' }}</div>
+                                            <div class="col-6 mb-2"><strong>Facing</strong></div>
+                                            <div class="col-6 mb-2"> : {{ $item->facing ?? 'N/A' }}</div>
 
                                             <div class="col-6 mb-2"><strong>Area Type</strong></div>
-                                            <div class="col-6 mb-2"> : {{ $item->area_type ?? 'N/A' }}</div>
+                                            <div class="col-6 mb-2"> : {{ $item->areatype_name ?? 'N/A' }}</div>
 
                                             <div class="col-6 mb-2"><strong>Illumination</strong></div>
                                             <div class="col-6 mb-2"> : {{ $item->illumination_name ?? 'N/A' }}</div>
@@ -577,7 +577,7 @@
                     <div class="col-md-8 text-md-end mt-3 mt-md-0">
 
                         <!-- <a href="{{ route('website.search.view') }}" class="btn cart-btn btn-cart-outline">
-                                            Continue Booking </a> -->
+                                                                Continue Booking </a> -->
                         <a href="{{ route('website.search') }}" class="btn cart-btn btn-cart-outline">
                             Continue Booking
                         </a>

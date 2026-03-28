@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('area_id');
             $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('areatype_id');
             $table->string('media_code')->nullable();
             $table->string('media_title')->nullable();
             $table->text('address')->nullable();
@@ -27,7 +28,6 @@ return new class extends Migration
             $table->unsignedBigInteger('facing_id')->nullable();
             $table->text('facing')->nullable();
             $table->unsignedBigInteger('radius_id')->nullable();
-            $table->string('area_type')->nullable();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
             // $table->integer('minimum_booking_days')->nullable();

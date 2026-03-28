@@ -42,7 +42,7 @@
 
                         @foreach ($items as $item)
                             <tr>
-                                <td>{{ $item->area_name }} {{ $item->facing }}</td>
+                                <td>{{ ucwords(($item->media_title ?? '') . ' ' . ($item->area_name ?? '')) }}</td>
                                 <td class="text-end">₹ {{ number_format($item->price, 2) }}</td>
                                 <td class="text-end">{{ number_format($item->total_days) }}</td>
                             </tr>

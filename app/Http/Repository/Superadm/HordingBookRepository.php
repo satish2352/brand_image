@@ -18,6 +18,7 @@ class HordingBookRepository
             ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
             ->leftJoin(DB::raw('(
     SELECT *
     FROM category
@@ -44,10 +45,11 @@ class HordingBookRepository
                 'm.price',
                 'm.category_id',
                 'c.category_name',
-                'm.area_type',
+                // 'm.area_type',
                 'm.width',
                 'm.height',
                 'm.facing',
+                'at.areatype_name',
                 'a.area_name as area_name',
                 'city.city_name as city_name',
                 'a.common_stdiciar_name as common_area_name',
@@ -141,8 +143,8 @@ class HordingBookRepository
             ]);
         }
 
-        if (!empty($filters['area_type'])) {
-            $query->where('m.area_type', $filters['area_type']);
+        if (!empty($filters['areatype_id'])) {
+            $query->where('m.areatype_id', $filters['areatype_id']);
         }
 
         if (!empty($filters['state_id'])) {

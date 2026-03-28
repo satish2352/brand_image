@@ -78,16 +78,19 @@ class MediaManagementService
                 'wall_length',
                 'area_auto',
                 'radius_id',
-                'area_type',
+                'areatype_id',
+                // 'area_type',
                 'video_link',
                 'panorama_image'
             ];
-
             foreach ($optionalFields as $field) {
-                if ($request->has($field)) {
-                    $mediaData[$field] = $request->$field;
-                }
+                $mediaData[$field] = $request->input($field);
             }
+            // foreach ($optionalFields as $field) {
+            //     if ($request->has($field)) {
+            //         $mediaData[$field] = $request->$field;
+            //     }
+            // }
 
             $mediaData['is_active']  = 1;
             $mediaData['is_deleted'] = 0;
@@ -156,6 +159,7 @@ class MediaManagementService
                 'width',
                 'height',
                 'illumination_id',
+                'areatype_id',
                 'facing',
                 'latitude',
                 'longitude',

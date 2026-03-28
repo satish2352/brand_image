@@ -9,6 +9,7 @@ use App\Http\Controllers\Superadm\RevenueReportController;
 use App\Http\Controllers\Superadm\RevenueGraphController;
 use App\Http\Controllers\Superadm\Master\VendorController;
 use App\Http\Controllers\Superadm\Master\IlluminationController;
+use App\Http\Controllers\Superadm\Master\AreaTypeController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
 use App\Http\Controllers\Superadm\Master\AreaController;
 use App\Http\Controllers\Superadm\Master\CityController;
@@ -232,6 +233,16 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('update/{encodedId}', [IlluminationController::class, 'update'])->name('illumination.update');
         Route::post('delete', [IlluminationController::class, 'delete'])->name('illumination.delete');
         Route::post('update-status', [IlluminationController::class, 'updateStatus'])->name('illumination.updatestatus');
+    });
+
+    Route::prefix('areatype')->group(function () {
+        Route::get('list', [AreaTypeController::class, 'index'])->name('areatype.list');
+        Route::get('add', [AreaTypeController::class, 'create'])->name('areatype.create');
+        Route::post('add', [AreaTypeController::class, 'store'])->name('areatype.store');
+        Route::get('edit/{encodedId}', [AreaTypeController::class, 'edit'])->name('areatype.edit');
+        Route::post('update/{encodedId}', [AreaTypeController::class, 'update'])->name('areatype.update');
+        Route::post('delete', [AreaTypeController::class, 'delete'])->name('areatype.delete');
+        Route::post('update-status', [AreaTypeController::class, 'updateStatus'])->name('areatype.updatestatus');
     });
     Route::get(
         'media/next-code',

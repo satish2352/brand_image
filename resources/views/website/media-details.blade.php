@@ -291,7 +291,7 @@
     </div>
     <div class="container-fluid about-banner-img g-0">
         <!-- <div class="row">
-                                                                                                                                                                                   </div> -->
+                                                                                                                                                                                                               </div> -->
         {{-- ================= MEDIA DETAILS ================= --}}
         <div id="media-details" class="mt-150 mb-80">
             <div class="container">
@@ -325,7 +325,9 @@
                     <div class="col-lg-6">
                         <div class="card shadow-sm border-0 p-4">
 
-                            <h3 class="fw-bold mb-2 detail-title">{{ $media->area_name }} {{ $media->facing }}</h3>
+                            <h3 class="fw-bold mb-2 detail-title">
+                                {{ ucwords($media->media_title) }} {{ ucwords($media->area_name) }}
+                            </h3>
 
                             <p class="text-muted mb-2">
                                 <i class="fas fa-map-marker-alt text-danger"></i>
@@ -343,13 +345,6 @@
                                 <div class="col-6 mb-2">
                                     <strong>Category Media Type:</strong> {{ $media->category_name }}
                                 </div>
-
-                                @if (!empty($media->media_title))
-                                    <div class="col-6 mb-2">
-                                        <strong>Media Title:</strong> {{ $media->media_title }}
-                                    </div>
-                                @endif
-
                                 @if (!empty($media->facing))
                                     <div class="col-6 mb-2">
                                         <strong>Facing:</strong> {{ $media->facing }}

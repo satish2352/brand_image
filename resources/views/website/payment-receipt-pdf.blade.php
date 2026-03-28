@@ -248,8 +248,8 @@
         <thead>
             <tr>
                 <th>Sr. No.</th>
-                <th>Location</th>
-                <th>Media</th>
+                <th>Name</th>
+                <th>Facing</th>
                 <th>Size</th>
                 <th>From Date</th>
                 <th>To Date</th>
@@ -260,9 +260,9 @@
             @foreach ($items as $i => $item)
                 <tr>
                     <td>{{ $i + 1 }}</td>
-                    <td>{{ $item->area_name }}{{ $item->facing }}</td>
+                    <td>{{ ucwords($item->media_title . ' ' . $item->area_name) }}</td>
                     <td>
-                        {{ $item->media_title }}
+                        {{ $item->facing }}
                     </td>
                     <td> <small>{{ $item->width }} × {{ $item->height }}</small></td>
                     <td>

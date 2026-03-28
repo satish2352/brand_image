@@ -51,13 +51,13 @@
                 </h5>
 
                 <ul class="footer-links footer-icon-list footer-services no-anchor">
-                    <li><span class="icon">›</span> Traditional OOH</li>
-                    <li><span class="icon">›</span> Digital Displays</li>
-                    <li><span class="icon">›</span> Mall Media</li>
-                    <li><span class="icon">›</span> Transit Media</li>
-                    <li><span class="icon">›</span> Airport Branding</li>
-                    <li><span class="icon">›</span> Wall Painting</li>
-                    <li><span class="icon">›</span> Billboard & Hoarding Media</li>
+                    <li><span class="icon">›</span> Hoardings / Billboards</li>
+                    <li><span class="icon">›</span> Wall Wrap</li>
+                    <li><span class="icon">›</span> Digital Wall Painting</li>
+                    <li><span class="icon">›</span> Printing</li>
+                    <li><span class="icon">›</span> In-shop Branding</li>
+                    {{-- <li><span class="icon">›</span> Wall Painting</li>
+                    <li><span class="icon">›</span> Billboard & Hoarding Media</li> --}}
                 </ul>
             </div>
 

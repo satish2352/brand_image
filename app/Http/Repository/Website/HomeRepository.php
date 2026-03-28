@@ -17,6 +17,7 @@ class HomeRepository
             ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
+            ->leftJoin('areatype as at', 'at.id', '=', 'm.area_type')
             ->leftJoin(DB::raw('
             (SELECT media_id, MIN(images) AS first_image
              FROM media_images
@@ -44,7 +45,7 @@ class HomeRepository
                 's.state_name as state_name',
                 'd.district_name as district_name',
                 'city.city_name as city_name',
-                'm.area_type',
+                'at.areatype_name as area_type_name',
                 'a.common_stdiciar_name as common_area_name',
                 'm.panorama_image',
                 'mi.first_image',
@@ -118,7 +119,7 @@ class HomeRepository
 
 
         if (!empty($filters['area_type'])) {
-            $query->where('m.area_type', $filters['area_type']);
+            $query->where('m.areatype_id', $filters['area_type']);
         }
 
         if (!empty($filters['state_id'])) {

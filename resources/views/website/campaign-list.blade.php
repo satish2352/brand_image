@@ -132,8 +132,8 @@
                                         <thead class="table-darks">
                                             <tr>
                                                 <th>Sr. No.</th>
-                                                <th>Location</th>
-                                                <th>Media</th>
+                                                <th>Name</th>
+                                                <th>Facing</th>
                                                 <th>Size</th>
 
                                                 @if ($type === 'booked')
@@ -160,8 +160,10 @@
                                             @foreach ($items as $index => $row)
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $row->area_name ?? '-' }} {{ $row->facing ?? '-' }}</td>
-                                                    <td>{{ $row->media_title ?? '-' }}</td>
+                                                    <td>
+                                                        {{ ucwords(trim(($row->media_title ?? '') . ' ' . ($row->area_name ?? ''))) ?: '-' }}
+                                                    </td>
+                                                    <td>{{ $row->facing ?? '-' }}</td>
                                                     <td>{{ $row->width }} × {{ $row->height }}</td>
 
                                                     @if ($type === 'booked')
