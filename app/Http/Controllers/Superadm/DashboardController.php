@@ -16,6 +16,7 @@ use App\Models\{
     City,
     Vendor
 };
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -31,70 +32,64 @@ class DashboardController extends Controller
     {
         try {
 
-            $allSessions = $req->session()->all();
-            $allArea = Area::where('is_deleted', 0)->count();
-            $allcity = City::where('is_deleted', 0)->count();
-            $allvendor = Vendor::where('is_deleted', 0)->count();
-            $allMediaManagement = MediaManagement::where('is_deleted', 0)->count();
-            $allCategory = Category::where('is_deleted', 0)->count();
-            $allFacingDirection = FacingDirection::where('is_deleted', 0)->count();
-            $allIllumination = Illumination::where('is_deleted', 0)->count();
+            // Master data counts — cached 5 min (rarely change)
+            $masterCounts = Cache::remember('dashboard_master_counts', 300, function () {
+                return [
+                    'allArea'            => Area::where('is_deleted', 0)->count(),
+                    'allcity'            => City::where('is_deleted', 0)->count(),
+                    'allvendor'          => Vendor::where('is_deleted', 0)->count(),
+                    'allMediaManagement' => MediaManagement::where('is_deleted', 0)->count(),
+                    'allCategory'        => Category::where('is_deleted', 0)->count(),
+                    'allFacingDirection' => FacingDirection::where('is_deleted', 0)->count(),
+                    'allIllumination'    => Illumination::where('is_deleted', 0)->count(),
+                    'categoryMediaCounts' => Category::leftJoin(
+                        'media_management as m',
+                        fn($j) => $j->on('m.category_id', '=', 'category.id')->where('m.is_deleted', 0)
+                    )
+                        ->where('category.is_deleted', 0)
+                        ->select('category.id', 'category.category_name', DB::raw('COUNT(m.id) as media_count'))
+                        ->groupBy('category.id', 'category.category_name')
+                        ->orderBy('category.category_name')
+                        ->get(),
+                ];
+            });
 
-            $latestContactCount = ContactUs::where(
-                'created_at',
-                '>=',
-                Carbon::now()->subDays(15)
-            )->count();
+            $allArea             = $masterCounts['allArea'];
+            $allcity             = $masterCounts['allcity'];
+            $allvendor           = $masterCounts['allvendor'];
+            $allMediaManagement  = $masterCounts['allMediaManagement'];
+            $allCategory         = $masterCounts['allCategory'];
+            $allFacingDirection  = $masterCounts['allFacingDirection'];
+            $allIllumination     = $masterCounts['allIllumination'];
+            $categoryMediaCounts = $masterCounts['categoryMediaCounts'];
 
-            $latestBookingCount = Order::where(
-                'created_at',
-                '>=',
-                Carbon::now()->subDays(15)
-            )->count();
+            // Live stats — cached 2 min (change more often)
+            $liveStats = Cache::remember('dashboard_live_stats', 120, function () {
+                $now = Carbon::now();
+                return [
+                    'latestContactCount' => ContactUs::where('created_at', '>=', $now->copy()->subDays(15))->count(),
+                    'latestBookingCount' => Order::where('created_at', '>=', $now->copy()->subDays(15))->count(),
+                    'monthlyRevenue'     => Order::where('payment_status', 'PAID')
+                        ->whereYear('created_at', $now->year)
+                        ->whereMonth('created_at', $now->month)
+                        ->sum('grand_total'),
+                    'yearlyRevenue'      => Order::where('payment_status', 'PAID')
+                        ->whereYear('created_at', $now->year)
+                        ->sum('grand_total'),
+                    'ongoingCampaignCount' => DB::table('campaign as c')
+                        ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
+                        ->where('ci.cart_type', 'CAMPAIGN')
+                        ->whereDate('ci.to_date', '>=', Carbon::today())
+                        ->distinct('c.id')
+                        ->count('c.id'),
+                ];
+            });
 
-            // THIS MONTH revenue (paid only)
-            $monthlyRevenue = Order::where('payment_status', 'PAID')
-                ->whereYear('created_at', Carbon::now()->year)
-                ->whereMonth('created_at', Carbon::now()->month)
-                ->sum('grand_total');
-
-            // THIS YEAR revenue (paid only)
-            $yearlyRevenue = Order::where('payment_status', 'PAID')
-                ->whereYear('created_at', Carbon::now()->year)
-                ->sum('grand_total');
-
-            $categoryMediaCounts = Category::leftJoin(
-                'media_management as m',
-                function ($join) {
-                    $join->on('m.category_id', '=', 'category.id')
-                        ->where('m.is_deleted', 0);
-                }
-            )
-                ->where('category.is_deleted', 0)
-                ->select(
-                    'category.id',
-                    'category.category_name',
-                    DB::raw('COUNT(m.id) as media_count')
-                )
-                ->groupBy('category.id', 'category.category_name')
-                ->orderBy('category.category_name')
-                ->get();
-
-            $today = Carbon::today();
-
-            /*
-                 Ongoing Campaign Count
-                ------------------------
-                 Condition:
-                   to_date >= today
-                */
-            $ongoingCampaignCount = DB::table('campaign as c')
-                ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
-                ->where('ci.cart_type', 'CAMPAIGN')
-                // ->where('ci.status', 'ACTIVE')
-                ->whereDate('ci.to_date', '>=', $today)
-                ->distinct('c.id')
-                ->count('c.id');
+            $latestContactCount  = $liveStats['latestContactCount'];
+            $latestBookingCount  = $liveStats['latestBookingCount'];
+            $monthlyRevenue      = $liveStats['monthlyRevenue'];
+            $yearlyRevenue       = $liveStats['yearlyRevenue'];
+            $ongoingCampaignCount = $liveStats['ongoingCampaignCount'];
 
 
             return view('dashboard.dashboard', compact(
@@ -134,12 +129,9 @@ class DashboardController extends Controller
             return response()->json(['status' => 'not_logged_in'], 401);
         }
 
-        $admin = \App\Models\User::find($adminId);
-
-        // Mark unread notifications as read
-        $admin->unreadNotifications->each(function ($notification) {
-            $notification->update(['read_at' => now()]);
-        });
+        \App\Models\Notification::where('user_id', $adminId)
+            ->where('is_read', 0)
+            ->update(['is_read' => 1]);
 
         return response()->json(['status' => 'success']);
     }

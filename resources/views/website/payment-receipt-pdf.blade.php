@@ -199,7 +199,7 @@
     <table class="header-table">
         <tr>
             <td>
-                <img src="{{ public_path('asset/theamoriginalalf/images/logo.png') }}" height="45">
+                <img src="{{ public_path('asset/campaign/images/logo.png') }}" height="45">
             </td>
             <td class="header-title">
                 RECEIPT

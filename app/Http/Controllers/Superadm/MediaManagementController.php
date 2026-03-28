@@ -132,7 +132,7 @@ class MediaManagementController extends Controller
                     'illumination_id' => 'required',
 
                     // 'minimum_booking_days' => 'required|integer|min:1',
-                    // 'area_type' => 'required',
+
                     'address' => 'required',
                 ];
                 break;
@@ -284,7 +284,7 @@ class MediaManagementController extends Controller
                     'illumination_id' => 'required',
 
                     // 'minimum_booking_days' => 'required|integer|min:1',
-                    // 'area_type' => 'required',
+
                     'address' => 'required',
                 ];
                 break;

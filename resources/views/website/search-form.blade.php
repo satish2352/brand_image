@@ -218,12 +218,12 @@
 
                 <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
                     <label class="form-label">Radius</label>
-                    <select name="area_type" class="form-select" id="area_type">
+                    <select name="areatype_id" class="form-select" id="areatype_id">
                         <option value="">Select Type</option>
 
                         @foreach ($areaTypes as $type)
                             <option value="{{ $type->id }}"
-                                {{ ($filters['area_type'] ?? '') == $type->id ? 'selected' : '' }}>
+                                {{ ($filters['areatype_id'] ?? '') == $type->id ? 'selected' : '' }}>
                                 {{ $type->areatype_name }}
                             </option>
                         @endforeach
@@ -290,10 +290,10 @@
                     <div class="range-slider-container">
 
                         <input type="hidden" name="min_area" id="min_area"
-                            value="{{ $filters['min_area'] ?? $areaRange->min_area }}">
+                            value="{{ $filters['min_area'] ?? '' }}">
 
                         <input type="hidden" name="max_area" id="max_area"
-                            value="{{ $filters['max_area'] ?? $areaRange->max_area }}">
+                            value="{{ $filters['max_area'] ?? '' }}">
 
                         <div class="range-slider-fill" id="areaRangeFill"></div>
 
@@ -437,14 +437,23 @@
             minLabel.text(minVal + " sqft");
             maxLabel.text(maxVal + " sqft");
 
-            $("#min_area").val(minVal);
-            $("#max_area").val(maxVal);
+            // Only set hidden fields when user actually moves slider
+            if (window._areaSliderTouched) {
+                $("#min_area").val(minVal);
+                $("#max_area").val(maxVal);
+            }
         }
 
         updateAreaSlider();
 
-        minSlider.on("input change", updateAreaSlider);
-        maxSlider.on("input change", updateAreaSlider);
+        minSlider.on("input change", function() {
+            window._areaSliderTouched = true;
+            updateAreaSlider();
+        });
+        maxSlider.on("input change", function() {
+            window._areaSliderTouched = true;
+            updateAreaSlider();
+        });
 
     });
 </script>

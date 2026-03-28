@@ -240,8 +240,8 @@
         }
 
         /* ===========================
-                   MOBILE RESPONSIVE
-                =========================== */
+                       MOBILE RESPONSIVE
+                    =========================== */
 
         .table-responsive {
             width: 100%;
@@ -301,8 +301,8 @@
             }
 
             /* .invoice-actions {
-                        flex-direction: column;
-                    } */
+                            flex-direction: column;
+                        } */
 
             .invoice-actions .btn {
                 width: 100%;
@@ -337,7 +337,7 @@
 
             {{-- HEADER --}}
             <div class="invoice-header">
-                <img src="{{ asset('asset/theamoriginalalf/images/logo.png') }}" height="45">
+                <img src="{{ asset('asset/campaign/images/logo.png') }}" height="45">
                 <h2>RECEIPT</h2>
             </div>
             <div class="hr-line"></div>

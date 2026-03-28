@@ -11,8 +11,8 @@ class CartItem extends Model
     protected $fillable = [
         'user_id',
         'media_id',
-        'campaign_id',   // ✅ ADD THIS
-        'cart_type',      // ✅ ADD THIS
+        'campaign_id',
+        'cart_type',
         'session_id',
         'price',
         'qty',
@@ -21,6 +21,9 @@ class CartItem extends Model
         'per_day_price',
         'total_price',
         'total_days',
+        'status',
+        'is_active',
+        'is_deleted',
     ];
 
     /**

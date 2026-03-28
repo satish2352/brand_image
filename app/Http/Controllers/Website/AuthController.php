@@ -113,14 +113,14 @@ class AuthController extends Controller
 
         $graceSeconds = 5;
 
-        if (Carbon::now()->gt($user->otp_expires_at->addSeconds($graceSeconds))) {
+        if (Carbon::now()->gt($user->otp_expires_at->copy()->addSeconds($graceSeconds))) {
             return response()->json([
                 'status' => false,
                 'message' => 'OTP expired'
             ]);
         }
 
-        if ($user->otp !== $req->otp) {
+        if ((string)$user->otp !== (string)$req->otp) {
             return response()->json(['status' => false, 'message' => 'Invalid OTP, please check and enter correct OTP']);
         }
 
@@ -143,14 +143,22 @@ class AuthController extends Controller
     {
         $req->validate(['email' => 'required|email']);
 
+        $user = WebsiteUser::where('email', $req->email)
+            ->where('is_deleted', 0)
+            ->first();
+
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Email not registered.']);
+        }
+
         $otp = rand(100000, 999999);
 
-        WebsiteUser::where('email', $req->email)->update([
+        $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinute(2),
+            'otp_expires_at' => Carbon::now()->addMinutes(2),
         ]);
 
-        Mail::to($req->email)->send(new WebsiteOtpMail($otp));
+        Mail::to($user->email)->send(new WebsiteOtpMail($otp));
 
         return response()->json(['status' => true, 'message' => 'OTP resent']);
     }

@@ -37,10 +37,14 @@ class CampaignController extends Controller
                 $request->campaign_name
             );
 
-            //  MAIL CALL
-            $this->campaignService->sendCampaignMailToAdmin(
-                Auth::guard('website')->id()
-            );
+            //  MAIL CALL (non-blocking — log error if mail fails)
+            try {
+                $this->campaignService->sendCampaignMailToAdmin(
+                    Auth::guard('website')->id()
+                );
+            } catch (\Exception $mailEx) {
+                Log::error('Campaign mail failed: ' . $mailEx->getMessage());
+            }
 
             return redirect()
                 ->route('campaigns.open')
@@ -283,7 +287,7 @@ class CampaignController extends Controller
 
         // Background
         $bg = $slide1->createDrawingShape();
-        $bg->setPath(public_path('asset/theamoriginalalf/images/bluebg1.png'))
+        $bg->setPath(public_path('asset/campaing/images/bluebg1.png'))
             ->setWidth(800)          // reduce width
             ->setHeight(540)        // keep ratio
             ->setOffsetX(0)        // center horizontally ( (960-800)/2 )
@@ -292,7 +296,7 @@ class CampaignController extends Controller
 
         // Logo
         $slide1->createDrawingShape()
-            ->setPath(public_path('asset/theamoriginalalf/images/logo.png'))
+            ->setPath(public_path('asset/campaing/images/logo.png'))
             ->setHeight(60)
             ->setOffsetX(40)
             ->setOffsetY(40);
@@ -319,6 +323,14 @@ class CampaignController extends Controller
         foreach ($items as $item) {
 
             $slide = $ppt->createSlide();
+
+            /* ---------- BACKGROUND ---------- */
+            $slide->createDrawingShape()
+                ->setPath(public_path('asset/campaing/images/bluebg2.png'))
+                ->setWidth(960)
+                ->setHeight(540)
+                ->setOffsetX(0)
+                ->setOffsetY(0);
 
             /* ---------- TITLE ---------- */
             $slide->createRichTextShape()
@@ -499,7 +511,7 @@ class CampaignController extends Controller
         ===================================================== */
         $ppt->createSlide()
             ->createDrawingShape()
-            ->setPath(public_path('asset/theamoriginalalf/images/thankyou.png'))
+            ->setPath(public_path('asset/campaing/images/thankyou.png'))
             ->setWidth(960)
             ->setHeight(540)
             ->setOffsetX(0)

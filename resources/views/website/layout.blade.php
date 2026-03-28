@@ -10,7 +10,7 @@
     {{-- Bootstrap 5 CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('asset/theamoriginalalf/images/favicon.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('asset/campaign/images/favicon.png') }}">
     <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css" />
@@ -134,7 +134,9 @@
     </main>
 
     {{-- Include Footer --}}
-    @include('website.includes.footer')
+    @if (!request()->is('search') && !request()->is('brand_image/public/search'))
+        @include('website.includes.footer')
+    @endif
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
@@ -153,6 +155,16 @@
 
     @yield('scripts')
     <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
+    <script>
+        // Force hide theme preloader in case CDN resources are slow
+        $(document).ready(function() {
+            $(".loader").fadeOut(500);
+        });
+        // Fallback: hide after 3 seconds no matter what
+        setTimeout(function() {
+            $(".loader").hide();
+        }, 3000);
+    </script>
 </body>
 
 </html>

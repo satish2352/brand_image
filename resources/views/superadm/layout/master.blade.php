@@ -8,8 +8,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="">
     <meta name="author" content="">
-    <!-- <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/theamoriginalalf/images/logo.png') }}"> -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('asset/theamoriginalalf/images/favicon.png') }}">
+    <!-- <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/campaign/images/logo.png') }}"> -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('asset/campaign/images/favicon.png') }}">
     <title>Printing | Branding | Outdoor Advertising Agency
         Nashik | Brand Image</title>
     <link href="{{ asset('asset/css/style.css') }}" rel="stylesheet">

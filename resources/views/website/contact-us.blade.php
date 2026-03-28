@@ -272,7 +272,7 @@
                 if (!remark.val()) error(remark, 'Requirements are required');
 
                 /* ===== reCAPTCHA ===== */
-                if (typeof grecaptcha !== 'undefined') {
+                if (typeof grecaptcha !== 'undefined' && window.location.hostname !== 'localhost') {
                     if (grecaptcha.getResponse(contactCaptchaWidget).length === 0) {
                         $('#contactCaptcha').after(`
                             <small class="text-danger d-block mt-1">

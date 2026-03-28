@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Website;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Services\Website\HomeService;
@@ -16,18 +17,48 @@ class HomeController extends Controller
 {
     public function __construct(private HomeService $homeService) {}
 
+    private function getCachedAreaTypes()
+    {
+        return Cache::remember(
+            'home_area_types',
+            3600,
+            fn() =>
+            DB::table('areatype')->where('is_active', 1)->where('is_deleted', 0)->get()
+        );
+    }
+
+    private function getCachedAreaRange()
+    {
+        return Cache::remember(
+            'home_area_range',
+            300,
+            fn() =>
+            DB::table('media_management')
+                ->where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->selectRaw('CAST(MIN(area_auto) AS UNSIGNED) as min_area, CAST(MAX(area_auto) AS UNSIGNED) as max_area')
+                ->first()
+        );
+    }
+
     public function index()
     {
         $filters = [];
         $mediaList = $this->homeService->searchMedia($filters);
-        // ADD THIS (ONLY ACTIVE SLIDERS)
-        $sliders = HomeSlider::where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->orderBy('id', 'desc')
-            ->get();
 
-        // NEW (Other Media latest per category)
-        $otherMedia = $this->homeService->getLatestOtherMediaByCategory();
+        $sliders = Cache::remember(
+            'home_sliders',
+            1800,
+            fn() =>
+            HomeSlider::where('is_active', 1)->where('is_deleted', 0)->orderBy('id', 'desc')->get()
+        );
+
+        $otherMedia = Cache::remember(
+            'home_other_media',
+            600,
+            fn() =>
+            $this->homeService->getLatestOtherMediaByCategory()
+        );
 
         $billboards = DB::table('media_management as m')
 
@@ -63,7 +94,7 @@ class HomeController extends Controller
                 's.state_name as state_name',
                 'd.district_name as district_name',
                 'city.city_name as city_name',
-                'm.area_type',
+                // 'm.area_type',
                 'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
                 'm.panorama_image',
@@ -83,26 +114,10 @@ class HomeController extends Controller
 
             ->get();
 
-        // dd($billboards);
-        // die();
-        // $sizes = $this->homeService->getUniqueSizes();
-        $areaTypes = DB::table('areatype')
-            ->where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->get();
+        $areaTypes = $this->getCachedAreaTypes();
+        $areaRange = $this->getCachedAreaRange();
 
-
-        $areaRange = DB::table('media_management')
-            ->where('is_deleted', 0)
-            ->where('is_active', 1)
-            ->selectRaw('
-        CAST(MIN(width * height) AS UNSIGNED) as min_area,
-        CAST(MAX(width * height) AS UNSIGNED) as max_area
-    ')
-            ->first();
-
-
-        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards',  'areaRange', 'areaTypes'));
+        return view('website.home', compact('mediaList', 'filters', 'sliders', 'otherMedia', 'billboards', 'areaRange', 'areaTypes'));
     }
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
@@ -125,18 +140,8 @@ class HomeController extends Controller
             $mediaList = $this->homeService->searchMedia($filters);
             // $sizes = $this->homeService->getUniqueSizes();
 
-            $areaRange = DB::table('media_management')
-                ->where('is_deleted', 0)
-                ->where('is_active', 1)
-                ->selectRaw('
-        CAST(MIN(width * height) AS UNSIGNED) as min_area,
-        CAST(MAX(width * height) AS UNSIGNED) as max_area
-    ')
-                ->first();
-            $areaTypes = DB::table('areatype')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->get();
+            $areaRange = $this->getCachedAreaRange();
+            $areaTypes = $this->getCachedAreaTypes();
 
             return view('website.search', compact(
                 'mediaList',
@@ -155,7 +160,7 @@ class HomeController extends Controller
             'radius_id',
             'from_date',
             'to_date',
-            'area_type',
+            'areatype_id',
             'available_days',
             'min_price',   // <- add
             'max_price',   // <- add
@@ -171,23 +176,10 @@ class HomeController extends Controller
         if ($request->ajax()) {
             return view('website.media-home-list', compact('mediaList'))->render();
         }
-        $areaTypes = DB::table('areatype')
-            ->where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->get();
+        $areaTypes = $this->getCachedAreaTypes();
+        $areaRange = $this->getCachedAreaRange();
 
-        $areaRange = DB::table('media_management')
-            ->where('is_deleted', 0)
-            ->where('is_active', 1)
-            ->selectRaw('
-        CAST(MIN(width * height) AS UNSIGNED) as min_area,
-        CAST(MAX(width * height) AS UNSIGNED) as max_area
-    ')
-            ->first();
-
-
-        // IMPORTANT — return the view (NO redirect)
-        return view('website.search', compact('mediaList', 'filters',  'areaRange', 'areaTypes'));
+        return view('website.search', compact('mediaList', 'filters', 'areaRange', 'areaTypes'));
     }
     // public function searchView()
     // {
@@ -205,28 +197,15 @@ class HomeController extends Controller
     // }
     public function searchView()
     {
-        if (!session()->has('search_filters')) {
-            $filters = [];
-        } else {
-            $filters = session('search_filters');
-        }
+        // Always start fresh on GET /search — don't restore old session filters
+        session()->forget('search_filters');
+        $filters = [];
 
         $mediaList = $this->homeService->searchMedia($filters);
 
         // $sizes = $this->homeService->getUniqueSizes();
-        $areaTypes = DB::table('areatype')
-            ->where('is_active', 1)
-            ->where('is_deleted', 0)
-            ->get();
-
-        $areaRange = DB::table('media_management')
-            ->where('is_deleted', 0)
-            ->where('is_active', 1)
-            ->selectRaw('
-        CAST(MIN(width * height) AS UNSIGNED) as min_area,
-        CAST(MAX(width * height) AS UNSIGNED) as max_area
-    ')
-            ->first();
+        $areaTypes = $this->getCachedAreaTypes();
+        $areaRange = $this->getCachedAreaRange();
 
         return view('website.search', compact('mediaList', 'filters',  'areaRange', 'areaTypes'));
     }
@@ -235,7 +214,9 @@ class HomeController extends Controller
         try {
             $mediaId = base64_decode($mediaId);
 
-            if (!$mediaId) abort(404);
+            if (!$mediaId || !is_numeric($mediaId)) abort(404);
+
+            $mediaId = (int) $mediaId;
 
             $media = $this->homeService->getMediaDetails($mediaId);
 

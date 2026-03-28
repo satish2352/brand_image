@@ -31,6 +31,6 @@ class OrderItem extends Model
     // Order item belongs to media
     public function media()
     {
-        return $this->belongsTo(Media::class, 'media_id');
+        return $this->belongsTo(MediaManagement::class, 'media_id');
     }
 }

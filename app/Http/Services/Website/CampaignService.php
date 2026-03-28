@@ -76,7 +76,7 @@ class CampaignService
             ->generatePptBinary($campaign->id);
 
         // Send mail
-        Mail::to(config('mail.mailers.smtp.admin_email'))
+        Mail::to(config('mail.admin_email', env('ADMIN_EMAIL')))
             ->send(new AdminCampaignCreatedMail(
                 $campaign,
                 $excelBinary,

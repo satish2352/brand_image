@@ -15,6 +15,8 @@ class MediaBookedDate extends Model
         'media_id',
         'from_date',
         'to_date',
+        'is_active',
+        'is_deleted',
     ];
 
     protected $casts = [

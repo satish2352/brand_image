@@ -19,7 +19,7 @@ class OrderRepository
 
         return Order::create([
             'user_id'       => Auth::guard('website')->id(),
-            'order_no'      => 'ORD-' . time(),
+            'order_no'      => 'ORD-' . time() . '-' . random_int(1000, 9999),
             'total_amount'  => $subTotal,
             'gst_amount'    => $gstAmount,
             'grand_total'   => $grandTotal,

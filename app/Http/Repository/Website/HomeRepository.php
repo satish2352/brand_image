@@ -17,7 +17,7 @@ class HomeRepository
             ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
-            ->leftJoin('areatype as at', 'at.id', '=', 'm.area_type')
+            ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
             ->leftJoin(DB::raw('
             (SELECT media_id, MIN(images) AS first_image
              FROM media_images
@@ -100,13 +100,14 @@ class HomeRepository
 
             $query->addSelect(DB::raw("
         (6371 * acos(
-            cos(radians($centerLat))
+            cos(radians(?))
             * cos(radians(m.latitude))
-            * cos(radians(m.longitude) - radians($centerLng))
-            + sin(radians($centerLat))
+            * cos(radians(m.longitude) - radians(?))
+            + sin(radians(?))
             * sin(radians(m.latitude))
         )) AS distance
     "))
+                ->addBinding([(float)$centerLat, (float)$centerLng, (float)$centerLat], 'select')
                 ->having('distance', '<=', $radiusKm)
                 ->orderBy('distance', 'asc');
 
@@ -118,8 +119,8 @@ class HomeRepository
         }
 
 
-        if (!empty($filters['area_type'])) {
-            $query->where('m.areatype_id', $filters['area_type']);
+        if (!empty($filters['areatype_id'])) {
+            $query->where('m.areatype_id', $filters['areatype_id']);
         }
 
         if (!empty($filters['state_id'])) {
@@ -210,12 +211,12 @@ END AS is_available_days
                     WHERE mbd.media_id = m.id
                     AND mbd.is_deleted = 0
                     AND mbd.is_active = 1
-                    AND mbd.from_date <= '{$toDate}'
-                    AND mbd.to_date >= '{$fromDate}'
+                    AND mbd.from_date <= ?
+                    AND mbd.to_date >= ?
                 )
                 THEN 1 ELSE 0
             END AS is_booked
-        "));
+        ", [$toDate, $fromDate]));
         } else {
 
             $query->addSelect(DB::raw("
@@ -306,6 +307,7 @@ END AS is_available_days
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)
             ->select([
@@ -317,6 +319,7 @@ END AS is_available_days
                 'a.area_name as area_name',
                 'a.common_stdiciar_name as common_area_name',
                 'il.illumination_name',
+                'at.areatype_name as area_type',
                 // 'rm.radius',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())),2) as per_day_price')
             ])
@@ -362,14 +365,13 @@ END AS is_available_days
             ->select([
                 'm.id',
                 'm.media_title',
-                'm.media_title',
                 'm.price',
                 'm.category_id',
                 DB::raw('IFNULL(m.width, 0)  as width'),
                 DB::raw('IFNULL(m.height, 0) as height'),
                 DB::raw('IFNULL(m.facing, "") as facing'),
-                DB::raw('IFNULL(m.video_link, "") as video_link'),
-                DB::raw('IFNULL(m.area_type, "") as area_type'),
+                // DB::raw('IFNULL(m.video_link, "") as video_link'),
+                // DB::raw('IFNULL(m.area_type, "") as area_type'),
                 'ct.category_name',
                 'a.area_name',
                 'city.city_name',

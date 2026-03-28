@@ -170,80 +170,65 @@
 
 
 @endsection
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+@if ($mediaList->count())
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<script>
-    let mediaDetailsRoute = "{{ route('website.media-details', 'ID_PLACEHOLDER') }}";
+    <script>
+        let mediaDetailsRoute = "{{ route('website.media-details', 'ID_PLACEHOLDER') }}";
 
-    function initLeafletMap() {
-        let defaultLat = {{ $mediaList[0]->latitude ?? 19.997453 }};
-        let defaultLng = {{ $mediaList[0]->longitude ?? 73.789803 }};
+        function initLeafletMap() {
+            let defaultLat = {{ $mediaList[0]->latitude ?? 19.997453 }};
+            let defaultLng = {{ $mediaList[0]->longitude ?? 73.789803 }};
 
-        let map = L.map('map').setView([defaultLat, defaultLng], 12);
+            let map = L.map('map').setView([defaultLat, defaultLng], 12);
 
-        // Load free OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
 
-        // let mediaList = @json($mediaList);
-        let mediaList = @json($mediaList->values());
+            let mediaList = @json($mediaList->values());
 
-        let grouped = {};
+            let grouped = {};
 
-        // 👉 Step 1: Group by lat/lng
-        mediaList.forEach(m => {
-            let key = m.latitude + ',' + m.longitude;
-
-            if (!grouped[key]) {
-                grouped[key] = [];
-            }
-
-            grouped[key].push(m);
-        });
-
-        // 👉 Step 2: Create ONE marker per location
-        for (let key in grouped) {
-
-            let items = grouped[key];
-            let lat = items[0].latitude;
-            let lng = items[0].longitude;
-
-            let marker = L.marker([lat, lng]).addTo(map);
-
-            marker.on('click', function() {
-
-
-                let html = `
-        <div style="
-            display:flex;
-            gap:10px;
-            overflow-x:auto;
-            max-width:400px;
-        ">
-    `;
-                items.forEach(m => {
-                    let url = mediaDetailsRoute.replace('ID_PLACEHOLDER', btoa(m.id));
-                    html += `
-                <div style="margin-bottom:10px;">
-                    <img src="{{ config('fileConstants.IMAGE_VIEW') }}/${m.first_image}" 
-                         style="width:100%;border-radius:6px;">
-                    <b>${m.media_title}${m.area_name}</b><br>
-                    <a  href="${url}">View Details</a>
-                   
-                </div>
-            `;
-                });
-
-                L.popup()
-                    .setLatLng([lat, lng])
-                    .setContent(html)
-                    .openOn(map);
+            mediaList.forEach(m => {
+                let key = m.latitude + ',' + m.longitude;
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(m);
             });
-        }
-    }
 
-    window.onload = initLeafletMap;
-</script>
+            for (let key in grouped) {
+                let items = grouped[key];
+                let lat = items[0].latitude;
+                let lng = items[0].longitude;
+
+                let marker = L.marker([lat, lng]).addTo(map);
+
+                marker.on('click', function() {
+                    let html = `<div style="display:flex;gap:10px;overflow-x:auto;max-width:400px;">`;
+
+                    items.forEach(m => {
+                        let url = mediaDetailsRoute.replace('ID_PLACEHOLDER', btoa(m.id));
+                        html += `
+                        <div style="margin-bottom:10px;">
+                            <img src="{{ config('fileConstants.IMAGE_VIEW') }}/${m.first_image}"
+                                 style="width:100%;border-radius:6px;padding-bottom: 12px;">
+                            <b style="font-size:15px; padding:10px 0px 10px 0px;">${m.media_title} ${m.area_name}</b><br>
+                            <a href="${url}" class="btn card-btn cart">View Details</a>
+                        </div>`;
+                    });
+
+                    html += `</div>`;
+
+                    L.popup()
+                        .setLatLng([lat, lng])
+                        .setContent(html)
+                        .openOn(map);
+                });
+            }
+        }
+
+        window.onload = initLeafletMap;
+    </script>
+@endif

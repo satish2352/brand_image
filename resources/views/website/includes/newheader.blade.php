@@ -433,8 +433,8 @@
                     error(pass, "Password is required");
                 }
 
-                // CAPTCHA
-                if (grecaptcha.getResponse().length === 0) {
+                // CAPTCHA (skip on localhost)
+                if (window.location.hostname !== 'localhost' && grecaptcha.getResponse().length === 0) {
                     $(".g-recaptcha").after(
                         `<span class="text-danger d-block mt-1">Please verify that you are not a robot</span>`
                     );

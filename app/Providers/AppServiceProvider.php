@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use App\Models\CartItem;
@@ -20,17 +21,21 @@ class AppServiceProvider extends ServiceProvider
         /* ========================================
             CART COUNT (AVAILABLE ON ALL VIEWS)
         ======================================== */
-        View::composer('*', function ($view) {
+        View::composer('website.*', function ($view) {
             $cartCount = 0;
 
             if (Auth::guard('website')->check()) {
-                $cartCount = CartItem::where([
-                    ['is_deleted', 0],
-                    ['is_active', 1],
-                    ['cart_type', 'NORMAL'],
-                    ['status', 'ACTIVE'],
-                    ['user_id', Auth::guard('website')->id()],
-                ])->count();
+                $userId    = Auth::guard('website')->id();
+                $cacheKey  = "cart_count_user_{$userId}";
+
+                $cartCount = Cache::remember($cacheKey, 120, function () use ($userId) {
+                    return CartItem::where('user_id', $userId)
+                        ->where('is_deleted', 0)
+                        ->where('is_active', 1)
+                        ->where('cart_type', 'NORMAL')
+                        ->where('status', 'ACTIVE')
+                        ->count();
+                });
             }
 
             $view->with('cartCount', $cartCount);
@@ -41,24 +46,29 @@ class AppServiceProvider extends ServiceProvider
         ======================================== */
         View::composer('website.search-form', function ($view) {
 
-            $categories = DB::table('category')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->orderBy('id')
-                ->get();
+            $categories = Cache::remember('search_form_categories', 3600, fn() =>
+                DB::table('category')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('id')
+                    ->get()
+            );
 
-            // 🔥 NEW STATE TABLE
-            $states = DB::table('states')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->orderBy('state_name')
-                ->get();
+            $states = Cache::remember('search_form_states', 3600, fn() =>
+                DB::table('states')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('state_name')
+                    ->get()
+            );
 
-            $radiusList = DB::table('radius_master')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->orderBy('radius')
-                ->get();
+            $radiusList = Cache::remember('search_form_radius', 86400, fn() =>
+                DB::table('radius_master')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('radius')
+                    ->get()
+            );
 
             $view->with(compact('categories', 'states', 'radiusList'));
         });
@@ -68,23 +78,29 @@ class AppServiceProvider extends ServiceProvider
         ======================================== */
         View::composer('superadm.admin-booking.search-form', function ($view) {
 
-            $firstCategoryName = DB::table('category')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->orderBy('id')
-                ->value('category_name');
+            $firstCategoryName = Cache::remember('admin_first_category', 3600, fn() =>
+                DB::table('category')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('id')
+                    ->value('category_name')
+            );
 
-            $states = DB::table('states')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->orderBy('state_name')
-                ->get();
+            $states = Cache::remember('search_form_states', 3600, fn() =>
+                DB::table('states')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('state_name')
+                    ->get()
+            );
 
-            $radiusList = DB::table('radius_master')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->orderBy('radius')
-                ->get();
+            $radiusList = Cache::remember('search_form_radius', 86400, fn() =>
+                DB::table('radius_master')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('radius')
+                    ->get()
+            );
 
             $view->with(compact('firstCategoryName', 'states', 'radiusList'));
         });

@@ -36,6 +36,12 @@ class CheckoutController extends Controller
             return redirect('/')->with('error', 'Order not found');
         }
 
+        // Security: ensure this order belongs to the logged-in user
+        if ($order->user_id !== Auth::guard('website')->id()) {
+            session()->forget('order_id');
+            abort(403);
+        }
+
         $items = \App\Models\OrderItem::where('order_items.order_id', $orderId)
             ->join('media_management as m', 'm.id', '=', 'order_items.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
@@ -74,6 +80,16 @@ class CheckoutController extends Controller
 
         $userId = Auth::guard('website')->id();
         $items  = $this->cartRepo->getCartItems();
+
+        if ($items->isEmpty()) {
+            return back()->with('error', 'Cart is empty');
+        }
+
+        foreach ($items as $item) {
+            if (!$item->from_date || !$item->to_date) {
+                return back()->with('error', 'Please select booking dates for all items');
+            }
+        }
 
         foreach ($items as $item) {
 
@@ -116,16 +132,6 @@ class CheckoutController extends Controller
             }
         }
 
-
-        if ($items->isEmpty()) {
-            return back()->with('error', 'Cart is empty');
-        }
-
-        foreach ($items as $item) {
-            if (!$item->from_date || !$item->to_date) {
-                return back()->with('error', 'Please select booking dates');
-            }
-        }
 
         $total = $items->sum(fn($i) => $i->total_price);
 
@@ -193,7 +199,7 @@ class CheckoutController extends Controller
                 'secret' => $secret
             ]);
 
-            return response()->json(['status' => 'signature_missing'], 200);
+            return response()->json(['status' => 'signature_missing'], 400);
         }
 
         try {
@@ -308,11 +314,19 @@ class CheckoutController extends Controller
             config('services.razorpay.secret')
         );
 
-        $api->utility->verifyPaymentSignature([
-            'razorpay_order_id' => session('razorpay_order_id'),
-            'razorpay_payment_id' => $request->razorpay_payment_id,
-            'razorpay_signature' => $request->razorpay_signature,
-        ]);
+        try {
+            $api->utility->verifyPaymentSignature([
+                'razorpay_order_id'  => session('razorpay_order_id'),
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature' => $request->razorpay_signature,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Razorpay signature verification failed', [
+                'error'      => $e->getMessage(),
+                'payment_id' => $request->razorpay_payment_id,
+            ]);
+            return redirect()->route('cart.index')->with('error', 'Payment verification failed. Please contact support.');
+        }
 
         $orderId    = session('order_id');
         $campaignId = session('campaign_id');
@@ -327,7 +341,7 @@ class CheckoutController extends Controller
         $order = Order::find($orderId);
 
         //  Notify admins payment done
-        $admins = User::where('id', 1)->get();
+        $admins = User::where('is_active', 1)->get();
 
 
         foreach ($admins as $admin) {
@@ -362,22 +376,17 @@ class CheckoutController extends Controller
             |--------------------------------------------------------------------------
             */
         foreach ($order->items as $item) {
-
-            $existing = MediaBookedDate::where('media_id', $item->media_id)->first();
-
-            if ($existing) {
-                //  ONLY update to_date
-                $existing->update([
-                    'to_date' => $item->to_date,
-                ]);
-            } else {
-                //  Insert new record
-                MediaBookedDate::create([
+            MediaBookedDate::firstOrCreate(
+                [
                     'media_id'  => $item->media_id,
                     'from_date' => $item->from_date,
                     'to_date'   => $item->to_date,
-                ]);
-            }
+                ],
+                [
+                    'is_active'  => 1,
+                    'is_deleted' => 0,
+                ]
+            );
         }
 
 

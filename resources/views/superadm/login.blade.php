@@ -9,13 +9,12 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/theamoriginalalf/images/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/campaign/images/logo.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <title> Brand Image </title>
 
-    <link id="pagestyle" href="{{ asset('asset/theamoriginalalf/css/soft-ui-dashboard.css?v=1.0.3') }}"
-        rel="stylesheet" />
+    <link id="pagestyle" href="{{ asset('asset/campaign/css/soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet" />
 
     <!-- DataTables-->
     <style>
@@ -105,7 +104,7 @@
 
                     <div class="row">
                         <div class="col-sm-6 login-bg d-none d-sm-block px-0">
-                            <img src="{{ asset('asset/theamoriginalalf/images/loginbg.jpeg') }}" alt="Login Image">
+                            <img src="{{ asset('asset/campaign/images/loginbg.jpeg') }}" alt="Login Image">
                         </div>
 
 
@@ -113,7 +112,7 @@
                         <div class="col-sm-6 d-flex flex-column login-gradient">
                             <div class="card login-card">
                                 <div class="card-header pb-0 text-left bg-transparent text-center">
-                                    {{-- <img src="{{ asset('asset/theamoriginalalf/images/logo.png') }}"
+                                    {{-- <img src="{{ asset('asset/campaign/images/logo.png') }}"
                                         style="width: 329px;"> --}}
 
                                     <h3 style="font-weight:600; color:#344767; margin-bottom:20px;">

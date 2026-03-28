@@ -31,9 +31,11 @@ class GoogleAuthController extends Controller
         $user = WebsiteUser::firstOrCreate(
             ['email' => $googleUser->email],
             [
-                'name' => $googleUser->name,
-                'password' => bcrypt(Str::random(32)),
-                'is_active' => 1,
+                'name'               => $googleUser->name,
+                'password'           => bcrypt(Str::random(32)),
+                'is_email_verified'  => 1,
+                'is_active'          => 1,
+                'is_deleted'         => 0,
             ]
         );
 

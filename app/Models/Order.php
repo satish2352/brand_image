@@ -13,7 +13,9 @@ class Order extends Model
         'gst_amount',
         'grand_total',
         'total_amount',
-        'payment_status'
+        'payment_status',
+        'payment_id',
+        'payment_gateway_order_id',
     ];
 
     public function items()

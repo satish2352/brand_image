@@ -4,6 +4,7 @@ namespace App\Http\Repository\Website;
 
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class CartRepository
@@ -52,6 +53,7 @@ class CartRepository
                 'c.category_name'
             )
 
+            ->where('cart_items.is_deleted', 0)
             ->where('cart_items.status', 'ACTIVE')
             ->where('cart_items.cart_type', 'NORMAL')
             ->orderBy('cart_items.id', 'DESC')
@@ -77,6 +79,14 @@ class CartRepository
     }
 
 
+    private function clearCartCountCache(): void
+    {
+        $userId = Auth::guard('website')->id();
+        if ($userId) {
+            Cache::forget("cart_count_user_{$userId}");
+        }
+    }
+
     public function addItem($mediaId, $price)
     {
         CartItem::create([
@@ -97,6 +107,8 @@ class CartRepository
             'is_active' => 1,
             'is_deleted' => 0,
         ]);
+
+        $this->clearCartCountCache();
     }
 
     public function getBookedDatesByMedia($mediaId)
@@ -105,10 +117,7 @@ class CartRepository
             return DB::table('order_items as oi')
                 ->leftJoin('orders as o', 'o.id', '=', 'oi.order_id')
                 ->where('oi.media_id', $mediaId)
-                ->where(function ($q) {
-                    $q->where('o.payment_status', 'PAID')
-                        ->orWhereNull('o.payment_status');
-                })
+                ->where('o.payment_status', 'PAID')
                 ->select('oi.from_date', 'oi.to_date')
                 ->get();
         } catch (\Exception $e) {
@@ -182,10 +191,12 @@ class CartRepository
             'qty'           => 1,
             'cart_type'     => $cartType,   // ✅ dynamic
             // 'cart_type'     => 'NORMAL',
-            'status'        => 'HOLD',
+            'status'        => 'ACTIVE',
             'is_active'     => 1,
             'is_deleted'    => 0,
         ]);
+
+        $this->clearCartCountCache();
     }
 
 
@@ -200,6 +211,7 @@ class CartRepository
         $query = CartItem::where('id', $itemId);
         $this->ownerCondition($query);
         $query->delete();
+        $this->clearCartCountCache();
     }
     public function clearCart()
     {

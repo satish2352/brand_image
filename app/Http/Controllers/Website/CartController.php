@@ -26,8 +26,12 @@ class CartController extends Controller
     {
         $mediaId = base64_decode($mediaId);
 
+        if (!$mediaId || !is_numeric($mediaId)) {
+            return redirect()->route('cart.index')->with('error', 'Invalid media.');
+        }
+
         try {
-            $this->service->addToCart($mediaId);
+            $this->service->addToCart((int) $mediaId);
 
             return redirect()
                 ->route('cart.index')
@@ -48,6 +52,10 @@ class CartController extends Controller
         ]);
 
         $mediaId = base64_decode($request->media_id);
+
+        if (!$mediaId || !is_numeric($mediaId)) {
+            return redirect()->route('cart.index')->with('error', 'Invalid media.');
+        }
 
         try {
             $this->service->addToCartWithDate(
@@ -107,6 +115,11 @@ class CartController extends Controller
 
     public function update(Request $request)
     {
+        $request->validate([
+            'item_id' => 'required|integer|exists:cart_items,id',
+            'qty'     => 'required|integer|min:1|max:100',
+        ]);
+
         $this->service->updateQty($request->item_id, $request->qty);
         return back();
     }
@@ -114,7 +127,12 @@ class CartController extends Controller
     public function remove($itemId)
     {
         $itemId = base64_decode($itemId);
-        $this->service->removeItem($itemId);
+
+        if (!$itemId || !is_numeric($itemId)) {
+            return back()->with('error', 'Invalid item.');
+        }
+
+        $this->service->removeItem((int) $itemId);
 
         return back()->with('success', 'Item removed');
     }

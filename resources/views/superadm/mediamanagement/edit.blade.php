@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                                                                                            display: none;
-                                                                                                        } */
+                                                                                                                display: none;
+                                                                                                            } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -123,28 +123,6 @@
                         @enderror
                     </div>
 
-                    {{-- <div class="col-md-4 mb-3">
-                        <label>Area Type <span class="text-danger">*</span></label>
-                        <select name="area_type" class="form-control @error('area_type') is-invalid @enderror">
-                            <option value="">Select Area Type</option>
-                            <option value="rural" {{ old('area_type', $media->area_type) == 'rural' ? 'selected' : '' }}>
-                                Rural
-                            </option>
-
-                            <option value="urban" {{ old('area_type', $media->area_type) == 'urban' ? 'selected' : '' }}>
-                                Urban
-                            </option>
-                            <option value="highway"
-                                {{ old('area_type', $media->area_type) == 'highway' ? 'selected' : '' }}>
-                                Highway
-                            </option>
-
-                        </select>
-
-                        @error('area_type')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div> --}}
 
                     <div class="col-md-4 mb-3">
                         <label>Area Type <span class="text-danger">*</span></label>
