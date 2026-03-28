@@ -39,6 +39,7 @@ class CampaingService
         $items = DB::table('campaign as c')
             ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
             ->leftJoin('media_management as m', 'm.id', '=', 'ci.media_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->where('c.user_id', $userId)
             ->where('ci.cart_type', 'CAMPAIGN')
@@ -58,6 +59,8 @@ class CampaingService
                 'm.width',
                 'm.height',
                 'm.facing',
+                'v.vendor_name',
+                'v.vendor_code',
                 'a.area_name',
                 'a.common_stdiciar_name'
             )

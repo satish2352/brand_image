@@ -29,6 +29,8 @@
                             <thead>
                                 <tr>
                                     <th>Location Name</th>
+                                    <th>Vendor Name</th>
+                                    <th>Vendor Code</th>
                                     <th>From</th>
                                     <th>To</th>
                                     <th>Days</th>
@@ -46,6 +48,8 @@
                                 @foreach ($campaign as $item)
                                     <tr>
                                         <td>{{ $item->area_name }} {{ $item->facing }}</td>
+                                        <td>{{ $item->vendor_name }}</td>
+                                        <td>{{ $item->vendor_code }}</td>
                                         <td>{{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($item->to_date)->format('d M Y') }}</td>
                                         <td>{{ $item->total_days }}</td>
