@@ -287,7 +287,7 @@ class CampaignController extends Controller
 
         // Background
         $bg = $slide1->createDrawingShape();
-        $bg->setPath(public_path('asset/campaing/images/bluebg1.png'))
+        $bg->setPath(public_path('asset/campaign/images/bluebg1.png'))
             ->setWidth(800)          // reduce width
             ->setHeight(540)        // keep ratio
             ->setOffsetX(0)        // center horizontally ( (960-800)/2 )
@@ -296,7 +296,7 @@ class CampaignController extends Controller
 
         // Logo
         $slide1->createDrawingShape()
-            ->setPath(public_path('asset/campaing/images/logo.png'))
+            ->setPath(public_path('asset/campaign/images/logo.png'))
             ->setHeight(60)
             ->setOffsetX(40)
             ->setOffsetY(40);
@@ -326,7 +326,7 @@ class CampaignController extends Controller
 
             /* ---------- BACKGROUND ---------- */
             $slide->createDrawingShape()
-                ->setPath(public_path('asset/campaing/images/bluebg2.png'))
+                ->setPath(public_path('asset/campaign/images/bluebg2.png'))
                 ->setWidth(960)
                 ->setHeight(540)
                 ->setOffsetX(0)
@@ -511,7 +511,7 @@ class CampaignController extends Controller
         ===================================================== */
         $ppt->createSlide()
             ->createDrawingShape()
-            ->setPath(public_path('asset/campaing/images/thankyou.png'))
+            ->setPath(public_path('asset/campaign/images/thankyou.png'))
             ->setWidth(960)
             ->setHeight(540)
             ->setOffsetX(0)
