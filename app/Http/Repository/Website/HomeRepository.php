@@ -268,7 +268,7 @@ END AS is_available_days
         //  PAGINATION (REQUIRED FOR LAZY LOADING)
         $results = $query
             ->orderBy('m.id', 'DESC')
-            ->paginate(config('fileConstants.PAGINATION'));
+            ->paginate(config('fileConstants.SEARCH-PAGINATION'));
 
         return $results;
     }
