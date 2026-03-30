@@ -295,11 +295,11 @@ class CampaignController extends Controller
 
 
         // Logo
-        $slide1->createDrawingShape()
-            ->setPath(public_path('asset/campaign/images/logo.png'))
-            ->setHeight(60)
-            ->setOffsetX(40)
-            ->setOffsetY(40);
+        // $slide1->createDrawingShape()
+        //     ->setPath(public_path('asset/campaign/images/logo.png'))
+        //     ->setHeight(60)
+        //     ->setOffsetX(40)
+        //     ->setOffsetY(40);
 
         // Title
         $title = $slide1->createRichTextShape()

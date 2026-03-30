@@ -5,7 +5,8 @@
 @section('content')
     <style>
         .leaflet-popup-content {
-            width: 400px !important;
+            width: auto !important;
+            max-width: 320px;
         }
 
         .single-latest-news {

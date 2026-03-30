@@ -174,6 +174,9 @@ class HomeController extends Controller
 
         // Lazy load POST
         if ($request->ajax()) {
+            if ($mediaList->isEmpty()) {
+                return '';
+            }
             return view('website.media-home-list', compact('mediaList'))->render();
         }
         $areaTypes = $this->getCachedAreaTypes();
