@@ -6,7 +6,19 @@
     <style>
         .leaflet-popup-content {
             width: auto !important;
-            max-width: 320px;
+            max-width: 400px;
+            margin: 10px 12px !important;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+
+        .leaflet-popup-content-wrapper .leaflet-popup-content {
+            margin: 0 !important;
+            padding: 10px !important;
         }
 
         .single-latest-news {
@@ -207,22 +219,68 @@
                 let marker = L.marker([lat, lng]).addTo(map);
 
                 marker.on('click', function() {
-                    let html = `<div style="display:flex;gap:10px;overflow-x:auto;max-width:400px;">`;
+                    let cards = '';
 
                     items.forEach(m => {
                         let url = mediaDetailsRoute.replace('ID_PLACEHOLDER', btoa(m.id));
-                        html += `
-                        <div style="margin-bottom:10px;">
-                            <img src="{{ config('fileConstants.IMAGE_VIEW') }}/${m.first_image}"
-                                 style="width:100%;border-radius:6px;padding-bottom: 12px;">
-                            <b style="font-size:15px; padding:10px 0px 10px 0px;">${m.media_title} ${m.area_name}</b><br>
-                            <a href="${url}" class="btn card-btn cart">View Details</a>
+                        let sqft = (parseFloat(m.width) * parseFloat(m.height)).toFixed(0);
+                        let price = '₹' + Number(m.price).toLocaleString('en-IN');
+                        cards += `
+                        <div style="
+                            min-width:160px;
+                            max-width:160px;
+                            background:#fff;
+                            border-radius:10px;
+                            overflow:hidden;
+                            box-shadow:0 2px 8px rgba(0,0,0,0.12);
+                            flex-shrink:0;
+                            display:flex;
+                            flex-direction:column;
+                        ">
+                            <div style="width:100%;height:100px;overflow:hidden;">
+                                <img src="{{ config('fileConstants.IMAGE_VIEW') }}/${m.first_image}"
+                                     style="width:100%;height:100%;object-fit:cover;" />
+                            </div>
+                            <div style="padding:8px;display:flex;flex-direction:column;gap:4px;flex:1;">
+                                <div style="
+                                    font-size:12px;
+                                    font-weight:700;
+                                    color:#222;
+                                    line-height:1.3;
+                                    display:-webkit-box;
+                                    -webkit-line-clamp:2;
+                                    -webkit-box-orient:vertical;
+                                    overflow:hidden;
+                                ">${m.media_title} ${m.area_name}</div>
+                                <div style="font-size:11px;color:#888;">${sqft} sqft</div>
+                                <div style="font-size:13px;font-weight:700;color:#f28123;">${price}</div>
+                                <a href="${url}" style="
+                                    display:block;
+                                    margin-top:auto;
+                                    padding:5px 0;
+                                    background:#f28123;
+                                    color:#fff;
+                                    border-radius:20px;
+                                    text-align:center;
+                                    font-size:11px;
+                                    font-weight:600;
+                                    text-decoration:none;
+                                ">View Details</a>
+                            </div>
                         </div>`;
                     });
 
-                    html += `</div>`;
+                    let html = `
+                    <div style="
+                        display:flex;
+                        gap:10px;
+                        overflow-x:auto;
+                        padding:6px 2px 8px;
+                        max-width:${items.length === 1 ? '180px' : '360px'};
+                        scrollbar-width:thin;
+                    ">${cards}</div>`;
 
-                    L.popup()
+                    L.popup({ maxWidth: 400, className: 'map-media-popup' })
                         .setLatLng([lat, lng])
                         .setContent(html)
                         .openOn(map);
