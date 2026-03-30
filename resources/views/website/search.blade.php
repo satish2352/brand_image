@@ -4,6 +4,10 @@
 
 @section('content')
     <style>
+        .leaflet-container {
+            font-family: "Outfit", sans-serif;
+        }
+
         .leaflet-popup-content {
             width: auto !important;
             max-width: 500px;
@@ -243,9 +247,11 @@
                             </div>
                             <div style="padding:8px;display:flex;flex-direction:column;gap:4px;flex:1;">
                                 <div style="
+                                
                                     font-size:12px;
                                     font-weight:700;
                                     color:#222;
+                                    font-family: "Outfit", sans-serif;
                                     line-height:1.3;
                                     display:-webkit-box;
                                     -webkit-line-clamp:2;

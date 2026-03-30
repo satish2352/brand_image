@@ -26,7 +26,7 @@ div,
 .navbar,
 #header,
 input[type="input"] {
-    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-family: "Outfit", sans-serif;
     width: auto;
     margin: 0 auto;
     display: block;

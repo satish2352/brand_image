@@ -9,7 +9,7 @@
 
 .irs {
     height: 45px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "Outfit", sans-serif;
 }
 
 .irs-with-grid {
@@ -22,11 +22,13 @@
     background: #DEDEDE;
 }
 
-.irs-bar, .irs-bar-edge {
+.irs-bar,
+.irs-bar-edge {
     top: 31px;
     height: 4px;
     background: black;
 }
+
 .irs-bar-edge {
     width: 8px;
 }
@@ -51,20 +53,24 @@
     transform: rotate(45deg);
 }
 
-.irs-slider.state_hover, .irs-slider:hover {
+.irs-slider.state_hover,
+.irs-slider:hover {
     background: #f0f0f0;
 }
 
-.irs-min, .irs-max {
+.irs-min,
+.irs-max {
     color: #333;
     font-size: 13px;
     top: 0;
     padding: 3px 4px;
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
     line-height: 1;
 }
 
-.irs-from, .irs-to, .irs-single {
+.irs-from,
+.irs-to,
+.irs-single {
     color: #fff;
     font-size: 13px;
     text-shadow: none;
@@ -76,6 +82,7 @@
 .irs-grid {
     height: 27px;
 }
+
 .irs-grid-pol {
     background: #DEDEDE;
 }
