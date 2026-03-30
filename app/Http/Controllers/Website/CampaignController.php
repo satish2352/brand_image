@@ -37,14 +37,17 @@ class CampaignController extends Controller
                 $request->campaign_name
             );
 
-            //  MAIL CALL (non-blocking — log error if mail fails)
-            try {
-                $this->campaignService->sendCampaignMailToAdmin(
-                    Auth::guard('website')->id()
-                );
-            } catch (\Exception $mailEx) {
-                Log::error('Campaign mail failed: ' . $mailEx->getMessage());
-            }
+            //  MAIL CALL (after response — does not block user)
+            $userId = Auth::guard('website')->id();
+            $campaignService = $this->campaignService;
+
+            dispatch(function () use ($userId, $campaignService) {
+                try {
+                    $campaignService->sendCampaignMailToAdmin($userId);
+                } catch (\Exception $mailEx) {
+                    Log::error('Campaign mail failed: ' . $mailEx->getMessage());
+                }
+            })->afterResponse();
 
             return redirect()
                 ->route('campaigns.open')
@@ -288,10 +291,10 @@ class CampaignController extends Controller
         // Background
         $bg = $slide1->createDrawingShape();
         $bg->setPath(public_path('asset/campaign/images/first.png'))
-            ->setWidth(800)          // reduce width
-            ->setHeight(540)        // keep ratio
-            ->setOffsetX(0)        // center horizontally ( (960-800)/2 )
-            ->setOffsetY(0);       // center vertically ( (540-450)/2 )
+            ->setWidth(960)
+            ->setHeight(540)
+            ->setOffsetX(0)
+            ->setOffsetY(0);
 
 
         // Logo
@@ -305,7 +308,8 @@ class CampaignController extends Controller
         $title = $slide1->createRichTextShape()
             ->setOffsetX(260)
             ->setOffsetY(220)
-            ->setWidth(500);
+            ->setWidth(500)
+            ->setHeight(120);
 
         $title->getActiveParagraph()
             ->getAlignment()
@@ -337,6 +341,7 @@ class CampaignController extends Controller
                 ->setOffsetX(40)
                 ->setOffsetY(20)
                 ->setWidth(850)
+                ->setHeight(60)
                 ->createTextRun($item->media_title)
                 ->getFont()->setSize(26)->setBold(true);
 
@@ -432,9 +437,10 @@ class CampaignController extends Controller
                 : '-';
 
             $details = $slide->createRichTextShape()
-                ->setOffsetX(520)
+                ->setOffsetX(480)
                 ->setOffsetY(90)
-                ->setWidth(420);
+                ->setWidth(460)
+                ->setHeight(430);
 
             $details->getActiveParagraph()->getAlignment()
                 ->setHorizontal(Alignment::HORIZONTAL_LEFT);
