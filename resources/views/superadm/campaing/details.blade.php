@@ -25,9 +25,10 @@
                     </div>
 
                     <div class="card-body">
-                        <table class="table table-striped">
+                        <table class="table table-bordered table-striped datatables">
                             <thead>
                                 <tr>
+                                    <th>Sr. No.</th>
                                     <th>Location Name</th>
                                     <th>Vendor Name</th>
                                     <th>Vendor Code</th>
@@ -45,8 +46,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($campaign as $item)
+                                @foreach ($campaign as $key => $item)
                                     <tr>
+                                        <td>{{ $key + 1 }}</td>
                                         <td>{{ $item->area_name }} {{ $item->facing }}</td>
                                         <td>{{ $item->vendor_name }}</td>
                                         <td>{{ $item->vendor_code }}</td>

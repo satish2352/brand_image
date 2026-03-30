@@ -8,6 +8,8 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class AdminCampaignExport implements
@@ -15,7 +17,8 @@ class AdminCampaignExport implements
     WithHeadings,
     WithMapping,
     WithStyles,
-    ShouldAutoSize
+    ShouldAutoSize,
+    WithEvents
 {
     /**
      * Campaign id
@@ -26,6 +29,11 @@ class AdminCampaignExport implements
      * Serial number
      */
     protected int $srNo = 0;
+
+    /**
+     * Grand total accumulator
+     */
+    protected float $grandTotal = 0;
 
     /**
      * Constructor
@@ -78,6 +86,8 @@ class AdminCampaignExport implements
         $this->srNo++;
 
         $totalSqft = ($row->width ?? 0) * ($row->height ?? 0);
+
+        $this->grandTotal += $row->total_price ?? 0;
 
         return [
             $this->srNo,
@@ -137,6 +147,37 @@ class AdminCampaignExport implements
                     'vertical'   => 'center',
                 ],
             ],
+        ];
+    }
+
+    /**
+     * Append grand total row after all data rows
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet    = $event->sheet->getDelegate();
+                $totalRow = $this->srNo + 2; // row 1 = heading, rows 2..N = data
+
+                // Label spanning columns A–L
+                $sheet->mergeCells('A' . $totalRow . ':L' . $totalRow);
+                $sheet->setCellValue('A' . $totalRow, 'Grand Total');
+                $sheet->setCellValue('M' . $totalRow, number_format($this->grandTotal, 2));
+                $sheet->setCellValue('N' . $totalRow, number_format($this->grandTotal, 2));
+
+                $sheet->getStyle('A' . $totalRow . ':N' . $totalRow)->applyFromArray([
+                    'font' => ['bold' => true],
+                    'fill' => [
+                        'fillType'   => 'solid',
+                        'startColor' => ['rgb' => 'FFD966'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => 'center',
+                        'vertical'   => 'center',
+                    ],
+                ]);
+            },
         ];
     }
 }

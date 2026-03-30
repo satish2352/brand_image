@@ -6,7 +6,7 @@
     <style>
         .leaflet-popup-content {
             width: auto !important;
-            max-width: 400px;
+            max-width: 500px;
             margin: 10px 12px !important;
         }
 
@@ -280,7 +280,10 @@
                         scrollbar-width:thin;
                     ">${cards}</div>`;
 
-                    L.popup({ maxWidth: 400, className: 'map-media-popup' })
+                    L.popup({
+                            maxWidth: 400,
+                            className: 'map-media-popup'
+                        })
                         .setLatLng([lat, lng])
                         .setContent(html)
                         .openOn(map);
