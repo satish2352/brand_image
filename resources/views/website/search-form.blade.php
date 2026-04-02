@@ -217,7 +217,7 @@
                 </div>
 
                 <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
-                    <label class="form-label">Radius</label>
+                    <label class="form-label">Area Type</label>
                     <select name="areatype_id" class="form-select" id="areatype_id">
                         <option value="">Select Type</option>
 
@@ -289,11 +289,9 @@
 
                     <div class="range-slider-container">
 
-                        <input type="hidden" name="min_area" id="min_area"
-                            value="{{ $filters['min_area'] ?? '' }}">
+                        <input type="hidden" name="min_area" id="min_area" value="{{ $filters['min_area'] ?? '' }}">
 
-                        <input type="hidden" name="max_area" id="max_area"
-                            value="{{ $filters['max_area'] ?? '' }}">
+                        <input type="hidden" name="max_area" id="max_area" value="{{ $filters['max_area'] ?? '' }}">
 
                         <div class="range-slider-fill" id="areaRangeFill"></div>
 

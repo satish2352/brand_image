@@ -280,6 +280,7 @@ class HordingBookRepository
             ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
             ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
             ->where('m.id', $mediaId)
@@ -293,6 +294,7 @@ class HordingBookRepository
                 'a.area_name as area_name',
                 'a.common_stdiciar_name as common_area_name',
                 'il.illumination_name',
+                'at.areatype_name as areatype_name',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())),2) as per_day_price')
             ])
             ->first();
