@@ -19,15 +19,6 @@ class HordingBookRepository
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
             ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
-            ->leftJoin(DB::raw('(
-    SELECT *
-    FROM category
-    WHERE is_active = 1
-      AND is_deleted = 0
-    ORDER BY id LIMIT 1
-) as cat2'), 'cat2.id', '=', 'm.category_id')
-
-            // ->leftJoin(DB::raw('(SELECT * FROM category WHERE is_active = 1 AND is_deleted = 0 ORDER BY id LIMIT 1) as c'), 'c.id', '=', 'm.category_id')
             ->leftJoin(DB::raw('
              (SELECT media_id, MIN(images) AS first_image
               FROM media_images
@@ -35,6 +26,16 @@ class HordingBookRepository
               GROUP BY media_id
              ) mi
          '), 'mi.media_id', '=', 'm.id')
+            ->leftJoin(DB::raw('(
+                SELECT mbd.media_id, mbd.from_date, mbd.to_date
+                FROM media_booked_date mbd
+                INNER JOIN (
+                    SELECT media_id, MAX(id) as max_id
+                    FROM media_booked_date
+                    WHERE is_active = 1 AND is_deleted = 0
+                    GROUP BY media_id
+                ) lmbd ON lmbd.media_id = mbd.media_id AND lmbd.max_id = mbd.id
+            ) as mbd_latest'), 'mbd_latest.media_id', '=', 'm.id')
 
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
@@ -55,17 +56,8 @@ class HordingBookRepository
                 'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
-                DB::raw('(SELECT from_date FROM media_booked_date mbd 
-              WHERE mbd.media_id = m.id 
-              AND mbd.is_active = 1 
-              AND mbd.is_deleted = 0 
-              ORDER BY mbd.id DESC LIMIT 1) as from_date'),
-
-                DB::raw('(SELECT to_date FROM media_booked_date mbd 
-              WHERE mbd.media_id = m.id 
-              AND mbd.is_active = 1 
-              AND mbd.is_deleted = 0 
-              ORDER BY mbd.id DESC LIMIT 1) as to_date')
+                'mbd_latest.from_date',
+                'mbd_latest.to_date',
             ]);
         $firstCategory = DB::table('category')
             ->where('is_active', 1)
@@ -239,14 +231,11 @@ class HordingBookRepository
         END AS is_booked
     "));
         }
-        //  PAGINATION (REQUIRED FOR LAZY LOADING)
-        $totalCount = (clone $query)->count();
-
         $results = $query->orderBy('m.id', 'DESC')->paginate($perPage);
 
         return [
-            'data' => $results,
-            'total_count' => $totalCount
+            'data'        => $results,
+            'total_count' => $results->total(),
         ];
     }
     public function getUniqueSizes()

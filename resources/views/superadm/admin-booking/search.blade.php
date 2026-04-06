@@ -22,13 +22,9 @@
         {{-- SEARCH --}}
         @include('superadm.admin-booking.search-form')
         {{-- EMPTY RESULT MESSAGE --}}
-        @if (request()->isMethod('post') && $mediaList->isEmpty())
-            <div class="alert alert-light text-center mt-4 ">
-                <b>
-                    <h4>No media found for the selected filters.</h4>
-                </b>
-            </div>
-        @endif
+        <div id="empty-result-msg" class="alert alert-light text-center mt-4 d-none">
+            <b><h4>No media found for the selected filters.</h4></b>
+        </div>
 
         {{-- RESULTS --}}
         <div class="row mt-4" id="media-container">
@@ -36,7 +32,7 @@
                 'mediaList' => $mediaList,
             ])
         </div>
-        {{-- FIX PAGINATION ALWAYS VISIBLE --}}
+        {{-- PAGINATION --}}
         <div class="mt-4 text-center" id="pagination-links">
             {{ $mediaList->appends(request()->all())->links() }}
         </div>
@@ -51,38 +47,66 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        // start from current pagination number
-        let page = {{ $mediaList->currentPage() }};
+        let page     = {{ $mediaList->currentPage() }};
         let lastPage = {{ $mediaList->lastPage() }};
-        let loading = false;
+        let loading  = false;
 
-        $(window).on('scroll', function() {
+        // ── AJAX SEARCH (no full page reload) ──────────────────────────
+        $('#searchForm').on('submit', function (e) {
+            e.preventDefault();
 
-            if (loading) return;
-            if (page >= lastPage) return;
+            // reset lazy-scroll state
+            page     = 1;
+            lastPage = 1;
+            loading  = false;
+
+            $('#media-container').html('');
+            $('#pagination-links').html('');
+            $('#empty-result-msg').addClass('d-none');
+            $('#lazy-loader').removeClass('d-none');
+
+            $.ajax({
+                url:  "{{ route('admin-booking.search') }}",
+                type: 'POST',
+                data: $(this).serialize() + '&_search=1',
+                success: function (res) {
+                    page     = res.current_page;
+                    lastPage = res.last_page;
+
+                    $('#media-container').html(res.html);
+                    $('#pagination-links').html(res.pagination);
+                    $('.result-badge .count').text(res.total_count + ' Results');
+
+                    if (res.is_empty) {
+                        $('#empty-result-msg').removeClass('d-none');
+                    }
+                },
+                complete: function () {
+                    $('#lazy-loader').addClass('d-none');
+                }
+            });
+        });
+
+        // ── LAZY SCROLL (append next page) ─────────────────────────────
+        $(window).on('scroll', function () {
+            if (loading || page >= lastPage) return;
 
             if ($(window).scrollTop() + $(window).height() >= $(document).height() - 300) {
-
                 loading = true;
                 page++;
-
                 $('#lazy-loader').removeClass('d-none');
 
                 $.ajax({
-                    url: "{{ route('admin-booking.search') }}?page=" + page,
-                    type: "POST",
+                    url:  "{{ route('admin-booking.search') }}?page=" + page,
+                    type: 'POST',
                     data: $('#searchForm').serialize(),
-
-                    success: function(html) {
+                    success: function (html) {
                         html = html.trim();
                         if (html.length) {
                             $('#media-container').append(html);
                         }
-
-                        $('#lazy-loader').addClass('d-none');
-                        loading = false;
                     },
-                    error: function() {
+                    complete: function () {
                         $('#lazy-loader').addClass('d-none');
                         loading = false;
                     }
@@ -92,7 +116,7 @@
     </script>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $(".pagination .page-item:first-child .page-link").html('<i class="fa fa-angle-left"></i> Prev');
             $(".pagination .page-item:last-child .page-link").html('Next <i class="fa fa-angle-right"></i>');
         });

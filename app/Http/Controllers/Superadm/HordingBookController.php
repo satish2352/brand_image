@@ -78,8 +78,23 @@ class HordingBookController extends Controller
         CAST(MAX(width * height) AS UNSIGNED) as max_area
     ')
             ->first();
-        // 🔥 Lazy load AJAX
+        // AJAX: Search button OR lazy scroll
         if ($request->ajax()) {
+            $isSearch = $request->boolean('_search');
+
+            if ($isSearch) {
+                // Full search — return JSON with HTML + pagination + meta
+                return response()->json([
+                    'html'         => view('superadm.admin-booking.admin-media-home-list', ['mediaList' => $mediaList])->render(),
+                    'pagination'   => $mediaList->appends($request->except('_search'))->links()->toHtml(),
+                    'total_count'  => $totalCount,
+                    'last_page'    => $mediaList->lastPage(),
+                    'current_page' => $mediaList->currentPage(),
+                    'is_empty'     => $mediaList->isEmpty(),
+                ]);
+            }
+
+            // Lazy scroll — return only the card HTML
             return view('superadm.admin-booking.admin-media-home-list', [
                 'mediaList' => $mediaList
             ])->render();
