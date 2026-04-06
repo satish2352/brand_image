@@ -213,6 +213,7 @@ class AuthController extends Controller
         // session(['website_user' => $user]);
         Auth::guard('website')->login($user);
         $req->session()->regenerate();
+        $req->session()->forget('order_id'); // clear stale order from any previous session
         return response()->json([
             'status' => true,
             'message' => 'Login successful!'

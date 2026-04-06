@@ -120,7 +120,7 @@
               {{-- BODY --}}
               <div class="media-body">
                   <h5 class="media-title">
-                      {{ $media->area_name }} {{ $media->facing }}
+                      {{ $media->media_title }} {{ $media->area_name }}
                   </h5>
                   <div class="media-meta">
                       <div><strong>Size:</strong> {{ number_format($media->width, 2) }} ×

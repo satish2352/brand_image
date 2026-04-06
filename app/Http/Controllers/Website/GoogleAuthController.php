@@ -41,6 +41,7 @@ class GoogleAuthController extends Controller
 
         Auth::guard('website')->login($user);
         request()->session()->regenerate();
+        request()->session()->forget('order_id'); // clear stale order from any previous session
 
         return redirect()->route('dashboard.home');
     }

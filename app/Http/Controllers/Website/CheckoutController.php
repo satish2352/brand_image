@@ -37,9 +37,9 @@ class CheckoutController extends Controller
         }
 
         // Security: ensure this order belongs to the logged-in user
-        if ($order->user_id !== Auth::guard('website')->id()) {
+        if ((int)$order->user_id !== (int)Auth::guard('website')->id()) {
             session()->forget('order_id');
-            abort(403);
+            return redirect()->route('cart.index')->with('error', 'Session expired. Please place your order again.');
         }
 
         $items = \App\Models\OrderItem::where('order_items.order_id', $orderId)

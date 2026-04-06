@@ -238,7 +238,7 @@
                 <div class="row g-4">
                     {{-- ================= LEFT : IMAGE GALLERY ================= --}}
                     <div class="col-lg-5">
-                        <h3 class="fw-bold mb-1">{{ $media->area_name }} {{ $media->facing }}</h3>
+                        <h3 class="fw-bold mb-1">{{ $media->media_title }} {{ $media->area_name }} </h3>
                         <p class="text-muted mb-2">
                             <i class="fas fa-map-marker-alt text-danger"></i>
                             {{ $media->area_name }}, {{ $media->city_name }}
@@ -247,8 +247,8 @@
                         <div class="row ">
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Category:</strong>
                                 {{ $media->category_name }}</div>
-                            <div class="col-6 mb-2"><strong class="font-weight-admin">Media Title:</strong>
-                                {{ $media->media_title }}</div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Facing:</strong>
+                                {{ $media->facing }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Facing:</strong> {{ $media->facing }}
                             </div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Area Type:</strong>
