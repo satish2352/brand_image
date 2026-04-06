@@ -456,7 +456,7 @@
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label>360 Image</label>
+                        <label>360 Image <small>(image size must be less then 2MB)</small></label>
                         <input type="file" name="panorama_image"
                             class="form-control @error('panorama_image') is-invalid @enderror">
 

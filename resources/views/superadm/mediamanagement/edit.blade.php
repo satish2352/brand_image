@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                                                                                                display: none;
-                                                                                                            } */
+                                                                                                                        display: none;
+                                                                                                                    } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -320,7 +320,7 @@
                             class="form-control">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label>360 Image</label>
+                        <label>360 Image (image size must be less then 2MB)</label>
 
                         <input type="file" name="panorama_image" id="panorama_image"
                             class="form-control @error('panorama_image') is-invalid @enderror">
