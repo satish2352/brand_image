@@ -414,16 +414,16 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-4">
-                        <label>Images <small>(image size must be less then 1mb)</small><span
+                        <label>Images <small>(image size must be less then 600kb)</small><span
                                 class="text-danger">*</span></label>
 
                         <input type="file" name="images[]" id="images" multiple
                             class="form-control
-            @error('images') is-invalid @enderror
-            @error('images.*') is-invalid @enderror">
-                        <small>
+                             accept="image/jpeg,image/png,image/webp"
+                            @error('images') is-invalid @enderror @error('images.*') is-invalid @enderror">
+                        {{-- <small>
                             Upload Images (500×600 px)
-                        </small>
+                        </small> --}}
 
                         {{-- TOO MANY FILES --}}
                         @error('images')
@@ -770,12 +770,16 @@
                         required: true
                     },
 
-                    // "images[]": {
-                    //     required: true,
-                    //     extension: "jpg|jpeg|png|webp",
-                    //     filesize: 1048576 
-                    // },
-
+                    "images[]": {
+                        required: true,
+                        extension: "jpg|jpeg|png|webp",
+                        filesize: 1048576 // 1MB
+                    },
+                    panorama_image: {
+                        extension: "jpg|jpeg|png|webp",
+                        filesize: 2 * 1024 * 1024, // 2MB
+                        minfilesize: 1024 // 1KB
+                    },
                     // HOARDINGS
                     media_title: {
                         required: function() {
@@ -889,7 +893,15 @@
                 });
                 return valid;
             }, 'Each file size must be less than 1MB');
-
+            $.validator.addMethod('filesize', function(value, element, limit) {
+                let valid = true;
+                $.each($(element)[0].files, function(idx, file) {
+                    if (file.size > limit) {
+                        valid = false;
+                    }
+                });
+                return valid;
+            }, 'Max file size is 2MB');
         });
     </script>
 @endsection

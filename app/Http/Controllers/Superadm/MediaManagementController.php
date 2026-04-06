@@ -116,8 +116,8 @@ class MediaManagementController extends Controller
             'vendor_id' => 'required|integer|exists:vendors,id',
 
             // 'images'      => 'nullable|array|max:10',
-            // 'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:1024|dimensions:width=500,height=600',
-            // 'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:600',
+            'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ];
 
         switch (true) {
@@ -189,10 +189,15 @@ class MediaManagementController extends Controller
             'vendor_id.required' => 'Please select a vendor',
             // 'vendor_id.exists'   => 'Invalid vendor selected',
             // 'images.max' => 'You can upload a maximum of 10 images.',
-            // 'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
-            // 'images.*.image' => 'Each file must be an image.',
-            // 'images.*.max' => 'Each image must be less than 1MB.',
+            'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
+            'images.*.image' => 'Each file must be an image.',
+            'images.*.max' => 'Each image must be less than 600KB.',
             // 'images.*.dimensions' => 'Please upload each image with width 500px and height 600px.',
+
+            'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',
+            'panorama_image.min'   => 'Image must be at least 1KB.',
+            'panorama_image.max'   => 'Image must not exceed 2MB.',
+            'panorama_image.image' => 'File must be an image.',
         ];
         $request->validate($rules, $messages);
 
@@ -282,9 +287,7 @@ class MediaManagementController extends Controller
                     // 'facing_id' => 'required',
                     'facing' => 'required',
                     'illumination_id' => 'required',
-
                     // 'minimum_booking_days' => 'required|integer|min:1',
-
                     'address' => 'required',
                 ];
                 break;
@@ -449,7 +452,7 @@ class MediaManagementController extends Controller
             [
                 'media_id'   => 'required|integer',
                 // 'images'     => 'required|array|max:10',
-                // 'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:1024|dimensions:width=500,height=600',
+                'images.*'   => 'image|mimes:webp,jpg,jpeg,png|max:600',
             ],
             [
                 'media_id.required' => 'Media ID is required.',
@@ -457,11 +460,11 @@ class MediaManagementController extends Controller
 
                 // 'images.required' => 'Please upload at least one image.',
                 // 'images.array'    => 'Images must be an array.',
-                // 'images.max'      => 'You can upload a maximum of 10 images only.',
+                'images.max'      => 'You can upload a maximum of 10 images only.',
 
-                // 'images.*.image'  => 'Each file must be an image.',
-                // 'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
-                // 'images.*.max'    => 'Each image must be less than 1MB.',
+                'images.*.image'  => 'Each file must be an image.',
+                'images.*.mimes'  => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
+                'images.*.max'    => 'Each image must be less than 600kb.',
                 // 'images.*.dimensions' => 'Please upload each image with width 500px and height 600px.',
             ]
         );
