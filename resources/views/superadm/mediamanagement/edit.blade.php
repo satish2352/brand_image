@@ -8,8 +8,8 @@
         #transmitMedia,
         #officeBranding,
         /* #wallWrap {
-                                                                                                                        display: none;
-                                                                                                                    } */
+                                                                                                                                            display: none;
+                                                                                                                                        } */
         #wallWrap,
         #radiusSection {
             display: none;
@@ -112,6 +112,9 @@
                         <label>Media Title <span class="text-danger">*</span></label>
                         <input type="text" name="media_title" value="{{ old('media_title', $media->media_title) }}"
                             class="form-control @error('media_title') is-invalid @enderror">
+                        @error('media_title')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4 mb-3">
                         <label>Facing <span class="text-danger">*</span></label>
@@ -139,7 +142,7 @@
                             @endforeach
                         </select>
 
-                        @error('vendor_id')
+                        @error('areatype_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -157,7 +160,10 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label>Address <span class="text-danger">*</span></label>
-                        <textarea name="address" class="form-control">{{ old('address', $media->address) }}</textarea>
+                        <textarea name="address" class="form-control @error('address') is-invalid @enderror">{{ old('address', $media->address) }}</textarea>
+                        @error('address')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 {{-- ================= MALL MEDIA ================= --}}
@@ -293,40 +299,57 @@
                     <div class="col-md-3 mb-3">
                         <label>Width <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="width" name="width"
-                            value="{{ old('width', $media->width) }}" class="form-control">
+                            value="{{ old('width', $media->width) }}"
+                            class="form-control @error('width') is-invalid @enderror">
+                        @error('width')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-md-3 mb-3">
                         <label>Height <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="height" name="height"
-                            value="{{ old('height', $media->height) }}" class="form-control">
+                            value="{{ old('height', $media->height) }}"
+                            class="form-control @error('height') is-invalid @enderror">
+                        @error('height')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-md-3 mb-3">
                         <label>Latitude <span class="text-danger">*</span></label>
                         <input type="text" name="latitude" value="{{ old('latitude', $media->latitude) }}"
-                            class="form-control">
+                            class="form-control @error('latitude') is-invalid @enderror">
+                        @error('latitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-md-3 mb-3">
                         <label>Longitude <span class="text-danger">*</span></label>
                         <input type="text" name="longitude" value="{{ old('longitude', $media->longitude) }}"
-                            class="form-control">
+                            class="form-control @error('longitude') is-invalid @enderror">
+                        @error('longitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Price <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="price" value="{{ old('price', $media->price) }}"
-                            class="form-control">
+                            class="form-control @error('price') is-invalid @enderror">
+                        @error('price')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label>360 Image (image size must be less then 2MB)</label>
+                        <label>360 Image (image size must be less then 5MB)</label>
 
                         <input type="file" name="panorama_image" id="panorama_image"
                             class="form-control @error('panorama_image') is-invalid @enderror">
 
                         <small class="text-muted">
-                            Allowed: JPG, JPEG, PNG, WEBP (Max 2MB)
+                            Allowed: JPG, JPEG, PNG, WEBP (Max 5MB)
                         </small>
 
                         @error('panorama_image')
@@ -358,7 +381,67 @@
     </div>
 @section('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 
+    <script>
+        $(document).ready(function() {
+
+            // ✅ filesize method
+            $.validator.addMethod("filesize", function(value, element, param) {
+                if (element.files.length === 0) return true;
+                return element.files[0].size <= param;
+            }, "File size too large");
+
+            // ✅ min filesize
+            $.validator.addMethod("minfilesize", function(value, element, param) {
+                if (element.files.length === 0) return true;
+                return element.files[0].size >= param;
+            }, "File size too small");
+
+            // ✅ APPLY VALIDATION
+            $("form").validate({
+                ignore: [], // IMPORTANT
+
+                rules: {
+                    panorama_image: {
+                        extension: "jpg|jpeg|png|webp",
+                        filesize: 5 * 1024 * 1024,
+                        minfilesize: 1024
+                    }
+                },
+
+                messages: {
+                    panorama_image: {
+                        extension: "Only JPG, JPEG, PNG, WEBP allowed",
+                        filesize: "Max 360 image size is 5MB",
+                        minfilesize: "Minimum size is 1KB"
+                    }
+                },
+
+                errorClass: "text-danger",
+                errorElement: "div",
+
+                highlight: function(element) {
+                    $(element).addClass("is-invalid");
+                },
+
+                unhighlight: function(element) {
+                    $(element).removeClass("is-invalid");
+                },
+
+                errorPlacement: function(error, element) {
+                    if (element.attr("type") == "file") {
+                        error.insertAfter(element.next()); // ✅ FIX for file input
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+            $('#panorama_image').on('change', function() {
+                $(this).valid(); // ✅ trigger validation immediately
+            });
+        });
+    </script>
     <script>
         // ORIGINAL VALUES (EDIT PAGE LOAD TIME)
         let originalVendorId = "{{ $media->vendor_id }}";

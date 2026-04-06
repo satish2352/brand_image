@@ -456,7 +456,7 @@
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label>360 Image <small>(image size must be less then 2MB)</small></label>
+                        <label>360 Image <small>(image size must be less then 5MB)</small></label>
                         <input type="file" name="panorama_image"
                             class="form-control @error('panorama_image') is-invalid @enderror">
 
@@ -773,11 +773,11 @@
                     "images[]": {
                         required: true,
                         extension: "jpg|jpeg|png|webp",
-                        filesize: 1048576 // 1MB
+                        filesize: 600 * 1024 // ✅ 600KB
                     },
                     panorama_image: {
                         extension: "jpg|jpeg|png|webp",
-                        filesize: 2 * 1024 * 1024, // 2MB
+                        filesize: 5 * 1024 * 1024, // 5MB
                         minfilesize: 1024 // 1KB
                     },
                     // HOARDINGS
@@ -871,10 +871,17 @@
                     area_id: "Please select an area",
                     category_id: "Please select a category",
                     vendor_id: "Please select a vendor",
-                    // "images[]": {
-                    //     required: "Please upload at least 1 image",
-                    //     extension: "Only JPG, JPEG, PNG, WEBP allowed",
-                    // }
+
+                    "images[]": {
+                        required: "Please upload at least 1 image",
+                        extension: "Only JPG, JPEG, PNG, WEBP allowed",
+                        filesize: "Max image size is 600KB"
+                    },
+                    panorama_image: {
+                        extension: "Only JPG, JPEG, PNG, WEBP allowed",
+                        filesize: "Max 360 image size is 5MB",
+                        minfilesize: "Minimum size is 1KB"
+                    }
                 },
                 errorClass: "text-danger",
                 submitHandler: function(form) {
@@ -892,16 +899,9 @@
                     }
                 });
                 return valid;
-            }, 'Each file size must be less than 1MB');
-            $.validator.addMethod('filesize', function(value, element, limit) {
-                let valid = true;
-                $.each($(element)[0].files, function(idx, file) {
-                    if (file.size > limit) {
-                        valid = false;
-                    }
-                });
-                return valid;
-            }, 'Max file size is 2MB');
+            }, 'File size is too large');
+
+
         });
     </script>
 @endsection

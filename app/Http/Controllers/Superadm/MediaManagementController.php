@@ -117,7 +117,7 @@ class MediaManagementController extends Controller
 
             // 'images'      => 'nullable|array|max:10',
             'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:600',
-            'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ];
 
         switch (true) {
@@ -196,7 +196,7 @@ class MediaManagementController extends Controller
 
             'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',
             'panorama_image.min'   => 'Image must be at least 1KB.',
-            'panorama_image.max'   => 'Image must not exceed 2MB.',
+            'panorama_image.max'   => 'Image must not exceed 5MB.',
             'panorama_image.image' => 'File must be an image.',
         ];
         $request->validate($rules, $messages);
@@ -274,10 +274,16 @@ class MediaManagementController extends Controller
             'longitude'   => 'required|numeric|between:-180,180',
 
             'price'       => 'required|numeric|min:0',
-            // 'vendor_name' => 'required|string|max:255',
-            'vendor_id' => 'required|integer|exists:vendors,id',
-        ];
+            'vendor_id'   => 'required|integer|exists:vendors,id',
 
+            // ✅ ADD THIS
+            'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ];
+        $messages = [
+            'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',
+            'panorama_image.max'   => 'Image must not exceed 5MB.',
+            'panorama_image.image' => 'File must be an image.',
+        ];
         switch (true) {
 
             case str_contains($slug, 'hoardings'):
