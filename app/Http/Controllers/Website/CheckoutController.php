@@ -219,6 +219,39 @@ class CheckoutController extends Controller
                 'event' => $event
             ]);
 
+            // Handle payment failed event
+            if ($event === 'payment.failed') {
+                $payment = $data['payload']['payment']['entity'] ?? null;
+                $razorpayOrderId = $payment['order_id'] ?? null;
+                $paymentId       = $payment['id'] ?? null;
+                $errorDesc       = $payment['error_description'] ?? 'Unknown error';
+                $errorCode       = $payment['error_code'] ?? null;
+
+                Log::info('Payment Failed Event', [
+                    'razorpay_order_id' => $razorpayOrderId,
+                    'payment_id'        => $paymentId,
+                    'error_code'        => $errorCode,
+                    'error_description' => $errorDesc,
+                ]);
+
+                if ($razorpayOrderId) {
+                    $order = Order::where('payment_gateway_order_id', $razorpayOrderId)
+                                  ->where('payment_status', 'PENDING')
+                                  ->first();
+
+                    if ($order) {
+                        $order->update(['payment_status' => 'FAILED']);
+
+                        Log::info('Order marked FAILED', [
+                            'order_id'          => $order->id,
+                            'error_description' => $errorDesc,
+                        ]);
+                    }
+                }
+
+                return response()->json(['status' => 'failed_recorded'], 200);
+            }
+
             if (!in_array($event, ['payment.captured', 'order.paid'])) {
                 return response()->json(['status' => 'ignored'], 200);
             }
