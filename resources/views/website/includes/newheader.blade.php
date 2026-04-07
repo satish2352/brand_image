@@ -40,6 +40,104 @@
         font-size: 12px;
         margin-right: 2px;
     }
+
+    /* Profile dropdown fixes */
+    .user-menu-v2 {
+        min-width: 210px !important;
+        padding: 0 !important;
+        border-radius: 12px !important;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+        border: 1px solid #eee !important;
+    }
+
+    .user-menu-v2 .user-info {
+        display: block;
+        padding: 14px 16px 10px;
+        background: #f9f9f9;
+        border-bottom: 1px solid #eee;
+    }
+
+    .user-menu-v2 .user-info strong {
+        display: block;
+        font-size: 14px;
+        color: #222;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-menu-v2 .user-info span {
+        display: block;
+        font-size: 12px;
+        color: #888;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-menu-v2 .menu-actions {
+        display: block;
+        padding: 6px 0;
+    }
+
+    .menu-btn {
+        display: flex !important;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 16px !important;
+        font-size: 13.5px !important;
+        font-weight: 500;
+        color: #333 !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        transition: background 0.15s;
+        width: 100%;
+        margin: 4px 10px !important;
+    }
+
+    .menu-btn:hover {
+        background: #fff5ec;
+        color: #f28123 !important;
+    }
+
+    .menu-btn i {
+        font-size: 15px;
+        color: #f28123;
+        flex-shrink: 0;
+    }
+
+    .menu-btn.active {
+        background: #f28123 !important;
+        color: #fff !important;
+        margin: 4px 10px;
+        border-radius: 8px;
+        width: calc(100% - 20px);
+        padding: 9px 14px !important;
+    }
+
+    .menu-btn.active i {
+        color: #fff;
+    }
+
+    .menu-btn.active:hover {
+        background: #d96e10 !important;
+    }
+
+    .menu-btn.logout {
+        color: #dc3545 !important;
+        border-top: 1px solid #eee;
+        margin-top: 4px;
+    }
+
+    .menu-btn.logout i {
+        color: #dc3545;
+    }
+
+    .menu-btn.logout:hover {
+        background: #fff0f1;
+        color: #b02a37 !important;
+    }
 </style>
 
 <!--PreLoader-->
@@ -129,12 +227,31 @@
                                             <i class="bi bi-speedometer2"></i>
                                             Dashboard
                                         </a>
+                                    </li>
+                                    <li class="menu-actions">
+                                        <a href="{{ route('website.profile.view') }}" class="menu-btn"
+                                            style="width: 175px !important; margin :5px 10px 5px 10px">
+                                            <i class="bi bi-speedometer2"></i>
+                                            Profile
+                                        </a>
+                                    </li>
+                                    {{-- <a href="{{ route('website.profile.edit') }}" class="menu-btn">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Edit Profile
+                                        </a>
 
+                                        <a href="{{ route('website.profile.change-password') }}" class="menu-btn">
+                                            <i class="bi bi-shield-lock"></i>
+                                            Change Password
+                                        </a> --}}
+
+                                    <li class="menu-actions">
                                         <a href="{{ route('website.logout') }}" class="menu-btn logout">
                                             <i class="bi bi-box-arrow-right"></i>
                                             Logout
                                         </a>
                                     </li>
+
 
                                 </ul>
 
@@ -486,7 +603,7 @@
                             $.each(errors, function(field, msg) {
                                 $(`#loginForm [name="${field}"]`)
                                     .after(
-                                    `<span class="text-danger">${msg[0]}</span>`);
+                                        `<span class="text-danger">${msg[0]}</span>`);
                             });
                         } else {
                             Swal.fire(
@@ -641,7 +758,7 @@
                             $.each(errors, function(field, msg) {
                                 $(`[name="${field}"]`)
                                     .after(
-                                    `<span class="text-danger">${msg[0]}</span>`);
+                                        `<span class="text-danger">${msg[0]}</span>`);
                             });
                         }
                     }

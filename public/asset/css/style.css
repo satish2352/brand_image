@@ -20990,3 +20990,15 @@ pre {
 .table-campaign {
   background-color: linear-gradient(90deg, #ffb300, #ff9800) !important;
 }
+
+.btn .btn-dark {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.btn-outline-secondary {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}

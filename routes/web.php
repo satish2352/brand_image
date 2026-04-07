@@ -29,6 +29,7 @@ use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
 use App\Http\Controllers\Website\PaymentHistoryController;
+use App\Http\Controllers\Website\ProfileController;
 use App\Http\Controllers\Superadm\CampaingController;
 use App\Http\Controllers\Superadm\HordingBookController;
 use App\Http\Controllers\Superadm\AdminNotificationController;
@@ -336,6 +337,15 @@ Route::middleware(['auth:website', 'web', 'check.website.user'])->group(function
     Route::get('/campaign-invoice-payments', [PaymentHistoryController::class, 'invoicePayments'])->name('campaign.invoice.payments')->middleware('auth:website');
     Route::get('/campaign-invoice/{orderId}', [PaymentHistoryController::class, 'viewInvoice'])->name('campaign.invoice.view');
     Route::get('invoice/download/{id}', [PaymentHistoryController::class, 'downloadInvoice'])->name('invoice.download');
+
+    // Profile routes
+    Route::prefix('profile')->name('website.profile.')->group(function () {
+        Route::get('/',               [ProfileController::class, 'view'])               ->name('view');
+        Route::get('/edit',           [ProfileController::class, 'edit'])               ->name('edit');
+        Route::post('/update',        [ProfileController::class, 'update'])             ->name('update');
+        Route::get('/change-password',[ProfileController::class, 'showChangePassword'])->name('change-password');
+        Route::post('/change-password',[ProfileController::class, 'changePassword'])   ->name('change-password.post');
+    });
 });
 Route::get('/contact-us', [ContactController::class, 'create'])->name('contact.create');
 Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');

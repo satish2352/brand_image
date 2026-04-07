@@ -155,6 +155,23 @@
 
     @yield('scripts')
     <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
+    @if(session('password_changed'))
+    <script>
+        $(document).ready(function () {
+            Swal.fire({
+                icon: 'success',
+                title: 'Password Changed!',
+                text: '{{ session('password_changed') }}',
+                confirmButtonText: 'Login',
+                confirmButtonColor: '#f28123'
+            }).then(function () {
+                // open login modal
+                var modal = new bootstrap.Modal(document.getElementById('authModal'));
+                modal.show();
+            });
+        });
+    </script>
+    @endif
     <script>
         // Force hide theme preloader in case CDN resources are slow
         $(document).ready(function() {
