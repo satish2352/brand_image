@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('area_id');
             $table->unsignedBigInteger('category_id');
-            $table->unsignedBigInteger('areatype_id');
+            $table->unsignedBigInteger('areatype_id')->nullable();
             $table->string('media_code')->nullable();
             $table->string('media_title')->nullable();
             $table->text('address')->nullable();

@@ -12,6 +12,8 @@ class UserPaymentRepository
             ->join('website_users as u', 'u.id', '=', 'o.user_id')
             ->leftJoin('campaign as camp', 'camp.id', '=', 'o.campaign_id')
             ->leftJoin('order_items as oi', 'oi.order_id', '=', 'o.id')
+            ->leftJoin('media_management as mm', 'mm.id', '=', 'oi.media_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'mm.vendor_id')
             ->select(
                 'o.id',
                 'o.order_no',
@@ -25,7 +27,8 @@ class UserPaymentRepository
                 'u.name',
                 'u.email',
                 'u.mobile_number',
-
+                'v.vendor_name',
+                'v.vendor_code',
                 DB::raw('MIN(oi.from_date) as from_date'),
                 DB::raw('MAX(oi.to_date) as to_date')
             )
@@ -41,7 +44,9 @@ class UserPaymentRepository
                 'camp.campaign_name',
                 'u.name',
                 'u.email',
-                'u.mobile_number'
+                'u.mobile_number',
+                'v.vendor_name',
+                'v.vendor_code'
             )
             ->orderBy('o.id', 'desc')
             ->get();

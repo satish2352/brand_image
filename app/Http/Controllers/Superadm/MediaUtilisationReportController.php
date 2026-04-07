@@ -24,6 +24,7 @@ class MediaUtilisationReportController extends Controller
             ->join('orders as o', 'o.id', '=', 'oi.order_id')
             ->join('website_users as u', 'u.id', '=', 'o.user_id')
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
+            ->join('vendors as v', 'v.id', '=', 'm.vendor_id')
             ->join('category as c', 'c.id', '=', 'm.category_id')
             // ->where('o.payment_status', 'paid')
             ->where('m.is_deleted', 0);
@@ -72,6 +73,8 @@ class MediaUtilisationReportController extends Controller
             'm.height',
             'oi.from_date',
             'oi.to_date',
+            'v.vendor_name',
+            'v.vendor_code',
             DB::raw('DATEDIFF(oi.to_date, oi.from_date) + 1 as booked_days'),
 
             'oi.total_price as total_amount',
@@ -111,6 +114,7 @@ class MediaUtilisationReportController extends Controller
             ->join('website_users as u', 'u.id', '=', 'o.user_id')
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
             ->join('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
             // ->where('o.payment_status', 'paid')
             ->where('m.is_deleted', 0);
 
@@ -147,6 +151,8 @@ class MediaUtilisationReportController extends Controller
 
         return $query->select(
             'u.name as user_name',
+            'v.vendor_name',
+            'v.vendor_code',
             'm.media_code',
             'm.media_title',
             'c.category_name',

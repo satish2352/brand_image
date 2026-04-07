@@ -24,7 +24,7 @@
     <div class="container-fluid">
 
         {{-- 🔙 Back Button --}}
-        <div class="mb-3">
+        <div class=" col-lg-3 col-md-3 col-sm-3 mb-3">
             <a href="{{ route('user-payment.list') }}" class="btn btn-outline-secondary">
                 ← Back to User Payment List
             </a>
@@ -49,12 +49,12 @@
                         <p><strong>Order No:</strong> {{ $order->order_no }}</p>
 
                         <!-- <p>
-                                        <strong>Payment Status:</strong>
-                                         <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}">
-                {{ $order->payment_status }}
-            </span>
+                                            <strong>Payment Status:</strong>
+                                             <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}">
+                    {{ $order->payment_status }}
+                </span>
 
-                                    </p> -->
+                                        </p> -->
                         <p>
                             <strong>Payment Status:</strong>
                             @php

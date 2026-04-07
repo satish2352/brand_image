@@ -25,7 +25,8 @@ class MediaUtilisationExport implements FromCollection, WithHeadings, WithStyles
         return $this->data->map(function ($row) {
             return [
                 $row->user_name,
-                $row->media_code,
+                $row->vendor_name ?? '-',
+                $row->vendor_code ?? '-',
                 $row->media_title,
                 $row->category_name,
                 "{$row->width} x {$row->height}",
@@ -35,7 +36,6 @@ class MediaUtilisationExport implements FromCollection, WithHeadings, WithStyles
                 $row->total_amount,
                 $row->gst_amount,
                 $row->grand_total,
-                
             ];
         });
     }
@@ -44,7 +44,8 @@ class MediaUtilisationExport implements FromCollection, WithHeadings, WithStyles
     {
         return [
             'User Name',
-            'Media Code',
+            'Vendor Name',
+            'Vendor Code',
             'Media Title',
             'Category',
             'Size (WxH)',
@@ -53,8 +54,7 @@ class MediaUtilisationExport implements FromCollection, WithHeadings, WithStyles
             'Booked Days',
             'Amount (₹)',
             'GST (18%) (₹)',
-             'Final Total (₹)'
-            
+            'Final Total (₹)',
         ];
     }
 

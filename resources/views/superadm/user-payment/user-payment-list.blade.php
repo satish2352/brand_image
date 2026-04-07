@@ -13,9 +13,12 @@
                             <thead>
                                 <tr>
                                     <th>Sr.No.</th>
+
                                     <th>User Name</th>
                                     <th>Email</th>
                                     <th>Mobile</th>
+                                    <th>Vendor Name</th>
+                                    <th>Vendor Code</th>
                                     <th>Campaign Name</th>
                                     <th>Order No</th>
                                     <th>From Date</th>
@@ -32,9 +35,16 @@
                                 @foreach ($payments as $key => $row)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $row->name }}</td>
+
+                                        <td>
+                                            <a href="{{ route('user-payment.details', base64_encode($row->id)) }}">
+                                                {{ $row->name }}
+                                            </a>
+                                        </td>
                                         <td>{{ $row->email }}</td>
                                         <td>{{ $row->mobile_number }}</td>
+                                        <td>{{ $row->vendor_name }}</td>
+                                        <td>{{ $row->vendor_code }}</td>
                                         <td>{{ $row->campaign_name ?? '-' }}</td>
                                         <td>{{ $row->order_no }}</td>
                                         <td>

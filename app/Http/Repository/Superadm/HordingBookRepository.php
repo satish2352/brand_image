@@ -272,6 +272,7 @@ class HordingBookRepository
             ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)
             ->select([
@@ -284,6 +285,8 @@ class HordingBookRepository
                 'a.common_stdiciar_name as common_area_name',
                 'il.illumination_name',
                 'at.areatype_name as areatype_name',
+                'v.vendor_name as vendor_name',
+                'v.vendor_code as vendor_code',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())),2) as per_day_price')
             ])
             ->first();
@@ -389,6 +392,9 @@ class HordingBookRepository
     {
         return DB::table('orders as o')
             ->join('website_users as u', 'u.id', '=', 'o.user_id')
+            ->leftJoin('order_items as oi', 'oi.order_id', '=', 'o.id')
+            ->leftJoin('media_management as mm', 'mm.id', '=', 'oi.media_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'mm.vendor_id')
             ->select(
                 'o.id',
                 'o.order_no',
@@ -399,7 +405,9 @@ class HordingBookRepository
                 'u.name',
                 'u.email',
                 'u.mobile_number',
-                'o.grand_total'
+                'o.grand_total',
+                'v.vendor_name',
+                'v.vendor_code',
             )
             ->orderBy('o.id', 'desc')
             ->get();

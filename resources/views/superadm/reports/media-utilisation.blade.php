@@ -126,7 +126,8 @@
                                 <tr>
                                     <th>Sr.No</th>
                                     <th>User Name</th>
-                                    <th>Media Code</th>
+                                    <th>Vendor Name</th>
+                                    <th>Vendor Code</th>
                                     <th>Media Title</th>
                                     <th>Category</th>
                                     <th>Size (WxH)</th>
@@ -144,7 +145,8 @@
                                     <tr>
                                         <td>{{ $reports->firstItem() + $key }}</td>
                                         <td>{{ $row->user_name }}</td>
-                                        <td>{{ $row->media_code }}</td>
+                                        <td>{{ $row->vendor_name }}</td>
+                                        <td>{{ $row->vendor_code }}</td>
                                         <td>{{ $row->media_title }}</td>
                                         <td>{{ $row->category_name }}</td>
                                         <td>{{ $row->width }} x {{ $row->height }}</td>

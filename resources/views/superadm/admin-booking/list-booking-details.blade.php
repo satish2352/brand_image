@@ -17,7 +17,7 @@
     <div class="container-fluid">
 
         {{-- 🔙 Back Button --}}
-        <div class="mb-3">
+        <div class="col-lg-3 col-md-6 col-sm-3 mb-3">
             <a href="{{ route('admin.booking.list-booking') }}" class="btn btn-outline-secondary">
                 ← Back to Booking List
             </a>
@@ -39,12 +39,12 @@
                     <div class="col-md-6">
                         <p><strong>Order No:</strong> {{ $order->order_no }}</p>
                         <!-- <p>
-                                        <strong>Payment Status:</strong>
-                                       <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}" style = "color:#fff;">
-                                    {{ $order->payment_status }}
-                                </span>
+                                            <strong>Payment Status:</strong>
+                                           <span class="badge {{ $order->payment_status == 'PAID' ? 'bg-success' : 'bg-warning' }}" style = "color:#fff;">
+                                        {{ $order->payment_status }}
+                                    </span>
 
-                                                        </p> -->
+                                                            </p> -->
                         <p>
                             <strong>Payment Status:</strong>
 

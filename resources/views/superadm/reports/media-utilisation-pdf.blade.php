@@ -29,7 +29,9 @@
         <thead>
             <tr>
                 <th>User</th>
-                <th>Media Code</th>
+                <th>Vendor Name</th>
+                <th>Vendor Code</th>
+
                 <th>Media Title</th>
                 <th>Category</th>
                 <th>Size</th>
@@ -37,15 +39,17 @@
                 <th>To</th>
                 <th>Days</th>
                 <th>Total</th>
-                <th class="text-end">GST (18%)</th>
-                <th class="text-end">Final Total</th>
+                <th>GST (18%)</th>
+                <th>Final Total</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($reports as $row)
                 <tr>
                     <td>{{ $row->user_name }}</td>
-                    <td>{{ $row->media_code }}</td>
+                    <td>{{ $row->vendor_name ?? '-' }}</td>
+                    <td>{{ $row->vendor_code ?? '-' }}</td>
+
                     <td>{{ $row->media_title }}</td>
                     <td>{{ $row->category_name }}</td>
                     <td>{{ $row->width }} x {{ $row->height }}</td>

@@ -99,20 +99,58 @@
     </div>
 
     <!-- Bottom Bar -->
-    <a href="https://sumagoinfotech.com/home" target="_blank" style="text-decoration: none; color: inherit;">
-        <div class="footer-bottom">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-md-12 text-center">
-                        <p class="footer-bottom-line">© {{ date('Y') }} Sumago Infotech Pvt Ltd. All rights
-                            reserved.</p>
-                    </div>
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="row align-items-center">
+
+                <div class="col-md-12 text-center text-md-center">
+                    <p class="footer-bottom-line mb-0">© {{ date('Y') }} <a href="https://brand-image.co.in/"
+                            target="blanck"> Brand
+                            Image Pvt. Ltd.,</a> All rights
+                        reserved.
+                    </p>
                 </div>
+
+                {{-- <div class="col-md-6 text-center text-md-end">
+                    <p class="footer-bottom-line mb-0">Developed by <strong>Sumago Infotech</strong></p>
+                </div> --}}
             </div>
         </div>
-    </a>
+    </div>
 
 </footer>
+
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/917770009506" target="_blank" rel="noopener" class="whatsapp-float" title="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<style>
+    .whatsapp-float {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        z-index: 9999;
+        background-color: #25D366;
+        color: #fff;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        transition: background-color 0.3s, transform 0.3s;
+        text-decoration: none;
+    }
+
+    .whatsapp-float:hover {
+        background-color: #1ebe57;
+        transform: scale(1.1);
+        color: #fff;
+    }
+</style>
 
 <!-- end footer -->
 

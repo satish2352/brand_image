@@ -255,16 +255,20 @@
                                 {{ $media->areatype_name }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Illumination:</strong>
                                 {{ $media->illumination_name }}</div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Vendor Name:</strong>
+                                {{ $media->vendor_name }}</div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Vendor Code:</strong>
+                                {{ $media->vendor_code }}</div>
                             <div class="col-6 mb-2">
-                                <strong>Size:</strong>
+                                <strong class="font-weight-admin">Size:</strong>
                                 {{ number_format($width, 2) }} × {{ number_format($height, 2) }} ft
                             </div>
                             <div class="col-6 mb-2">
-                                <strong>Total Area:</strong>
+                                <strong class="font-weight-admin">Total Area:</strong>
                                 {{ number_format($sqft, 2) }} SQFT
                             </div>
                             <div class="col-12 mb-2">
-                                <strong>Address:</strong> {{ $media->address }}
+                                <strong class="font-weight-admin">Address:</strong> {{ $media->address }}
                             </div>
                         </div>
                         <hr>
