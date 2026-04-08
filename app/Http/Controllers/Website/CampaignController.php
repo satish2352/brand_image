@@ -185,20 +185,32 @@ class CampaignController extends Controller
 
             return view('website.campaign-details', compact('campaign'));
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            Log::error('Campaign Details Error', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Unable to load campaign details.');
         }
     }
     public function exportExcel($campaignId)
     {
         $campaignId = base64_decode($campaignId);
 
+        if (!$campaignId || !is_numeric($campaignId)) {
+            abort(404);
+        }
+
+        $campaignId = (int) $campaignId;
+        $userId = Auth::guard('website')->id();
+
         $campaign = DB::table('campaign')->where('id', $campaignId)->first();
+
+        if (!$campaign || (int) $campaign->user_id !== $userId) {
+            abort(403);
+        }
 
         $fileName = preg_replace('/[^A-Za-z0-9_-]/', '_', $campaign->campaign_name)
             . '_' . now()->format('d-m-Y') . '.xlsx';
 
         return Excel::download(
-            new CampaignExport(Auth::guard('website')->id(), $campaignId),
+            new CampaignExport($userId, $campaignId),
             $fileName
         );
     }
@@ -209,9 +221,20 @@ class CampaignController extends Controller
     {
         $campaignId = base64_decode($campaignId);
 
-        $binary = $this->generatePptBinary($campaignId);
+        if (!$campaignId || !is_numeric($campaignId)) {
+            abort(404);
+        }
+
+        $campaignId = (int) $campaignId;
+        $userId = Auth::guard('website')->id();
 
         $campaign = DB::table('campaign')->where('id', $campaignId)->first();
+
+        if (!$campaign || (int) $campaign->user_id !== $userId) {
+            abort(403);
+        }
+
+        $binary = $this->generatePptBinary($campaignId);
 
         $fileName = preg_replace(
             '/[^A-Za-z0-9_-]/',
@@ -358,6 +381,7 @@ class CampaignController extends Controller
             $maxWidth = 420;
 
             $hasValidImage = false;
+            $tempPaths = [];
 
             foreach ($images as $img) {
 
@@ -387,6 +411,8 @@ class CampaignController extends Controller
                     $tempPath,
                     base64_decode($base64)
                 );
+
+                $tempPaths[] = $tempPath;
 
                 // STEP 4: Embed image into PPT
                 try {
@@ -528,6 +554,15 @@ class CampaignController extends Controller
 
         ob_start();
         $writer->save('php://output');
-        return ob_get_clean(); // FINAL PPT CONTENT
+        $pptContent = ob_get_clean();
+
+        // Clean up all temp image files created during slide generation
+        foreach ($tempPaths as $path) {
+            if (file_exists($path)) {
+                @unlink($path);
+            }
+        }
+
+        return $pptContent; // FINAL PPT CONTENT
     }
 }

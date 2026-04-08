@@ -165,7 +165,8 @@
                 </div>
 
                 <div class="profile-actions">
-                    <a href="{{ route('website.profile.edit') }}" class="btn btn-dark">
+                    <a href="{{ route('website.profile.edit') }}" class="btn btn-dark"
+                        style="display: flex; align-items: center;">
                         <i class="bi bi-pencil-square me-1"></i> Edit Profile
                     </a>
                     <a href="{{ route('website.profile.change-password') }}"

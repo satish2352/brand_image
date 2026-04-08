@@ -122,16 +122,6 @@ class HomeController extends Controller
     /** POST SEARCH - NO PARAMS IN URL */
     public function search(Request $request)
     {
-        //  IF CLEAR BUTTON CLICKED
-        // if ($request->filled('clear')) {
-        //     session()->forget('search_filters');   // ⭐ IMPORTANT
-
-        //     $filters = [];
-        //     $mediaList = $this->homeService->searchMedia($filters);
-        //     // ADD THIS
-        //     $sizes = $this->homeService->getUniqueSizes();
-        //     return view('website.search', compact('mediaList', 'filters', 'sizes'));
-        // }
         if ($request->filled('clear')) {
 
             session()->forget('search_filters');
@@ -150,7 +140,6 @@ class HomeController extends Controller
                 'areaTypes'
             ));
         }
-        // $sizes = $this->homeService->getUniqueSizes();
         $filters = $request->only([
             'category_id',
             'state_id',
@@ -184,20 +173,6 @@ class HomeController extends Controller
 
         return view('website.search', compact('mediaList', 'filters', 'areaRange', 'areaTypes'));
     }
-    // public function searchView()
-    // {
-    //     // $filters = [];
-    //     if (!session()->has('search_filters')) {
-    //         $filters = [];
-    //     } else {
-    //         $filters = session('search_filters');
-    //     }
-
-
-    //     $mediaList = $this->homeService->searchMedia($filters);
-
-    //     return view('website.search', compact('mediaList', 'filters', 'size'));
-    // }
     public function searchView()
     {
         // Always start fresh on GET /search — don't restore old session filters

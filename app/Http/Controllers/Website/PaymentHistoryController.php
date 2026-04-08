@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Website;
 use App\Http\Controllers\Controller;
 use App\Http\Services\Website\PaymentService;
 
+use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -31,6 +32,18 @@ class PaymentHistoryController extends Controller
         try {
             $decodedOrderId = base64_decode($orderId);
 
+            if (!$decodedOrderId || !is_numeric($decodedOrderId)) {
+                abort(404);
+            }
+
+            $order = Order::where('id', (int) $decodedOrderId)
+                          ->where('user_id', Auth::guard('website')->id())
+                          ->first();
+
+            if (!$order) {
+                abort(403);
+            }
+
             $items = $this->campaignService->getInvoiceDetails($decodedOrderId);
 
             return view('website.payment-receipt', [
@@ -50,12 +63,24 @@ class PaymentHistoryController extends Controller
     {
         $orderId = base64_decode($id);
 
+        if (!$orderId || !is_numeric($orderId)) {
+            abort(404);
+        }
+
+        $order = Order::where('id', (int) $orderId)
+                      ->where('user_id', Auth::guard('website')->id())
+                      ->first();
+
+        if (!$order) {
+            abort(403);
+        }
+
         $items = $this->campaignService->getInvoiceDetails($orderId);
         $generatedAt = now();
         $pdf = Pdf::loadView('website.payment-receipt-pdf', [
             'items'   => $items,
             'orderId' => $orderId,
-            'generatedAt' => $generatedAt, // pass to blade
+            'generatedAt' => $generatedAt,
         ])->setPaper('A4');
 
         $pdf->setOption('defaultFont', 'dejavusans');

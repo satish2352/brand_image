@@ -42,7 +42,7 @@ Route::get('/clear-cache', function () {
     Artisan::call('view:clear');
 
     return "<h3> All caches cleared successfully!</h3>";
-})->name('clear.cache');
+})->middleware(['SuperAdmin'])->name('clear.cache');
 
 Route::get('/test', function () {
     return 'API WORKING';
@@ -272,11 +272,11 @@ Route::get('/search', [HomeController::class, 'searchView'])->name('website.sear
 Route::post('/search', [HomeController::class, 'search'])->name('website.search');
 Route::view('/about', 'website.about')->name('website.about');
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])->name('website.media-details');
-Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup');
-Route::post('/website/login', [AuthController::class, 'login'])->name('website.login');
+Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup')->middleware('throttle:10,1');
+Route::post('/website/login', [AuthController::class, 'login'])->name('website.login')->middleware('throttle:10,1');
 Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.logout');
-Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp');
-Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp');
+Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp')->middleware('throttle:5,1');
+Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp')->middleware('throttle:3,1');
 
 
 

@@ -59,7 +59,7 @@ class CheckoutController extends Controller
 
         //  GST CALCULATION
         $subTotal = $order->total_amount;
-        $gstRate  = 18;
+        $gstRate  = config('payment.gst_rate', 18);
         $gstAmount = round(($subTotal * $gstRate) / 100, 2);
         $grandTotal = round($subTotal + $gstAmount, 2);
 
@@ -371,11 +371,10 @@ class CheckoutController extends Controller
             'payment_id'     => $request->razorpay_payment_id,
         ]);
 
-        $order = Order::find($orderId);
+        $order = Order::with('items')->find($orderId);
 
         //  Notify admins payment done
         $admins = User::where('is_active', 1)->get();
-
 
         foreach ($admins as $admin) {
 
@@ -384,7 +383,7 @@ class CheckoutController extends Controller
                 \App\Models\Notification::create([
                     'user_id'  => $admin->id,
                     'order_id' => $order->id,
-                    'media_id' => $item->media_id, // ⭐ REAL MEDIA ID
+                    'media_id' => $item->media_id,
                     'is_read'  => 0,
                 ]);
             }
@@ -399,9 +398,6 @@ class CheckoutController extends Controller
                 'is_active'  => 0,
                 'is_deleted' => 1,
             ]);
-
-        //  Load order with items
-        $order = Order::with('items')->findOrFail($orderId);
 
         /*
             |--------------------------------------------------------------------------
@@ -447,6 +443,11 @@ class CheckoutController extends Controller
     {
         $campaignId = base64_decode($campaignId);
 
+        if (!$campaignId || !is_numeric($campaignId)) {
+            abort(404);
+        }
+
+        $campaignId = (int) $campaignId;
         $userId = Auth::guard('website')->id();
 
         $items = CartItem::where('campaign_id', $campaignId)

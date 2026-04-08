@@ -19,7 +19,7 @@ class AuthController extends Controller
             'signup_name' => 'required',
             'signup_email' => 'required|email',
             'signup_mobile_number' => 'required|digits:10',
-            'signup_password' => 'required|min:6',
+            'signup_password' => 'required|min:8',
         ]);
 
         // CHECK EXISTING USER
