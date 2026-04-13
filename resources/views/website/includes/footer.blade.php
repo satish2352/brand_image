@@ -103,12 +103,20 @@
         <div class="container">
             <div class="row align-items-center">
 
-                <div class="col-md-12 text-center text-md-center">
+                <div class="col-md-4 text-center text-md-start">
+                    &nbsp;
+                </div>
+                <div class="col-md-4 text-center">
                     <p class="footer-bottom-line mb-0">© {{ date('Y') }} <a href="https://brand-image.co.in/"
-                            target="blanck"> Brand
-                            Image Pvt. Ltd.,</a> All rights
+                            target="blanck">Brand
+                            Image Pvt. Ltd.</a> All rights
                         reserved.
                     </p>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <span class="developed-by">Developed By <a href="https://www.sumagoinfotech.com" target="_blank"
+                            rel="noopener"><img src="{{ asset('asset/images/users/sumlogo.png') }}" alt="user-img"
+                                class="rounded-circle dev-logo"></a></span>
                 </div>
 
                 {{-- <div class="col-md-6 text-center text-md-end">
@@ -128,7 +136,7 @@
 <style>
     .whatsapp-float {
         position: fixed;
-        bottom: 28px;
+        bottom: 80px;
         right: 28px;
         z-index: 9999;
         background-color: #25D366;
@@ -149,6 +157,18 @@
         background-color: #1ebe57;
         transform: scale(1.1);
         color: #fff;
+    }
+
+    .developed-by {
+        font-size: 13px;
+        color: #ffffff;
+    }
+
+    .dev-logo {
+        height: 28px;
+        width: 28px;
+        object-fit: cover;
+        vertical-align: middle;
     }
 </style>
 
