@@ -105,6 +105,7 @@ class HomeController extends Controller
                         WHERE mbd.media_id = m.id
                         AND mbd.is_deleted = 0
                         AND mbd.is_active = 1
+                        AND mbd.to_date >= CURDATE()
                     )
                     THEN 1 ELSE 0
                 END AS is_booked
