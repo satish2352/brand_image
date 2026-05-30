@@ -308,6 +308,9 @@
                                     overflow:hidden;
                                 ">${m.media_title} ${m.area_name}</div>
                                 <div style="font-size:11px;color:#888;">${sqft} sqft</div>
+                                <div style="font-size:10px;color:#999;display:flex;align-items:center;gap:3px;">
+                                    📍 ${parseFloat(m.latitude).toFixed(6)}, ${parseFloat(m.longitude).toFixed(6)}
+                                </div>
                                 <div style="font-size:13px;font-weight:700;color:#f28123;">${price}</div>
                                 <a href="${url}" style="
                                     display:block;
