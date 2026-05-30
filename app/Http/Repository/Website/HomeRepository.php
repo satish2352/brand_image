@@ -11,6 +11,25 @@ class HomeRepository
 {
     public function searchMedia(array $filters)
     {
+        return $this->buildSearchQuery($filters)
+            ->orderBy('m.id', 'DESC')
+            ->paginate(config('fileConstants.SEARCH-PAGINATION'));
+    }
+
+    /**
+     * Returns ALL matching rows (no pagination) for plotting on the map.
+     * Uses the exact same filters as searchMedia so the markers always
+     * match the result count.
+     */
+    public function getMapMarkers(array $filters)
+    {
+        return $this->buildSearchQuery($filters)
+            ->orderBy('m.id', 'DESC')
+            ->get();
+    }
+
+    private function buildSearchQuery(array $filters)
+    {
         $query = DB::table('media_management as m')
             ->leftJoin('cities as city', 'city.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
@@ -266,12 +285,7 @@ END AS is_available_days
             'min_area' => $filters['min_area'] ?? null,
             'max_area' => $filters['max_area'] ?? null
         ]);
-        //  PAGINATION (REQUIRED FOR LAZY LOADING)
-        $results = $query
-            ->orderBy('m.id', 'DESC')
-            ->paginate(config('fileConstants.SEARCH-PAGINATION'));
-
-        return $results;
+        return $query;
     }
 
 

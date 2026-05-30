@@ -222,8 +222,8 @@
         let mediaDetailsRoute = "{{ route('website.media-details', 'ID_PLACEHOLDER') }}";
 
         function initLeafletMap() {
-            let defaultLat = {{ $mediaList[0]->latitude ?? 19.997453 }};
-            let defaultLng = {{ $mediaList[0]->longitude ?? 73.789803 }};
+            let defaultLat = {{ optional($mapMedia->first())->latitude ?? 19.997453 }};
+            let defaultLng = {{ optional($mapMedia->first())->longitude ?? 73.789803 }};
 
             let map = L.map('map').setView([defaultLat, defaultLng], 12);
 
@@ -232,7 +232,7 @@
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            let mediaList = @json($mediaList->values());
+            let mediaList = @json($mapMedia->values());
 
             let grouped = {};
 

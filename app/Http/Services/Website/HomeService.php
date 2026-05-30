@@ -23,6 +23,11 @@ class HomeService
 
         return $data_output;
     }
+
+    public function getMapMarkers(array $filters)
+    {
+        return $this->repo->getMapMarkers($filters);
+    }
     // public function getUniqueSizes()
     // {
     //     return $this->repo->getUniqueSizes();

@@ -129,6 +129,7 @@ class HomeController extends Controller
 
             $filters = [];
             $mediaList = $this->homeService->searchMedia($filters);
+            $mapMedia  = $this->homeService->getMapMarkers($filters);
             // $sizes = $this->homeService->getUniqueSizes();
 
             $areaRange = $this->getCachedAreaRange();
@@ -136,6 +137,7 @@ class HomeController extends Controller
 
             return view('website.search', compact(
                 'mediaList',
+                'mapMedia',
                 'filters',
                 'areaRange',
                 'areaTypes'
@@ -171,8 +173,9 @@ class HomeController extends Controller
         }
         $areaTypes = $this->getCachedAreaTypes();
         $areaRange = $this->getCachedAreaRange();
+        $mapMedia  = $this->homeService->getMapMarkers($filters);
 
-        return view('website.search', compact('mediaList', 'filters', 'areaRange', 'areaTypes'));
+        return view('website.search', compact('mediaList', 'mapMedia', 'filters', 'areaRange', 'areaTypes'));
     }
     public function searchView()
     {
@@ -181,12 +184,13 @@ class HomeController extends Controller
         $filters = [];
 
         $mediaList = $this->homeService->searchMedia($filters);
+        $mapMedia  = $this->homeService->getMapMarkers($filters);
 
         // $sizes = $this->homeService->getUniqueSizes();
         $areaTypes = $this->getCachedAreaTypes();
         $areaRange = $this->getCachedAreaRange();
 
-        return view('website.search', compact('mediaList', 'filters',  'areaRange', 'areaTypes'));
+        return view('website.search', compact('mediaList', 'mapMedia', 'filters',  'areaRange', 'areaTypes'));
     }
     public function getMediaDetails($mediaId)
     {
