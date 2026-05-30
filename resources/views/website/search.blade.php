@@ -8,6 +8,33 @@
             font-family: "Outfit", sans-serif;
         }
 
+        /* Pin with a count badge for stacked / repeated-location media */
+        .multi-media-marker {
+            background: transparent;
+            border: none;
+        }
+
+        .multi-media-pin {
+            position: relative;
+            width: 30px;
+            height: 42px;
+            background: #f28123;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .multi-media-count {
+            transform: rotate(45deg);
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: "Outfit", sans-serif;
+        }
+
         .leaflet-popup-content {
             width: auto !important;
             max-width: 500px;
@@ -209,18 +236,40 @@
 
             let grouped = {};
 
+            // Group markers that share the same (or near-identical) location.
+            // latitude/longitude come back as decimal strings, so we round to
+            // ~5 decimals (~1m) to make sure repeated/overlapping pins merge.
             mediaList.forEach(m => {
-                let key = m.latitude + ',' + m.longitude;
+                if (m.latitude == null || m.longitude == null) return;
+                let roundedLat = parseFloat(m.latitude).toFixed(5);
+                let roundedLng = parseFloat(m.longitude).toFixed(5);
+                let key = roundedLat + ',' + roundedLng;
                 if (!grouped[key]) grouped[key] = [];
                 grouped[key].push(m);
             });
 
             for (let key in grouped) {
                 let items = grouped[key];
-                let lat = items[0].latitude;
-                let lng = items[0].longitude;
+                let lat = parseFloat(items[0].latitude);
+                let lng = parseFloat(items[0].longitude);
 
-                let marker = L.marker([lat, lng]).addTo(map);
+                let marker;
+                if (items.length > 1) {
+                    // Show a count badge so stacked pins are visible on the map.
+                    marker = L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            className: 'multi-media-marker',
+                            html: '<div class="multi-media-pin">'
+                                + '<span class="multi-media-count">' + items.length + '</span>'
+                                + '</div>',
+                            iconSize: [30, 42],
+                            iconAnchor: [15, 42],
+                            popupAnchor: [0, -38]
+                        })
+                    }).addTo(map);
+                } else {
+                    marker = L.marker([lat, lng]).addTo(map);
+                }
 
                 marker.on('click', function() {
                     let cards = '';
