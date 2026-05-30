@@ -241,8 +241,11 @@
             // ~5 decimals (~1m) to make sure repeated/overlapping pins merge.
             mediaList.forEach(m => {
                 if (m.latitude == null || m.longitude == null) return;
-                let roundedLat = parseFloat(m.latitude).toFixed(5);
-                let roundedLng = parseFloat(m.longitude).toFixed(5);
+                // Group by exact stored coordinate (6 decimals ≈ 0.1m) so the
+                // marker count matches the repeated lat/long count exactly and
+                // every record at that point shows in the popup.
+                let roundedLat = parseFloat(m.latitude).toFixed(6);
+                let roundedLng = parseFloat(m.longitude).toFixed(6);
                 let key = roundedLat + ',' + roundedLng;
                 if (!grouped[key]) grouped[key] = [];
                 grouped[key].push(m);
@@ -328,18 +331,34 @@
                         </div>`;
                     });
 
+                    // Show up to 3 cards side-by-side; the rest are reachable by scrolling.
+                    let visibleCols = Math.min(items.length, 3);
+                    let rowWidth = items.length === 1 ? 180 : (visibleCols * 170 + 20);
+
+                    let header = items.length > 1
+                        ? `<div style="
+                                font-size:12px;
+                                font-weight:700;
+                                color:#222;
+                                font-family:'Outfit',sans-serif;
+                                padding:2px 2px 6px;
+                            ">${items.length} media at this location${items.length > 3 ? ' — scroll to see all →' : ''}</div>`
+                        : '';
+
                     let html = `
-                    <div style="
-                        display:flex;
-                        gap:10px;
-                        overflow-x:auto;
-                        padding:6px 2px 8px;
-                        max-width:${items.length === 1 ? '180px' : '360px'};
-                        scrollbar-width:thin;
-                    ">${cards}</div>`;
+                    <div style="max-width:${rowWidth}px;">
+                        ${header}
+                        <div style="
+                            display:flex;
+                            gap:10px;
+                            overflow-x:auto;
+                            padding:6px 2px 8px;
+                            scrollbar-width:thin;
+                        ">${cards}</div>
+                    </div>`;
 
                     L.popup({
-                            maxWidth: 400,
+                            maxWidth: 560,
                             className: 'map-media-popup'
                         })
                         .setLatLng([lat, lng])
