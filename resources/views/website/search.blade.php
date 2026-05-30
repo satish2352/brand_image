@@ -35,6 +35,27 @@
             font-family: "Outfit", sans-serif;
         }
 
+        /* Cluster circle showing total record count */
+        .media-cluster {
+            background: transparent;
+        }
+
+        .media-cluster .cluster-bubble {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #f28123;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: "Outfit", sans-serif;
+        }
+
         .leaflet-popup-content {
             width: auto !important;
             max-width: 500px;
@@ -217,6 +238,9 @@
 @if ($mediaList->count())
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <script>
         let mediaDetailsRoute = "{{ route('website.media-details', 'ID_PLACEHOLDER') }}";
@@ -234,11 +258,34 @@
 
             let mediaList = @json($mapMedia->values());
 
+            // Cluster group: overlapping / very-close pins collapse into one
+            // numbered circle showing the TOTAL record count, and split apart
+            // as the user zooms in. Markers at the exact same point fan out
+            // (spiderfy) on click.
+            let clusterGroup = L.markerClusterGroup({
+                showCoverageOnHover: false,
+                spiderfyOnMaxZoom: true,
+                maxClusterRadius: 40,
+                iconCreateFunction: function(cluster) {
+                    // Sum the record count of every child marker so the badge
+                    // reflects records, not just unique locations.
+                    let total = 0;
+                    cluster.getAllChildMarkers().forEach(function(mk) {
+                        total += (mk.recordCount || 1);
+                    });
+                    let size = total < 10 ? 34 : (total < 100 ? 40 : 48);
+                    return L.divIcon({
+                        html: '<div class="cluster-bubble"><span>' + total + '</span></div>',
+                        className: 'media-cluster',
+                        iconSize: L.point(size, size)
+                    });
+                }
+            });
+
             let grouped = {};
 
-            // Group markers that share the same (or near-identical) location.
-            // latitude/longitude come back as decimal strings, so we round to
-            // ~5 decimals (~1m) to make sure repeated/overlapping pins merge.
+            // Group records that share the EXACT same coordinate (6 decimals)
+            // into a single marker whose popup lists all of them.
             mediaList.forEach(m => {
                 if (m.latitude == null || m.longitude == null) return;
                 // Group by exact stored coordinate (6 decimals ≈ 0.1m) so the
@@ -269,10 +316,15 @@
                             iconAnchor: [15, 42],
                             popupAnchor: [0, -38]
                         })
-                    }).addTo(map);
+                    });
                 } else {
-                    marker = L.marker([lat, lng]).addTo(map);
+                    marker = L.marker([lat, lng]);
                 }
+
+                // Remember how many records this marker represents so the
+                // cluster badge can sum them correctly.
+                marker.recordCount = items.length;
+                clusterGroup.addLayer(marker);
 
                 marker.on('click', function() {
                     let cards = '';
@@ -365,6 +417,14 @@
                         .setContent(html)
                         .openOn(map);
                 });
+            }
+
+            map.addLayer(clusterGroup);
+
+            // Zoom/pan so every marker is visible at once.
+            let bounds = clusterGroup.getBounds();
+            if (bounds.isValid()) {
+                map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
             }
         }
 
