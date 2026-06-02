@@ -113,11 +113,11 @@
                         reserved.
                     </p>
                 </div>
-                <div class="col-md-4 text-center text-md-end">
+                {{-- <div class="col-md-4 text-center text-md-end">
                     <span class="developed-by">Developed By <a href="https://www.sumagoinfotech.com" target="_blank"
                             rel="noopener"><img src="{{ asset('asset/images/users/sumlogo.png') }}" alt="user-img"
                                 class="rounded-circle dev-logo"></a></span>
-                </div>
+                </div> --}}
 
                 {{-- <div class="col-md-6 text-center text-md-end">
                     <p class="footer-bottom-line mb-0">Developed by <strong>Sumago Infotech</strong></p>
