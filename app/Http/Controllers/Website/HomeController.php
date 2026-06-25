@@ -158,7 +158,9 @@ class HomeController extends Controller
             'max_price',   // <- add
             'size_id',   //  FIXED
             'min_area',   //  add
-            'max_area'    //  add
+            'max_area',    //  add
+            'highway_id',     // Highway filter (single)
+            'landmark_ids'    // Landmark filter (multiple, OR logic)
         ]);
         //  SAVE FILTERS IN SESSION
         session(['search_filters' => $filters]);

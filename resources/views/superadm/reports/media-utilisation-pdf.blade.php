@@ -31,9 +31,11 @@
                 <th>User</th>
                 <th>Vendor Name</th>
                 <th>Vendor Code</th>
-
+                <th>Hoarding Code</th>
                 <th>Media Title</th>
                 <th>Category</th>
+                <th>Highway</th>
+                <th>Landmarks</th>
                 <th>Size</th>
                 <th>From</th>
                 <th>To</th>
@@ -49,9 +51,11 @@
                     <td>{{ $row->user_name }}</td>
                     <td>{{ $row->vendor_name ?? '-' }}</td>
                     <td>{{ $row->vendor_code ?? '-' }}</td>
-
+                    <td>{{ $row->hoarding_code ?? '-' }}</td>
                     <td>{{ $row->media_title }}</td>
                     <td>{{ $row->category_name }}</td>
+                    <td>{{ $row->highway_name ?? '-' }}</td>
+                    <td>{{ $row->landmark_names ?? '-' }}</td>
                     <td>{{ $row->width }} x {{ $row->height }}</td>
                     <td>{{ $row->from_date }}</td>
                     <td>{{ $row->to_date }}</td>

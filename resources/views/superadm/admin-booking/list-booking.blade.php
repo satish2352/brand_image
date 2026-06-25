@@ -18,6 +18,7 @@
                                     <th>Mobile</th>
                                     <th>Vendor Name</th>
                                     <th>Vendor Code</th>
+                                    <th>Hoarding Codes</th>
                                     <th>Order No</th>
                                     <th>Total Amount (₹)</th>
                                     <th>Payment Status</th>
@@ -37,6 +38,7 @@
                                         <td>{{ $row->mobile_number }}</td>
                                         <td>{{ $row->vendor_name }}</td>
                                         <td>{{ $row->vendor_code }}</td>
+                                        <td>{{ $row->hoarding_codes ?? '-' }}</td>
                                         <td>{{ $row->order_no }}</td>
                                         <td>{{ number_format($row->grand_total, 2) }}</td>
                                         {{-- <td>

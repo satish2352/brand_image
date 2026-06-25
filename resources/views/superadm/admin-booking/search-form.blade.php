@@ -163,6 +163,44 @@
 
                     </select>
                 </div>
+
+                {{-- HIGHWAY FILTER (single select) --}}
+                <div class="col-xl-2 col-lg-3 col-md-6">
+                    <label class="form-label">Highway</label>
+                    <select name="highway_id" class="form-select form-control">
+                        <option value="">All Highways</option>
+                        @foreach ($highways as $hw)
+                            <option value="{{ $hw->id }}"
+                                {{ ($filters['highway_id'] ?? '') == $hw->id ? 'selected' : '' }}>
+                                {{ $hw->highway_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- LANDMARK FILTER (multi-select checkbox dropdown) --}}
+                @php $selectedLandmarks = (array) ($filters['landmark_ids'] ?? []); @endphp
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <label class="form-label">Landmarks</label>
+                    <div class="checkbox-dropdown" id="landmarkDropdown">
+                        <button type="button" class="form-select form-control text-start checkbox-toggle"
+                            id="landmarkToggle">
+                            <span class="checkbox-toggle-text">All Landmarks</span>
+                        </button>
+                        <div class="checkbox-menu">
+                            @forelse ($landmarks as $lm)
+                                <label class="checkbox-option">
+                                    <input type="checkbox" name="landmark_ids[]" value="{{ $lm->id }}"
+                                        {{ in_array($lm->id, $selectedLandmarks) ? 'checked' : '' }}>
+                                    <span>{{ $lm->landmark_name }}</span>
+                                </label>
+                            @empty
+                                <div class="checkbox-empty">No landmarks available</div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-xl-2 col-lg-3 col-md-6">
 
                     <label class="form-label">Media Size (sq.ft)</label>
@@ -285,6 +323,119 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+{{-- ===== Custom checkbox dropdowns for Highway & Landmark multi-select filters ===== --}}
+<style>
+    .checkbox-dropdown {
+        position: relative;
+    }
+    .checkbox-toggle {
+        width: 100%;
+        background: #fff;
+        cursor: pointer;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .checkbox-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        max-height: 220px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        padding: 6px;
+    }
+    .checkbox-dropdown.open .checkbox-menu {
+        display: block;
+    }
+    .checkbox-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        margin: 0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 400;
+    }
+    .checkbox-option:hover {
+        background: #eef5ff;
+    }
+    .checkbox-option input[type="checkbox"] {
+        -webkit-appearance: checkbox !important;
+        -moz-appearance: checkbox !important;
+        appearance: auto !important;
+        width: 16px !important;
+        height: 16px !important;
+        min-width: 16px;
+        flex: 0 0 16px;
+        margin: 0 !important;
+        padding: 0;
+        position: static !important;
+        opacity: 1 !important;
+        accent-color: #0d6efd;
+        cursor: pointer;
+    }
+    .checkbox-empty {
+        padding: 8px 10px;
+        color: #888;
+        font-size: 14px;
+    }
+</style>
+<script>
+    $(function () {
+        function initCheckboxDropdown(dropdownId, emptyLabel) {
+            const $dropdown = $('#' + dropdownId);
+            const $toggle = $dropdown.find('.checkbox-toggle');
+            const $text = $toggle.find('.checkbox-toggle-text');
+
+            function updateLabel() {
+                const labels = $dropdown.find('input[type="checkbox"]:checked')
+                    .map(function () {
+                        return $(this).siblings('span').text().trim();
+                    }).get();
+
+                if (labels.length === 0) {
+                    $text.text(emptyLabel);
+                } else if (labels.length <= 2) {
+                    $text.text(labels.join(', '));
+                } else {
+                    $text.text(labels.length + ' selected');
+                }
+            }
+
+            $toggle.on('click', function (e) {
+                e.stopPropagation();
+                // close any other open dropdown
+                $('.checkbox-dropdown').not($dropdown).removeClass('open');
+                $dropdown.toggleClass('open');
+            });
+
+            // keep menu open while ticking checkboxes
+            $dropdown.find('.checkbox-menu').on('click', function (e) {
+                e.stopPropagation();
+            });
+
+            $dropdown.on('change', 'input[type="checkbox"]', updateLabel);
+
+            updateLabel();
+        }
+
+        initCheckboxDropdown('landmarkDropdown', 'All Landmarks');
+
+        // close all when clicking outside
+        $(document).on('click', function () {
+            $('.checkbox-dropdown').removeClass('open');
+        });
+    });
+</script>
 <script>
     function toggleRadius() {
         const cityId = $('#city_id').val();

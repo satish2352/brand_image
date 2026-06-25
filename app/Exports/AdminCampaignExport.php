@@ -56,6 +56,7 @@ class AdminCampaignExport implements
             ->leftJoin('states as s', 's.id', '=', 'ar.state_id')
             ->leftJoin('districts as d', 'd.id', '=', 'ar.district_id')
             ->leftJoin('cities as ct', 'ct.id', '=', 'ar.city_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->where('ci.campaign_id', $this->campaignId)
             ->where('ci.is_active', 1)
             ->where('ci.is_deleted', 0)
@@ -66,6 +67,9 @@ class AdminCampaignExport implements
                 'd.district_name as district_name',
                 'ct.city_name as city_name',
                 'm.media_code',
+                'm.hoarding_code',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 'ar.area_name',
                 'm.width',
                 'm.height',
@@ -95,7 +99,10 @@ class AdminCampaignExport implements
             $row->district_name ?? '-',
             $row->city_name ?? '-',
             $row->media_code ?? '-',
+            $row->hoarding_code ?? '-',
             $row->area_name ?? '-',
+            $row->highway_name ?? '-',
+            $row->landmark_names ?? '-',
             $row->width ?? 0,
             $row->height ?? 0,
             $totalSqft,
@@ -118,7 +125,10 @@ class AdminCampaignExport implements
             'District',
             'Town',
             'Site Code',
+            'Hoarding Code',
             'Location',
+            'Highway',
+            'Landmarks',
             'Width',
             'Height',
             'Total Sqft',
@@ -160,13 +170,13 @@ class AdminCampaignExport implements
                 $sheet    = $event->sheet->getDelegate();
                 $totalRow = $this->srNo + 2; // row 1 = heading, rows 2..N = data
 
-                // Label spanning columns A–L
-                $sheet->mergeCells('A' . $totalRow . ':L' . $totalRow);
+                // Label spanning columns A–O; totals in P (Amount) and Q (Total Amount)
+                $sheet->mergeCells('A' . $totalRow . ':O' . $totalRow);
                 $sheet->setCellValue('A' . $totalRow, 'Grand Total');
-                $sheet->setCellValue('M' . $totalRow, number_format($this->grandTotal, 2));
-                $sheet->setCellValue('N' . $totalRow, number_format($this->grandTotal, 2));
+                $sheet->setCellValue('P' . $totalRow, number_format($this->grandTotal, 2));
+                $sheet->setCellValue('Q' . $totalRow, number_format($this->grandTotal, 2));
 
-                $sheet->getStyle('A' . $totalRow . ':N' . $totalRow)->applyFromArray([
+                $sheet->getStyle('A' . $totalRow . ':Q' . $totalRow)->applyFromArray([
                     'font' => ['bold' => true],
                     'fill' => [
                         'fillType'   => 'solid',

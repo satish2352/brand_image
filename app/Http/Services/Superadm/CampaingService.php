@@ -41,6 +41,7 @@ class CampaingService
             ->leftJoin('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->where('c.user_id', $userId)
             ->where('ci.cart_type', 'CAMPAIGN')
             ->select(
@@ -56,11 +57,14 @@ class CampaingService
                 'ci.total_days',
                 'ci.total_price',
                 'm.media_title',
+                'm.hoarding_code',
                 'm.width',
                 'm.height',
                 'm.facing',
                 'v.vendor_name',
                 'v.vendor_code',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 'a.area_name',
                 'a.common_stdiciar_name'
             )

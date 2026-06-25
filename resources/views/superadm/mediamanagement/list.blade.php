@@ -99,6 +99,13 @@
                                     <input type="date" name="to_date" class="form-control"
                                         value="{{ request('to_date') }}">
                                 </div>
+
+                                <div class="col-md-3">
+                                    <label><b>Hoarding Code</b></label>
+                                    <input type="text" name="hoarding_code" class="form-control"
+                                        placeholder="e.g. HD000007" value="{{ request('hoarding_code') }}">
+                                </div>
+
                                 <div class="col-md-6 d-flex align-items-end">
                                     <button class="btn btn-success m-2">Filter</button>
                                     <a href="{{ route('media.list') }}" class="btn btn-secondary m-2">Reset</a>
@@ -121,7 +128,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Sr.No</th>
-                                        {{-- <th>Media Code</th> --}}
+                                        <th>Hoarding Code</th>
                                         <th>Media Title</th>
                                         <th>Category</th>
                                         <th>State</th>
@@ -141,6 +148,7 @@
                                         <tr>
                                             {{-- <td>{{ $key + 1 }}</td> --}}
                                             <td>{{ $mediaList->firstItem() + $key }}</td>
+                                            <td><span class="badge bg-dark">{{ $media->hoarding_code ?? '-' }}</span></td>
                                             <td>{{ $media->media_title ?? '-' }}</td>
                                             <td>{{ $media->category_name ?? '-' }}</td>
                                             <td>{{ $media->state_name ?? '-' }}</td>
@@ -192,7 +200,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="12" class="text-center">
+                                            <td colspan="13" class="text-center">
                                                 No media found
                                             </td>
                                         </tr>

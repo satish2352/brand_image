@@ -67,6 +67,9 @@
                 request()->is('illumination/*') ||
                 request()->is('category/*') ||
                 request()->is('radius/*') ||
+                request()->is('areatype/*') ||
+                request()->is('landmark/*') ||
+                request()->is('highway/*') ||
                 request()->is('vendor/*');
         @endphp
 
@@ -110,6 +113,20 @@
                     <a href="{{ route('areatype.list') }}">
                         <i class="mdi mdi-store"></i>
                         <span>Area Type</span>
+                    </a>
+                </li>
+                <li
+                    class="{{ request()->is('highway/list') || request()->is('highway/add') || request()->is('highway/edit/*') ? 'active' : '' }}">
+                    <a href="{{ route('highway.list') }}">
+                        <i class="mdi mdi-road-variant"></i>
+                        <span>Highway</span>
+                    </a>
+                </li>
+                <li
+                    class="{{ request()->is('landmark/list') || request()->is('landmark/add') || request()->is('landmark/edit/*') ? 'active' : '' }}">
+                    <a href="{{ route('landmark.list') }}">
+                        <i class="mdi mdi-map-marker"></i>
+                        <span>Landmark</span>
                     </a>
                 </li>
                 <li

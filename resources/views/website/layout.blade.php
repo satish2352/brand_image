@@ -134,7 +134,7 @@
     </main>
 
     {{-- Include Footer --}}
-    @if (!request()->is('search') && !request()->is('brand_image/public/search'))
+    @if (!request()->is('search') && !request()->is('brand_image/public/search') && !request()->is('explore') && !request()->is('brand_image/public/explore'))
         @include('website.includes.footer')
     @endif
 

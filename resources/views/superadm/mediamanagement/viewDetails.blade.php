@@ -124,12 +124,32 @@
 
                         <div class="info-row">
                             <div class="info-col">
+                                <div class="info-label">Hoarding Code</div>
+                                <div class="info-value">{{ $media->hoarding_code ?? '-' }}</div>
+                            </div>
+                            <div class="info-col">
                                 <div class="info-label">Media Code</div>
                                 <div class="info-value">{{ $media->media_code ?? '-' }}</div>
                             </div>
+                        </div>
+
+                        <div class="info-row">
                             <div class="info-col">
                                 <div class="info-label">Media Title</div>
                                 <div class="info-value">{{ $media->media_title ?? '-' }}</div>
+                            </div>
+                            <div class="info-col">
+                                <div class="info-label">Highway</div>
+                                <div class="info-value">{{ $media->highway_name ?? '-' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-col">
+                                <div class="info-label">Landmarks</div>
+                                <div class="info-value">
+                                    {{ !empty($media->landmark_names) ? implode(', ', $media->landmark_names) : '-' }}
+                                </div>
                             </div>
                         </div>
 

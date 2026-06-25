@@ -48,6 +48,7 @@ class CampaignExport implements
             ->leftJoin('districts as d', 'd.id', '=', 'ar.district_id')
             ->leftJoin('cities as ct', 'ct.id', '=', 'ar.city_id')
             ->leftJoin('states as s', 's.id', '=', 'ar.state_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->where('c.user_id', $this->userId)
             ->where('ci.campaign_id', $this->campaignId)
             ->where('ci.is_active', 1)
@@ -56,6 +57,9 @@ class CampaignExport implements
                 'd.district_name as district_name',
                 'ct.city_name as city_name',
                 'm.media_code',
+                'm.hoarding_code',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 'ar.area_name',
                 'm.width',
                 'm.height',
@@ -87,7 +91,10 @@ class CampaignExport implements
             $row->district_name ?? '-',
             $row->city_name ?? '-',
             $row->media_code ?? '-',
+            $row->hoarding_code ?? '-',
             $row->area_name ?? '-',
+            $row->highway_name ?? '-',
+            $row->landmark_names ?? '-',
             $row->width ?? 0,
             $row->height ?? 0,
             $totalSqft,
@@ -106,7 +113,10 @@ class CampaignExport implements
             'District',
             'Town',
             'Site Code',
+            'Hoarding Code',
             'Location',
+            'Highway',
+            'Landmarks',
             'Width',
             'Height',
             'Total Sqft',
@@ -148,15 +158,15 @@ class CampaignExport implements
 
                 $event->sheet->setCellValue('A' . $totalRow, 'GRAND TOTAL');
 
-                // merge till Total Days column
-                $event->sheet->mergeCells("A{$totalRow}:K{$totalRow}");
+                // merge till Total Days column (now column N)
+                $event->sheet->mergeCells("A{$totalRow}:N{$totalRow}");
 
-                // totals
-                $event->sheet->setCellValue('L' . $totalRow, number_format($this->grandTotal, 2));
-                $event->sheet->setCellValue('M' . $totalRow, number_format($this->grandGst, 2));
-                $event->sheet->setCellValue('N' . $totalRow, number_format($this->grandFinal, 2));
+                // totals (O = Amount, P = GST, Q = Final)
+                $event->sheet->setCellValue('O' . $totalRow, number_format($this->grandTotal, 2));
+                $event->sheet->setCellValue('P' . $totalRow, number_format($this->grandGst, 2));
+                $event->sheet->setCellValue('Q' . $totalRow, number_format($this->grandFinal, 2));
 
-                $event->sheet->getStyle("A{$totalRow}:N{$totalRow}")
+                $event->sheet->getStyle("A{$totalRow}:Q{$totalRow}")
                     ->applyFromArray([
                         'font' => ['bold' => true],
                     ]);

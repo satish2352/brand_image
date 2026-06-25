@@ -19,6 +19,7 @@
                                     <th>Mobile</th>
                                     <th>Vendor Name</th>
                                     <th>Vendor Code</th>
+                                    <th>Hoarding Codes</th>
                                     <th>Campaign Name</th>
                                     <th>Order No</th>
                                     <th>From Date</th>
@@ -45,6 +46,7 @@
                                         <td>{{ $row->mobile_number }}</td>
                                         <td>{{ $row->vendor_name }}</td>
                                         <td>{{ $row->vendor_code }}</td>
+                                        <td>{{ $row->hoarding_codes ?? '-' }}</td>
                                         <td>{{ $row->campaign_name ?? '-' }}</td>
                                         <td>{{ $row->order_no }}</td>
                                         <td>

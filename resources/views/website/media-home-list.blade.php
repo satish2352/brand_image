@@ -33,6 +33,17 @@
             border-radius: 10px;
         }
 
+        /* ⭐ Map ↔ list synchronisation */
+        .media-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .media-card.selected {
+            border-color: #e53935;
+            box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.30), 0 8px 20px rgba(0, 0, 0, 0.18);
+        }
+
         /* ⭐ IMPORTANT FIX */
         .card-shadow .row {
             margin-left: 0 !important;
@@ -60,6 +71,15 @@
             object-fit: cover !important;
             /* object-fit: contain !important; */
             object-position: center;
+        }
+
+        /* ⭐ Keep the "View on Map" / "360° View" icons small (a global img
+           rule was overriding their width="30" attribute). */
+        .media-map img {
+            width: 30px !important;
+            height: auto !important;
+            max-width: 30px !important;
+            object-fit: contain;
         }
 
         .single-latest-news {
@@ -132,7 +152,7 @@
         }
     </style>
 
-    <div class=" card-shadow">
+    <div class="card-shadow media-card" data-media-id="{{ $media->id }}" id="media-card-{{ $media->id }}">
         <div class="row">
             <div class="col-lg-5 col-md-5 col-sm-5 px-0">
 

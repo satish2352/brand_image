@@ -18,7 +18,9 @@ use App\Models\{
     Vendor,
     State,
     City,
-    AreaType
+    AreaType,
+    Highway,
+    Landmark
 };
 
 class MediaManagementController extends Controller
@@ -32,14 +34,15 @@ class MediaManagementController extends Controller
     {
         try {
             $filters = [
-                'vendor_id'   => $request->vendor_id,
-                'category_id' => $request->category_id,
-                'district_id' => $request->district_id,
-                'city_id'     => $request->city_id,
-                'month'       => $request->month,
-                'year'        => $request->year,
-                'from_date'   => $request->from_date,
-                'to_date'     => $request->to_date,
+                'vendor_id'     => $request->vendor_id,
+                'category_id'   => $request->category_id,
+                'district_id'   => $request->district_id,
+                'city_id'       => $request->city_id,
+                'month'         => $request->month,
+                'year'          => $request->year,
+                'from_date'     => $request->from_date,
+                'to_date'       => $request->to_date,
+                'hoarding_code' => $request->hoarding_code,
             ];
 
             $mediaList  = $this->mediaService->getAll($filters);
@@ -87,12 +90,24 @@ class MediaManagementController extends Controller
             ->orderBy('areatype_name')
             ->get();
 
+        $highways = Highway::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('highway_name')
+            ->get();
+
+        $landmarks = Landmark::where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->orderBy('landmark_name')
+            ->get();
+
         return view('superadm.mediamanagement.create', compact(
             'categories',
             'facings',
             'illuminations',
             'vendors',
-            'areatype'
+            'areatype',
+            'highways',
+            'landmarks'
         ));
     }
     public function store(Request $request)
@@ -118,6 +133,11 @@ class MediaManagementController extends Controller
             // 'images'      => 'nullable|array|max:10',
             'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:600',
             'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+
+            // Highway (single) + Landmarks (multiple) — optional
+            'highway_id'    => 'nullable|integer|exists:highway,id',
+            'landmark_ids'  => 'nullable|array',
+            'landmark_ids.*' => 'integer|exists:landmark,id',
         ];
 
         switch (true) {
@@ -242,6 +262,23 @@ class MediaManagementController extends Controller
                 ->where('is_deleted', 0)
                 ->orderBy('areatype_name')
                 ->get();
+
+            $highways = Highway::where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->orderBy('highway_name')
+                ->get();
+
+            $landmarks = Landmark::where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->orderBy('landmark_name')
+                ->get();
+
+            // Landmark ids already tagged on this hoarding (for preselecting)
+            $selectedLandmarks = DB::table('media_landmark')
+                ->where('media_id', $id)
+                ->pluck('landmark_id')
+                ->toArray();
+
             return view('superadm.mediamanagement.edit', compact(
                 'media',
                 'categories',
@@ -251,7 +288,10 @@ class MediaManagementController extends Controller
                 'areas',
                 // 'radius',
                 'vendors',
-                'areatype'
+                'areatype',
+                'highways',
+                'landmarks',
+                'selectedLandmarks'
             ));
         } catch (\Exception $e) {
             return redirect()->route('media.list')->with('error', 'Invalid media ID');
@@ -278,6 +318,11 @@ class MediaManagementController extends Controller
 
             // ✅ ADD THIS
             'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+
+            // Highway (single) + Landmarks (multiple) — optional
+            'highway_id'    => 'nullable|integer|exists:highway,id',
+            'landmark_ids'  => 'nullable|array',
+            'landmark_ids.*' => 'integer|exists:landmark,id',
         ];
         $messages = [
             'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',

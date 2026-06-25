@@ -240,6 +240,42 @@
                     </select>
                 </div> --}}
 
+                <!-- Highway -->
+                <div class="col-lg-2 col-md-4 col-sm-6" id="highway_wrapper">
+                    <label class="form-label">Highway</label>
+                    <select name="highway_id" id="highway_id" class="form-select">
+                        <option value="">Select Highway</option>
+                        @foreach ($highways as $hw)
+                            <option value="{{ $hw->id }}"
+                                {{ ($filters['highway_id'] ?? '') == $hw->id ? 'selected' : '' }}>
+                                {{ $hw->highway_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Landmarks (multi-select checkbox dropdown) -->
+                @php $selectedLandmarks = (array) ($filters['landmark_ids'] ?? []); @endphp
+                <div class="col-lg-2 col-md-4 col-sm-6" id="landmark_wrapper">
+                    <label class="form-label">Landmarks</label>
+                    <div class="landmark-dropdown" id="landmarkDropdown">
+                        <button type="button" class="form-select text-start landmark-toggle" id="landmarkToggle">
+                            <span class="landmark-toggle-text">Select Landmarks</span>
+                        </button>
+                        <div class="landmark-menu" id="landmarkMenu">
+                            @forelse ($landmarks as $lm)
+                                <label class="landmark-option">
+                                    <input type="checkbox" name="landmark_ids[]" value="{{ $lm->id }}"
+                                        {{ in_array($lm->id, $selectedLandmarks) ? 'checked' : '' }}>
+                                    <span>{{ $lm->landmark_name }}</span>
+                                </label>
+                            @empty
+                                <div class="landmark-empty">No landmarks available</div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
                 <!-- From Date -->
                 <div class="col-lg-2 col-md-4 col-sm-6" id="date_wrapper">
                     <label class="form-label">From Date</label>
@@ -676,14 +712,14 @@
             let categoryId = $('select[name="category_id"]').val();
 
             // ❌ Hide everything by default
-            $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
+            $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper, #highway_wrapper, #landmark_wrapper')
                 .hide()
                 .find('select, input')
                 .prop('disabled', true);
 
             // 🟢 Category 1 → show ALL
             if (categoryId == 1) {
-                $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper')
+                $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper, #highway_wrapper, #landmark_wrapper')
                     .show()
                     .find('select, input')
                     .prop('disabled', false);
@@ -766,5 +802,103 @@
         minSlider.on("input change", updateSlider);
         maxSlider.on("input change", updateSlider);
 
+    });
+</script>
+
+{{-- ===== Custom checkbox dropdown for the Landmarks multi-select filter ===== --}}
+<style>
+    .landmark-dropdown {
+        position: relative;
+    }
+    .landmark-toggle {
+        width: 100%;
+        background: #fff;
+        cursor: pointer;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .landmark-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        max-height: 220px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        padding: 6px;
+    }
+    .landmark-dropdown.open .landmark-menu {
+        display: block;
+    }
+    .landmark-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        margin: 0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 400;
+    }
+    .landmark-option:hover {
+        background: #fff3e6;
+    }
+    .landmark-option input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #f28123;
+        cursor: pointer;
+    }
+    .landmark-empty {
+        padding: 8px 10px;
+        color: #888;
+        font-size: 14px;
+    }
+</style>
+<script>
+    $(function () {
+        const $dropdown = $('#landmarkDropdown');
+        const $toggle = $('#landmarkToggle');
+        const $text = $toggle.find('.landmark-toggle-text');
+
+        function updateLabel() {
+            const labels = $dropdown.find('input[type="checkbox"]:checked')
+                .map(function () {
+                    return $(this).siblings('span').text().trim();
+                }).get();
+
+            if (labels.length === 0) {
+                $text.text('Select Landmarks');
+            } else if (labels.length <= 2) {
+                $text.text(labels.join(', '));
+            } else {
+                $text.text(labels.length + ' selected');
+            }
+        }
+
+        $toggle.on('click', function (e) {
+            e.stopPropagation();
+            $dropdown.toggleClass('open');
+        });
+
+        // keep menu open while ticking checkboxes
+        $('#landmarkMenu').on('click', function (e) {
+            e.stopPropagation();
+        });
+
+        $dropdown.on('change', 'input[type="checkbox"]', updateLabel);
+
+        // close when clicking outside
+        $(document).on('click', function () {
+            $dropdown.removeClass('open');
+        });
+
+        updateLabel();
     });
 </script>

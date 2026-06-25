@@ -79,6 +79,7 @@ class MediaManagementService
                 'area_auto',
                 'radius_id',
                 'areatype_id',
+                'highway_id',
                 // 'area_type',
                 'video_link',
                 'panorama_image'
@@ -86,6 +87,9 @@ class MediaManagementService
             foreach ($optionalFields as $field) {
                 $mediaData[$field] = $request->input($field);
             }
+
+            // AUTO-GENERATE UNIQUE HOARDING CODE (HD000001, HD000002, ...)
+            $mediaData['hoarding_code'] = $this->generateHoardingCode();
             // foreach ($optionalFields as $field) {
             //     if ($request->has($field)) {
             //         $mediaData[$field] = $request->$field;
@@ -100,6 +104,9 @@ class MediaManagementService
              * ------------------------*/
             $media = $this->repo->store($mediaData);
 
+            /** SYNC LANDMARKS (many-to-many) */
+            $landmarkIds = array_filter((array) $request->input('landmark_ids', []));
+            $media->landmarks()->sync($landmarkIds);
 
             /**  SAVE IMAGES */
             if ($request->hasFile('images')) {
@@ -166,7 +173,8 @@ class MediaManagementService
                 'minimum_booking_days',
                 'price',
                 'vendor_id',
-                'area_auto'
+                'area_auto',
+                'highway_id'
             ]);
 
             // MEDIA CODE
@@ -178,6 +186,10 @@ class MediaManagementService
 
             /** UPDATE BASIC DATA */
             $this->repo->update($id, $updateData);
+
+            /** SYNC LANDMARKS (many-to-many) */
+            $landmarkIds = array_filter((array) $request->input('landmark_ids', []));
+            $media->landmarks()->sync($landmarkIds);
 
             /** 🔥 PANORAMA UPDATE */
             if ($request->hasFile('panorama_image')) {
@@ -270,6 +282,25 @@ class MediaManagementService
 
         return $vendorCode . '_' . $next;
     }
+
+    /**
+     * Generate the next globally-unique hoarding code: HD000001, HD000002, ...
+     * Runs inside the caller's DB transaction; the UNIQUE constraint on the
+     * column is the final guard against concurrent collisions.
+     */
+    private function generateHoardingCode(): string
+    {
+        $maxCode = DB::table('media_management')
+            ->whereNotNull('hoarding_code')
+            ->where('hoarding_code', 'like', 'HD%')
+            ->orderByRaw('CAST(SUBSTRING(hoarding_code, 3) AS UNSIGNED) DESC')
+            ->value('hoarding_code');
+
+        $next = $maxCode ? ((int) substr($maxCode, 2)) + 1 : 1;
+
+        return 'HD' . str_pad($next, 6, '0', STR_PAD_LEFT);
+    }
+
     public function viewDetails($id)
     {
         $rows = $this->repo->getDetailsById($id);
@@ -286,6 +317,14 @@ class MediaManagementService
                 ];
             })
             ->values();
+
+        // Attach tagged landmark names (many-to-many)
+        $media->landmark_names = DB::table('media_landmark as ml')
+            ->join('landmark as l', 'l.id', '=', 'ml.landmark_id')
+            ->where('ml.media_id', $id)
+            ->where('l.is_deleted', 0)
+            ->pluck('l.landmark_name')
+            ->toArray();
 
         return $media;
     }

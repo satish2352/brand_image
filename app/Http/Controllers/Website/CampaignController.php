@@ -272,6 +272,7 @@ class CampaignController extends Controller
             ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
             ->leftJoin('illuminations as i', 'i.id', '=', 'm.illumination_id')
             ->leftJoin('category as cat', 'cat.id', '=', 'm.category_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->leftJoin(DB::raw("
                 (
                     SELECT media_id, GROUP_CONCAT(images) AS all_images
@@ -282,6 +283,7 @@ class CampaignController extends Controller
             "), 'mi.media_id', '=', 'm.id')
             ->select(
                 'm.media_title',
+                'm.hoarding_code',
                 'm.width',
                 'm.height',
                 'm.price',
@@ -291,6 +293,8 @@ class CampaignController extends Controller
                 'a.common_stdiciar_name',
                 'c.city_name',
                 'i.illumination_name',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 'cat.category_name as media_type',
                 'mi.all_images'
             )
@@ -474,6 +478,13 @@ class CampaignController extends Controller
             $details->createTextRun("SITE DETAILS\n\n")
                 ->getFont()->setBold(true)->setSize(18);
 
+            // Hoarding Code
+            $details->createTextRun("Code      : ")
+                ->getFont()->setBold(true)->setSize(18);
+
+            $details->createTextRun(($item->hoarding_code ?? '-') . "\n")
+                ->getFont()->setSize(18);
+
             // Location
             $details->createTextRun("Location  : ")
                 ->getFont()->setBold(true)->setSize(18);
@@ -535,6 +546,20 @@ class CampaignController extends Controller
                 ->getFont()->setBold(true)->setSize(18);
 
             $details->createTextRun("{$item->illumination_name}\n")
+                ->getFont()->setSize(18);
+
+            // Highway
+            $details->createTextRun("Highway   : ")
+                ->getFont()->setBold(true)->setSize(18);
+
+            $details->createTextRun(($item->highway_name ?? '-') . "\n")
+                ->getFont()->setSize(18);
+
+            // Landmarks
+            $details->createTextRun("Landmarks : ")
+                ->getFont()->setBold(true)->setSize(18);
+
+            $details->createTextRun(($item->landmark_names ?? '-') . "\n")
                 ->getFont()->setSize(18);
         }
 

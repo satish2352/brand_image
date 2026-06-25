@@ -44,6 +44,8 @@ class MediaManagement extends Model
         'area_auto',
         'radius_id',
         'areatype_id',
+        'highway_id',
+        'hoarding_code',
         // 'video_link',
         'panorama_image',
         'is_active',
@@ -58,5 +60,26 @@ class MediaManagement extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    /**
+     * Highway this hoarding belongs to (one highway per hoarding).
+     */
+    public function highway()
+    {
+        return $this->belongsTo(Highway::class, 'highway_id');
+    }
+
+    /**
+     * Landmarks tagged on this hoarding (many-to-many).
+     */
+    public function landmarks()
+    {
+        return $this->belongsToMany(
+            Landmark::class,
+            'media_landmark',
+            'media_id',
+            'landmark_id'
+        )->withTimestamps();
     }
 }

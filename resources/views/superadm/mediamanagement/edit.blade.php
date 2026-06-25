@@ -11,6 +11,7 @@
                                                                                                                                             display: none;
                                                                                                                                         } */
         #wallWrap,
+        #hoardingExtra,
         #radiusSection {
             display: none;
         }
@@ -94,8 +95,50 @@
                     </div>
                 </div>
 
+                {{-- ========== HOARDING CODE / HIGHWAY / LANDMARKS (Hoardings only) ========== --}}
+                <div id="hoardingExtra">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Highway</label>
+                            <select name="highway_id" id="highway_id"
+                                class="form-control @error('highway_id') is-invalid @enderror">
+                                <option value="">Select Highway</option>
+                                @foreach ($highways as $hw)
+                                    <option value="{{ $hw->id }}"
+                                        {{ old('highway_id', $media->highway_id ?? '') == $hw->id ? 'selected' : '' }}>
+                                        {{ $hw->highway_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('highway_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Landmarks <small class="text-muted">(select one or more)</small></label>
+                            <select name="landmark_ids[]" id="landmark_ids" multiple
+                                class="form-control landmark-select @error('landmark_ids') is-invalid @enderror">
+                                @foreach ($landmarks as $lm)
+                                    <option value="{{ $lm->id }}"
+                                        {{ collect(old('landmark_ids', $selectedLandmarks ?? []))->contains($lm->id) ? 'selected' : '' }}>
+                                        {{ $lm->landmark_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('landmark_ids')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
                 {{-- ================= BILLBOARD ================= --}}
                 <div class="row" id="billboardsId">
+                    <div class="col-md-4 mb-3">
+                        <label>Hoarding Code</label>
+                        <input type="text" class="form-control"
+                            value="{{ $media->hoarding_code ?? '' }}" disabled>
+                    </div>
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
 
@@ -383,6 +426,76 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 
+    {{-- Select2 for landmark multi-select --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        /* Make Select2 match the existing Bootstrap form-control dropdowns */
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-container--default .select2-selection--multiple {
+            position: relative;
+            min-height: 48px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 4px 30px 4px 12px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            background-color: #fff;
+        }
+        /* native-style dropdown caret on the right */
+        .select2-container--default .select2-selection--multiple::after {
+            content: "";
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            width: 7px;
+            height: 7px;
+            border: solid #6c757d;
+            border-width: 0 2px 2px 0;
+            transform: translateY(-70%) rotate(45deg);
+            pointer-events: none;
+        }
+        .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
+            color: #6c757d;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15);
+            outline: 0;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #f28123;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 8px;
+            margin: 0;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #fff;
+            margin-right: 5px;
+        }
+        .select2-container--default .select2-search--inline .select2-search__field {
+            margin-top: 6px;
+        }
+        .select2-container .select2-selection--multiple .select2-selection__rendered {
+            padding: 0;
+        }
+    </style>
+    <script>
+        $(function() {
+            $('.landmark-select').select2({
+                placeholder: 'Select landmarks',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
 
@@ -452,7 +565,7 @@
         $(document).ready(function() {
 
             function hideAllSections() {
-                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap')
+                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap, #hoardingExtra')
                     .hide();
             }
 
@@ -464,6 +577,7 @@
                 if (category.includes('hoardings')) {
                     $('#billboardsId').show();
                     $('#radiusSection').show();
+                    $('#hoardingExtra').show();
                 }
 
                 //  DIGITAL WALL / WALL PAINTING

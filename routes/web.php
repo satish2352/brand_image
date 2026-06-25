@@ -10,6 +10,8 @@ use App\Http\Controllers\Superadm\RevenueGraphController;
 use App\Http\Controllers\Superadm\Master\VendorController;
 use App\Http\Controllers\Superadm\Master\IlluminationController;
 use App\Http\Controllers\Superadm\Master\AreaTypeController;
+use App\Http\Controllers\Superadm\Master\LandmarkController;
+use App\Http\Controllers\Superadm\Master\HighwayController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
 use App\Http\Controllers\Superadm\Master\AreaController;
 use App\Http\Controllers\Superadm\Master\CityController;
@@ -34,6 +36,7 @@ use App\Http\Controllers\Superadm\CampaingController;
 use App\Http\Controllers\Superadm\HordingBookController;
 use App\Http\Controllers\Superadm\AdminNotificationController;
 use App\Http\Controllers\Common\LocationController;
+use App\Http\Controllers\Website\ExploreController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -245,6 +248,29 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('delete', [AreaTypeController::class, 'delete'])->name('areatype.delete');
         Route::post('update-status', [AreaTypeController::class, 'updateStatus'])->name('areatype.updatestatus');
     });
+
+    /* HIGHWAY MASTER */
+    Route::prefix('highway')->group(function () {
+        Route::get('list', [HighwayController::class, 'index'])->name('highway.list');
+        Route::get('add', [HighwayController::class, 'create'])->name('highway.create');
+        Route::post('add', [HighwayController::class, 'store'])->name('highway.store');
+        Route::get('edit/{encodedId}', [HighwayController::class, 'edit'])->name('highway.edit');
+        Route::post('update/{encodedId}', [HighwayController::class, 'update'])->name('highway.update');
+        Route::post('delete', [HighwayController::class, 'delete'])->name('highway.delete');
+        Route::post('update-status', [HighwayController::class, 'updateStatus'])->name('highway.updatestatus');
+    });
+
+    /* LANDMARK MASTER */
+    Route::prefix('landmark')->group(function () {
+        Route::get('list', [LandmarkController::class, 'index'])->name('landmark.list');
+        Route::get('add', [LandmarkController::class, 'create'])->name('landmark.create');
+        Route::post('add', [LandmarkController::class, 'store'])->name('landmark.store');
+        Route::get('edit/{encodedId}', [LandmarkController::class, 'edit'])->name('landmark.edit');
+        Route::post('update/{encodedId}', [LandmarkController::class, 'update'])->name('landmark.update');
+        Route::post('delete', [LandmarkController::class, 'delete'])->name('landmark.delete');
+        Route::post('update-status', [LandmarkController::class, 'updateStatus'])->name('landmark.updatestatus');
+    });
+
     Route::get(
         'media/next-code',
         [MediaManagementController::class, 'getNextMediaCode']
@@ -270,6 +296,12 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
 Route::get('/search', [HomeController::class, 'searchView'])->name('website.search.view');
 Route::post('/search', [HomeController::class, 'search'])->name('website.search');
+
+/* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
+Route::get('/explore', [ExploreController::class, 'index'])->name('website.explore');
+Route::match(['get', 'post'], '/explore/search', [ExploreController::class, 'search'])->name('website.explore.search');
+Route::get('/ajax/get-landmarks', [ExploreController::class, 'landmarks'])->name('ajax.landmarks');
+Route::get('/ajax/get-highways', [ExploreController::class, 'highways'])->name('ajax.highways');
 Route::view('/about', 'website.about')->name('website.about');
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])->name('website.media-details');
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup')->middleware('throttle:10,1');

@@ -35,6 +35,42 @@
             font-family: "Outfit", sans-serif;
         }
 
+        /* ⭐ Highlighted (selected) marker — stands out via colour + bounce */
+        .selected-media-marker {
+            background: transparent;
+            border: none;
+            z-index: 1000 !important;
+        }
+
+        .selected-media-pin {
+            position: relative;
+            width: 38px;
+            height: 52px;
+            background: #e53935;
+            border: 3px solid #fff;
+            border-radius: 50% 50% 50% 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center bottom;
+            animation: selectedMarkerBounce 0.7s ease infinite alternate;
+        }
+
+        .selected-media-pin .multi-media-count {
+            color: #fff;
+        }
+
+        @keyframes selectedMarkerBounce {
+            from {
+                transform: rotate(-45deg) translateY(0);
+            }
+
+            to {
+                transform: rotate(-45deg) translateY(-7px);
+            }
+        }
+
         /* Cluster circle showing total record count */
         .media-cluster {
             background: transparent;
@@ -284,6 +320,47 @@
 
             let grouped = {};
 
+            // ⭐ id → marker index + currently highlighted marker, for two-way
+            // synchronisation between the left-side list and the map.
+            let markersByMediaId = {};
+            let currentSelectedMarker = null;
+
+            // A distinct, bouncing pin used to highlight the selected marker.
+            function buildSelectedIcon(count) {
+                let inner = count > 1 ?
+                    '<span class="multi-media-count">' + count + '</span>' : '';
+                return L.divIcon({
+                    className: 'selected-media-marker',
+                    html: '<div class="selected-media-pin">' + inner + '</div>',
+                    iconSize: [38, 52],
+                    iconAnchor: [19, 52],
+                    popupAnchor: [0, -48]
+                });
+            }
+
+            function selectMarker(marker) {
+                if (currentSelectedMarker && currentSelectedMarker !== marker) {
+                    currentSelectedMarker.setIcon(currentSelectedMarker._defaultIcon2);
+                }
+                marker.setIcon(marker._selectedIcon);
+                marker.setZIndexOffset(1000);
+                currentSelectedMarker = marker;
+            }
+
+            function highlightCards(ids) {
+                document.querySelectorAll('.media-card.selected')
+                    .forEach(c => c.classList.remove('selected'));
+                ids.forEach(id => {
+                    let card = document.getElementById('media-card-' + id);
+                    if (card) card.classList.add('selected');
+                });
+            }
+
+            function scrollCardIntoView(id) {
+                let card = document.getElementById('media-card-' + id);
+                if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
             // Group records that share the EXACT same coordinate (6 decimals)
             // into a single marker whose popup lists all of them.
             mediaList.forEach(m => {
@@ -304,26 +381,38 @@
                 let lng = parseFloat(items[0].longitude);
 
                 let marker;
+                let defaultIcon;
                 if (items.length > 1) {
                     // Show a count badge so stacked pins are visible on the map.
-                    marker = L.marker([lat, lng], {
-                        icon: L.divIcon({
-                            className: 'multi-media-marker',
-                            html: '<div class="multi-media-pin">'
-                                + '<span class="multi-media-count">' + items.length + '</span>'
-                                + '</div>',
-                            iconSize: [30, 42],
-                            iconAnchor: [15, 42],
-                            popupAnchor: [0, -38]
-                        })
+                    defaultIcon = L.divIcon({
+                        className: 'multi-media-marker',
+                        html: '<div class="multi-media-pin">'
+                            + '<span class="multi-media-count">' + items.length + '</span>'
+                            + '</div>',
+                        iconSize: [30, 42],
+                        iconAnchor: [15, 42],
+                        popupAnchor: [0, -38]
                     });
+                    marker = L.marker([lat, lng], { icon: defaultIcon });
                 } else {
-                    marker = L.marker([lat, lng]);
+                    defaultIcon = new L.Icon.Default();
+                    marker = L.marker([lat, lng], { icon: defaultIcon });
                 }
 
                 // Remember how many records this marker represents so the
                 // cluster badge can sum them correctly.
                 marker.recordCount = items.length;
+
+                // Store data needed for list ↔ map synchronisation.
+                marker._defaultIcon2 = defaultIcon;
+                marker._selectedIcon = buildSelectedIcon(items.length);
+                marker._items = items;
+                marker._lat = lat;
+                marker._lng = lng;
+                items.forEach(m => {
+                    markersByMediaId[m.id] = marker;
+                });
+
                 clusterGroup.addLayer(marker);
 
                 marker.on('click', function() {
@@ -416,6 +505,12 @@
                         .setLatLng([lat, lng])
                         .setContent(html)
                         .openOn(map);
+
+                    // ⭐ Map → list: highlight this marker and its card(s).
+                    selectMarker(marker);
+                    let ids = items.map(m => m.id);
+                    highlightCards(ids);
+                    scrollCardIntoView(items[0].id);
                 });
             }
 
@@ -425,6 +520,36 @@
             let bounds = clusterGroup.getBounds();
             if (bounds.isValid()) {
                 map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+            }
+
+            // ⭐ List → map: clicking a card focuses the map on that hoarding,
+            // expands its cluster, highlights the marker and opens its popup.
+            // Delegated so lazy-loaded cards work too. Clicks on links/buttons
+            // inside the card keep their normal behaviour.
+            let mediaContainer = document.getElementById('media-container');
+            if (mediaContainer) {
+                mediaContainer.addEventListener('click', function(e) {
+                    if (e.target.closest('a, button')) return;
+
+                    let card = e.target.closest('.media-card');
+                    if (!card) return;
+
+                    let id = card.getAttribute('data-media-id');
+                    highlightCards([id]);
+
+                    let marker = markersByMediaId[id];
+                    if (!marker) return;
+
+                    // zoomToShowLayer expands the enclosing cluster (if any) so
+                    // the marker becomes individually visible, then we centre
+                    // and open its popup.
+                    clusterGroup.zoomToShowLayer(marker, function() {
+                        map.setView([marker._lat, marker._lng],
+                            Math.max(map.getZoom(), 16));
+                        selectMarker(marker);
+                        marker.fire('click');
+                    });
+                });
             }
         }
 

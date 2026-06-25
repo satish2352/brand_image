@@ -30,7 +30,8 @@ class UserPaymentRepository
                 'v.vendor_name',
                 'v.vendor_code',
                 DB::raw('MIN(oi.from_date) as from_date'),
-                DB::raw('MAX(oi.to_date) as to_date')
+                DB::raw('MAX(oi.to_date) as to_date'),
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT mm2.hoarding_code SEPARATOR ", ") FROM order_items oi2 JOIN media_management mm2 ON mm2.id = oi2.media_id WHERE oi2.order_id = o.id) as hoarding_codes')
             )
             ->groupBy(
                 'o.id',
@@ -69,6 +70,7 @@ class UserPaymentRepository
         $items = DB::table('order_items as oi')
             ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
             ->leftJoin('orders as od', 'od.id', '=', 'oi.order_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'mm.highway_id')
             ->where('oi.order_id', $orderId)
             ->select(
                 'oi.id',
@@ -80,6 +82,9 @@ class UserPaymentRepository
                 'oi.from_date',
                 'oi.to_date',
                 'mm.media_title',
+                'mm.hoarding_code',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = mm.id AND l.is_deleted = 0) as landmark_names'),
                 'mm.width',
                 'mm.height',
                 'mm.address',

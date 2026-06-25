@@ -70,7 +70,23 @@ class AppServiceProvider extends ServiceProvider
                     ->get()
             );
 
-            $view->with(compact('categories', 'states', 'radiusList'));
+            $highways = Cache::remember('search_form_highways', 3600, fn() =>
+                DB::table('highway')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('highway_name')
+                    ->get()
+            );
+
+            $landmarks = Cache::remember('search_form_landmarks', 3600, fn() =>
+                DB::table('landmark')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('landmark_name')
+                    ->get()
+            );
+
+            $view->with(compact('categories', 'states', 'radiusList', 'highways', 'landmarks'));
         });
 
         /* ========================================

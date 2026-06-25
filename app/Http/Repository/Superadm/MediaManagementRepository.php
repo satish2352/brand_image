@@ -22,6 +22,7 @@ class MediaManagementRepository
             ->select([
                 'm.id',
                 'm.media_code',
+                'm.hoarding_code',
                 'm.media_title',
                 'm.price',
                 'm.is_active',
@@ -65,6 +66,11 @@ class MediaManagementRepository
             ]);
         }
 
+        // 🔍 SEARCH BY HOARDING CODE (admin can paste a code, e.g. HD000007)
+        if (!empty($filters['hoarding_code'])) {
+            $query->where('m.hoarding_code', 'like', '%' . trim($filters['hoarding_code']) . '%');
+        }
+
         return $query->orderBy('m.id', 'desc')->paginate($perPage);
     }
 
@@ -104,6 +110,7 @@ class MediaManagementRepository
             ->leftJoin('illuminations as il', 'il.id', '=', 'mm.illumination_id')
             ->leftJoin('areatype as art', 'art.id', '=', 'mm.areatype_id')
             ->leftJoin('radius_master as rm', 'rm.id', '=', 'mm.radius_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'mm.highway_id')
             ->leftJoin('media_images as mi', function ($join) {
                 $join->on('mi.media_id', '=', 'mm.id')
                     ->where('mi.is_deleted', 0);
@@ -121,6 +128,7 @@ class MediaManagementRepository
                 'vd.vendor_name',
                 'il.illumination_name',
                 'rm.radius',
+                'hw.highway_name',
                 'mi.id as image_id',
                 'mi.images as image_name'
             )

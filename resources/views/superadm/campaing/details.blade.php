@@ -29,7 +29,10 @@
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
+                                    <th>Hoarding Code</th>
                                     <th>Location Name</th>
+                                    <th>Highway</th>
+                                    <th>Landmarks</th>
                                     <th>Vendor Name</th>
                                     <th>Vendor Code</th>
                                     <th>From</th>
@@ -49,7 +52,10 @@
                                 @foreach ($campaign as $key => $item)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
+                                        <td>{{ $item->hoarding_code ?? '-' }}</td>
                                         <td>{{ $item->area_name }} {{ $item->facing }}</td>
+                                        <td>{{ $item->highway_name ?? '-' }}</td>
+                                        <td>{{ $item->landmark_names ?? '-' }}</td>
                                         <td>{{ $item->vendor_name }}</td>
                                         <td>{{ $item->vendor_code }}</td>
                                         <td>{{ \Carbon\Carbon::parse($item->from_date)->format('d M Y') }}</td>

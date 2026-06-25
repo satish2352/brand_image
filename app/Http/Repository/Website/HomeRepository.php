@@ -37,6 +37,7 @@ class HomeRepository
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->leftJoin(DB::raw('
             (SELECT media_id, MIN(images) AS first_image
              FROM media_images
@@ -50,6 +51,7 @@ class HomeRepository
 
             ->select([
                 'm.id',
+                'm.hoarding_code',
                 'm.media_title',
                 'm.price',
                 'm.category_id',
@@ -65,9 +67,11 @@ class HomeRepository
                 'd.district_name as district_name',
                 'city.city_name as city_name',
                 'at.areatype_name as area_type_name',
+                'hw.highway_name',
                 'a.common_stdiciar_name as common_area_name',
                 'm.panorama_image',
                 'mi.first_image',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price')
 
 
@@ -159,6 +163,25 @@ class HomeRepository
         if (!empty($filters['area_id'])) {
             $query->where('m.area_id', $filters['area_id']);
         }
+
+        /* HIGHWAY FILTER (single or multiple → OR logic) */
+        if (!empty($filters['highway_id'])) {
+            $query->whereIn('m.highway_id', (array) $filters['highway_id']);
+        }
+
+        /* LANDMARK FILTER (multiple → OR logic via pivot) */
+        if (!empty($filters['landmark_ids'])) {
+            $landmarkIds = array_filter((array) $filters['landmark_ids']);
+            if (!empty($landmarkIds)) {
+                $query->whereExists(function ($q) use ($landmarkIds) {
+                    $q->select(DB::raw(1))
+                        ->from('media_landmark as ml')
+                        ->whereColumn('ml.media_id', 'm.id')
+                        ->whereIn('ml.landmark_id', $landmarkIds);
+                });
+            }
+        }
+
         /* SIZE FILTER */
         if (!empty($filters['size_id'])) {
 
@@ -272,12 +295,14 @@ END AS is_available_days
         // if (isset($filters['max_area']) && $filters['max_area'] !== '') {
         //     $query->whereRaw('(m.width * m.height) <= ?', [$filters['max_area']]);
         // }
+        // area_auto is stored as VARCHAR, so cast to a number to avoid
+        // lexicographic comparison (e.g. '60000' wrongly > '120000').
         if (!empty($filters['min_area'])) {
-            $query->where('m.area_auto', '>=', $filters['min_area']);
+            $query->whereRaw('CAST(m.area_auto AS DECIMAL(15,2)) >= ?', [(float) $filters['min_area']]);
         }
 
         if (!empty($filters['max_area'])) {
-            $query->where('m.area_auto', '<=', $filters['max_area']);
+            $query->whereRaw('CAST(m.area_auto AS DECIMAL(15,2)) <= ?', [(float) $filters['max_area']]);
         }
 
 
