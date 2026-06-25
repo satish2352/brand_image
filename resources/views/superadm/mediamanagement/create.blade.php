@@ -572,41 +572,47 @@
         }
         /* selected value "chips" — clean rounded pills */
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            display: inline-flex;
+            display: inline-flex !important;
             align-items: center;
             flex-direction: row-reverse;
             /* text first, remove (×) after */
-            background-color: #f28123;
-            border: none;
-            color: #fff;
-            border-radius: 16px;
-            padding: 3px 12px;
-            margin: 3px 2px;
-            font-size: 13px;
-            line-height: 1.5;
-            font-weight: 500;
+            background-color: #f28123 !important;
+            border: none !important;
+            color: #fff !important;
+            border-radius: 16px !important;
+            padding: 4px 14px !important;
+            margin: 3px 3px !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            font-weight: 600 !important;
+            white-space: nowrap;
             box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
-            padding: 0;
+            padding: 0 !important;
+            color: #fff !important;
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-            color: #fff;
-            background: transparent;
-            border: none;
-            margin: 0 0 0 7px;
-            padding: 0;
-            font-size: 15px;
+            order: 2;
+            color: #fff !important;
+            background: transparent !important;
+            border: none !important;
+            margin: 0 0 0 8px !important;
+            padding: 0 !important;
+            font-size: 16px;
             font-weight: 700;
             line-height: 1;
-            opacity: .85;
+            opacity: .9;
             cursor: pointer;
         }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove span {
+            color: #fff !important;
+        }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-            color: #fff;
-            background: transparent;
+            color: #fff !important;
+            background: transparent !important;
             opacity: 1;
-            transform: scale(1.15);
+            transform: scale(1.2);
         }
         /* dropdown option highlight in theme colour */
         .select2-container--default .select2-results__option--highlighted[aria-selected] {

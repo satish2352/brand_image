@@ -148,7 +148,7 @@
                                         <tr>
                                             {{-- <td>{{ $key + 1 }}</td> --}}
                                             <td>{{ $mediaList->firstItem() + $key }}</td>
-                                            <td><span class="badge bg-dark">{{ $media->hoarding_code ?? '-' }}</span></td>
+                                            <td><span class="badge bg-success text-white">{{ $media->hoarding_code ?? '-' }}</span></td>
                                             <td>{{ $media->media_title ?? '-' }}</td>
                                             <td>{{ $media->category_name ?? '-' }}</td>
                                             <td>{{ $media->state_name ?? '-' }}</td>

@@ -639,12 +639,22 @@
             let selectedId = null;
 
             function pinIcon(selected) {
+                const color = selected ? '#1971c2' : '#f28123';
+                const w = selected ? 40 : 32;
+                const h = selected ? 54 : 44;
+                const svg =
+                    '<svg width="' + w + '" height="' + h + '" viewBox="0 0 32 44" ' +
+                    'xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 3px 3px rgba(0,0,0,.4));">' +
+                    '<path d="M16 0C7.16 0 0 7.16 0 16c0 11.5 16 28 16 28s16-16.5 16-28C32 7.16 24.84 0 16 0z" ' +
+                    'fill="' + color + '" stroke="#ffffff" stroke-width="2.5"/>' +
+                    '<circle cx="16" cy="16" r="6" fill="#ffffff"/>' +
+                    '</svg>';
                 return L.divIcon({
-                    className: '',
-                    html: '<div class="exp-pin' + (selected ? ' selected' : '') + '"></div>',
-                    iconSize: selected ? [36, 50] : [28, 40],
-                    iconAnchor: selected ? [18, 50] : [14, 40],
-                    popupAnchor: [0, -38],
+                    className: 'exp-pin-icon' + (selected ? ' selected' : ''),
+                    html: svg,
+                    iconSize: [w, h],
+                    iconAnchor: [w / 2, h],
+                    popupAnchor: [0, -h + 8],
                 });
             }
 
