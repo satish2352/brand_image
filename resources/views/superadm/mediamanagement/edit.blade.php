@@ -467,17 +467,15 @@
             box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15);
             outline: 0;
         }
-        /* selected value "chips" — clean rounded pills */
+        /* selected value "chips" — clean rounded pills (label first, × after) */
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
             display: inline-flex !important;
             align-items: center;
-            flex-direction: row-reverse;
-            /* text first, remove (×) after */
             background-color: #f28123 !important;
             border: none !important;
             color: #fff !important;
             border-radius: 16px !important;
-            padding: 4px 14px !important;
+            padding: 4px 6px 4px 14px !important;
             margin: 3px 3px !important;
             font-size: 13px !important;
             line-height: 1.5 !important;
@@ -486,30 +484,36 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+            order: 1;
             padding: 0 !important;
             color: #fff !important;
         }
+        /* the × remove button — a clean white cross in a soft circle, AFTER the label */
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             order: 2;
-            color: #fff !important;
-            background: transparent !important;
-            border: none !important;
-            margin: 0 0 0 8px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin: 0 0 0 7px !important;
             padding: 0 !important;
-            font-size: 16px;
+            border: none !important;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .25) !important;
+            color: #fff !important;
+            font-size: 13px;
             font-weight: 700;
             line-height: 1;
-            opacity: .9;
             cursor: pointer;
+            transition: background .15s;
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove span {
             color: #fff !important;
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background: rgba(255, 255, 255, .45) !important;
             color: #fff !important;
-            background: transparent !important;
-            opacity: 1;
-            transform: scale(1.2);
         }
         /* dropdown option highlight in theme colour */
         .select2-container--default .select2-results__option--highlighted[aria-selected] {
