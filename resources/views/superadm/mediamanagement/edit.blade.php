@@ -467,23 +467,60 @@
             box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15);
             outline: 0;
         }
+        /* selected value "chips" — clean rounded pills */
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            display: inline-flex;
+            align-items: center;
+            flex-direction: row-reverse;
+            /* text first, remove (×) after */
             background-color: #f28123;
             border: none;
             color: #fff;
-            border-radius: 4px;
-            padding: 2px 8px;
-            margin: 0;
+            border-radius: 16px;
+            padding: 3px 12px;
+            margin: 3px 2px;
+            font-size: 13px;
+            line-height: 1.5;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+            padding: 0;
         }
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             color: #fff;
-            margin-right: 5px;
+            background: transparent;
+            border: none;
+            margin: 0 0 0 7px;
+            padding: 0;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1;
+            opacity: .85;
+            cursor: pointer;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #fff;
+            background: transparent;
+            opacity: 1;
+            transform: scale(1.15);
+        }
+        /* dropdown option highlight in theme colour */
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #f28123;
+        }
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #fde3cf;
+            color: #b95e16;
         }
         .select2-container--default .select2-search--inline .select2-search__field {
             margin-top: 6px;
         }
         .select2-container .select2-selection--multiple .select2-selection__rendered {
             padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
         }
     </style>
     <script>

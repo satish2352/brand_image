@@ -451,6 +451,16 @@
                                     -webkit-box-orient:vertical;
                                     overflow:hidden;
                                 ">${m.media_title} ${m.area_name}</div>
+                                ${m.hoarding_code ? `<div style="
+                                    font-size:10px;
+                                    font-weight:600;
+                                    color:#fff;
+                                    background:#f28123;
+                                    border-radius:4px;
+                                    padding:1px 6px;
+                                    align-self:flex-start;
+                                    letter-spacing:.3px;
+                                ">${m.hoarding_code}</div>` : ''}
                                 <div style="font-size:11px;color:#888;">${sqft} sqft</div>
                                 <div style="font-size:10px;color:#999;display:flex;align-items:center;gap:3px;">
                                     📍 ${parseFloat(m.latitude).toFixed(6)}, ${parseFloat(m.longitude).toFixed(6)}

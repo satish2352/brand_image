@@ -329,6 +329,15 @@
                                 {{ ucwords($media->media_title) }} {{ ucwords($media->area_name) }}
                             </h3>
 
+                            @if (!empty($media->hoarding_code))
+                                <p class="mb-2">
+                                    <span class="badge"
+                                        style="background:#f28123;color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px;">
+                                        {{ $media->hoarding_code }}
+                                    </span>
+                                </p>
+                            @endif
+
                             <p class="text-muted mb-2">
                                 <i class="fas fa-map-marker-alt text-danger"></i>
                                 @if (!empty($media->address))
