@@ -58,8 +58,9 @@ class AdminCampaignExport implements
             ->leftJoin('cities as ct', 'ct.id', '=', 'ar.city_id')
             ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->where('ci.campaign_id', $this->campaignId)
-            ->where('ci.is_active', 1)
-            ->where('ci.is_deleted', 0)
+            // match the same campaign cart-items the admin list shows
+            // (the old is_active/is_deleted filters excluded every row)
+            ->where('ci.cart_type', 'CAMPAIGN')
             ->select(
                 'u.name as user_name',
                 // 'district.name as district_name',

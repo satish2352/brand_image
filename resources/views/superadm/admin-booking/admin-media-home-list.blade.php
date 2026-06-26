@@ -45,6 +45,18 @@
           background: #dc3545;
       }
 
+      /* hoarding code — orange to match the public website */
+      .hoarding-code-badge {
+          display: inline-block;
+          background: #f28123;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 3px 9px;
+          border-radius: 4px;
+          letter-spacing: .3px;
+      }
+
       /* BODY */
       .media-body {
           padding: 16px;
@@ -123,7 +135,7 @@
                       {{ $media->media_title }} {{ $media->area_name }}
                   </h5>
                   @if (!empty($media->hoarding_code))
-                      <div class="mb-1"><span class="badge bg-dark">{{ $media->hoarding_code }}</span></div>
+                      <div class="mb-1"><span class="hoarding-code-badge">{{ $media->hoarding_code }}</span></div>
                   @endif
                   <div class="media-meta">
                       <div><strong>Size:</strong> {{ number_format($media->width, 2) }} ×

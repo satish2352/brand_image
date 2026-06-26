@@ -177,9 +177,18 @@ class MediaManagementService
                 'highway_id'
             ]);
 
-            // MEDIA CODE
+            // MEDIA CODE + HOARDING CODE
             if (str_contains($slug, 'hoardings')) {
                 $updateData['media_code'] = $request->media_code;
+
+                // Hoarding code is now editable: use the entered value, or
+                // auto-generate one when blank (covers existing hoardings that
+                // were added before auto-codes and still have no code).
+                $hoardingCode = trim((string) $request->input('hoarding_code'));
+                if ($hoardingCode === '') {
+                    $hoardingCode = $media->hoarding_code ?: $this->generateHoardingCode();
+                }
+                $updateData['hoarding_code'] = $hoardingCode;
             } else {
                 $updateData['media_code'] = null;
             }

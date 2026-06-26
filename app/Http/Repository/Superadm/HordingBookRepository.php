@@ -434,7 +434,9 @@ class HordingBookRepository
                 'o.grand_total',
                 'v.vendor_name',
                 'v.vendor_code',
-                DB::raw('(SELECT GROUP_CONCAT(DISTINCT mm2.hoarding_code SEPARATOR ", ") FROM order_items oi2 JOIN media_management mm2 ON mm2.id = oi2.media_id WHERE oi2.order_id = o.id) as hoarding_codes')
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT mm2.hoarding_code SEPARATOR ", ") FROM order_items oi2 JOIN media_management mm2 ON mm2.id = oi2.media_id WHERE oi2.order_id = o.id) as hoarding_codes'),
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT hw2.highway_name SEPARATOR ", ") FROM order_items oi3 JOIN media_management mm3 ON mm3.id = oi3.media_id JOIN highway hw2 ON hw2.id = mm3.highway_id WHERE oi3.order_id = o.id) as highway_names'),
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT l2.landmark_name SEPARATOR ", ") FROM order_items oi4 JOIN media_landmark ml2 ON ml2.media_id = oi4.media_id JOIN landmark l2 ON l2.id = ml2.landmark_id WHERE oi4.order_id = o.id AND l2.is_deleted = 0) as landmark_names')
             )
             ->orderBy('o.id', 'desc')
             ->get();

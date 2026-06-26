@@ -125,6 +125,7 @@ class MediaManagementRepository
                 'st.state_name',
                 'dt.district_name',
                 'ct.city_name',
+                'ar.area_name',
                 'vd.vendor_name',
                 'il.illumination_name',
                 'rm.radius',

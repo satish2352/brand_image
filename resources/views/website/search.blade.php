@@ -9,9 +9,17 @@
         }
 
         /* Pin with a count badge for stacked / repeated-location media */
-        .multi-media-marker {
+        .multi-media-marker,
+        .media-pin-marker {
             background: transparent;
             border: none;
+        }
+
+        /* gentle bounce to highlight the selected pin */
+        .media-pin-marker.selected {
+            animation: selectedMarkerBounce 0.7s ease infinite alternate;
+            transform-origin: center bottom;
+            z-index: 1000 !important;
         }
 
         .multi-media-pin {
@@ -35,6 +43,15 @@
             font-family: "Outfit", sans-serif;
         }
 
+        /* white centre dot for a single-location orange pin */
+        .single-media-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #fff;
+            transform: rotate(45deg);
+        }
+
         /* ⭐ Highlighted (selected) marker — stands out via colour + bounce */
         .selected-media-marker {
             background: transparent;
@@ -46,7 +63,8 @@
             position: relative;
             width: 38px;
             height: 52px;
-            background: #e53935;
+            /* darker orange so the selected pin stays on-brand (no red) */
+            background: #d96f15;
             border: 3px solid #fff;
             border-radius: 50% 50% 50% 0;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
@@ -63,11 +81,11 @@
 
         @keyframes selectedMarkerBounce {
             from {
-                transform: rotate(-45deg) translateY(0);
+                transform: translateY(0);
             }
 
             to {
-                transform: rotate(-45deg) translateY(-7px);
+                transform: translateY(-7px);
             }
         }
 
@@ -325,16 +343,44 @@
             let markersByMediaId = {};
             let currentSelectedMarker = null;
 
-            // A distinct, bouncing pin used to highlight the selected marker.
-            function buildSelectedIcon(count) {
-                let inner = count > 1 ?
-                    '<span class="multi-media-count">' + count + '</span>' : '';
+            // Clean SVG teardrop pin (crisp at any zoom). When `count` > 1 it shows
+            // a white badge with the number; otherwise a small white centre dot.
+            function buildPinIcon(opts) {
+                const w = opts.w,
+                    h = opts.h,
+                    color = opts.color,
+                    count = opts.count || 0,
+                    cls = opts.className || 'media-pin-marker';
+                const inner = count > 1 ?
+                    '<circle cx="16" cy="15" r="9.5" fill="#fff"/>' +
+                    '<text x="16" y="19.5" text-anchor="middle" font-size="12.5" font-weight="700" ' +
+                    'fill="' + color + '" font-family="Outfit, sans-serif">' + count + '</text>' :
+                    '<circle cx="16" cy="16" r="6" fill="#fff"/>';
+                const svg =
+                    '<svg width="' + w + '" height="' + h + '" viewBox="0 0 32 44" ' +
+                    'xmlns="http://www.w3.org/2000/svg" ' +
+                    // overflow:visible so the 2.5px stroke + shadow aren't clipped
+                    // at the viewBox edges (that was cutting the pin's left/right)
+                    'style="overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.4));">' +
+                    '<path d="M16 0C7.16 0 0 7.16 0 16c0 11.5 16 28 16 28s16-16.5 16-28C32 7.16 24.84 0 16 0z" ' +
+                    'fill="' + color + '" stroke="#ffffff" stroke-width="2.5"/>' + inner + '</svg>';
                 return L.divIcon({
-                    className: 'selected-media-marker',
-                    html: '<div class="selected-media-pin">' + inner + '</div>',
-                    iconSize: [38, 52],
-                    iconAnchor: [19, 52],
-                    popupAnchor: [0, -48]
+                    className: cls,
+                    html: svg,
+                    iconSize: [w, h],
+                    iconAnchor: [w / 2, h],
+                    popupAnchor: [0, -h + 8]
+                });
+            }
+
+            // A distinct, larger/darker pin used to highlight the selected marker.
+            function buildSelectedIcon(count) {
+                return buildPinIcon({
+                    w: 40,
+                    h: 54,
+                    color: '#d96f15',
+                    count: count,
+                    className: 'media-pin-marker selected'
                 });
             }
 
@@ -380,24 +426,15 @@
                 let lat = parseFloat(items[0].latitude);
                 let lng = parseFloat(items[0].longitude);
 
-                let marker;
-                let defaultIcon;
-                if (items.length > 1) {
-                    // Show a count badge so stacked pins are visible on the map.
-                    defaultIcon = L.divIcon({
-                        className: 'multi-media-marker',
-                        html: '<div class="multi-media-pin">'
-                            + '<span class="multi-media-count">' + items.length + '</span>'
-                            + '</div>',
-                        iconSize: [30, 42],
-                        iconAnchor: [15, 42],
-                        popupAnchor: [0, -38]
-                    });
-                    marker = L.marker([lat, lng], { icon: defaultIcon });
-                } else {
-                    defaultIcon = new L.Icon.Default();
-                    marker = L.marker([lat, lng], { icon: defaultIcon });
-                }
+                // Clean orange SVG pin — a count badge when several records share
+                // the spot, otherwise a single pin with a white centre dot.
+                let defaultIcon = buildPinIcon({
+                    w: items.length > 1 ? 34 : 32,
+                    h: items.length > 1 ? 46 : 44,
+                    color: '#f28123',
+                    count: items.length
+                });
+                let marker = L.marker([lat, lng], { icon: defaultIcon });
 
                 // Remember how many records this marker represents so the
                 // cluster badge can sum them correctly.

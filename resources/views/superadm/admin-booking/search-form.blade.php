@@ -2,6 +2,12 @@
     .form-label {
         font-size: 0.85rem;
         font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    /* even vertical spacing between every filter menu (incl. wrapped rows) */
+    #searchForm .row {
+        --bs-gutter-y: 1.25rem;
     }
 
     .card {
@@ -128,9 +134,9 @@
             </div>
 
             {{-- ================= ROW 2 ================= --}}
-            <div class="row g-3 mt-1">
+            <div class="row g-3 mt-3">
 
-                <div class="col-xl-2 col-lg-3 col-md-6" id="radius_wrapper">
+                <div class="col-xl-3 col-lg-4 col-md-6" id="radius_wrapper">
                     <label class="form-label">Radius</label>
                     <select name="radius_id" id="radius_id" class="form-select form-control">
                         <option value="">Radius</option>
@@ -149,7 +155,7 @@
                         <option value="">Select Area</option>
                     </select>
                 </div>
-                <div class="col-xl-2 col-lg-3 col-md-6" id="area_type_wrapper">
+                <div class="col-xl-3 col-lg-4 col-md-6" id="area_type_wrapper">
                     <label class="form-label">Area Type</label>
                     <select name="areatype_id" class="form-control">
                         <option value="">All Types</option>
@@ -165,7 +171,7 @@
                 </div>
 
                 {{-- HIGHWAY FILTER (single select) --}}
-                <div class="col-xl-2 col-lg-3 col-md-6">
+                <div class="col-xl-3 col-lg-4 col-md-6">
                     <label class="form-label">Highway</label>
                     <select name="highway_id" class="form-select form-control">
                         <option value="">All Highways</option>
@@ -180,7 +186,7 @@
 
                 {{-- LANDMARK FILTER (multi-select checkbox dropdown) --}}
                 @php $selectedLandmarks = (array) ($filters['landmark_ids'] ?? []); @endphp
-                <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="col-xl-3 col-lg-4 col-md-6 mt-3">
                     <label class="form-label">Landmarks</label>
                     <div class="checkbox-dropdown" id="landmarkDropdown">
                         <button type="button" class="form-select form-control text-start checkbox-toggle"
@@ -201,7 +207,7 @@
                     </div>
                 </div>
 
-                <div class="col-xl-2 col-lg-3 col-md-6">
+                <div class="col-xl-3 col-lg-4 col-md-6 mt-3">
 
                     <label class="form-label">Media Size (sq.ft)</label>
 
@@ -251,7 +257,7 @@
                     </select>
                 </div> --}}
 
-                <div class="col-xl-3 col-lg-3 col-md-6">
+                <div class="col-xl-3 col-lg-4 col-md-6 mt-3">
                     <label class="form-label">Available Days</label>
                     <select name="available_days" class="form-select form-control">
                         <option value="">Select Days</option>
@@ -270,7 +276,7 @@
             </div>
 
             {{-- ================= BUTTONS ================= --}}
-            <div class="row g-3 mt-1">
+            <div class="row g-3 mt-3">
                 <div class="col-xl-3 col-lg-3 col-md-6">
                     <label class="form-label">From Date</label>
                     <input type="date" name="from_date" class="form-control"

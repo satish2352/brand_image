@@ -37,15 +37,17 @@
         .explore-sidebar {
             width: 320px;
             min-width: 320px;
-            background: #fff;
-            border-right: 1px solid #e8e8e8;
+            /* soft brand-warm theme tint instead of plain white */
+            background: #fdf4ec;
+            border-right: 1px solid #f0e2d4;
             display: flex;
             flex-direction: column;
         }
 
         .explore-sidebar-head {
             padding: 16px 18px 10px;
-            border-bottom: 1px solid #eee;
+            background: #fdf4ec;
+            border-bottom: 1px solid #f0e2d4;
         }
 
         .explore-sidebar-head .title {
@@ -79,16 +81,21 @@
             padding: 6px 18px 80px;
         }
 
+        /* each menu = a clean white card on the warm sidebar (no divider lines) */
         .exp-group {
-            padding: 14px 0 6px;
-            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+            border: 1px solid #f0e2d4;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
         }
 
         .exp-group-title {
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 1.5px;
-            color: #999;
+            color: #f28123;
             text-transform: uppercase;
             margin-bottom: 8px;
         }
@@ -102,6 +109,42 @@
             font-size: 13px;
             margin-bottom: 8px;
             outline: none;
+        }
+
+        /* clear (cancel) icon inside the search bar */
+        .exp-search-wrap {
+            position: relative;
+        }
+
+        .exp-search-wrap .exp-search-input {
+            padding-right: 30px;
+        }
+
+        .exp-search-clear {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            margin-top: -4px;
+            /* offset the input's 8px bottom margin */
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #f28123;
+            color: #fff;
+            font-size: 14px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            display: none;
+        }
+
+        .exp-search-clear:hover {
+            background: #d96f15;
+        }
+
+        .exp-search-wrap.has-text .exp-search-clear {
+            display: block;
         }
 
         .grp-filter:focus,
@@ -168,9 +211,12 @@
         }
 
         /* range / date filter rows */
+        /* stack From / To dates so each gets full width (side-by-side was too
+           narrow in the sidebar and the date text/calendar icon overlapped) */
         .exp-range {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .exp-range-field {
@@ -282,8 +328,8 @@
         .explore-sidebar-foot {
             position: sticky;
             bottom: 0;
-            background: #fff;
-            border-top: 1px solid #eee;
+            background: #fdf4ec;
+            border-top: 1px solid #f0e2d4;
             padding: 10px 18px;
             display: flex;
             gap: 8px;
@@ -291,17 +337,93 @@
 
         .btn-clear-all {
             flex: 1;
-            background: #f1f1f1;
+            background: #f28123;
             border: none;
-            padding: 9px;
+            padding: 10px;
             border-radius: 6px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            color: #444;
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(242, 129, 35, .35);
+            transition: background .15s ease;
         }
 
         .btn-clear-all:hover {
-            background: #e6e6e6;
+            background: #d96f15;
+        }
+
+        /* ---------------- ACTIVE FILTER CHIPS ---------------- */
+        .explore-chips {
+            padding: 10px 18px;
+            border-bottom: 1px solid #f0e2d4;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .explore-chips-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .exp-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff3e8;
+            color: #d96f15;
+            border: 1px solid #f6c79a;
+            border-radius: 14px;
+            padding: 3px 6px 3px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.4;
+            max-width: 100%;
+        }
+
+        .exp-chip .exp-chip-label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .exp-chip .exp-chip-x {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #f28123;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            flex: 0 0 16px;
+        }
+
+        .exp-chip .exp-chip-x:hover {
+            background: #d96f15;
+        }
+
+        .explore-chips-clear {
+            background: none;
+            border: none;
+            color: #f28123;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px 2px;
+            white-space: nowrap;
+        }
+
+        .explore-chips-clear:hover {
+            text-decoration: underline;
         }
 
         .explore-spinner {
@@ -320,6 +442,32 @@
         #exploreMap {
             width: 100%;
             height: 100%;
+        }
+
+        /* live result count, pinned to the top of the map */
+        .explore-map-count {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 1000;
+            background: #fff;
+            color: #333;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: "Outfit", sans-serif;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            pointer-events: none;
+        }
+
+        .explore-map-count b {
+            font-size: 17px;
+            font-weight: 700;
+            color: #f28123;
         }
 
         /* +/- zoom buttons — vertically centered on the map's right edge */
@@ -381,7 +529,7 @@
         }
 
         .exp-pin.selected {
-            background: #1971c2;
+            background: #2b6cb0;
             width: 36px;
             height: 50px;
             z-index: 9999;
@@ -485,12 +633,21 @@
                 </div>
             </div>
 
+            {{-- active filter chips: every selected entry shown on top with a cancel (×) icon --}}
+            <div class="explore-chips" id="exploreChips" style="display:none;">
+                <div class="explore-chips-list" id="exploreChipsList"></div>
+                <button type="button" class="explore-chips-clear" id="exploreChipsClear">Clear all</button>
+            </div>
+
             <form id="exploreForm" class="explore-sidebar-body">
                 {{-- SEARCH --}}
-                <div class="exp-group" style="border-bottom:none;padding-top:10px;">
+                <div class="exp-group">
                     <div class="exp-group-title">Search</div>
-                    <input type="text" name="q" id="exp_q" class="exp-search-input"
-                        placeholder="Asset ID, location, area...">
+                    <div class="exp-search-wrap">
+                        <input type="text" name="q" id="exp_q" class="exp-search-input"
+                            placeholder="Search location, area...">
+                        <span class="exp-search-clear" id="expQClear" title="Clear search">&times;</span>
+                    </div>
                 </div>
 
                 {{-- CHECKBOX GROUPS --}}
@@ -515,16 +672,20 @@
                 @endforeach
 
                 {{-- AVAILABILITY (FROM / TO DATE) --}}
+                @php $today = date('Y-m-d'); @endphp
                 <div class="exp-group">
                     <div class="exp-group-title">Availability</div>
                     <div class="exp-range">
                         <div class="exp-range-field">
                             <label>From</label>
-                            <input type="date" name="from_date" id="exp_from_date" class="exp-range-input">
+                            {{-- past dates are not selectable (min = today) --}}
+                            <input type="date" name="from_date" id="exp_from_date" class="exp-range-input"
+                                min="{{ $today }}">
                         </div>
                         <div class="exp-range-field">
                             <label>To</label>
-                            <input type="date" name="to_date" id="exp_to_date" class="exp-range-input">
+                            <input type="date" name="to_date" id="exp_to_date" class="exp-range-input"
+                                min="{{ $today }}">
                         </div>
                     </div>
                 </div>
@@ -578,6 +739,11 @@
 
         {{-- ================= RIGHT : MAP ================= --}}
         <div class="explore-map-area">
+            {{-- live total count for the current search / filters --}}
+            <div class="explore-map-count" id="exploreMapCount">
+                <b id="exploreMapCountNum">{{ $mediaList->total() }}</b>
+                <span id="exploreMapCountLabel">{{ $mediaList->total() == 1 ? 'result' : 'results' }}</span>
+            </div>
             <div id="exploreMap"></div>
         </div>
     </div>
@@ -639,12 +805,15 @@
             let selectedId = null;
 
             function pinIcon(selected) {
-                const color = selected ? '#1971c2' : '#f28123';
+                const color = selected ? '#2b6cb0' : '#f28123';
                 const w = selected ? 40 : 32;
                 const h = selected ? 54 : 44;
                 const svg =
                     '<svg width="' + w + '" height="' + h + '" viewBox="0 0 32 44" ' +
-                    'xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 3px 3px rgba(0,0,0,.4));">' +
+                    'xmlns="http://www.w3.org/2000/svg" ' +
+                    // overflow:visible so the 2.5px stroke + shadow aren't clipped
+                    // at the viewBox edges (that was cutting the pin's left/right)
+                    'style="overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.4));">' +
                     '<path d="M16 0C7.16 0 0 7.16 0 16c0 11.5 16 28 16 28s16-16.5 16-28C32 7.16 24.84 0 16 0z" ' +
                     'fill="' + color + '" stroke="#ffffff" stroke-width="2.5"/>' +
                     '<circle cx="16" cy="16" r="6" fill="#ffffff"/>' +
@@ -675,7 +844,7 @@
                     '<div style="color:#f28123;font-weight:700;margin-top:2px;">₹ ' + Number(m.price)
                     .toLocaleString() + '</div>' +
                     '<a href="' + EXPLORE.mediaDetailsBase + '/' + m.eid +
-                    '" style="color:#1971c2;font-size:12px;">View Details →</a>' +
+                    '" style="color:#2b6cb0;font-size:12px;">View Details →</a>' +
                     '</div>';
             }
 
@@ -729,8 +898,15 @@
                 if (fit) {
                     let fitTo = bounds.length ? bounds : allBounds;
                     if (fitTo.length) {
+                        // make sure Leaflet knows the real container size before fitting,
+                        // otherwise edge pins land outside the (overflow:hidden) map and
+                        // their left/right outer halves get clipped.
+                        map.invalidateSize();
                         map.fitBounds(fitTo, {
-                            padding: [40, 40],
+                            // pins are bottom-anchored and ~32-48px wide, so keep extra
+                            // room on every side (more on top for the tall pin tip).
+                            paddingTopLeft: [55, 65],
+                            paddingBottomRight: [55, 25],
                             maxZoom: 13
                         });
                     }
@@ -739,6 +915,14 @@
 
             /* ============ AJAX SEARCH (live) ============ */
             let reqToken = 0;
+
+            // keep the sidebar count and the on-map count badge in sync
+            function updateCounts(total) {
+                total = Number(total) || 0;
+                $('#exploreCount').text(total);
+                $('#exploreMapCountNum').text(total.toLocaleString('en-IN'));
+                $('#exploreMapCountLabel').text(total === 1 ? 'result' : 'results');
+            }
 
             function runSearch() {
                 let myToken = ++reqToken;
@@ -753,7 +937,7 @@
                     data: $('#exploreForm').serialize(),
                     success: function(res) {
                         if (myToken !== reqToken) return; // ignore stale response
-                        $('#exploreCount').text(res.total_count);
+                        updateCounts(res.total_count);
                         renderMarkers(res.markers, true);
                     },
                     complete: function() {
@@ -762,19 +946,85 @@
                 });
             }
 
+            /* ---- active filter chips (every selected entry, with a cancel icon) ---- */
+            function buildChip(label, onRemove) {
+                const $x = $('<span class="exp-chip-x" title="Remove">&times;</span>')
+                    .on('click', onRemove);
+                return $('<span class="exp-chip"></span>')
+                    .append($('<span class="exp-chip-label"></span>').text(label))
+                    .append($x);
+            }
+
+            function renderChips() {
+                const $list = $('#exploreChipsList').empty();
+                let count = 0;
+
+                // text search term
+                const q = $('#exp_q').val().trim();
+                if (q) {
+                    $list.append(buildChip('Search: "' + q + '"', function() {
+                        $('#exp_q').val('');
+                        runSearch();
+                        renderChips();
+                    }));
+                    count++;
+                }
+
+                // every checked filter option
+                $('#exploreForm input[type="checkbox"]:checked').each(function() {
+                    const cb = this;
+                    const label = $(cb).next('span').text().trim() || cb.value;
+                    $list.append(buildChip(label, function() {
+                        cb.checked = false;
+                        $(cb).trigger('change'); // unchecks → runs search → re-renders chips
+                    }));
+                    count++;
+                });
+
+                $('#exploreChips').toggle(count > 0);
+            }
+
             // live update on any checkbox change
-            $(document).on('change', '#exploreForm input[type="checkbox"]', runSearch);
+            $(document).on('change', '#exploreForm input[type="checkbox"]', function() {
+                runSearch();
+                renderChips();
+            });
+
+            // "Clear all" inside the chip bar = same as the footer clear button
+            $('#exploreChipsClear').on('click', function() {
+                $('#exploreClear').trigger('click');
+            });
+
+            // show/hide the search-bar cancel icon based on its content
+            function toggleQClear() {
+                $('.exp-search-wrap').toggleClass('has-text', $('#exp_q').val().length > 0);
+            }
 
             // debounced text search
             let qTimer = null;
             $('#exp_q').on('input', function() {
+                toggleQClear();
                 clearTimeout(qTimer);
-                qTimer = setTimeout(runSearch, 400);
+                qTimer = setTimeout(function() {
+                    runSearch();
+                    renderChips();
+                }, 400);
+            });
+
+            // cancel icon clears the search bar and refreshes results immediately
+            $('#expQClear').on('click', function() {
+                $('#exp_q').val('').focus();
+                toggleQClear();
+                clearTimeout(qTimer);
+                runSearch();
+                renderChips();
             });
 
             // date pickers — keep the window valid, then search immediately
+            const TODAY = "{{ $today }}"; // no past dates allowed
             $('#exp_from_date').on('change', function() {
-                $('#exp_to_date').attr('min', this.value || null);
+                // "To" can never be earlier than the chosen "From" (and never past today)
+                $('#exp_to_date').attr('min', this.value || TODAY);
                 runSearch();
             });
             $('#exp_to_date').on('change', function() {
@@ -880,16 +1130,38 @@
             $('#exploreClear').on('click', function() {
                 $('#exploreForm')[0].reset();
                 $('#exp_from_date').removeAttr('max');
-                $('#exp_to_date').removeAttr('min');
+                // keep past dates disabled after clearing (min stays at today)
+                $('#exp_to_date').attr('min', TODAY);
                 // restore sliders to their full range + repaint fill/labels
                 priceSlider.update(false);
                 areaSlider.update(false);
                 $('.grp-filter').trigger('input');
+                toggleQClear();
                 runSearch();
+                renderChips();
             });
 
+            // show any chips / search-clear icon that exist on first load
+            toggleQClear();
+            renderChips();
+
             /* ============ INITIAL RENDER ============ */
-            renderMarkers(EXPLORE.initialMarkers, true);
+            // defer one tick so the flex layout (header + sidebar) has settled and
+            // the map container reports its real width — prevents edge pins from
+            // being clipped on first paint.
+            setTimeout(function() {
+                map.invalidateSize();
+                renderMarkers(EXPLORE.initialMarkers, true);
+            }, 0);
+
+            // keep the map sized correctly (and edge pins visible) on resize
+            let resizeTimer = null;
+            $(window).on('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    map.invalidateSize();
+                }, 150);
+            });
         });
     </script>
 @endsection

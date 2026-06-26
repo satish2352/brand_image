@@ -133,6 +133,9 @@
                                             <tr>
                                                 <th>Sr. No.</th>
                                                 <th>Name</th>
+                                                <th>Hoarding Code</th>
+                                                <th>Highway</th>
+                                                <th>Landmarks</th>
                                                 <th>Facing</th>
                                                 <th>Size</th>
 
@@ -163,6 +166,9 @@
                                                     <td>
                                                         {{ ucwords(trim(($row->media_title ?? '') . ' ' . ($row->area_name ?? ''))) ?: '-' }}
                                                     </td>
+                                                    <td>{{ $row->hoarding_code ?? '-' }}</td>
+                                                    <td>{{ $row->highway_name ?? '-' }}</td>
+                                                    <td>{{ $row->landmark_names ?? '-' }}</td>
                                                     <td>{{ $row->facing ?? '-' }}</td>
                                                     <td>{{ $row->width }} × {{ $row->height }}</td>
 

@@ -136,8 +136,10 @@
                 <div class="row" id="billboardsId">
                     <div class="col-md-4 mb-3">
                         <label>Hoarding Code</label>
-                        <input type="text" class="form-control"
-                            value="{{ $media->hoarding_code ?? '' }}" disabled>
+                        {{-- editable so existing hoardings (added before auto-codes) can get/fix a code --}}
+                        <input type="text" name="hoarding_code" class="form-control"
+                            value="{{ old('hoarding_code', $media->hoarding_code ?? '') }}"
+                            placeholder="Auto-generated if left blank">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
@@ -436,15 +438,24 @@
         }
         .select2-container--default .select2-selection--multiple {
             position: relative;
-            min-height: 48px;
-            border: 1px solid #ced4da;
-            border-radius: 8px;
-            padding: 4px 30px 4px 12px;
+            /* match the height + rounding of the sibling .form-control inputs */
+            min-height: calc(1.5em + 0.75rem + 2px);
+            border: 1px solid #d9d9d9;
+            border-radius: 0.25rem;
+            padding: 2px 30px 2px 12px;
             display: flex;
             align-items: center;
             flex-wrap: wrap;
             gap: 4px;
             background-color: #fff;
+        }
+        /* placeholder / typed text — same size + vertical centring as the other fields */
+        .select2-container--default .select2-selection--multiple .select2-search__field {
+            font-size: 1rem;
+            height: calc(1.5em + 0.75rem - 2px);
+            line-height: calc(1.5em + 0.75rem - 2px);
+            margin: 0 !important;
+            padding: 0 !important;
         }
         /* native-style dropdown caret on the right */
         .select2-container--default .select2-selection--multiple::after {
@@ -491,6 +502,12 @@
         /* the × remove button — a clean white cross in a soft circle, AFTER the label */
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
             order: 2;
+            position: static !important;
+            /* override select2's absolute positioning that overlaps the text */
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            transform: none !important;
             display: inline-flex !important;
             align-items: center;
             justify-content: center;
@@ -522,9 +539,23 @@
         .select2-container--default .select2-results__option[aria-selected=true] {
             background-color: #fde3cf;
             color: #b95e16;
+            font-weight: 600;
+        }
+        /* clear ✓ marker so the user can tell what's already selected,
+           and that clicking it again will remove it */
+        .select2-container--default .select2-results__option[aria-selected=true]::after {
+            content: "\2713";
+            float: right;
+            color: #f28123;
+            font-weight: 700;
+        }
+        .select2-container--default .select2-results__option[aria-selected=true]:hover::after {
+            content: "\2715 remove";
+            font-size: 12px;
+            color: #d96f15;
         }
         .select2-container--default .select2-search--inline .select2-search__field {
-            margin-top: 6px;
+            margin-top: 0;
         }
         .select2-container .select2-selection--multiple .select2-selection__rendered {
             padding: 0;
@@ -537,7 +568,9 @@
         $(function() {
             $('.landmark-select').select2({
                 placeholder: 'Select landmarks',
-                allowClear: true,
+                // no allowClear: its "clear all" × overlapped the dropdown caret;
+                // each chip has its own × to deselect individually instead.
+                allowClear: false,
                 width: '100%'
             });
         });

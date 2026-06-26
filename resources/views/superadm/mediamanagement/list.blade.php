@@ -100,13 +100,13 @@
                                         value="{{ request('to_date') }}">
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-3 mt-3">
                                     <label><b>Hoarding Code</b></label>
                                     <input type="text" name="hoarding_code" class="form-control"
                                         placeholder="e.g. HD000007" value="{{ request('hoarding_code') }}">
                                 </div>
 
-                                <div class="col-md-6 d-flex align-items-end">
+                                <div class="col-md-6 d-flex align-items-end mt-3">
                                     <button class="btn btn-success m-2">Filter</button>
                                     <a href="{{ route('media.list') }}" class="btn btn-secondary m-2">Reset</a>
                                 </div>
