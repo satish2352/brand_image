@@ -854,7 +854,7 @@
         font-weight: 400;
     }
     .landmark-option:hover {
-        background: #fff3e6;
+        background: #f0f0f0;
     }
     .landmark-option input[type="checkbox"] {
         width: 16px;
