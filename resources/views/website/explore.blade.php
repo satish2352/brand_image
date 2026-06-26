@@ -1023,7 +1023,8 @@
                     count++;
                 });
 
-                $('#exploreChips').toggle(count > 0);
+                // explicit flex/none so the flex top bar always lays out correctly
+                $('#exploreChips').css('display', count > 0 ? 'flex' : 'none');
             }
 
             // live update on any checkbox change
