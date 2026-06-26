@@ -16,6 +16,14 @@
             overflow: hidden;
         }
 
+        /* On this locked-viewport page, keep the site header in normal flow
+           (it is position:fixed globally) so the layout becomes a clean column:
+           menu → filter row → sidebar+map. This makes the selected-filter row
+           sit directly BELOW the menu, with the menu always visible. */
+        .top-header-area {
+            position: relative !important;
+        }
+
         /* make the explore area fill the viewport below the header exactly,
            regardless of the header's real height (no leftover white space) */
         main.flex-fill {
@@ -426,14 +434,15 @@
             text-decoration: underline;
         }
 
-        /* ---------------- TOP FULL-WIDTH FILTERING BAR ---------------- */
+        /* ---------------- TOP FULL-WIDTH FILTERING BAR (above sidebar + map) ---------------- */
         .explore-topbar {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             padding: 10px 18px;
             background: #fdf4ec;
             border-bottom: 1px solid #f0e2d4;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
             flex-wrap: wrap;
             flex: 0 0 auto;
         }
@@ -781,11 +790,6 @@
 
         {{-- ================= RIGHT : MAP ================= --}}
         <div class="explore-map-area">
-            {{-- live total count for the current search / filters --}}
-            <div class="explore-map-count" id="exploreMapCount">
-                <b id="exploreMapCountNum">{{ $mediaList->total() }}</b>
-                <span id="exploreMapCountLabel">{{ $mediaList->total() == 1 ? 'result' : 'results' }}</span>
-            </div>
             <div id="exploreMap"></div>
         </div>
     </div>
@@ -1204,6 +1208,17 @@
                 resizeTimer = setTimeout(function() {
                     map.invalidateSize();
                 }, 150);
+            });
+
+            // The browser can restore previously-ticked filters on reload WITHOUT
+            // firing change events, so the chips bar and the map would stay out of
+            // sync with the checked boxes. Re-sync both once the page fully loads.
+            $(window).on('load', function() {
+                renderChips();
+                const hasFilters =
+                    $('#exploreForm input[type="checkbox"]:checked').length > 0 ||
+                    $('#exp_q').val().trim() !== '';
+                if (hasFilters) runSearch();
             });
         });
     </script>
