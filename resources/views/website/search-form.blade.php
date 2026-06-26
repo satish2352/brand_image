@@ -44,6 +44,21 @@
         height: 44px;
     }
 
+    /* Light-orange option highlight to match the Landmarks dropdown.
+       NOTE: native <select> popups are OS-rendered in Chrome, so the blue
+       hover may persist there; this reliably applies in Firefox and recolors
+       the selected option in Chromium via the inset box-shadow hack. */
+    .media-search-card .form-select option:hover,
+    .media-search-card .form-select option:focus,
+    .media-search-card .form-select option:checked,
+    .media-search-card .form-select option:active {
+        background: #fff3e6 !important;
+        background-color: #fff3e6 !important;
+        color: #000 !important;
+        box-shadow: 0 0 10px 100px #fff3e6 inset;
+        -webkit-box-shadow: 0 0 10px 100px #fff3e6 inset;
+    }
+
     /* Fix date input height */
     .media-search-card input[type="date"] {
         height: 44px;
