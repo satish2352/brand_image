@@ -426,6 +426,46 @@
             text-decoration: underline;
         }
 
+        /* ---------------- TOP FULL-WIDTH FILTERING BAR ---------------- */
+        .explore-topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            background: #fdf4ec;
+            border-bottom: 1px solid #f0e2d4;
+            flex-wrap: wrap;
+            flex: 0 0 auto;
+        }
+
+        .explore-topbar-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #f28123;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .explore-topbar .explore-chips-list {
+            flex: 1;
+        }
+
+        /* CLEAR ALL as a bordered pill (matches the reference look) */
+        .explore-topbar .explore-chips-clear {
+            border: 1px solid #f28123;
+            border-radius: 16px;
+            padding: 5px 14px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .explore-topbar .explore-chips-clear:hover {
+            text-decoration: none;
+            background: #f28123;
+            color: #fff;
+        }
+
         .explore-spinner {
             font-size: 11px;
             color: #f28123;
@@ -622,6 +662,13 @@
         ];
     @endphp
 
+    {{-- ===== TOP FULL-WIDTH FILTERING BAR (active filters + clear all) ===== --}}
+    <div class="explore-topbar" id="exploreChips" style="display:none;">
+        <span class="explore-topbar-label">Filtering</span>
+        <div class="explore-chips-list" id="exploreChipsList"></div>
+        <button type="button" class="explore-chips-clear" id="exploreChipsClear">Clear all</button>
+    </div>
+
     <div class="explore-wrap">
         {{-- ================= LEFT : FILTER SIDEBAR ================= --}}
         <aside class="explore-sidebar">
@@ -629,14 +676,9 @@
                 <div class="title">Filters</div>
                 <div class="explore-showing">
                     <span>Showing</span>
-                    <span><b id="exploreCount">{{ $mediaList->total() }}</b> / {{ $grandTotal }}</span>
+                    <span><b id="exploreCount">{{ number_format($mediaList->total()) }}</b> /
+                        {{ number_format($grandTotal) }}</span>
                 </div>
-            </div>
-
-            {{-- active filter chips: every selected entry shown on top with a cancel (×) icon --}}
-            <div class="explore-chips" id="exploreChips" style="display:none;">
-                <div class="explore-chips-list" id="exploreChipsList"></div>
-                <button type="button" class="explore-chips-clear" id="exploreChipsClear">Clear all</button>
             </div>
 
             <form id="exploreForm" class="explore-sidebar-body">
@@ -919,7 +961,7 @@
             // keep the sidebar count and the on-map count badge in sync
             function updateCounts(total) {
                 total = Number(total) || 0;
-                $('#exploreCount').text(total);
+                $('#exploreCount').text(total.toLocaleString('en-IN'));
                 $('#exploreMapCountNum').text(total.toLocaleString('en-IN'));
                 $('#exploreMapCountLabel').text(total === 1 ? 'result' : 'results');
             }

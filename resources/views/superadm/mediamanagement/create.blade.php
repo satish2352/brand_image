@@ -651,7 +651,7 @@
             font-weight: 700;
         }
         .select2-container--default .select2-results__option[aria-selected=true]:hover::after {
-            content: "\2715 remove";
+            content: "\2715";
             font-size: 12px;
             color: #d96f15;
         }

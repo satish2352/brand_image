@@ -44,19 +44,54 @@
         height: 44px;
     }
 
-    /* Light-orange option highlight to match the Landmarks dropdown.
-       NOTE: native <select> popups are OS-rendered in Chrome, so the blue
-       hover may persist there; this reliably applies in Firefox and recolors
-       the selected option in Chromium via the inset box-shadow hack. */
-    .media-search-card .form-select option:hover,
-    .media-search-card .form-select option:focus,
-    .media-search-card .form-select option:checked,
-    .media-search-card .form-select option:active {
-        background: #fff3e6 !important;
+    /* ===== Select2 styled to match the form (light-orange hover, no blue) =====
+       The native <select> blue highlight cannot be restyled in Chrome, so these
+       selects are upgraded to Select2 which is fully styleable. */
+    .media-search-card .select2-container {
+        width: 100% !important;
+    }
+
+    .media-search-card .select2-container--default .select2-selection--single {
+        height: 44px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        background: #fff;
+    }
+
+    .media-search-card .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 1.4;
+        color: #333;
+        padding: 0;
+    }
+
+    .media-search-card .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #6c757d;
+    }
+
+    .media-search-card .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 42px;
+    }
+
+    .media-search-card .select2-container--default.select2-container--focus .select2-selection--single,
+    .media-search-card .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #f28123;
+        outline: none;
+    }
+
+    /* dropdown options — hover/active in LIGHT ORANGE (not blue) */
+    .bi-orange-dropdown .select2-results__option--highlighted[aria-selected] {
+        background-color: #fde3cf !important;
+        color: #b95e16 !important;
+    }
+
+    /* the already-selected option */
+    .bi-orange-dropdown .select2-results__option[aria-selected=true] {
         background-color: #fff3e6 !important;
-        color: #000 !important;
-        box-shadow: 0 0 10px 100px #fff3e6 inset;
-        -webkit-box-shadow: 0 0 10px 100px #fff3e6 inset;
+        color: #b95e16 !important;
+        font-weight: 600;
     }
 
     /* Fix date input height */
@@ -445,6 +480,25 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    // Upgrade the native <select> filters to Select2 so the option highlight
+    // is light-orange (Chrome cannot restyle native <select> popups). Runs before
+    // the cascade callbacks so they can refresh the widget via change.select2.
+    $(function() {
+        $('.media-search-card .form-select').each(function() {
+            var $s = $(this);
+            var ph = ($s.find('option[value=""]').first().text() || 'Select').trim();
+            $s.select2({
+                width: '100%',
+                placeholder: ph,
+                minimumResultsForSearch: 15, // show a search box only for long lists
+                dropdownCssClass: 'bi-orange-dropdown'
+            });
+        });
+    });
+</script>
 <script>
     const selectedState = "{{ $filters['state_id'] ?? '' }}";
     const selectedDistrict = "{{ $filters['district_id'] ?? '' }}";
@@ -537,11 +591,13 @@
             $('#radius_id')
                 // .val('')
                 .prop('disabled', true)
-                .addClass('bg-light');
+                .addClass('bg-light')
+                .trigger('change.select2');
         } else {
             $('#radius_id')
                 .prop('disabled', false)
-                .removeClass('bg-light');
+                .removeClass('bg-light')
+                .trigger('change.select2');
         }
     }
 </script>
@@ -567,7 +623,7 @@
                          </option>`;
                 });
 
-                $('#district_id').html(html);
+                $('#district_id').html(html).trigger('change.select2');
             });
         }
 
@@ -588,7 +644,7 @@
                          </option>`;
                 });
 
-                $('#city_id').html(html);
+                $('#city_id').html(html).trigger('change.select2');
 
                 toggleRadius(); // ⭐ IMPORTANT
             });
@@ -611,7 +667,7 @@
                          </option>`;
                 });
 
-                $('#area_id').html(html);
+                $('#area_id').html(html).trigger('change.select2');
 
                 toggleRadius(); // ⭐ IMPORTANT
             });
@@ -623,8 +679,8 @@
 
             loadDistricts(this.value);
 
-            $('#city_id').html('<option value="">Select Town</option>');
-            $('#area_id').html('<option value="">Select Area</option>');
+            $('#city_id').html('<option value="">Select Town</option>').trigger('change.select2');
+            $('#area_id').html('<option value="">Select Area</option>').trigger('change.select2');
 
             toggleRadius();
         });
@@ -633,7 +689,7 @@
 
             loadCities(this.value);
 
-            $('#area_id').html('<option value="">Select Area</option>');
+            $('#area_id').html('<option value="">Select Area</option>').trigger('change.select2');
         });
 
         $('#city_id').on('change', function() {
@@ -659,9 +715,9 @@
         document.getElementById('searchForm').reset();
 
         // Reset dependent dropdowns
-        $('#district_id').html('<option value="">Select District</option>');
-        $('#city_id').html('<option value="">Select Town</option>');
-        $('#area_id').html('<option value="">Select Area</option>');
+        $('#district_id').html('<option value="">Select District</option>').trigger('change.select2');
+        $('#city_id').html('<option value="">Select Town</option>').trigger('change.select2');
+        $('#area_id').html('<option value="">Select Area</option>').trigger('change.select2');
 
         // Reset slider
         $("#minRange").val(0);
@@ -700,12 +756,14 @@
             if (categoryId == 1) {
                 $('#from_date, #to_date, #available_days, #area_type')
                     .prop('disabled', false)
-                    .removeClass('bg-light');
+                    .removeClass('bg-light')
+                    .trigger('change.select2');
             } else {
                 $('#from_date, #to_date, #available_days, #area_type')
                     .prop('disabled', true)
                     .addClass('bg-light')
-                    .val(''); // clear values
+                    .val('') // clear values
+                    .trigger('change.select2');
             }
         }
 
@@ -730,14 +788,16 @@
             $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper, #highway_wrapper, #landmark_wrapper')
                 .hide()
                 .find('select, input')
-                .prop('disabled', true);
+                .prop('disabled', true)
+                .trigger('change.select2');
 
             // 🟢 Category 1 → show ALL
             if (categoryId == 1) {
                 $('#radius_wrapper, #area_type_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper, #highway_wrapper, #landmark_wrapper')
                     .show()
                     .find('select, input')
-                    .prop('disabled', false);
+                    .prop('disabled', false)
+                    .trigger('change.select2');
             }
 
             // 🟡 Category 2 → show ONLY radius
@@ -745,7 +805,8 @@
                 $('#radius_wrapper')
                     .show()
                     .find('select')
-                    .prop('disabled', false);
+                    .prop('disabled', false)
+                    .trigger('change.select2');
             }
         }
 
