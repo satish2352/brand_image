@@ -94,6 +94,32 @@
         font-weight: 600;
     }
 
+    /* Keep the open dropdown ABOVE the fixed site header (z-index 9999) and any
+       floating buttons, so the options are actually visible when clicked. */
+    .select2-container--open {
+        z-index: 10050 !important;
+    }
+
+    .select2-container--open .select2-dropdown,
+    .bi-orange-dropdown.select2-dropdown {
+        z-index: 10050 !important;
+    }
+
+    /* ensure every option renders with readable colours and full height
+       (guards against global list/anchor resets hiding them) */
+    .bi-orange-dropdown .select2-results__options {
+        max-height: 280px;
+        overflow-y: auto;
+    }
+
+    .bi-orange-dropdown .select2-results__option {
+        display: list-item;
+        list-style: none;
+        color: #333;
+        background-color: #fff;
+        padding: 8px 12px;
+    }
+
     /* Fix date input height */
     .media-search-card input[type="date"] {
         height: 44px;
@@ -614,6 +640,22 @@
 
         const csrf = "{{ csrf_token() }}";
 
+        // After replacing a dependent select's <option>s, Select2 must be told to
+        // re-read them — otherwise the dropdown shows "No results found". Destroy +
+        // re-init is the most reliable refresh. Falls back to nothing for native.
+        function refreshSelect2(sel) {
+            const $sel = $(sel);
+            if ($sel.hasClass('select2-hidden-accessible')) {
+                $sel.select2('destroy');
+                $sel.select2({
+                    width: '100%',
+                    minimumResultsForSearch: 15,
+                    dropdownCssClass: 'bi-orange-dropdown',
+                    placeholder: ($sel.find('option[value=""]').first().text() || 'Select').trim()
+                });
+            }
+        }
+
         function loadDistricts(stateId, selected = '') {
 
             if (!stateId) return;
@@ -631,7 +673,12 @@
                          </option>`;
                 });
 
-                $('#district_id').html(html).trigger('change.select2');
+                alert('DEBUG 2: districts received = ' + (data ? data.length : 'none')); // TEMP
+                $('#district_id').html(html);
+                refreshSelect2('#district_id');
+            }).fail(function (xhr) {
+                console.error('District load failed:', xhr.status, xhr.responseText);
+                alert('District load failed (status ' + xhr.status + '). Check console / network.');
             });
         }
 
@@ -652,7 +699,8 @@
                          </option>`;
                 });
 
-                $('#city_id').html(html).trigger('change.select2');
+                $('#city_id').html(html);
+                refreshSelect2('#city_id');
 
                 toggleRadius(); // ⭐ IMPORTANT
             });
@@ -675,38 +723,43 @@
                          </option>`;
                 });
 
-                $('#area_id').html(html).trigger('change.select2');
+                $('#area_id').html(html);
+                refreshSelect2('#area_id');
 
                 toggleRadius(); // ⭐ IMPORTANT
             });
         }
 
-        // ================= EVENTS =================
+        // ================= EVENTS (delegated → fire reliably with Select2) ====
 
-        $('#state_id').on('change', function() {
+        $(document).on('change', '#state_id', function() {
 
+            alert('DEBUG 1: state changed → value = ' + this.value); // TEMP
             loadDistricts(this.value);
 
-            $('#city_id').html('<option value="">Select Town</option>').trigger('change.select2');
-            $('#area_id').html('<option value="">Select Area</option>').trigger('change.select2');
+            $('#city_id').html('<option value="">Select Town</option>');
+            $('#area_id').html('<option value="">Select Area</option>');
+            refreshSelect2('#city_id');
+            refreshSelect2('#area_id');
 
             toggleRadius();
         });
 
-        $('#district_id').on('change', function() {
+        $(document).on('change', '#district_id', function() {
 
             loadCities(this.value);
 
-            $('#area_id').html('<option value="">Select Area</option>').trigger('change.select2');
+            $('#area_id').html('<option value="">Select Area</option>');
+            refreshSelect2('#area_id');
         });
 
-        $('#city_id').on('change', function() {
+        $(document).on('change', '#city_id', function() {
 
             loadAreas(this.value);
             toggleRadius();
         });
 
-        $('#area_id').on('change', toggleRadius);
+        $(document).on('change', '#area_id', toggleRadius);
 
         // INITIAL LOAD
         if (selectedState) loadDistricts(selectedState, selectedDistrict);
@@ -991,5 +1044,36 @@
         });
 
         updateLabel();
+    });
+</script>
+
+<script>
+    // ===== ROBUST category-dependent filter visibility =====
+    // Uses a DELEGATED change handler on document so it always fires when the
+    // category changes (Select2 dispatches a native change event), regardless of
+    // script/binding order or an error in any other ready handler. This is the
+    // authoritative toggle; the earlier inline one is now redundant but harmless.
+    jQuery(function ($) {
+        function applyCategoryFilters() {
+            var cat = String($('select[name="category_id"]').val() || '').trim();
+            var $deps = $('#radius_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper, #highway_wrapper, #landmark_wrapper');
+
+            // hide + disable everything first
+            $deps.hide().find('select, input').prop('disabled', true).trigger('change.select2');
+
+            if (cat === '1') {
+                // Hoardings/Billboards → show ALL dependent filters
+                $deps.show().find('select, input').prop('disabled', false).trigger('change.select2');
+            } else if (cat === '2') {
+                // Digital Wall Painting → show only Radius
+                $('#radius_wrapper').show().find('select, input').prop('disabled', false).trigger('change.select2');
+            }
+        }
+
+        // Fire whenever the category changes (delegated → survives Select2 wrapping)
+        $(document).on('change', 'select[name="category_id"]', applyCategoryFilters);
+
+        // Run once after Select2 has initialised so the initial state is correct
+        setTimeout(applyCategoryFilters, 350);
     });
 </script>

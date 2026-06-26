@@ -974,13 +974,33 @@
                 let myToken = ++reqToken;
                 $('#exploreSpinner').show();
 
+                // Drop the Budget / Media-Size params when a slider is still at its
+                // FULL range (user hasn't narrowed it). Otherwise the BETWEEN check
+                // silently excludes rows whose price / area_auto is NULL, so an
+                // "unfiltered" search would return fewer than the initial total
+                // (e.g. 259 instead of 265).
+                let params = $('#exploreForm').serializeArray();
+
+                const priceFull =
+                    Number($('#exp_min_price').val()) <= Number($('#expMinPriceRange').attr('min')) &&
+                    Number($('#exp_max_price').val()) >= Number($('#expMaxPriceRange').attr('max'));
+                const areaFull =
+                    Number($('#exp_min_area').val()) <= Number($('#expMinAreaRange').attr('min')) &&
+                    Number($('#exp_max_area').val()) >= Number($('#expMaxAreaRange').attr('max'));
+
+                params = params.filter(function(p) {
+                    if (priceFull && (p.name === 'min_price' || p.name === 'max_price')) return false;
+                    if (areaFull && (p.name === 'min_area' || p.name === 'max_area')) return false;
+                    return true;
+                });
+
                 $.ajax({
                     url: EXPLORE.searchUrl,
                     type: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': EXPLORE.csrf
                     },
-                    data: $('#exploreForm').serialize(),
+                    data: $.param(params),
                     success: function(res) {
                         if (myToken !== reqToken) return; // ignore stale response
                         updateCounts(res.total_count);
