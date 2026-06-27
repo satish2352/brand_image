@@ -44,7 +44,10 @@ class HomeController extends Controller
     public function index()
     {
         $filters = [];
-        $mediaList = $this->homeService->searchMedia($filters);
+        // The search-form only reads $mediaList when a category filter is set,
+        // which never happens on the home page — so skip the heavy search query
+        // here and hand the view a cheap empty paginator instead.
+        $mediaList = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
 
         $sliders = Cache::remember(
             'home_sliders',
@@ -60,7 +63,8 @@ class HomeController extends Controller
             $this->homeService->getLatestOtherMediaByCategory()
         );
 
-        $billboards = DB::table('media_management as m')
+        $billboards = Cache::remember('home_billboards', 300, fn() =>
+            DB::table('media_management as m')
 
             ->leftJoin('cities as city', 'city.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
@@ -113,7 +117,8 @@ class HomeController extends Controller
 
             ])
 
-            ->get();
+            ->get()
+        );
 
         $areaTypes = $this->getCachedAreaTypes();
         $areaRange = $this->getCachedAreaRange();
