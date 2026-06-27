@@ -505,34 +505,8 @@
     </div>
 </div>
 
-{{-- jQuery is already loaded by the layout <head>; do NOT reload it here
-     (reloading mid-page resets jQuery and breaks Select2 plugin attachment). --}}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    // Upgrade the native <select> filters to Select2 so the option highlight is
-    // light-orange (Chrome cannot restyle native <select> popups). Poll until
-    // Select2 has finished loading, then initialise — robust against CDN/load
-    // timing and against jQuery being present more than once on the page.
-    (function initBiSelect2() {
-        if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
-            return setTimeout(initBiSelect2, 50);
-        }
-        jQuery(function ($) {
-            $('.media-search-card .form-select').each(function () {
-                var $s = $(this);
-                if ($s.data('select2')) return; // already initialised
-                var ph = ($s.find('option[value=""]').first().text() || 'Select').trim();
-                $s.select2({
-                    width: '100%',
-                    placeholder: ph,
-                    minimumResultsForSearch: 15, // search box only for long lists
-                    dropdownCssClass: 'bi-orange-dropdown'
-                });
-            });
-        });
-    })();
-</script>
+{{-- jQuery is already loaded by the layout <head>. Native <select> dropdowns are
+     used here for reliability (Select2 was breaking the cascading filters). --}}
 <script>
     const selectedState = "{{ $filters['state_id'] ?? '' }}";
     const selectedDistrict = "{{ $filters['district_id'] ?? '' }}";
@@ -673,12 +647,7 @@
                          </option>`;
                 });
 
-                alert('DEBUG 2: districts received = ' + (data ? data.length : 'none')); // TEMP
                 $('#district_id').html(html);
-                refreshSelect2('#district_id');
-            }).fail(function (xhr) {
-                console.error('District load failed:', xhr.status, xhr.responseText);
-                alert('District load failed (status ' + xhr.status + '). Check console / network.');
             });
         }
 
@@ -734,7 +703,6 @@
 
         $(document).on('change', '#state_id', function() {
 
-            alert('DEBUG 1: state changed → value = ' + this.value); // TEMP
             loadDistricts(this.value);
 
             $('#city_id').html('<option value="">Select Town</option>');
