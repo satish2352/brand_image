@@ -15,11 +15,20 @@
             border: none;
         }
 
-        /* gentle bounce to highlight the selected pin */
+        /* Selected pin: raise it above the others. IMPORTANT — do NOT put an
+           animation/transform on `.media-pin-marker` itself: that element is the
+           Leaflet marker icon, positioned via an inline transform, and a CSS
+           transform here OVERRIDES that positioning and snaps the pin to the
+           map's top-left corner (that was the "blue pin in the wrong place" bug). */
         .media-pin-marker.selected {
+            z-index: 1000 !important;
+        }
+
+        /* Bounce the inner SVG instead — safe, because the SVG is a child of the
+           positioned icon, so it doesn't affect where the pin sits on the map. */
+        .media-pin-marker.selected svg {
             animation: selectedMarkerBounce 0.7s ease infinite alternate;
             transform-origin: center bottom;
-            z-index: 1000 !important;
         }
 
         .multi-media-pin {
@@ -312,7 +321,7 @@
             let verBadge = L.control({ position: 'bottomleft' });
             verBadge.onAdd = function() {
                 let d = L.DomUtil.create('div');
-                d.innerHTML = 'CODE v10';
+                d.innerHTML = 'CODE v11';
                 d.style.cssText =
                     'background:#16a34a;color:#fff;padding:4px 10px;font-weight:bold;' +
                     'border-radius:6px;font-family:sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.4);';
