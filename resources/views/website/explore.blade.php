@@ -981,12 +981,25 @@
                 // (e.g. 259 instead of 265).
                 let params = $('#exploreForm').serializeArray();
 
-                const priceFull =
-                    Number($('#exp_min_price').val()) <= Number($('#expMinPriceRange').attr('min')) &&
-                    Number($('#exp_max_price').val()) >= Number($('#expMaxPriceRange').attr('max'));
-                const areaFull =
-                    Number($('#exp_min_area').val()) <= Number($('#expMinAreaRange').attr('min')) &&
-                    Number($('#exp_max_area').val()) >= Number($('#expMaxAreaRange').attr('max'));
+                // A range slider whose `step` doesn't evenly divide (max - min)
+                // can NEVER set its handle exactly to `max` — the browser snaps it
+                // down to the nearest reachable step (e.g. max 53100, step 1000 →
+                // 53000). So treat the slider as "full" when each handle is at the
+                // furthest value it can actually REACH, not at the raw max attr.
+                // Otherwise an untouched slider looks "narrowed", its params are
+                // sent, and the BETWEEN check silently drops NULL price/area rows
+                // (that was the 259-vs-265 count mismatch).
+                function sliderFull(hiddenMinId, hiddenMaxId, rangeMaxId) {
+                    const lo = Number($('#' + rangeMaxId).attr('min'));
+                    const hi = Number($('#' + rangeMaxId).attr('max'));
+                    const step = Number($('#' + rangeMaxId).attr('step')) || 1;
+                    const maxReachable = lo + Math.floor((hi - lo) / step) * step;
+                    return Number($('#' + hiddenMinId).val()) <= lo &&
+                        Number($('#' + hiddenMaxId).val()) >= maxReachable;
+                }
+
+                const priceFull = sliderFull('exp_min_price', 'exp_max_price', 'expMaxPriceRange');
+                const areaFull = sliderFull('exp_min_area', 'exp_max_area', 'expMaxAreaRange');
 
                 params = params.filter(function(p) {
                     if (priceFull && (p.name === 'min_price' || p.name === 'max_price')) return false;

@@ -462,10 +462,12 @@
 
                 clusterGroup.addLayer(marker);
 
-                marker.on('click', function() {
-                    let cards = '';
+                // Build the popup HTML once at creation and bind it to the marker
+                // (like the explore page) so the popup re-opens on EVERY click,
+                // not just the first time.
+                let cards = '';
 
-                    items.forEach(m => {
+                items.forEach(m => {
                         let url = mediaDetailsRoute.replace('ID_PLACEHOLDER', btoa(m.id));
                         let sqft = (parseFloat(m.width) * parseFloat(m.height)).toFixed(0);
                         let price = '₹' + Number(m.price).toLocaleString('en-IN');
@@ -555,19 +557,20 @@
                         ">${cards}</div>
                     </div>`;
 
-                    // Bind the popup to THIS marker (exactly like the explore/Map
-                    // page) so the popup and the blue selected pin are the SAME
-                    // object — they can never end up at different locations.
-                    marker.bindPopup(html, {
-                        maxWidth: 560,
-                        className: 'map-media-popup'
-                    });
+                // Bind the popup to THIS marker (like the explore/Map page) so the
+                // popup and the blue pin are the same object AND so a click
+                // re-opens the popup every time — not just the first time.
+                marker.bindPopup(html, {
+                    maxWidth: 560,
+                    className: 'map-media-popup'
+                });
 
-                    // ⭐ Map → list: turn this marker blue, open its popup, and
-                    // highlight its card(s).
+                let ids = items.map(m => m.id);
+
+                // ⭐ On EVERY click: turn this marker blue + highlight its card(s).
+                // The bound popup opens automatically on click (Leaflet default).
+                marker.on('click', function() {
                     selectMarker(marker);
-                    marker.openPopup();
-                    let ids = items.map(m => m.id);
                     highlightCards(ids);
                     scrollCardIntoView(items[0].id);
                 });
