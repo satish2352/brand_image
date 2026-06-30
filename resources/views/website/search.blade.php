@@ -300,6 +300,7 @@
         let mediaDetailsRoute = "{{ route('website.media-details', 'ID_PLACEHOLDER') }}";
 
         function initLeafletMap() {
+            console.log('%c[SEARCH MAP] v10 — bound-popup + stale-pin fix LOADED', 'background:#2b6cb0;color:#fff;padding:2px 8px;font-weight:bold;');
             let defaultLat = {{ optional($mapMedia->first())->latitude ?? 19.997453 }};
             let defaultLng = {{ optional($mapMedia->first())->longitude ?? 73.789803 }};
 
@@ -373,12 +374,13 @@
                 });
             }
 
-            // A distinct, larger/darker pin used to highlight the selected marker.
+            // A distinct, larger BLUE pin used to highlight the selected marker —
+            // same blue (#2b6cb0) as the Map/explore page's active pin.
             function buildSelectedIcon(count) {
                 return buildPinIcon({
                     w: 40,
                     h: 54,
-                    color: '#d96f15',
+                    color: '#2b6cb0',
                     count: count,
                     className: 'media-pin-marker selected'
                 });
@@ -545,16 +547,18 @@
                         ">${cards}</div>
                     </div>`;
 
-                    L.popup({
-                            maxWidth: 560,
-                            className: 'map-media-popup'
-                        })
-                        .setLatLng([lat, lng])
-                        .setContent(html)
-                        .openOn(map);
+                    // Bind the popup to THIS marker (exactly like the explore/Map
+                    // page) so the popup and the blue selected pin are the SAME
+                    // object — they can never end up at different locations.
+                    marker.bindPopup(html, {
+                        maxWidth: 560,
+                        className: 'map-media-popup'
+                    });
 
-                    // ⭐ Map → list: highlight this marker and its card(s).
+                    // ⭐ Map → list: turn this marker blue, open its popup, and
+                    // highlight its card(s).
                     selectMarker(marker);
+                    marker.openPopup();
                     let ids = items.map(m => m.id);
                     highlightCards(ids);
                     scrollCardIntoView(items[0].id);
@@ -562,6 +566,23 @@
             }
 
             map.addLayer(clusterGroup);
+
+            // The cluster rebuilds every marker's icon whenever it zooms or
+            // un-clusters. Re-assert after each animation that ONLY the currently
+            // selected marker is blue — otherwise a previously-selected marker can
+            // stay stuck blue (the "stale blue pin" bug) while a new one is chosen.
+            clusterGroup.on('animationend', function() {
+                let seen = new Set();
+                for (let mid in markersByMediaId) {
+                    let mk = markersByMediaId[mid];
+                    if (seen.has(mk)) continue;
+                    seen.add(mk);
+                    let wantBlue = (mk === currentSelectedMarker);
+                    let isBlue = (mk.options.icon === mk._selectedIcon);
+                    if (wantBlue && !isBlue) mk.setIcon(mk._selectedIcon);
+                    else if (!wantBlue && isBlue) mk.setIcon(mk._defaultIcon2);
+                }
+            });
 
             // Zoom/pan so every marker is visible at once.
             let bounds = clusterGroup.getBounds();
@@ -588,12 +609,10 @@
                     if (!marker) return;
 
                     // zoomToShowLayer expands the enclosing cluster (if any) so
-                    // the marker becomes individually visible, then we centre
-                    // and open its popup.
+                    // the marker becomes individually visible, then its own click
+                    // handler turns it blue and opens the bound popup. No extra
+                    // setView here — a second zoom only triggers another re-cluster.
                     clusterGroup.zoomToShowLayer(marker, function() {
-                        map.setView([marker._lat, marker._lng],
-                            Math.max(map.getZoom(), 16));
-                        selectMarker(marker);
                         marker.fire('click');
                     });
                 });

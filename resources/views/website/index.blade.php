@@ -85,6 +85,7 @@
 
                     <img src="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
                         class="d-block w-100 carousel-img"
+                        loading="{{ $key === 0 ? 'eager' : 'lazy' }}" decoding="async"
                         data-desktop="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
                         data-mobile="{{ config('fileConstants.IMAGE_VIEW') . $slider->mobile_image }}"
                         alt="Home Slider {{ $key + 1 }}">
@@ -310,9 +311,12 @@
                                         $height = (float) ($media->height ?? 0);
                                         $sqft = $width * $height;
                                     @endphp
-                                    <div class="latest-news-bg"
-                                        style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"
-                                        class="card-img-fit">
+                                    <div class="latest-news-bg card-img-fit">
+
+                                        <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}"
+                                            loading="lazy" decoding="async"
+                                            alt="{{ $media->area_name ?? $media->category_name }}"
+                                            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
 
                                         @if ($isBooked === 1)
                                             <span class="media-badge booked">Booked</span>
@@ -463,9 +467,11 @@
                     @endphp
                     <div class="col-lg-4 col-md-6 mb-5">
                         <div class="media-card-hording">
-                            <div class="media-img"
-                                style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-                            </div>
+                            <img class="media-img"
+                                src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}"
+                                loading="lazy" decoding="async"
+                                alt="{{ $media->area_name ?? $media->category_name }}"
+                                style="object-fit:cover;">
                             <div class="media-content">
                                 <h3 style="font-size: 21px;">
                                     <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
