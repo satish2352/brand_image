@@ -309,25 +309,10 @@
         let mediaDetailsRoute = "{{ route('website.media-details', 'ID_PLACEHOLDER') }}";
 
         function initLeafletMap() {
-            console.log('%c[SEARCH MAP] v10 — bound-popup + stale-pin fix LOADED', 'background:#2b6cb0;color:#fff;padding:2px 8px;font-weight:bold;');
             let defaultLat = {{ optional($mapMedia->first())->latitude ?? 19.997453 }};
             let defaultLng = {{ optional($mapMedia->first())->longitude ?? 73.789803 }};
 
             let map = L.map('map').setView([defaultLat, defaultLng], 12);
-
-            // TEMP visible version badge — confirms the freshest code is loaded.
-            // If you DON'T see this green "CODE v10" badge on the map, the browser
-            // is showing a cached old page. (Remove once verified.)
-            let verBadge = L.control({ position: 'bottomleft' });
-            verBadge.onAdd = function() {
-                let d = L.DomUtil.create('div');
-                d.innerHTML = 'CODE v11';
-                d.style.cssText =
-                    'background:#16a34a;color:#fff;padding:4px 10px;font-weight:bold;' +
-                    'border-radius:6px;font-family:sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.4);';
-                return d;
-            };
-            verBadge.addTo(map);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
