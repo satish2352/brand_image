@@ -159,6 +159,12 @@
                 <span>Media Management</span>
             </a>
         </li>
+        <li class="nav-item {{ request()->is('media/import-export') ? 'active' : '' }}">
+            <a href="{{ route('media.import-export') }}">
+                <i class="mdi mdi-swap-vertical"></i>
+                <span>Import &amp; Export</span>
+            </a>
+        </li>
         <li class="nav-item {{ request()->routeIs('admin-booking.index') ? 'active' : '' }}">
             <a href="{{ route('admin-booking.index') }}">
                 <i class="mdi mdi-calendar-check"></i>

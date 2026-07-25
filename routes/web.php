@@ -17,6 +17,7 @@ use App\Http\Controllers\Superadm\Master\AreaController;
 use App\Http\Controllers\Superadm\Master\CityController;
 use App\Http\Controllers\Superadm\Master\RadiusController;
 use App\Http\Controllers\Superadm\MediaManagementController;
+use App\Http\Controllers\Superadm\MediaImportExportController;
 use App\Http\Controllers\Superadm\ChangePasswordController;
 use App\Http\Controllers\Website\CartController;
 use App\Http\Controllers\Website\CheckoutController;
@@ -116,6 +117,16 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('image/delete', [MediaManagementController::class, 'deleteImage'])->name('media.image.delete');
         Route::post('image/upload', [MediaManagementController::class, 'uploadImage'])->name('media.image.upload');
         Route::get('view-details/{encodedId}', [MediaManagementController::class, 'viewDetails'])->name('media.viewdetails');
+
+        /* BULK DATA UPLOAD — IMPORT & EXPORT */
+        Route::get('import-export', [MediaImportExportController::class, 'index'])->name('media.import-export');
+        Route::get('import/template/{category?}', [MediaImportExportController::class, 'template'])->name('media.import.template');
+        Route::post('import/preview', [MediaImportExportController::class, 'preview'])->name('media.import.preview');
+        Route::post('import/publish', [MediaImportExportController::class, 'publish'])->name('media.import.publish');
+        Route::post('import/discard', [MediaImportExportController::class, 'discard'])->name('media.import.discard');
+        Route::get('import/error-log/{token}', [MediaImportExportController::class, 'errorLog'])->name('media.import.errorlog');
+        Route::match(['get', 'post'], 'export', [MediaImportExportController::class, 'export'])->name('media.export');
+        Route::get('export/records', [MediaImportExportController::class, 'records'])->name('media.export.records');
     });
     /* MEDIA AJAX (LOCATION HELPERS) */
     Route::get('get-states', [MediaManagementController::class, 'getStates']);

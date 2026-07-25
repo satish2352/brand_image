@@ -104,17 +104,31 @@ class ExploreRepository
         }
 
         /* ---------- FREE-TEXT SEARCH (asset id / location / area) ---------- */
+        // Accepts one term OR a comma / newline / semicolon separated list
+        // (e.g. multiple hoarding codes pasted in). A row matches when it
+        // matches ANY of the terms.
         if (!empty($filters['q'])) {
-            $like = '%' . trim($filters['q']) . '%';
-            $query->where(function ($w) use ($like) {
-                $w->where('m.hoarding_code', 'like', $like)
-                    ->orWhere('m.media_title', 'like', $like)
-                    ->orWhere('a.area_name', 'like', $like)
-                    ->orWhere('city.city_name', 'like', $like)
-                    ->orWhere('d.district_name', 'like', $like)
-                    ->orWhere('s.state_name', 'like', $like)
-                    ->orWhere('hw.highway_name', 'like', $like);
-            });
+            $terms = array_values(array_filter(
+                array_map('trim', preg_split('/[,\n;]+/', (string) $filters['q'])),
+                fn($t) => $t !== ''
+            ));
+
+            if (!empty($terms)) {
+                $query->where(function ($outer) use ($terms) {
+                    foreach ($terms as $term) {
+                        $like = '%' . $term . '%';
+                        $outer->orWhere(function ($w) use ($like) {
+                            $w->where('m.hoarding_code', 'like', $like)
+                                ->orWhere('m.media_title', 'like', $like)
+                                ->orWhere('a.area_name', 'like', $like)
+                                ->orWhere('city.city_name', 'like', $like)
+                                ->orWhere('d.district_name', 'like', $like)
+                                ->orWhere('s.state_name', 'like', $like)
+                                ->orWhere('hw.highway_name', 'like', $like);
+                        });
+                    }
+                });
+            }
         }
 
         /* ---------- PRICE RANGE ---------- */

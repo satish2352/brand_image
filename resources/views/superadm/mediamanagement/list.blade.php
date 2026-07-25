@@ -10,6 +10,45 @@
                     @if (session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
+
+                    {{-- ROWS THE BULK IMPORT COULD NOT PUBLISH --}}
+                    @if (!empty(session('import_skipped')))
+                        <div class="alert alert-warning">
+                            <b>{{ count(session('import_skipped')) }} row(s) were skipped during the import:</b>
+                            <ul class="mb-0 mt-2">
+                                @foreach (session('import_skipped') as $skipped)
+                                    <li>Row {{ $skipped['row'] }} — {{ $skipped['issues'] }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- IMAGES THE BULK IMPORT COULD NOT DOWNLOAD (the records themselves were saved) --}}
+                    @if (!empty(session('import_image_warnings')))
+                        <div class="alert alert-warning">
+                            <b>
+                                {{ count(session('import_image_warnings')) }} record(s) were saved but some images
+                                could not be downloaded:
+                            </b>
+                            <ul class="mb-0 mt-2">
+                                @foreach (session('import_image_warnings') as $warning)
+                                    <li>
+                                        Row {{ $warning['row'] }}
+                                        @if (!empty($warning['media_title']))
+                                            ({{ $warning['media_title'] }})
+                                        @endif
+                                        — {{ $warning['issues'] }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                            <small class="d-block mt-2">
+                                You can add these images from the Edit Media screen.
+                            </small>
+                        </div>
+                    @endif
 
                     {{-- TABLE --}}
                     <div class="table">
@@ -117,9 +156,15 @@
                         {{-- HEADER --}}
                         <div class="d-flex justify-content-between mb-3">
                             <h4>Media List</h4>
-                            <a href="{{ route('media.create') }}" class="btn btn-add">
-                                Add Media
-                            </a>
+                            <div>
+                                <a href="{{ route('media.import-export', array_merge(request()->query(), ['tab' => 'export'])) }}"
+                                    class="btn btn-primary">
+                                    <i class="fa fa-exchange-alt"></i> Import / Export
+                                </a>
+                                <a href="{{ route('media.create') }}" class="btn btn-add">
+                                    Add Media
+                                </a>
+                            </div>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped">
