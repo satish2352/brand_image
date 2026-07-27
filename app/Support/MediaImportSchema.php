@@ -336,14 +336,15 @@ class MediaImportSchema
             'label' => 'Image URLs',
             'required' => false,
             'type' => 'list',
-            'aliases' => ['images', 'imageurl', 'imagelinks', 'photos', 'photourls'],
-            'help' => 'Comma separated gallery photos. Either direct web links, e.g. '
-                . 'https://example.com/photos/site-front.jpg, https://example.com/photos/site-side.jpg '
-                . '(each link must open the image itself, not a page showing it), or — on a self-hosted '
-                . 'install — full local file paths on this computer, e.g. '
-                . 'C:\\Users\\You\\Downloads\\site-front.jpg. JPG, PNG or WebP, up to '
+            'aliases' => ['images', 'imageurl', 'imagelinks', 'photos', 'photourls', 'imagefiles', 'imagefilenames'],
+            'help' => 'Comma separated gallery photos. Write just the file names, e.g. '
+                . 'site-front.jpg, site-side.jpg — put those exact files in a ZIP and upload it in the '
+                . '"Images ZIP" box next to the sheet. The extension may be left off (site-front) as long '
+                . 'as only one picture in the ZIP has that name. (A direct https:// link also works.) '
+                . 'Do NOT paste a path from your own computer such as C:\\Users\\You\\Downloads\\site.jpg — '
+                . 'the server cannot open your drive. JPG, PNG or WebP, up to '
                 . MediaImageFetcher::MAX_GALLERY_IMAGES . ' per row and '
-                . MediaImageFetcher::MAX_GALLERY_KB . 'KB each. Fetched when the import is published.',
+                . MediaImageFetcher::MAX_GALLERY_KB . 'KB each. Saved when the import is published.',
             'samples' => ['', ''],
         ],
         [
@@ -351,10 +352,9 @@ class MediaImportSchema
             'label' => 'Panorama Image URL',
             'required' => false,
             'type' => 'text',
-            'aliases' => ['panorama', 'panoramaimage', 'panoramaurl', '360image', '360url'],
-            'help' => 'One 360° panorama photo — a direct web link, e.g. '
-                . 'https://example.com/photos/site-360.jpg, or a full local file path on this computer, '
-                . 'e.g. C:\\Users\\You\\Downloads\\site-360.jpg. JPG, PNG or WebP, up to '
+            'aliases' => ['panorama', 'panoramaimage', 'panoramaurl', '360image', '360url', 'panoramafile'],
+            'help' => 'One 360° panorama photo — the file name of a picture inside the images ZIP, e.g. '
+                . 'site-360.jpg, or a direct https:// link. JPG, PNG or WebP, up to '
                 . MediaImageFetcher::MAX_PANORAMA_KB . 'KB. Replaces the existing panorama on update.',
             'samples' => ['', ''],
         ],

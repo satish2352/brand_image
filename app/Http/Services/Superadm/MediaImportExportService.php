@@ -5,6 +5,7 @@ namespace App\Http\Services\Superadm;
 use App\Http\Repository\Superadm\MediaImportExportRepository;
 use App\Imports\MediaSheetImport;
 use App\Support\MediaImageFetcher;
+use App\Support\MediaImportImageBundle;
 use App\Support\MediaImportSchema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
@@ -261,11 +262,51 @@ class MediaImportExportService
      *                     'upsert' (update rows whose Hoarding Code already exists)
      * @param int|null $categoryId when the admin uploaded from a category's Import
      *                     button, rows whose Category cell is blank use this category
+     * @param UploadedFile|null $imagesZip archive holding the pictures the sheet's
+     *                     Image columns name; unpacked into this batch's staging
+     *                     directory and kept there until publish or discard
      */
-    public function parseUpload(UploadedFile $file, string $mode = 'insert', ?int $categoryId = null): array
-    {
+    public function parseUpload(
+        UploadedFile $file,
+        string $mode = 'insert',
+        ?int $categoryId = null,
+        ?UploadedFile $imagesZip = null
+    ): array {
         $this->pruneOldBatches();
 
+        // Allocated up front: the staging directory for the images is named after
+        // it, and publish finds the pictures again through the same token.
+        $token = (string) Str::uuid();
+
+        $bundle = $imagesZip
+            ? MediaImportImageBundle::extract($imagesZip, $this->imageDir($token))
+            : null;
+
+        $this->images->useBundle($bundle);
+
+        try {
+            return $this->parseSheet($file, $mode, $categoryId, $token, $bundle);
+        } catch (\Throwable $e) {
+            // A sheet we could not read leaves no batch to publish, so the
+            // pictures staged for it are dead weight.
+            $bundle?->delete();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * The sheet itself: read, validate row by row and stage the result under
+     * $token. Split out of parseUpload so a failure there can clean up the
+     * images that were already unpacked for this batch.
+     */
+    private function parseSheet(
+        UploadedFile $file,
+        string $mode,
+        ?int $categoryId,
+        string $token,
+        ?MediaImportImageBundle $bundle
+    ): array {
         // Category chosen on the Import tab — fills in only where the sheet's own
         // Category cell is left blank, so an explicit value in the file still wins.
         $defaultCategory = $categoryId ? ($this->repo->categoryById($categoryId)['name'] ?? null) : null;
@@ -347,13 +388,19 @@ class MediaImportExportService
             $seen['geo'][$result['record']['geo_key']] = $sheetRowNo;
         }
 
-        $token = (string) Str::uuid();
-
         $batch = [
             'token' => $token,
             'mode' => $mode,
             'file_name' => $file->getClientOriginalName(),
             'created_at' => now()->toDateTimeString(),
+            // What came out of the images ZIP, so the preview screen can point
+            // out pictures nobody asked for — almost always a typo in the sheet.
+            'images_zip' => $bundle ? [
+                'files' => $bundle->fileCount(),
+                'unused' => $bundle->unusedCount(),
+                'skipped' => array_slice($bundle->skippedFiles(), 0, 20),
+                'skipped_total' => count($bundle->skippedFiles()),
+            ] : null,
             'summary' => [
                 'total_rows' => count($dataRows) - $counts['blank'],
                 'blank_rows' => $counts['blank'],
@@ -388,6 +435,17 @@ class MediaImportExportService
     public function discard(string $token): void
     {
         Storage::disk('local')->delete(self::BATCH_DIR . '/' . $this->safeToken($token) . '.json');
+        Storage::disk('local')->deleteDirectory($this->imageDir($token));
+    }
+
+    /**
+     * Where this batch's unpacked images live until it is published or dropped.
+     * Private storage — nothing here is web reachable, and only the images a
+     * row actually claims are ever copied into the public upload folder.
+     */
+    private function imageDir(string $token): string
+    {
+        return self::BATCH_DIR . '/' . $this->safeToken($token) . '_images';
     }
 
     /* =====================================================================
@@ -412,6 +470,11 @@ class MediaImportExportService
         if (empty($batch['rows'])) {
             throw new RuntimeException('There are no valid rows to publish in this file.');
         }
+
+        // Re-open the pictures the preview staged for this batch. Gone (a stale
+        // tab, a cleaned up server) is not fatal here: the rows still import and
+        // each missing image is reported against its own row.
+        $this->images->useBundle(MediaImportImageBundle::open($this->imageDir($token)));
 
         $inserted = 0;
         $updated = 0;
@@ -1127,6 +1190,10 @@ class MediaImportExportService
 
     /**
      * Staged batches are throwaway — drop anything left behind for over a day.
+     *
+     * Covers the unpacked images too: an admin who closes the preview tab
+     * instead of confirming would otherwise leave the archive on disk forever,
+     * which on shared hosting means running the account out of quota.
      */
     private function pruneOldBatches(): void
     {
@@ -1136,9 +1203,27 @@ class MediaImportExportService
             return;
         }
 
+        $cutoff = now()->subDay()->getTimestamp();
+
         foreach ($disk->files(self::BATCH_DIR) as $path) {
-            if ($disk->lastModified($path) < now()->subDay()->getTimestamp()) {
+            if ($disk->lastModified($path) < $cutoff) {
                 $disk->delete($path);
+            }
+        }
+
+        foreach ($disk->directories(self::BATCH_DIR) as $directory) {
+            $files = $disk->files($directory);
+
+            // An empty leftover directory has no timestamp to judge, so it goes.
+            $stale = empty($files);
+
+            foreach ($files as $file) {
+                $stale = $disk->lastModified($file) < $cutoff;
+                break;
+            }
+
+            if ($stale) {
+                $disk->deleteDirectory($directory);
             }
         }
     }

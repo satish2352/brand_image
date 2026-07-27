@@ -140,6 +140,31 @@
                                                 </div>
 
                                                 <div class="form-group">
+                                                    <label><b>Images ZIP</b>
+                                                        <span class="text-muted">(optional)</span></label>
+                                                    <input type="file" name="images_zip" id="importImagesZip"
+                                                        class="form-control" accept=".zip">
+                                                    <small class="text-muted">
+                                                        Put every picture your sheet names into one .zip and upload it
+                                                        here. In the <b>Image URLs</b> column write only the file name —
+                                                        e.g. <code>site-front.jpg, site-side.jpg</code> — and it will be
+                                                        matched to the file of that name inside the ZIP. The
+                                                        <code>.jpg</code> may be left off if the name is unique.
+                                                        &nbsp;|&nbsp; Max
+                                                        {{ round(config('fileConstants.IMAGE_IMPORT_ZIP_MAX_KB') / 1024) }}MB
+                                                        &nbsp;|&nbsp; JPG, PNG, WebP
+                                                    </small>
+                                                    <div class="alert alert-warning mt-2 mb-0 py-2">
+                                                        <small>
+                                                            A path from your own computer such as
+                                                            <code>C:\Users\You\Downloads\image1.jpg</code> will not work —
+                                                            the server has no access to your drive. Use the ZIP, or a
+                                                            direct <code>https://</code> link to the image.
+                                                        </small>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group">
                                                     <label><b>If a Hoarding Code already exists</b></label>
                                                     <div class="custom-control custom-radio">
                                                         <input type="radio" id="modeInsert" name="mode" value="insert"

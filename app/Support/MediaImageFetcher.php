@@ -8,11 +8,17 @@ use RuntimeException;
 use Throwable;
 
 /**
- * Pulls the media images referenced by URL in the bulk upload sheet.
+ * Pulls in the media images a bulk upload sheet refers to.
  *
- * The preview screen only probes each link — cheap, cached and capped — so the
- * admin sees dead or oversized images before anything is written. The real
- * download happens on publish, once the records exist.
+ * An Image cell may name its picture in two ways:
+ *
+ *   1. a file inside the images ZIP uploaded with the sheet ("site-front.jpg"),
+ *      which is the portable form and the one the template recommends;
+ *   2. a direct https:// link, fetched over the network.
+ *
+ * The preview screen only checks each reference — cheap, cached and capped — so
+ * the admin sees dead, missing or oversized images before anything is written.
+ * The real download happens on publish, once the records exist.
  *
  * Limits mirror the Add Media form so a sheet can never smuggle in a file the
  * form itself would have rejected.
@@ -45,12 +51,25 @@ class MediaImageFetcher
 
     private int $probes = 0;
 
+    /** The images ZIP uploaded with the sheet, when there was one. */
+    private ?MediaImportImageBundle $bundle = null;
+
     /**
-     * Split a comma / semicolon / newline separated cell into individual links.
+     * Point the fetcher at the archive that came with this upload. Every Image
+     * cell that is not a web link is then looked up inside it.
+     */
+    public function useBundle(?MediaImportImageBundle $bundle): void
+    {
+        $this->bundle = $bundle;
+        $this->probeCache = [];
+    }
+
+    /**
+     * Split a comma / semicolon / newline separated cell into individual entries.
      *
-     * Whitespace is NOT a separator: a local Windows path such as
-     * "C:\Users\Jane Doe\site 1.jpg" contains spaces and must survive intact.
-     * Web links never contain spaces, so commas / newlines are enough.
+     * Whitespace is NOT a separator: a file name such as "site front 1.jpg"
+     * contains spaces and must survive intact. Web links never contain spaces,
+     * so commas / newlines are enough.
      *
      * "-" is dropped: the export writes it into empty cells, and an exported
      * sheet is expected to import straight back.
@@ -72,19 +91,30 @@ class MediaImageFetcher
     }
 
     /**
-     * A local file path on the server's own disk, rather than a web link:
-     * a Windows drive path (C:\... or C:/...) or a UNC share (\\host\share).
+     * A direct web link, as opposed to a name inside the images ZIP.
+     */
+    public static function isWebUrl(string $value): bool
+    {
+        return (bool) preg_match('#^https?://#i', trim($value));
+    }
+
+    /**
+     * A file path from someone's own machine rather than a portable file name:
+     * a Windows drive path (C:\... or C:/...), a UNC share (\\host\share) or a
+     * Unix absolute path. Only ever readable when the sheet and the server are
+     * the same computer, so it is refused unless explicitly enabled.
      */
     public static function isLocalPath(string $value): bool
     {
         return (bool) preg_match('#^[a-zA-Z]:[\\\\/]#', $value)
-            || str_starts_with($value, '\\\\');
+            || str_starts_with($value, '\\\\')
+            || str_starts_with($value, '/');
     }
 
     /**
-     * Check a link without downloading it.
+     * Check a reference without downloading it.
      *
-     * @return string|null human readable problem, or null when the link looks good
+     * @return string|null human readable problem, or null when it looks good
      */
     public function probe(string $url, int $maxKb): ?string
     {
@@ -94,9 +124,10 @@ class MediaImageFetcher
             return $this->probeCache[$cacheKey];
         }
 
-        // A local file path is checked on disk, never over the network.
-        if (self::isLocalPath($url)) {
-            return $this->probeCache[$cacheKey] = $this->inspectLocalFile($url, $maxKb);
+        // Anything that is not a web link names a file we already hold on disk,
+        // so it is checked there and never over the network.
+        if (!self::isWebUrl($url)) {
+            return $this->probeCache[$cacheKey] = $this->fileProblem($url, $maxKb);
         }
 
         $syntax = $this->syntaxError($url);
@@ -122,9 +153,10 @@ class MediaImageFetcher
      */
     public function download(string $url, int $maxKb): string
     {
-        // A local file path is copied off the server's disk, not fetched.
-        if (self::isLocalPath($url)) {
-            return $this->storeLocalFile($url, $maxKb);
+        // A ZIP member (or, on a self hosted install, a local path) is copied
+        // off the disk we already have it on rather than fetched.
+        if (!self::isWebUrl($url)) {
+            return $this->storeDiskFile($url, $maxKb);
         }
 
         $syntax = $this->syntaxError($url);
@@ -159,20 +191,27 @@ class MediaImageFetcher
     }
 
     /**
-     * Validate and store an image the sheet referenced by a local file path.
+     * Validate and store an image we already hold on disk — normally a member
+     * of the images ZIP staged for this batch.
      *
      * @throws RuntimeException with a message fit for the admin to read
      */
-    private function storeLocalFile(string $path, int $maxKb): string
+    private function storeDiskFile(string $reference, int $maxKb): string
     {
-        $problem = $this->localPathProblem($path, $maxKb);
+        $resolved = $this->resolveFile($reference);
+
+        if ($resolved['problem'] !== null) {
+            throw new RuntimeException($resolved['problem']);
+        }
+
+        $problem = $this->diskFileProblem($resolved['path'], $maxKb);
         if ($problem !== null) {
             throw new RuntimeException($problem);
         }
 
-        $body = @file_get_contents($path);
+        $body = @file_get_contents($resolved['path']);
         if ($body === false || $body === '') {
-            throw new RuntimeException('local file is empty or could not be read');
+            throw new RuntimeException('file is empty or could not be read');
         }
 
         return $this->storeImageBody($body);
@@ -214,32 +253,64 @@ class MediaImageFetcher
      ===================================================================== */
 
     /**
-     * Validate a local file path without reading the whole file into memory.
+     * Turn a non-web reference into a readable absolute path.
      *
-     * @return string|null human readable problem, or null when the file looks good
+     * Normally that means finding it in the images ZIP. Failing that, a
+     * self-hosted install may still be configured to read paths straight off
+     * the machine it runs on — useful on localhost, never on a real server,
+     * where the sheet's author and the server are different computers.
+     *
+     * @return array{path: string|null, problem: string|null}
      */
-    private function inspectLocalFile(string $path, int $maxKb): ?string
+    private function resolveFile(string $reference): array
     {
-        return $this->localPathProblem($path, $maxKb);
+        if ($this->bundle !== null) {
+            return $this->bundle->resolve($reference);
+        }
+
+        if (self::isLocalPath($reference)) {
+            if (!config('fileConstants.IMAGE_IMPORT_ALLOW_LOCAL_PATHS')) {
+                return [
+                    'path' => null,
+                    'problem' => 'is a path on your own computer ("' . $reference . '"), which this server cannot open. '
+                        . 'Write only the file name in this column and upload the pictures as an images ZIP',
+                ];
+            }
+
+            if (!is_file($reference)) {
+                return ['path' => null, 'problem' => 'local file was not found on the server disk (' . $reference . ')'];
+            }
+
+            if (!is_readable($reference)) {
+                return ['path' => null, 'problem' => 'local file cannot be read by the server'];
+            }
+
+            return ['path' => $reference, 'problem' => null];
+        }
+
+        return [
+            'path' => null,
+            'problem' => 'refers to a file, but no images ZIP was uploaded with this sheet. '
+                . 'Attach the ZIP holding your pictures, or write a full https:// link instead',
+        ];
     }
 
     /**
-     * The disk-side checks shared by the preview probe and the publish download.
+     * Check a ZIP member without loading it, for the preview screen.
      */
-    private function localPathProblem(string $path, int $maxKb): ?string
+    private function fileProblem(string $reference, int $maxKb): ?string
     {
-        if (!config('fileConstants.IMAGE_IMPORT_ALLOW_LOCAL_PATHS')) {
-            return 'is a local file path, which this server does not allow';
-        }
+        $resolved = $this->resolveFile($reference);
 
-        if (!is_file($path)) {
-            return 'local file was not found on the server disk (' . $path . ')';
-        }
+        return $resolved['problem'] ?? $this->diskFileProblem($resolved['path'], $maxKb);
+    }
 
-        if (!is_readable($path)) {
-            return 'local file cannot be read by the server';
-        }
-
+    /**
+     * Everything that can be judged from a file already on disk, shared by the
+     * preview probe and the publish download.
+     */
+    private function diskFileProblem(string $path, int $maxKb): ?string
+    {
         $size = @filesize($path);
         if ($size !== false && $size > $maxKb * 1024) {
             return 'is ' . $this->readableSize((int) $size) . ', the limit is ' . $maxKb . 'KB';

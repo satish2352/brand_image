@@ -45,6 +45,31 @@
                         @endforeach
                     </div>
 
+                    {{-- IMAGES ZIP --}}
+                    @if (!empty($batch['images_zip']))
+                        @php $zip = $batch['images_zip']; @endphp
+                        <div class="alert alert-info">
+                            <i class="fa fa-file-archive-o"></i>
+                            <b>Images ZIP:</b> {{ number_format($zip['files']) }} picture(s) read.
+                            @if ($zip['unused'] > 0)
+                                <span class="text-danger">
+                                    {{ number_format($zip['unused']) }} of them are not named by any row —
+                                    check the Image URLs column for typos, or they will simply be discarded.
+                                </span>
+                            @else
+                                Every picture in the archive is claimed by a row.
+                            @endif
+                            @if (!empty($zip['skipped']))
+                                <div class="mt-1">
+                                    <small>
+                                        Ignored (not a JPG, PNG or WebP):
+                                        {{ implode(', ', $zip['skipped']) }}@if ($zip['skipped_total'] > count($zip['skipped'])) and {{ $zip['skipped_total'] - count($zip['skipped']) }} more @endif
+                                    </small>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
                     {{-- ERROR LOG --}}
                     @if (!empty($batch['errors']))
                         <div class="card border-danger mb-4">

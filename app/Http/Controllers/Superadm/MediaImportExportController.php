@@ -111,23 +111,48 @@ class MediaImportExportController extends Controller
      */
     public function preview(Request $request)
     {
+        $zipMaxKb = (int) config('fileConstants.IMAGE_IMPORT_ZIP_MAX_KB');
+
         $request->validate(
             [
                 'file' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
                 'mode' => 'required|in:insert,upsert',
                 'category_id' => 'nullable|integer',
+                // The pictures the sheet's Image columns name. Optional: a sheet
+                // may point at https:// links instead, or carry no images at all.
+                'images_zip' => [
+                    'nullable',
+                    'file',
+                    'max:' . $zipMaxKb,
+                    // Hosts disagree on what a .zip is (application/zip,
+                    // x-zip-compressed, octet-stream ...) and a host without
+                    // fileinfo cannot guess at all, so the extension is the only
+                    // reliable test here. ZipArchive validates the real content.
+                    function ($attribute, $value, $fail) {
+                        if ($value && strtolower($value->getClientOriginalExtension()) !== 'zip') {
+                            $fail('The images archive must be a .zip file.');
+                        }
+                    },
+                ],
             ],
             [
                 'file.required' => 'Please choose an Excel (.xlsx) or CSV file to upload.',
                 'file.mimes' => 'Only .xlsx, .xls and .csv files are supported.',
                 'file.max' => 'The file must not be larger than 10MB.',
+                'images_zip.max' => 'The images ZIP must not be larger than '
+                    . round($zipMaxKb / 1024) . 'MB. Please split it into smaller batches.',
             ]
         );
 
         try {
             $categoryId = $request->filled('category_id') ? (int) $request->input('category_id') : null;
 
-            $batch = $this->service->parseUpload($request->file('file'), $request->mode, $categoryId);
+            $batch = $this->service->parseUpload(
+                $request->file('file'),
+                $request->mode,
+                $categoryId,
+                $request->file('images_zip')
+            );
 
             return view('superadm.mediamanagement.import-preview', [
                 'batch' => $batch,
