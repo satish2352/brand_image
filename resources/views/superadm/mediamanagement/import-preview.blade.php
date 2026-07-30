@@ -1,5 +1,64 @@
 @extends('superadm.layout.master')
 
+@php
+    use Illuminate\Support\Str;
+
+    /**
+     * Confirmation wording for the publish step, in plain language: what will be
+     * added, what will be overwritten, and what is being left behind.
+     */
+    $newCount = (int) $batch['summary']['insert'];
+    $updateCount = (int) $batch['summary']['update'];
+    $failedCount = (int) $batch['summary']['failed'];
+
+    // This exact sheet has been published before and would add copies rather than
+    // change anything, so publishing has to be opted into instead of being the
+    // obvious next step.
+    $isReupload = !empty($batch['already_published']) && $newCount > 0;
+
+    $readyCount = $newCount + $updateCount;
+
+    $publishTitle = $readyCount === 1
+        ? 'Save this media record now?'
+        : 'Save these ' . number_format($readyCount) . ' media records now?';
+
+    $parts = [];
+
+    if ($newCount > 0) {
+        $parts[] = '<b>' . number_format($newCount) . '</b> new '
+            . Str::plural('media record', $newCount) . ' will be added to your inventory';
+    }
+
+    if ($updateCount > 0) {
+        $parts[] = '<b>' . number_format($updateCount) . '</b> existing '
+            . Str::plural('record', $updateCount)
+            . ' will be overwritten with the values from your file';
+    }
+
+    $publishMessage = ucfirst(implode(', and ', $parts)) . '.';
+
+    if ($failedCount > 0) {
+        $publishMessage .= ' The ' . number_format($failedCount) . ' '
+            . Str::plural('row', $failedCount)
+            . ' listed in the error log will be skipped — you can fix '
+            . ($failedCount === 1 ? 'it' : 'them') . ' and upload again afterwards.';
+    }
+
+    $publishMessage .= '<br><br>This cannot be undone automatically, so please make sure the preview '
+        . 'below looks right.';
+
+    // Last chance to stop an accidental second import of the same sheet.
+    if (!empty($batch['already_published'])) {
+        $publishTitle = 'This file has already been imported';
+        $publishMessage = '<b>' . e($batch['file_name']) . '</b> was published before, adding '
+            . number_format((int) $batch['already_published']['inserted']) . ' '
+            . Str::plural('record', (int) $batch['already_published']['inserted'])
+            . '. Publishing it again adds <b>another '
+            . number_format($newCount) . ' ' . Str::plural('copy', $newCount)
+            . '</b> rather than changing those records.<br><br>Are you sure you want to continue?';
+    }
+@endphp
+
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -25,8 +84,12 @@
                         @php
                             $cards = [
                                 ['Rows Read', $batch['summary']['total_rows'], 'secondary', 'fa-table'],
-                                ['Ready To Import', $batch['summary']['ready'], 'success', 'fa-check-circle'],
-                                ['New Records', $batch['summary']['insert'], 'primary', 'fa-plus-circle'],
+                                // On a re-upload these rows are copies, not progress — saying
+                                // "Ready To Import" in green would contradict the warning below.
+                                $isReupload
+                                    ? ['Duplicate Copies', $batch['summary']['ready'], 'danger', 'fa-copy']
+                                    : ['Ready To Import', $batch['summary']['ready'], 'success', 'fa-check-circle'],
+                                ['New Records', $batch['summary']['insert'], $isReupload ? 'danger' : 'primary', 'fa-plus-circle'],
                                 ['Records To Update', $batch['summary']['update'], 'info', 'fa-sync'],
                                 ['Rows With Errors', $batch['summary']['failed'], 'danger', 'fa-exclamation-triangle'],
                             ];
@@ -70,6 +133,99 @@
                         </div>
                     @endif
 
+                    {{-- ALREADY IMPORTED THIS EXACT FILE --}}
+                    @if (!empty($batch['already_published']))
+                        @php $prior = $batch['already_published']; @endphp
+                        <div class="card border-danger mb-4">
+                            <div class="card-body">
+                                <h5 class="text-danger mb-2">
+                                    <i class="fa fa-triangle-exclamation"></i>
+                                    You have already imported this file
+                                </h5>
+                                <p class="mb-2" style="font-size:13.5px;">
+                                    <b>{{ $batch['file_name'] }}</b> was published on
+                                    <b>{{ $prior['at'] ? \Carbon\Carbon::parse($prior['at'])->format('d M Y, g:i a') : 'an earlier date' }}</b>,
+                                    adding <b>{{ number_format($prior['inserted']) }}</b>
+                                    {{ \Illuminate\Support\Str::plural('record', $prior['inserted']) }}@if ($prior['updated'] > 0) and updating {{ number_format($prior['updated']) }} @endif.
+                                </p>
+                                <p class="mb-2" style="font-size:13.5px;">
+                                    Publishing it again will add
+                                    <b>another {{ number_format($batch['summary']['insert']) }}</b>
+                                    {{ \Illuminate\Support\Str::plural('copy', $batch['summary']['insert']) }},
+                                    because the <b>Hoarding Code</b> column in this file is empty — the codes from last
+                                    time (HD000001…) were generated here and were never written back into your
+                                    spreadsheet, so there is nothing for these rows to match against.
+                                </p>
+                                <p class="mb-3 text-muted" style="font-size:13px;">
+                                    <b>To change what you imported last time instead:</b> press
+                                    <b>Cancel Import</b>, go to the <b>Export</b> tab and download those records — that
+                                    file has the Hoarding Codes in it. Edit the cells you want in <em>that</em> file and
+                                    upload it with <b>Add new and update existing</b> selected.
+                                </p>
+
+                                {{-- Publishing stays possible (re-importing after a deletion is
+                                     legitimate) but has to be asked for on purpose. --}}
+                                @if (!empty($batch['rows']))
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="allowDuplicateImport">
+                                        <label class="custom-control-label" for="allowDuplicateImport">
+                                            <b>I know these are duplicates — add them as
+                                                {{ number_format($batch['summary']['insert']) }} new
+                                                {{ \Illuminate\Support\Str::plural('record', $batch['summary']['insert']) }}
+                                                anyway.</b>
+                                            <span class="d-block text-muted" style="font-size:12.5px;">
+                                                Tick this only if you deleted them and want them back. Otherwise press
+                                                Cancel Import.
+                                            </span>
+                                        </label>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- WORTH A SECOND LOOK (these rows still import) --}}
+                    @if (!empty($batch['warnings']))
+                        <div class="card border-warning mb-4">
+                            <div class="card-body">
+                                <h5 class="mb-2" style="color:#b8860b;">
+                                    <i class="fa fa-info-circle"></i>
+                                    {{ count($batch['warnings']) }}
+                                    {{ \Illuminate\Support\Str::plural('row', count($batch['warnings'])) }}
+                                    worth a quick check
+                                </h5>
+                                <p class="text-muted mb-3" style="font-size:13px;">
+                                    These rows <b>will be imported</b> — one vendor can of course have several
+                                    media at the same spot (two faces of a gantry, panels along one wall, a bus
+                                    fleet at one depot). This is only here in case a row was pasted twice.
+                                </p>
+
+                                <div class="table-responsive" style="max-height:300px; overflow:auto;">
+                                    <table class="table table-sm table-bordered mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width:70px;">Sr No.</th>
+                                                <th style="width:90px;">Sheet Row</th>
+                                                <th style="width:200px;">Media Title</th>
+                                                <th>Note</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($batch['warnings'] as $index => $warning)
+                                                <tr>
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $warning['row'] }}</td>
+                                                    <td>{{ $warning['media_title'] ?: '-' }}</td>
+                                                    <td>{{ $warning['message'] }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- ERROR LOG --}}
                     @if (!empty($batch['errors']))
                         <div class="card border-danger mb-4">
@@ -89,18 +245,28 @@
                                     <table class="table table-sm table-bordered mb-0">
                                         <thead class="table-light">
                                             <tr>
+                                                <th style="width:70px;">Sr No.</th>
                                                 <th style="width:90px;">Sheet Row</th>
                                                 <th style="width:140px;">Hoarding Code</th>
+                                                <th style="width:150px;">Already In Inventory As</th>
                                                 <th style="width:200px;">Media Title</th>
                                                 <th>Problem(s) Found</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($batch['errors'] as $error)
+                                            @foreach ($batch['errors'] as $index => $error)
                                                 <tr>
+                                                    <td>{{ $index + 1 }}</td>
                                                     <td>{{ $error['row'] }}</td>
-                                                    <td>{{ $error['hoarding_code'] ?: '-' }}</td>
-                                                    <td>{{ $error['media_title'] ?: '-' }}</td>
+                                                    <td>{{ ($error['hoarding_code'] ?? '') ?: '-' }}</td>
+                                                    <td>
+                                                        @if (!empty($error['existing_code']))
+                                                            <b>{{ $error['existing_code'] }}</b>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ ($error['media_title'] ?? '') ?: '-' }}</td>
                                                     <td class="text-danger">{{ $error['issues'] }}</td>
                                                 </tr>
                                             @endforeach
@@ -118,17 +284,36 @@
 
                     {{-- VALID ROWS --}}
                     @if (!empty($batch['rows']))
-                        <div class="card border-success mb-4">
+                        <div class="card {{ $isReupload ? 'border-danger' : 'border-success' }} mb-4">
                             <div class="card-body">
-                                <h5 class="text-success mb-3">
-                                    <i class="fa fa-check-circle"></i>
-                                    Records ready to publish ({{ count($batch['rows']) }})
-                                    @if (count($batch['rows']) > $previewLimit)
-                                        <small class="text-muted">
-                                            — showing the first {{ $previewLimit }}
-                                        </small>
-                                    @endif
-                                </h5>
+                                @if ($isReupload)
+                                    {{-- Do not call these "ready to publish" when publishing them
+                                         means a second copy of what this file already imported. --}}
+                                    <h5 class="text-danger mb-1">
+                                        <i class="fa fa-copy"></i>
+                                        {{ count($batch['rows']) }}
+                                        {{ \Illuminate\Support\Str::plural('row', count($batch['rows'])) }}
+                                        would be added again as duplicate
+                                        {{ \Illuminate\Support\Str::plural('copy', count($batch['rows'])) }}
+                                        @if (count($batch['rows']) > $previewLimit)
+                                            <small class="text-muted">— showing the first {{ $previewLimit }}</small>
+                                        @endif
+                                    </h5>
+                                    <p class="text-muted mb-3" style="font-size:13px;">
+                                        Each one is marked <b>New</b> because this file gives no Hoarding Code to
+                                        match on — they would not replace the records it added last time.
+                                    </p>
+                                @else
+                                    <h5 class="text-success mb-3">
+                                        <i class="fa fa-check-circle"></i>
+                                        Records ready to publish ({{ count($batch['rows']) }})
+                                        @if (count($batch['rows']) > $previewLimit)
+                                            <small class="text-muted">
+                                                — showing the first {{ $previewLimit }}
+                                            </small>
+                                        @endif
+                                    </h5>
+                                @endif
 
                                 <div class="table-responsive" style="max-height:460px; overflow:auto;">
                                     <table class="table table-sm table-bordered table-striped mb-0">
@@ -204,9 +389,15 @@
                                 class="m-1">
                                 @csrf
                                 <input type="hidden" name="token" value="{{ $batch['token'] }}">
-                                <button type="submit" class="btn btn-success" id="publishBtn">
+                                <button type="submit"
+                                    class="btn {{ $isReupload ? 'btn-outline-danger' : 'btn-success' }}"
+                                    id="publishBtn" {{ $isReupload ? 'disabled' : '' }}>
                                     <i class="fa fa-upload"></i>
-                                    Confirm &amp; Publish {{ count($batch['rows']) }} Record(s)
+                                    @if ($isReupload)
+                                        {{ 'Publish ' . count($batch['rows']) . ' Duplicate ' . Str::plural('Copy', count($batch['rows'])) }}
+                                    @else
+                                        {{ 'Confirm & Publish ' . count($batch['rows']) . ' ' . Str::plural('Record', count($batch['rows'])) }}
+                                    @endif
                                 </button>
                             </form>
                         @endif
@@ -230,6 +421,13 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(function () {
+
+            // A re-upload of an already published file keeps Publish switched off
+            // until it is explicitly asked for.
+            $('#allowDuplicateImport').on('change', function () {
+                $('#publishBtn').prop('disabled', !this.checked);
+            });
+
             $('#publishForm').on('submit', function (e) {
                 if ($(this).data('confirmed')) return;
 
@@ -237,14 +435,14 @@
                 const form = this;
 
                 Swal.fire({
-                    title: 'Publish this import?',
-                    text: "{{ count($batch['rows']) }} record(s) will be written to the media inventory."
-                        + "{{ $batch['summary']['update'] > 0 ? ' ' . $batch['summary']['update'] . ' existing record(s) will be overwritten.' : '' }}",
+                    title: {!! json_encode($publishTitle) !!},
+                    html: {!! json_encode($publishMessage) !!},
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#28a745',
                     cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Yes, publish'
+                    confirmButtonText: 'Yes, save them',
+                    cancelButtonText: 'Not yet'
                 }).then(result => {
                     if (!result.isConfirmed) return;
 

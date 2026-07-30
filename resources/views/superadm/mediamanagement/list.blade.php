@@ -157,7 +157,9 @@
                         <div class="d-flex justify-content-between mb-3">
                             <h4>Media List</h4>
                             <div>
-                                <a href="{{ route('media.import-export', array_merge(request()->query(), ['tab' => 'export'])) }}"
+                                {{-- Opens on the Import tab; the list's current filters still ride along so
+                                     switching to Export keeps whatever the user was browsing. --}}
+                                <a href="{{ route('media.import-export', array_merge(request()->query(), ['tab' => 'import'])) }}"
                                     class="btn btn-primary">
                                     <i class="fa fa-exchange-alt"></i> Import / Export
                                 </a>

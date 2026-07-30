@@ -28,6 +28,64 @@ class MediaImportExportService
     private const BATCH_DIR = 'media_imports';
 
     /**
+     * Cell values that stand for "nothing here" rather than for real data, so
+     * an export can be edited and uploaded straight back. MediaExport writes a
+     * dash for every empty field; people type the others by hand.
+     */
+    private const EMPTY_MARKERS = ['-', '--', '—', 'N/A', 'n/a', 'NA', 'NULL', 'null', 'nil'];
+
+    /**
+     * Which sheet column feeds each database column.
+     *
+     * An update only writes the columns the uploaded file actually carries. A
+     * category template holds a subset of the columns — Wall Painting has no
+     * Media Title, no Illumination — and without this an update from one would
+     * blank every field the sheet happens not to mention.
+     */
+    /**
+     * Stored field values keyed by media id, so re-uploading a file only reads
+     * each candidate record once.
+     *
+     * @var array<int,array<string,mixed>|null>
+     */
+    private array $recordFieldCache = [];
+
+    private const PAYLOAD_SOURCES = [
+        'state_id' => ['state'],
+        'district_id' => ['district'],
+        'city_id' => ['city'],
+        'area_id' => ['area'],
+        'category_id' => ['category'],
+        'vendor_id' => ['vendor_code', 'vendor_name'],
+        'hoarding_code' => ['hoarding_code'],
+        'media_code' => ['media_code'],
+        'media_title' => ['media_title'],
+        'address' => ['address'],
+        'width' => ['width'],
+        'height' => ['height'],
+        'latitude' => ['latitude'],
+        'longitude' => ['longitude'],
+        'price' => ['price'],
+        'illumination_id' => ['illumination'],
+        'facing' => ['facing'],
+        'areatype_id' => ['area_type'],
+        'highway_id' => ['highway'],
+        'media_type' => ['media_type'],
+        'media_format' => ['media_format'],
+        'mall_name' => ['mall_name'],
+        'airport_name' => ['airport_name'],
+        'zone_type' => ['zone_type'],
+        'transit_type' => ['transit_type'],
+        'branding_type' => ['branding_type'],
+        'vehicle_count' => ['vehicle_count'],
+        'building_name' => ['building_name'],
+        'wall_length' => ['wall_length'],
+        // Calculated from Width x Height when the sheet has no column of its own.
+        'area_auto' => ['area_auto', 'width', 'height'],
+        'is_active' => ['status'],
+    ];
+
+    /**
      * Links the template download may test before giving up on filling the
      * image example columns — building a sample must stay quick.
      */
@@ -314,17 +372,30 @@ class MediaImportExportService
         $sheets = Excel::toArray(new MediaSheetImport(), $file, null, $this->readerType($file));
         $rows = $sheets[0] ?? [];
 
+        $fileName = $file->getClientOriginalName();
+
+        // Identifies this exact sheet, so a re-upload of an already published
+        // file can be pointed out before it doubles the records again.
+        $fileHash = @hash_file('sha256', $file->getRealPath()) ?: '';
+        $previousPublish = $fileHash !== '' ? $this->repo->lastPublishOf($fileHash) : null;
+
         if (empty($rows)) {
-            throw new RuntimeException('The uploaded file is empty.');
+            throw new RuntimeException(
+                'There is nothing to read in "' . $fileName . '" — its first sheet has no rows at all. '
+                . 'Please go to Step 1, download the template for the category you are importing, '
+                . 'fill in your rows and upload that file.'
+            );
         }
 
-        [$headerIndex, $columnMap] = $this->resolveHeader($rows);
+        [$headerIndex, $columnMap] = $this->resolveHeader($rows, $fileName);
 
         $missing = $this->missingRequiredHeaders($columnMap);
         if (!empty($missing)) {
             throw new RuntimeException(
-                'These mandatory columns are missing from the file: ' . implode(', ', $missing)
-                . '. Please download the sample template and use its header row.'
+                'These required columns are missing from "' . $fileName . '": '
+                . implode(', ', $missing) . '. Every one of them has to be present as a column '
+                . 'heading, even when some cells are left empty. The quickest fix is to download '
+                . 'the template again from Step 1 and paste your data under its header row.'
             );
         }
 
@@ -337,19 +408,13 @@ class MediaImportExportService
             );
         }
 
-        $masters = $this->repo->masters();
-        $categorySlugs = $this->repo->categorySlugs();
-        $existing = $this->repo->existingCodes();
-
-        $valid = [];
-        $errors = [];
-        $seen = ['hoarding' => [], 'media' => [], 'geo' => []];
+        // Map every row once, up front: the blank padding rows Excel leaves
+        // behind are dropped here, and what survives is what the whole-file
+        // checks below (and the validation loop) actually work on.
         $counts = ['insert' => 0, 'update' => 0, 'blank' => 0];
+        $mapped = [];
 
         foreach ($dataRows as $offset => $rawRow) {
-            // +1 because the header is row $headerIndex (0 based) in the sheet
-            $sheetRowNo = $headerIndex + $offset + 2;
-
             $row = $this->mapRow($rawRow, $columnMap);
 
             if ($this->isBlankRow($row)) {
@@ -357,16 +422,66 @@ class MediaImportExportService
                 continue;
             }
 
+            // +1 because the header is row $headerIndex (0 based) in the sheet
+            $mapped[$headerIndex + $offset + 2] = $row;
+        }
+
+        if (empty($mapped)) {
+            throw new RuntimeException(
+                'The header row in "' . $fileName . '" was read correctly, but there are no data '
+                . 'rows underneath it — the file holds column headings only. Please enter your '
+                . 'media rows below the header row and upload the file again.'
+            );
+        }
+
+        // Nothing in the file says what kind of media these rows are, and no
+        // category was picked on the Import tab either. Said once here, because
+        // as a per-row error it would repeat on every single line.
+        if ($defaultCategory === null && !$this->anyCategoryFilled($mapped)) {
+            $where = count($mapped) === 1
+                ? 'in the only data row of'
+                : 'in all ' . count($mapped) . ' data rows of';
+
+            throw new RuntimeException(
+                'Please choose a media category before uploading. The Category column is empty '
+                . $where . ' "' . $fileName . '", and no category was selected in Step 1, so '
+                . 'there is nothing to say whether these are Hoardings, Wall Painting, Airport '
+                . 'Branding or something else. Either click the category card in Step 1 and upload '
+                . 'again, or fill the Category column in your file with a name from the Category '
+                . 'master.'
+            );
+        }
+
+        $masters = $this->repo->masters();
+        $categorySlugs = $this->repo->categorySlugs();
+        $existing = $this->repo->existingCodes();
+        $this->recordFieldCache = [];
+
+        // The fields this particular file supplies — an update must not touch
+        // anything else.
+        $sheetKeys = array_values(array_unique(array_values($columnMap)));
+
+        $valid = [];
+        $errors = [];
+        $warnings = [];
+        $seen = ['hoarding' => [], 'media' => [], 'geo' => []];
+
+        foreach ($mapped as $sheetRowNo => $row) {
             if ($defaultCategory && $this->blank($row['category'] ?? '')) {
                 $row['category'] = $defaultCategory;
             }
 
-            $result = $this->validateRow($row, $mode, $masters, $categorySlugs, $existing, $seen);
+            $result = $this->validateRow(
+                $row, $mode, $masters, $categorySlugs, $existing, $seen, $sheetKeys
+            );
 
             if (!empty($result['errors'])) {
                 $errors[] = [
                     'row' => $sheetRowNo,
                     'hoarding_code' => $row['hoarding_code'] ?? '',
+                    // The record already in the inventory that this row clashes
+                    // with, when the failure was a duplicate.
+                    'existing_code' => $result['existing_code'] ?? '',
                     'media_title' => $row['media_title'] ?? '',
                     'issues' => implode(' | ', $result['errors']),
                 ];
@@ -376,6 +491,14 @@ class MediaImportExportService
             $result['record']['row'] = $sheetRowNo;
             $valid[] = $result['record'];
             $counts[$result['record']['action']]++;
+
+            foreach ($result['record']['notices'] ?? [] as $notice) {
+                $warnings[] = [
+                    'row' => $sheetRowNo,
+                    'media_title' => $row['media_title'] ?? '',
+                    'message' => $notice,
+                ];
+            }
 
             // Reserve this row's identifiers so a later row in the same file
             // cannot claim them again.
@@ -392,7 +515,15 @@ class MediaImportExportService
             'token' => $token,
             'mode' => $mode,
             'file_name' => $file->getClientOriginalName(),
+            'file_hash' => $fileHash,
             'created_at' => now()->toDateTimeString(),
+            // Set when this same sheet has been published before, so the preview
+            // can warn that publishing again duplicates what it added last time.
+            'already_published' => $previousPublish ? [
+                'at' => $previousPublish->published_at,
+                'inserted' => (int) $previousPublish->inserted,
+                'updated' => (int) $previousPublish->updated,
+            ] : null,
             // What came out of the images ZIP, so the preview screen can point
             // out pictures nobody asked for — almost always a typo in the sheet.
             'images_zip' => $bundle ? [
@@ -408,9 +539,12 @@ class MediaImportExportService
                 'insert' => $counts['insert'],
                 'update' => $counts['update'],
                 'failed' => count($errors),
+                'flagged' => count($warnings),
             ],
             'rows' => $valid,
             'errors' => $errors,
+            // Rows that import as they are but are worth a second look.
+            'warnings' => $warnings,
         ];
 
         Storage::disk('local')->put(
@@ -493,7 +627,12 @@ class MediaImportExportService
                 if ($record['action'] === 'update' && !empty($record['media_id'])) {
                     unset($payload['is_deleted']);
                     $this->repo->updateRecord((int) $record['media_id'], $payload);
-                    $this->repo->syncLandmarks((int) $record['media_id'], $landmarkIds);
+
+                    // Only when the file had a Landmarks column to replace them
+                    // from, or an update would silently clear them.
+                    if ($record['sync_landmarks'] ?? true) {
+                        $this->repo->syncLandmarks((int) $record['media_id'], $landmarkIds);
+                    }
                     $updated++;
                     $pendingImages[] = $this->imageJob($record, (int) $record['media_id']);
                     continue;
@@ -528,7 +667,15 @@ class MediaImportExportService
 
         // Outside the transaction on purpose: the records are already safe, and
         // a slow or dead image host must not roll the whole import back.
-        [$imageCount, $imageWarnings] = $this->attachImages($pendingImages);
+        [$imageCount, $imageWarnings, $imagesRemoved] = $this->attachImages($pendingImages);
+
+        // Remembered before the batch is thrown away, so uploading this same
+        // sheet again can be flagged instead of quietly duplicating it.
+        $this->repo->recordPublish(
+            $batch['file_hash'] ?? '',
+            $batch['file_name'] ?? null,
+            ['inserted' => $inserted, 'updated' => $updated]
+        );
 
         $this->discard($token);
 
@@ -537,6 +684,7 @@ class MediaImportExportService
             'updated' => $updated,
             'skipped' => $skipped,
             'images' => $imageCount,
+            'images_removed' => $imagesRemoved,
             'image_warnings' => $imageWarnings,
         ];
     }
@@ -556,6 +704,8 @@ class MediaImportExportService
             'media_title' => $record['payload']['media_title'] ?? '',
             'image_urls' => $record['image_urls'] ?? [],
             'panorama_url' => $record['panorama_url'] ?? null,
+            'gallery_keep' => $record['gallery_keep'] ?? [],
+            'replace_gallery' => $record['replace_gallery'] ?? false,
         ];
     }
 
@@ -565,23 +715,40 @@ class MediaImportExportService
      * A link that dies between preview and publish costs that one image, not
      * the row — the failure is reported back to the admin instead.
      *
-     * @return array{0:int, 1:array<int,array>} stored count, per row warnings
+     * @return array{0:int, 1:array<int,array>, 2:int} stored count, per row warnings, removed count
      */
     private function attachImages(array $jobs): array
     {
         $stored = 0;
+        $removed = 0;
         $warnings = [];
 
         foreach ($jobs as $job) {
-            if (empty($job['image_urls']) && empty($job['panorama_url'])) {
+            if (empty($job['image_urls']) && empty($job['panorama_url']) && empty($job['replace_gallery'])) {
                 continue;
             }
 
             $issues = [];
 
+            // An update whose Image URLs cell was filled in makes that list the
+            // record's gallery: pictures it no longer names are deleted, which is
+            // what renaming an image in the sheet is meant to do. Done before the
+            // new ones arrive, so the freed slots count towards the limit.
+            if (!empty($job['replace_gallery'])) {
+                $dropped = $this->repo->removeImagesNotNamed($job['media_id'], $job['gallery_keep'] ?? []);
+                $removed += count($dropped);
+            }
+
             $room = MediaImageFetcher::MAX_GALLERY_IMAGES - $this->repo->countImages($job['media_id']);
+            $held = $this->repo->imageFileNames($job['media_id']);
 
             foreach ($job['image_urls'] as $url) {
+                // An exported sheet lists the record's own pictures. Re-importing
+                // it must not stack a second copy of each one.
+                if ($this->alreadyHeld($url, $held['gallery'])) {
+                    continue;
+                }
+
                 if ($room <= 0) {
                     $issues[] = 'Image "' . $this->shortUrl($url) . '" skipped — this media already holds '
                         . MediaImageFetcher::MAX_GALLERY_IMAGES . ' images';
@@ -600,7 +767,7 @@ class MediaImportExportService
                 }
             }
 
-            if (!empty($job['panorama_url'])) {
+            if (!empty($job['panorama_url']) && !$this->alreadyHeld($job['panorama_url'], [$held['panorama']])) {
                 try {
                     $this->repo->setPanorama(
                         $job['media_id'],
@@ -622,7 +789,187 @@ class MediaImportExportService
             }
         }
 
-        return [$stored, $warnings];
+        return [$stored, $warnings, $removed];
+    }
+
+    /**
+     * The row's values in database-column terms, for comparing against a record
+     * that already exists. Resolved ids and numbers are passed in; the plain text
+     * columns are read straight off the row.
+     *
+     * @param array<string,mixed> $row      the sheet row, keyed on field name
+     * @param array<string,mixed> $resolved values already turned into ids / numbers
+     * @return array<string,mixed>
+     */
+    private function comparableRow(array $row, array $resolved): array
+    {
+        return $resolved + [
+            'media_title' => $this->text($row['media_title'] ?? ''),
+            'address' => $this->text($row['address'] ?? ''),
+            'facing' => $this->text($row['facing'] ?? ''),
+            'media_type' => $this->text($row['media_type'] ?? ''),
+            'media_format' => $this->text($row['media_format'] ?? ''),
+            'mall_name' => $this->text($row['mall_name'] ?? ''),
+            'airport_name' => $this->text($row['airport_name'] ?? ''),
+            'zone_type' => $this->text($row['zone_type'] ?? ''),
+            'transit_type' => $this->text($row['transit_type'] ?? ''),
+            'branding_type' => $this->text($row['branding_type'] ?? ''),
+            'building_name' => $this->text($row['building_name'] ?? ''),
+            'wall_length' => $this->text($row['wall_length'] ?? ''),
+        ];
+    }
+
+    /**
+     * Whether every column the sheet supplies holds the same value as the record.
+     *
+     * Only the supplied columns are judged: a template that has no Media Title
+     * column says nothing about the title, so a difference there cannot be
+     * claimed either way.
+     *
+     * @param array<string,mixed> $rowValues
+     * @param array<string,mixed> $recordValues
+     * @param array<int,string>   $sheetKeys
+     */
+    private function sameAsRecord(array $rowValues, array $recordValues, array $sheetKeys): bool
+    {
+        $compared = 0;
+
+        foreach ($rowValues as $column => $value) {
+            if (!array_key_exists($column, $recordValues)) {
+                continue;
+            }
+
+            // Was this column actually present in the uploaded file?
+            $sources = self::PAYLOAD_SOURCES[$column] ?? [$column];
+            $supplied = $sheetKeys === [];
+
+            foreach ($sources as $source) {
+                if (in_array($source, $sheetKeys, true)) {
+                    $supplied = true;
+                    break;
+                }
+            }
+
+            if (!$supplied) {
+                continue;
+            }
+
+            if (!$this->valuesMatch($value, $recordValues[$column])) {
+                return false;
+            }
+
+            $compared++;
+        }
+
+        // Guard against declaring a match on the strength of nothing at all.
+        return $compared > 0;
+    }
+
+    /**
+     * Compare one cell against one stored column: blanks are equal, numbers are
+     * compared as numbers ("400" == "400.00"), text ignores case and padding.
+     */
+    private function valuesMatch($left, $right): bool
+    {
+        $leftBlank = $left === null || trim((string) $left) === '';
+        $rightBlank = $right === null || trim((string) $right) === '';
+
+        if ($leftBlank || $rightBlank) {
+            return $leftBlank && $rightBlank;
+        }
+
+        if (is_numeric($left) && is_numeric($right)) {
+            return abs((float) $left - (float) $right) < 0.005;
+        }
+
+        return strcasecmp(trim((string) $left), trim((string) $right)) === 0;
+    }
+
+    /**
+     * A record's stored values, fetched once per import.
+     *
+     * @return array<string,mixed>|null
+     */
+    private function existingFields(int $mediaId): ?array
+    {
+        if (!array_key_exists($mediaId, $this->recordFieldCache)) {
+            $this->recordFieldCache[$mediaId] = $this->repo->recordFields($mediaId);
+        }
+
+        return $this->recordFieldCache[$mediaId];
+    }
+
+    /**
+     * Narrow a payload to the database columns this file actually feeds.
+     *
+     * is_deleted is always kept — it is not a sheet column, and publish() drops
+     * it from updates itself.
+     *
+     * @param array<string,mixed> $payload
+     * @param array<int,string>   $sheetKeys field keys the header row supplied
+     * @return array<string,mixed>
+     */
+    private function columnsSuppliedBy(array $payload, array $sheetKeys): array
+    {
+        $kept = [];
+
+        foreach ($payload as $column => $value) {
+            $sources = self::PAYLOAD_SOURCES[$column] ?? null;
+
+            if ($sources === null) {
+                $kept[$column] = $value;
+                continue;
+            }
+
+            foreach ($sources as $source) {
+                if (in_array($source, $sheetKeys, true)) {
+                    $kept[$column] = $value;
+                    break;
+                }
+            }
+        }
+
+        return $kept;
+    }
+
+    /**
+     * Whether a link points at a picture the record already holds.
+     *
+     * MediaExport builds its links as <public base>/<stored file name>, so the
+     * last path segment is exactly the name in the database — enough to spot a
+     * record's own pictures coming back in an edited export. A genuinely new
+     * upload carries a different name and is downloaded as usual.
+     *
+     * @param array<int,string> $fileNames
+     */
+    private function alreadyHeld(string $url, array $fileNames): bool
+    {
+        $candidate = $this->fileNameOf($url);
+
+        if ($candidate === '') {
+            return false;
+        }
+
+        foreach ($fileNames as $name) {
+            $name = strtolower(trim((string) $name));
+
+            if ($name !== '' && $name === $candidate) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The comparable file name inside a link or a bare name, lower cased.
+     * "https://host/storage/upload/images/media/a-1.PNG" -> "a-1.png"
+     */
+    private function fileNameOf(string $url): string
+    {
+        $url = trim($url);
+
+        return strtolower(basename(parse_url($url, PHP_URL_PATH) ?: $url));
     }
 
     /**
@@ -648,7 +995,8 @@ class MediaImportExportService
         array $masters,
         array $categorySlugs,
         array $existing,
-        array $seen
+        array $seen,
+        array $sheetKeys = []
     ): array {
         $errors = [];
         $payload = [];
@@ -751,33 +1099,6 @@ class MediaImportExportService
             $landmarkIds = array_values(array_unique($landmarkIds));
         }
 
-        /* ---------- image links ---------- */
-        $imageUrls = MediaImageFetcher::splitUrls($row['image_urls'] ?? '');
-
-        if (count($imageUrls) > MediaImageFetcher::MAX_GALLERY_IMAGES) {
-            $errors[] = 'Image URLs holds ' . count($imageUrls) . ' links — the maximum is '
-                . MediaImageFetcher::MAX_GALLERY_IMAGES . ' per media';
-            $imageUrls = array_slice($imageUrls, 0, MediaImageFetcher::MAX_GALLERY_IMAGES);
-        }
-
-        $imageUrls = array_values(array_unique($imageUrls));
-
-        foreach ($imageUrls as $url) {
-            $problem = $this->images->probe($url, MediaImageFetcher::MAX_GALLERY_KB);
-            if ($problem !== null) {
-                $errors[] = 'Image "' . $this->shortUrl($url) . '" ' . $problem;
-            }
-        }
-
-        $panoramaUrl = MediaImageFetcher::splitUrls($row['panorama_url'] ?? '')[0] ?? '';
-
-        if ($panoramaUrl !== '') {
-            $problem = $this->images->probe($panoramaUrl, MediaImageFetcher::MAX_PANORAMA_KB);
-            if ($problem !== null) {
-                $errors[] = 'Panorama image "' . $this->shortUrl($panoramaUrl) . '" ' . $problem;
-            }
-        }
-
         /* ---------- numeric fields ---------- */
         $width = $this->numeric($row['width'] ?? '', 'Width (ft)', $errors, 0.01, null);
         $height = $this->numeric($row['height'] ?? '', 'Height (ft)', $errors, 0.01, null);
@@ -817,6 +1138,12 @@ class MediaImportExportService
         $action = 'insert';
         $mediaId = null;
 
+        // The hoarding code of the record this row collides with. Re-uploading a
+        // file that has already been imported is the common case, and the sheet
+        // itself carries no code then (they are generated on publish), so
+        // without this the error log could only say "already exists".
+        $conflictCode = '';
+
         if ($hoardingCode !== '') {
             if (isset($seen['hoarding'][$hoardingCode])) {
                 $errors[] = 'Hoarding Code "' . $hoardingCode . '" is repeated in this file (also on row '
@@ -826,6 +1153,7 @@ class MediaImportExportService
                     $action = 'update';
                     $mediaId = $existing['hoarding'][$hoardingCode];
                 } else {
+                    $conflictCode = $hoardingCode;
                     $errors[] = 'Hoarding Code "' . $hoardingCode
                         . '" already exists. Choose "Update existing records" mode to overwrite it';
                 }
@@ -841,24 +1169,159 @@ class MediaImportExportService
                 $errors[] = 'Media Code "' . $mediaCode . '" is repeated in this file (also on row '
                     . $seen['media'][$mediaKey] . ')';
             } elseif (isset($existing['media'][$mediaKey]) && $existing['media'][$mediaKey] !== $mediaId) {
-                $errors[] = 'Media Code "' . $mediaCode . '" already belongs to another media record';
+                $owner = $existing['codes'][$existing['media'][$mediaKey]] ?? '';
+                $conflictCode = $conflictCode ?: $owner;
+                $errors[] = 'Media Code "' . $mediaCode . '" already belongs to another media record'
+                    . ($owner !== '' ? ' (Hoarding Code ' . $owner . ')' : '');
             }
         }
 
+        // One vendor legitimately owns several media at one position: the two
+        // faces of a gantry, the panels along a wall, a whole bus fleet parked
+        // at one depot. So a repeated vendor + GPS pair is only worth pointing
+        // out in case a row was pasted twice — never a reason to reject it.
+        // (Neither the Add Media form nor the table has this constraint.)
+        $notices = [];
         $geoKey = '';
+        $geoMatchId = null;
+
         if ($vendorId && $latitude !== null && $longitude !== null) {
             $geoKey = $this->repo->geoKey($vendorId, $latitude, $longitude);
 
             if (isset($seen['geo'][$geoKey])) {
-                $errors[] = 'Same vendor and GPS coordinates already used on row ' . $seen['geo'][$geoKey]
-                    . ' of this file';
+                $notices[] = 'Same vendor and GPS position as row ' . $seen['geo'][$geoKey]
+                    . ' of this file — fine for two faces at one site, but check it is not the same '
+                    . 'row entered twice.';
             } elseif (isset($existing['geo'][$geoKey]) && $existing['geo'][$geoKey] !== $mediaId) {
-                $errors[] = 'A media record with the same vendor and GPS coordinates already exists';
+                $geoMatchId = $existing['geo'][$geoKey];
+                $owner = $existing['codes'][$geoMatchId] ?? '';
+                $notices[] = 'Same vendor and GPS position as '
+                    . ($owner !== '' ? $owner : 'a record') . ' already in the inventory — fine for '
+                    . 'another face at the same site, but check it is not a duplicate.';
+            }
+        }
+
+        /* ---------- matching a row to a record already in the inventory ----------
+           A vendor and a GPS position together name a physical site, which is the
+           only handle a sheet without Hoarding Codes gives us. What to do with it
+           depends on what the admin asked for:
+
+             "Add new records only"        — everything is new, so a site holding
+                                             several faces keeps working. Only a row
+                                             identical in every supplied value is
+                                             refused, as there is nothing to add.
+
+             "Add new and update existing" — the row is matched to the record at
+                                             that site and updates it, which is how
+                                             a changed price reaches the inventory
+                                             without a Hoarding Code. Ambiguous when
+                                             several records share the position, and
+                                             then the code has to be given. */
+        if ($geoMatchId && $mediaId === null) {
+            $owner = $existing['codes'][$geoMatchId] ?? '';
+            $sharing = $existing['geo_all'][$geoKey] ?? [];
+
+            $candidate = $this->existingFields((int) $geoMatchId);
+            $identical = $candidate !== null && $this->sameAsRecord(
+                $this->comparableRow($row, [
+                    'category_id' => $categoryId,
+                    'width' => $width,
+                    'height' => $height,
+                    'price' => $price,
+                    'illumination_id' => $illuminationId,
+                    'areatype_id' => $areatypeId,
+                    'highway_id' => $highwayId,
+                    'vehicle_count' => $vehicleCount,
+                    'media_code' => $mediaCode !== '' ? $mediaCode : null,
+                ]),
+                $candidate,
+                $sheetKeys
+            );
+
+            if ($mode === 'upsert' && $hoardingCode === '') {
+                if (count($sharing) > 1) {
+                    $codes = array_values(array_filter(array_map(
+                        fn ($id) => $existing['codes'][$id] ?? '',
+                        $sharing
+                    )));
+
+                    $errors[] = count($sharing) . ' records already share this vendor and GPS position'
+                        . (!empty($codes) ? ' (' . implode(', ', $codes) . ')' : '')
+                        . ', so there is no way to tell which one this row means. Put the Hoarding Code '
+                        . 'of the record you want to change into the file.';
+                } else {
+                    $action = 'update';
+                    $mediaId = (int) $geoMatchId;
+                    $notices = [
+                        $identical
+                            ? 'Matched to ' . ($owner ?: 'the record') . ' at this vendor and GPS position. '
+                                . 'Nothing in the row differs from it, so publishing changes nothing.'
+                            : 'Matched to ' . ($owner ?: 'the record') . ' at this vendor and GPS position, '
+                                . 'so that record is updated rather than another being added. Switch to '
+                                . '"Add new records only" if this really is a separate media at the same site.',
+                    ];
+                }
+            } elseif ($identical) {
+                return [
+                    'errors' => [
+                        'This media is already in the inventory as ' . ($owner ?: 'an existing record')
+                        . ' — the vendor, GPS position, size, price and every other detail in this row '
+                        . 'are identical to it, so there is nothing to add. Remove the row, or choose '
+                        . '"Add new and update existing" to have it matched to that record.',
+                    ],
+                    'record' => [],
+                    'existing_code' => $owner,
+                ];
+            }
+        }
+
+        /* ---------- image links ----------
+           Deliberately after the duplicate resolution: once $mediaId is known,
+           the pictures that record already holds are dropped from the row. An
+           edited export names its own images, and those need neither checking
+           over the network nor downloading a second time. */
+        $held = $mediaId ? ($existing['pictures'][$mediaId] ?? []) : [];
+
+        // Everything the sheet names, before the held ones are filtered out — an
+        // update needs the whole intended gallery to know what is now missing
+        // from it and should be deleted.
+        $namedImages = MediaImageFetcher::splitUrls($row['image_urls'] ?? '');
+
+        $imageUrls = array_values(array_filter(
+            $namedImages,
+            fn ($url) => !$this->alreadyHeld($url, $held)
+        ));
+
+        if (count($imageUrls) > MediaImageFetcher::MAX_GALLERY_IMAGES) {
+            $errors[] = 'Image URLs holds ' . count($imageUrls) . ' links — the maximum is '
+                . MediaImageFetcher::MAX_GALLERY_IMAGES . ' per media';
+            $imageUrls = array_slice($imageUrls, 0, MediaImageFetcher::MAX_GALLERY_IMAGES);
+        }
+
+        $imageUrls = array_values(array_unique($imageUrls));
+
+        foreach ($imageUrls as $url) {
+            $problem = $this->images->probe($url, MediaImageFetcher::MAX_GALLERY_KB);
+            if ($problem !== null) {
+                $errors[] = 'Image "' . $this->shortUrl($url) . '" ' . $problem;
+            }
+        }
+
+        $panoramaUrl = MediaImageFetcher::splitUrls($row['panorama_url'] ?? '')[0] ?? '';
+
+        if ($panoramaUrl !== '' && $this->alreadyHeld($panoramaUrl, $held)) {
+            $panoramaUrl = '';
+        }
+
+        if ($panoramaUrl !== '') {
+            $problem = $this->images->probe($panoramaUrl, MediaImageFetcher::MAX_PANORAMA_KB);
+            if ($problem !== null) {
+                $errors[] = 'Panorama image "' . $this->shortUrl($panoramaUrl) . '" ' . $problem;
             }
         }
 
         if (!empty($errors)) {
-            return ['errors' => $errors, 'record' => []];
+            return ['errors' => $errors, 'record' => [], 'existing_code' => $conflictCode];
         }
 
         /* ---------- build the payload ---------- */
@@ -897,22 +1360,56 @@ class MediaImportExportService
             'is_deleted' => 0,
         ];
 
+        // An update writes only what the file supplies. Anything the sheet has
+        // no column for keeps whatever the record already holds.
+        if ($action === 'update' && !empty($sheetKeys)) {
+            $payload = $this->columnsSuppliedBy($payload, $sheetKeys);
+
+            // A blank code cell must never erase the record's own identifiers.
+            // The template carries a Hoarding Code column that is left empty for
+            // new media, and a row matched on vendor and GPS is matched precisely
+            // because it has no code — writing that blank back would strip the
+            // code off the record and hand it to the next import to reissue.
+            foreach (['hoarding_code', 'media_code'] as $identifier) {
+                if (array_key_exists($identifier, $payload) && $payload[$identifier] === null) {
+                    unset($payload[$identifier]);
+                }
+            }
+        }
+
         return [
             'errors' => [],
             'record' => [
                 'action' => $action,
                 'media_id' => $mediaId,
                 'geo_key' => $geoKey,
+                // Things worth a second look that do not stop the row importing.
+                'notices' => $notices,
                 'landmark_ids' => $landmarkIds,
+                // Replacing a record's landmarks is only right when the file
+                // actually has a Landmarks column to replace them from.
+                'sync_landmarks' => $sheetKeys === [] || in_array('landmarks', $sheetKeys, true),
                 // Fetched after the transaction commits, not here — a network
                 // call has no business holding a database transaction open.
                 'image_urls' => $imageUrls,
                 'panorama_url' => $panoramaUrl !== '' ? $panoramaUrl : null,
+                // The gallery the sheet asks for, by file name. On an update
+                // anything the record holds outside this list is deleted.
+                'gallery_keep' => array_values(array_unique(array_map(
+                    fn ($url) => $this->fileNameOf($url),
+                    $namedImages
+                ))),
+                // Only a filled Image URLs cell rewrites the gallery. Leaving it
+                // empty (or having no such column) keeps the pictures as they are,
+                // so a price-only update cannot wipe them.
+                'replace_gallery' => $action === 'update' && !empty($namedImages),
                 'payload' => $payload,
-                // Human readable copy so the preview table does not need extra joins.
+                // Human readable copy so the preview table does not need extra
+                // joins. Read with defaults: an update payload only holds the
+                // columns its file supplies, so these keys may be absent.
                 'display' => [
                     'hoarding_code' => $hoardingCode ?: 'Auto',
-                    'media_title' => $payload['media_title'],
+                    'media_title' => $payload['media_title'] ?? $this->text($row['media_title'] ?? ''),
                     'category' => trim((string) ($row['category'] ?? '')),
                     'state' => trim((string) ($row['state'] ?? '')),
                     'district' => trim((string) ($row['district'] ?? '')),
@@ -922,7 +1419,11 @@ class MediaImportExportService
                     'size' => $width . ' x ' . $height,
                     'gps' => $latitude . ', ' . $longitude,
                     'price' => $price,
-                    'status' => $payload['is_active'] ? 'Active' : 'Inactive',
+                    // No Status column in the file means the record keeps whatever
+                    // it already has, so there is nothing to show.
+                    'status' => array_key_exists('is_active', $payload)
+                        ? ($payload['is_active'] ? 'Active' : 'Inactive')
+                        : 'Unchanged',
                     'images' => count($imageUrls) + ($panoramaUrl !== '' ? 1 : 0),
                 ],
             ],
@@ -993,7 +1494,7 @@ class MediaImportExportService
      *
      * @return array{0:int, 1:array<int,string>}
      */
-    private function resolveHeader(array $rows): array
+    private function resolveHeader(array $rows, string $fileName = ''): array
     {
         $lookup = MediaImportSchema::headerLookup();
         $bestIndex = 0;
@@ -1017,13 +1518,115 @@ class MediaImportExportService
         }
 
         if (count($bestMap) < 3) {
-            throw new RuntimeException(
-                'Could not find a valid header row in this file. Please download the sample template and '
-                . 'keep its header row intact.'
-            );
+            throw new RuntimeException($this->headerNotFoundMessage($rows, $fileName, $bestMap, $lookup));
         }
 
         return [$bestIndex, $bestMap];
+    }
+
+    /**
+     * Explain a missing header row in terms the uploader can act on: what was
+     * actually read at the top of their sheet, what the importer was looking
+     * for, and the shortest route to a file that works.
+     *
+     * @param array<int,string> $recognised column index => field key
+     * @param array<string,string> $lookup   accepted heading => field key
+     */
+    private function headerNotFoundMessage(
+        array $rows,
+        string $fileName,
+        array $recognised,
+        array $lookup
+    ): string {
+        $where = $fileName !== '' ? '"' . $fileName . '"' : 'this file';
+
+        $message = 'The column headings could not be found in ' . $where . '. ';
+
+        $topRow = $this->firstFilledRow($rows);
+        $message .= $topRow === null
+            ? 'Its first sheet has no filled-in cells in the top rows. '
+            : 'The first row with anything in it reads ' . $topRow . '. ';
+
+        if (!empty($recognised)) {
+            // A near miss is worth naming: usually one or two headings were
+            // renamed and the rest of the row is fine.
+            $names = array_map(
+                fn ($key) => MediaImportSchema::labelFor($key),
+                array_values($recognised)
+            );
+            $message .= 'Only ' . count($names) . ' of the template headings '
+                . (count($names) === 1 ? 'was' : 'were') . ' recognised ('
+                . implode(', ', $names) . '), and at least 3 are needed to identify the header row. ';
+        }
+
+        return $message
+            . 'The importer looks through the first 10 rows of the first sheet for a row holding '
+            . 'the template headings — ' . $this->requiredHeadingList() . '. '
+            . 'Please open Step 1, use Download Template for the category you are importing, type '
+            . 'your rows directly underneath the heading row it already contains, and upload that '
+            . 'file. Keep your data on the first sheet and leave the heading row exactly as the '
+            . 'template has it.';
+    }
+
+    /**
+     * The required template headings as a readable list, e.g.
+     * "Category, State, ... and Price (Monthly)".
+     */
+    private function requiredHeadingList(): string
+    {
+        $labels = MediaImportSchema::labels(MediaImportSchema::requiredColumns());
+
+        if (count($labels) < 2) {
+            return (string) ($labels[0] ?? '');
+        }
+
+        $last = array_pop($labels);
+
+        return implode(', ', $labels) . ' and ' . $last;
+    }
+
+    /**
+     * The first row holding any value, quoted and shortened for an error
+     * message. Usually enough for the uploader to see at a glance that they
+     * sent the wrong file, or left a title line where the headings belong.
+     */
+    private function firstFilledRow(array $rows): ?string
+    {
+        foreach (array_slice($rows, 0, 10) as $row) {
+            $cells = array_values(array_filter(
+                array_map(fn ($cell) => trim((string) $cell), (array) $row),
+                fn ($cell) => $cell !== ''
+            ));
+
+            if (empty($cells)) {
+                continue;
+            }
+
+            $shown = array_slice($cells, 0, 6);
+            $text = '"' . implode('", "', $shown) . '"';
+            $hidden = count($cells) - count($shown);
+
+            return $hidden > 0 ? $text . ' and ' . $hidden . ' more' : $text;
+        }
+
+        return null;
+    }
+
+    /**
+     * Whether any row names a category of its own — decides if a file can be
+     * imported without one being picked on the Import tab.
+     *
+     * @param array<int,array<string,mixed>> $rows
+     */
+    private function anyCategoryFilled(array $rows): bool
+    {
+        foreach ($rows as $row) {
+            if (!$this->blank($row['category'] ?? '')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function missingRequiredHeaders(array $columnMap): array
@@ -1053,7 +1656,19 @@ class MediaImportExportService
 
         foreach ($columnMap as $columnIndex => $key) {
             $value = $rawRow[$columnIndex] ?? '';
-            $row[$key] = is_string($value) ? trim($value) : $value;
+
+            if (is_string($value)) {
+                $value = trim($value);
+
+                // MediaExport writes a dash wherever a record has no value, so
+                // an exported file that is edited and sent back would otherwise
+                // arrive asking for an Illumination literally named "-".
+                if (in_array($value, self::EMPTY_MARKERS, true)) {
+                    $value = '';
+                }
+            }
+
+            $row[$key] = $value;
         }
 
         return $row;

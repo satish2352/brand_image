@@ -97,14 +97,20 @@ class MediaImportSchema
             'samples' => ['Brand Image Outdoor', 'Skyline Media'],
         ],
         [
+            // Present in every template, not just the all-categories one: this is
+            // the only column that tells an upload to update a record instead of
+            // adding another, so leaving it out made "Add new and update
+            // existing" silently insert duplicates.
             'key' => 'hoarding_code',
             'label' => 'Hoarding Code',
             'required' => false,
             'type' => 'text',
             'aliases' => ['hdcode', 'uniquecode'],
-            'help' => 'Leave blank to auto generate (HD000001...). In "Update existing" mode this is the matching key.',
+            'help' => 'Leave blank for a new record — a code is generated automatically (HD000001...). '
+                . 'To change a record that is already in the system, put its existing Hoarding Code here '
+                . 'and pick "Add new and update existing" on the Import tab. You can copy the codes from '
+                . 'the Export tab.',
             'samples' => ['', ''],
-            'scope' => 'full',
         ],
         [
             'key' => 'media_code',

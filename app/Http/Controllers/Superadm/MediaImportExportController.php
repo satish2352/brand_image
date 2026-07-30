@@ -185,6 +185,10 @@ class MediaImportExportController extends Controller
             if (!empty($result['images'])) {
                 $message .= ", {$result['images']} image(s) downloaded";
             }
+            // Renaming an image in the sheet replaces it, so say what went.
+            if (!empty($result['images_removed'])) {
+                $message .= ", {$result['images_removed']} old image(s) removed";
+            }
             if (!empty($result['skipped'])) {
                 $message .= ', ' . count($result['skipped']) . ' row(s) skipped';
             }
@@ -287,7 +291,9 @@ class MediaImportExportController extends Controller
     public function records(Request $request)
     {
         try {
-            $perPage = min((int) $request->input('per_page', 50), 200);
+            // Clamped at both ends: 0 or a negative page size would break the
+            // paginator, and an unbounded one would defeat paging altogether.
+            $perPage = max(1, min((int) $request->input('per_page', 50), 200));
 
             $rows = $this->service->exportQuery($this->filters($request))
                 ->paginate($perPage, ['*'], 'page', (int) $request->input('page', 1));
@@ -297,6 +303,9 @@ class MediaImportExportController extends Controller
                 'total' => $rows->total(),
                 'current_page' => $rows->currentPage(),
                 'last_page' => $rows->lastPage(),
+                // Lets the picker number rows continuously across pages.
+                'per_page' => $rows->perPage(),
+                'from' => $rows->firstItem() ?? 0,
                 'data' => collect($rows->items())->map(fn ($row) => [
                     'id' => $row->id,
                     'hoarding_code' => $row->hoarding_code ?: '-',

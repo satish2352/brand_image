@@ -5,10 +5,13 @@ namespace App\Exports;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -20,8 +23,11 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
  * Uses FromQuery so the package chunks the result set instead of loading the
  * whole inventory into memory when the team exports the complete database.
  */
-class MediaExport implements FromQuery, WithHeadings, WithMapping, WithStyles, WithTitle, ShouldAutoSize
+class MediaExport implements FromQuery, WithHeadings, WithMapping, WithStyles, WithTitle, ShouldAutoSize, WithEvents
 {
+    /** Headings whose cells become clickable links to the picture they name. */
+    private const LINK_COLUMNS = ['Image URLs', 'Panorama Image URL'];
+
     protected Builder $query;
 
     /** Running Sr.No across every chunk the package streams. */
@@ -152,7 +158,32 @@ class MediaExport implements FromQuery, WithHeadings, WithMapping, WithStyles, W
 
         $base = rtrim((string) config('fileConstants.IMAGE_VIEW'), '/') . '/';
 
-        return implode(', ', array_map(fn ($name) => $base . $name, $names));
+        return implode(', ', array_map(fn ($name) => self::tidyUrl($base . $name), $names));
+    }
+
+    /**
+     * Collapse the doubled slashes a configured base path ending in "/" leaves
+     * behind, without touching the "https://" scheme.
+     */
+    private static function tidyUrl(string $url): string
+    {
+        return preg_replace('#(?<!:)//+#', '/', $url);
+    }
+
+    /**
+     * The first link in a cell holding a comma separated list.
+     */
+    private static function firstUrl(?string $value): ?string
+    {
+        foreach (explode(',', (string) $value) as $part) {
+            $part = trim($part);
+
+            if ($part !== '' && preg_match('#^https?://#i', $part)) {
+                return $part;
+            }
+        }
+
+        return null;
     }
 
     public function styles(Worksheet $sheet)
@@ -183,5 +214,76 @@ class MediaExport implements FromQuery, WithHeadings, WithMapping, WithStyles, W
         $sheet->freezePane('A2');
 
         return [];
+    }
+
+    /**
+     * Make the picture columns clickable.
+     *
+     * The cell text is left exactly as it was written — the comma separated list
+     * is what the importer reads back when an exported sheet is edited and
+     * uploaded again — and a hyperlink is attached alongside it. Excel allows one
+     * hyperlink per cell, so a cell naming several pictures opens the first; the
+     * rest stay readable in the cell.
+     *
+     * Cells are read back from the sheet rather than remembered while mapping, so
+     * exporting the whole inventory costs no extra memory.
+     */
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestRow();
+
+                if ($lastRow < 2) {
+                    return;
+                }
+
+                foreach ($this->linkColumnLetters($sheet) as $letter) {
+                    for ($row = 2; $row <= $lastRow; $row++) {
+                        $cell = $sheet->getCell($letter . $row);
+                        $url = self::firstUrl((string) $cell->getValue());
+
+                        if ($url === null) {
+                            continue;
+                        }
+
+                        $cell->getHyperlink()->setUrl($url);
+                        $cell->getHyperlink()->setTooltip('Open this image');
+                    }
+
+                    // Look like links, so it is obvious they can be clicked.
+                    $sheet->getStyle("{$letter}2:{$letter}{$lastRow}")->applyFromArray([
+                        'font' => [
+                            'color' => ['rgb' => '0563C1'],
+                            'underline' => true,
+                        ],
+                    ]);
+                }
+            },
+        ];
+    }
+
+    /**
+     * Column letters of LINK_COLUMNS, found by reading the header row so the
+     * links follow the headings if the column order ever changes.
+     *
+     * @return array<int,string>
+     */
+    private function linkColumnLetters(Worksheet $sheet): array
+    {
+        $letters = [];
+        $lastColumn = Coordinate::columnIndexFromString($sheet->getHighestColumn());
+
+        for ($index = 1; $index <= $lastColumn; $index++) {
+            $letter = Coordinate::stringFromColumnIndex($index);
+            $heading = trim((string) $sheet->getCell($letter . '1')->getValue());
+
+            if (in_array($heading, self::LINK_COLUMNS, true)) {
+                $letters[] = $letter;
+            }
+        }
+
+        return $letters;
     }
 }

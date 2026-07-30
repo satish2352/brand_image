@@ -25,11 +25,17 @@ class MediaImportErrorExport implements FromArray, WithHeadings, WithStyles, Sho
 
     public function array(): array
     {
-        return array_map(function ($error) {
+        $serial = 0;
+
+        return array_map(function ($error) use (&$serial) {
             return [
+                ++$serial,
                 $error['row'],
-                $error['hoarding_code'] ?: '-',
-                $error['media_title'] ?: '-',
+                ($error['hoarding_code'] ?? '') ?: '-',
+                // Filled when the row was rejected as a duplicate: the code of
+                // the record already in the inventory that it clashes with.
+                ($error['existing_code'] ?? '') ?: '-',
+                ($error['media_title'] ?? '') ?: '-',
                 $error['issues'],
             ];
         }, $this->errors);
@@ -38,8 +44,10 @@ class MediaImportErrorExport implements FromArray, WithHeadings, WithStyles, Sho
     public function headings(): array
     {
         return [
+            'Sr No.',
             'Sheet Row No.',
             'Hoarding Code',
+            'Already In Inventory As',
             'Media Title',
             'Problem(s) Found',
         ];
@@ -70,9 +78,20 @@ class MediaImportErrorExport implements FromArray, WithHeadings, WithStyles, Sho
             ->getAllBorders()
             ->setBorderStyle(Border::BORDER_THIN);
 
-        $sheet->getStyle("D2:D{$highestRow}")
+        // Sr No. and Sheet Row No. read better centred; the problem text is the
+        // only column long enough to need wrapping.
+        $sheet->getStyle("A2:B{$highestRow}")
+            ->getAlignment()
+            ->setHorizontal('center');
+
+        $sheet->getStyle("F2:F{$highestRow}")
             ->getAlignment()
             ->setWrapText(true);
+
+        $sheet->getColumnDimension('F')->setAutoSize(false);
+        $sheet->getColumnDimension('F')->setWidth(70);
+
+        $sheet->freezePane('A2');
 
         return [];
     }

@@ -1,7 +1,734 @@
 @extends('superadm.layout.master')
 
 @section('content')
-    <div class="row">
+    @php
+        /**
+         * Icon for a media category, matched on the category name so a renamed or
+         * newly added master still picks up something meaningful. Order matters:
+         * the first keyword found wins, so "Digital Wall painting" resolves to the
+         * paint roller and not to the screen.
+         */
+        $categoryIcon = function ($name) {
+            $needle = strtolower((string) $name);
+
+            $map = [
+                'fa-plane-departure' => ['airport'],
+                'fa-scroll' => ['wrap'],
+                'fa-paint-roller' => ['paint'],
+                'fa-rectangle-ad' => ['hoarding', 'billboard'],
+                'fa-building' => ['office', 'corporate'],
+                'fa-bus-simple' => ['shelter'],
+                'fa-bus' => ['transit', 'transmit', 'bus'],
+                'fa-train-subway' => ['metro', 'train', 'rail'],
+                'fa-taxi' => ['cab', 'taxi', 'auto', 'rickshaw'],
+                'fa-bag-shopping' => ['mall'],
+                'fa-road-bridge' => ['gantry', 'bridge', 'flyover'],
+                'fa-shop' => ['kiosk', 'booth'],
+                'fa-sign-hanging' => ['sign'],
+                'fa-tv' => ['digital', 'led', 'screen', 'dooh'],
+                'fa-tower-observation' => ['pole'],
+                'fa-flag' => ['banner', 'flex'],
+            ];
+
+            foreach ($map as $icon => $keywords) {
+                foreach ($keywords as $keyword) {
+                    if (str_contains($needle, $keyword)) {
+                        return $icon;
+                    }
+                }
+            }
+
+            return 'fa-bullhorn';
+        };
+    @endphp
+
+    <style>
+        .ie-page {
+            --ie-primary: #7460ee;
+            --ie-primary-dark: #5a45e0;
+            --ie-primary-soft: rgba(116, 96, 238, .10);
+            --ie-border: #e7eaf3;
+            --ie-muted: #8d97ad;
+            --ie-heading: #3e5569;
+        }
+
+        /* ---------- page header ---------- */
+        .ie-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .ie-head h4 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--ie-heading);
+        }
+
+        .ie-head .ie-head-sub {
+            margin: 5px 0 0;
+            font-size: 13px;
+            color: var(--ie-muted);
+        }
+
+        /* ---------- tabs ---------- */
+        .ie-page .ie-tabs {
+            border-bottom: 1px solid var(--ie-border);
+            flex-wrap: wrap;
+        }
+
+        .ie-page .ie-tabs .nav-link {
+            border: 0;
+            border-bottom: 2px solid transparent;
+            border-radius: 8px 8px 0 0;
+            padding: .75rem 1.2rem;
+            font-weight: 500;
+            font-size: 14px;
+            color: #67757c;
+            background: transparent;
+        }
+
+        .ie-page .ie-tabs .nav-link i {
+            margin-right: 7px;
+        }
+
+        .ie-page .ie-tabs .nav-link:hover {
+            color: var(--ie-primary);
+            background: #f8f8fe;
+        }
+
+        .ie-page .ie-tabs .nav-link.active {
+            color: var(--ie-primary);
+            background: transparent;
+            border-color: transparent transparent var(--ie-primary);
+        }
+
+        /* ---------- step panels ---------- */
+        .ie-step {
+            border: 1px solid var(--ie-border);
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, .04);
+            margin-bottom: 24px;
+        }
+
+        .ie-step-head {
+            display: flex;
+            gap: 14px;
+            padding: 20px 22px 0;
+        }
+
+        .ie-step-num {
+            flex: 0 0 32px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--ie-primary);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ie-step-title {
+            margin: 4px 0 5px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ie-heading);
+        }
+
+        .ie-step-sub {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--ie-muted);
+        }
+
+        .ie-step-body {
+            padding: 18px 22px 22px;
+        }
+
+        /* ---------- collapsible detail ---------- */
+        .ie-more {
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .ie-more > summary {
+            cursor: pointer;
+            color: var(--ie-primary);
+            font-weight: 500;
+            outline: none;
+            list-style: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .ie-more > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .ie-more[open] > summary .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .ie-more > summary .fa-chevron-down {
+            font-size: 10px;
+            transition: transform .18s ease;
+        }
+
+        .ie-more-body {
+            margin: 10px 0 0;
+            padding: 12px 14px;
+            border-left: 3px solid var(--ie-primary-soft);
+            background: #fafbfe;
+            border-radius: 0 8px 8px 0;
+            color: #67757c;
+            line-height: 1.7;
+        }
+
+        /* ---------- category cards ---------- */
+        .ie-cat {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--ie-border);
+            border-radius: 12px;
+            background: #fff;
+            padding: 20px 14px 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease;
+        }
+
+        .ie-cat:hover {
+            border-color: #c6bcf8;
+            box-shadow: 0 8px 20px rgba(116, 96, 238, .13);
+            transform: translateY(-2px);
+        }
+
+        .ie-cat:focus {
+            outline: none;
+            border-color: var(--ie-primary);
+            box-shadow: 0 0 0 3px rgba(116, 96, 238, .18);
+        }
+
+        .ie-cat.is-selected {
+            border-color: var(--ie-primary);
+            background: #faf9ff;
+            box-shadow: 0 0 0 3px rgba(116, 96, 238, .16);
+        }
+
+        .ie-cat-icon {
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 12px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            background: var(--ie-primary-soft);
+            color: var(--ie-primary);
+            transition: background .18s ease, color .18s ease;
+        }
+
+        .ie-cat.is-selected .ie-cat-icon {
+            background: var(--ie-primary);
+            color: #fff;
+        }
+
+        .ie-cat-name {
+            flex: 1 1 auto;
+            display: block;
+            font-size: 13.5px;
+            font-weight: 600;
+            line-height: 1.45;
+            color: var(--ie-heading);
+            word-break: break-word;
+        }
+
+        .ie-cat-check {
+            position: absolute;
+            top: 10px;
+            right: 11px;
+            font-size: 16px;
+            color: var(--ie-primary);
+            opacity: 0;
+            transform: scale(.6);
+            transition: opacity .18s ease, transform .18s ease;
+        }
+
+        .ie-cat.is-selected .ie-cat-check {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .ie-cat-actions {
+            display: grid;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .ie-cat-actions .btn {
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: .5rem .4rem;
+            border-radius: 8px;
+            box-shadow: none;
+            white-space: nowrap;
+        }
+
+        .ie-cat-actions .btn i {
+            margin-right: 6px;
+        }
+
+        .ie-grid-hint {
+            margin: 4px 0 0;
+            font-size: 12.5px;
+            color: var(--ie-muted);
+        }
+
+        /* ---------- chosen category banner ---------- */
+        .ie-chosen {
+            display: none;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px 16px;
+            margin-bottom: 20px;
+            border: 1px solid #cfc7f7;
+            border-radius: 10px;
+            background: #f7f5ff;
+            font-size: 13px;
+            color: #4a3fa8;
+            line-height: 1.6;
+        }
+
+        .ie-chosen.is-visible {
+            display: flex;
+        }
+
+        .ie-chosen > i {
+            font-size: 15px;
+            margin-top: 2px;
+            color: var(--ie-primary);
+        }
+
+        /* ---------- form fields ---------- */
+        .ie-field {
+            margin-bottom: 22px;
+        }
+
+        .ie-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--ie-heading);
+        }
+
+        .ie-label .ie-optional {
+            font-weight: 400;
+            color: var(--ie-muted);
+        }
+
+        .ie-page .form-control {
+            border-radius: 8px;
+            border-color: #dfe3ee;
+            font-size: 13.5px;
+            color: #4f5d73;
+        }
+
+        .ie-page .form-control:focus {
+            border-color: var(--ie-primary);
+            box-shadow: 0 0 0 3px rgba(116, 96, 238, .12);
+        }
+
+        .ie-file {
+            width: 100%;
+            padding: 11px 12px;
+            font-size: 13px;
+            color: #67757c;
+            background: #fbfcfe;
+            border: 1px dashed #cfd6e4;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .ie-file:hover {
+            border-color: var(--ie-primary);
+            background: #faf9ff;
+        }
+
+        .ie-file:focus {
+            outline: none;
+            border-color: var(--ie-primary);
+            box-shadow: 0 0 0 3px rgba(116, 96, 238, .12);
+        }
+
+        .ie-file::file-selector-button {
+            margin-right: 13px;
+            padding: .45rem 1rem;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #fff;
+            background: var(--ie-primary);
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .ie-file::-webkit-file-upload-button {
+            margin-right: 13px;
+            padding: .45rem 1rem;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #fff;
+            background: var(--ie-primary);
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .ie-file-name {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 9px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #1c9c6b;
+        }
+
+        .ie-file-name.is-visible {
+            display: flex;
+        }
+
+        .ie-hint {
+            display: block;
+            margin-top: 9px;
+            font-size: 12.5px;
+            line-height: 1.65;
+            color: var(--ie-muted);
+        }
+
+        .ie-note {
+            margin-top: 10px;
+            padding: 11px 14px;
+            border: 1px solid #ffe1b0;
+            border-radius: 9px;
+            background: #fffaf1;
+            font-size: 12.5px;
+            line-height: 1.65;
+            color: #8a6116;
+        }
+
+        .ie-page code {
+            padding: 1px 5px;
+            font-size: 92%;
+            background: #f2f3f8;
+            border-radius: 4px;
+            color: #5a6a85;
+        }
+
+        /* ---------- mode picker ---------- */
+        .ie-mode {
+            padding: 13px 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--ie-border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color .15s ease, background .15s ease;
+        }
+
+        .ie-mode:hover {
+            border-color: #c6bcf8;
+        }
+
+        .ie-mode.is-active {
+            border-color: var(--ie-primary);
+            background: #faf9ff;
+        }
+
+        .ie-mode .custom-control-label {
+            cursor: pointer;
+            font-size: 13.5px;
+            color: var(--ie-heading);
+        }
+
+        .ie-mode .ie-mode-sub {
+            display: block;
+            margin-top: 3px;
+            font-size: 12.5px;
+            font-weight: 400;
+            color: var(--ie-muted);
+        }
+
+        /* ---------- buttons ---------- */
+        .ie-page .btn {
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .ie-submit {
+            padding: .7rem 1.6rem;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .ie-submit i {
+            margin-right: 8px;
+        }
+
+        .ie-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* ---------- reference tables ---------- */
+        .ie-card {
+            height: 100%;
+            border: 1px solid var(--ie-border);
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, .04);
+        }
+
+        .ie-card-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--ie-border);
+        }
+
+        .ie-card-head h5 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ie-heading);
+        }
+
+        .ie-count {
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 600;
+            background: #f2f3f8;
+            color: #6c7a91;
+        }
+
+        .ie-count.ie-count-req {
+            background: #fdeeee;
+            color: #d9534f;
+        }
+
+        .ie-scroll {
+            max-height: 420px;
+            overflow: auto;
+        }
+
+        .ie-page .ie-scroll .table {
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .ie-page .ie-scroll .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            padding: 10px 14px;
+            background: #f7f8fc;
+            border-top: 0;
+            border-bottom: 1px solid var(--ie-border);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--ie-muted);
+            white-space: nowrap;
+        }
+
+        .ie-page .ie-scroll .table td {
+            padding: 9px 14px;
+            vertical-align: top;
+            border-color: #f0f2f7;
+            color: #67757c;
+        }
+
+        .ie-page .ie-scroll .table td b {
+            color: var(--ie-heading);
+        }
+
+        /* ---------- checklist ---------- */
+        .ie-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+            gap: 10px 22px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .ie-checklist li {
+            display: flex;
+            gap: 9px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #67757c;
+        }
+
+        .ie-checklist li i {
+            margin-top: 3px;
+            font-size: 12px;
+            color: #1c9c6b;
+        }
+
+        /* ---------- export ---------- */
+        .ie-filters {
+            padding: 6px 0 0;
+        }
+
+        .ie-subhead {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ie-heading);
+        }
+
+        .ie-subhead i {
+            color: var(--ie-primary);
+        }
+
+        .ie-page .ie-records .table thead th {
+            padding: 10px 12px;
+            background: #f7f8fc;
+            border-top: 0;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--ie-muted);
+            white-space: nowrap;
+        }
+
+        .ie-page .ie-records .table td {
+            padding: 9px 12px;
+            font-size: 13px;
+            color: #67757c;
+            vertical-align: middle;
+        }
+
+        .ie-divider {
+            height: 1px;
+            margin: 26px 0 18px;
+            background: var(--ie-border);
+            border: 0;
+        }
+
+        /* ---------- record picker pager ---------- */
+        .ie-pager {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--ie-border);
+        }
+
+        .ie-pager-info {
+            flex: 1 1 220px;
+        }
+
+        .ie-pager-size {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: var(--ie-muted);
+        }
+
+        .ie-pager-size select {
+            width: auto;
+            min-width: 74px;
+            border-radius: 8px;
+            font-size: 12.5px;
+        }
+
+        .ie-pager-nav {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .ie-pager-nav .btn {
+            min-width: 34px;
+            padding: .3rem .5rem;
+            font-size: 12.5px;
+        }
+
+        .ie-pager-pages {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .ie-pager-pages .btn.is-current {
+            background: var(--ie-primary);
+            border-color: var(--ie-primary);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .ie-pager-gap {
+            padding: 0 2px;
+            color: var(--ie-muted);
+            font-size: 12.5px;
+        }
+
+        /* ---------- small screens ---------- */
+        @media (max-width: 575.98px) {
+            .ie-step-head {
+                padding: 16px 16px 0;
+            }
+
+            .ie-step-body {
+                padding: 14px 16px 18px;
+            }
+
+            .ie-head .btn,
+            .ie-submit {
+                width: 100%;
+            }
+
+            .ie-actions .btn {
+                flex: 1 1 100%;
+            }
+
+            .ie-page .ie-tabs .nav-link {
+                padding: .65rem .9rem;
+                font-size: 13px;
+            }
+        }
+    </style>
+
+    <div class="row ie-page">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
@@ -24,25 +751,30 @@
                     @endif
 
                     {{-- HEADER --}}
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0">Bulk Data — Import &amp; Export</h4>
-                        <a href="{{ route('media.list') }}" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left"></i> Back to Media List
+                    <div class="ie-head">
+                        <div>
+                            <h4>Bulk Data — Import &amp; Export</h4>
+                            <p class="ie-head-sub">
+                                Add media in bulk from a spreadsheet, or download your inventory as Excel / CSV.
+                            </p>
+                        </div>
+                        <a href="{{ route('media.list') }}" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back to Media List
                         </a>
                     </div>
 
                     {{-- TABS --}}
-                    <ul class="nav nav-tabs" role="tablist">
+                    <ul class="nav nav-tabs ie-tabs" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link {{ $activeTab === 'import' ? 'active' : '' }}" data-toggle="tab"
                                 href="#tab-import" role="tab">
-                                <i class="fa fa-upload"></i> Import
+                                <i class="fa-solid fa-file-import"></i> Import Data
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ $activeTab === 'export' ? 'active' : '' }}" data-toggle="tab"
                                 href="#tab-export" role="tab">
-                                <i class="fa fa-download"></i> Export
+                                <i class="fa-solid fa-file-export"></i> Export Data
                             </a>
                         </li>
                     </ul>
@@ -55,212 +787,319 @@
                         <div class="tab-pane fade {{ $activeTab === 'import' ? 'show active' : '' }}" id="tab-import"
                             role="tabpanel">
 
-                            <div class="row">
-                                {{-- STEP 1 : TEMPLATE (per category, horizontal) --}}
-                                <div class="col-12 mb-4">
-                                    <div class="card border">
-                                        <div class="card-body">
-                                            <h5 class="mb-2">
-                                                <span class="badge badge-primary">Step 1</span>
-                                                Pick a category &amp; download its template
-                                            </h5>
-                                            <p class="text-muted mb-3">
-                                                Choose the category you want to upload. Each template carries the exact
-                                                header row the importer expects, example rows filled for that category,
-                                                a column-by-column instruction sheet and a <b>Master Reference</b> sheet
-                                                listing every valid State, District, City, Area, Vendor, Category,
-                                                Illumination, Area Type, Highway and Landmark value in the system.
+                            {{-- STEP 1 : PICK A CATEGORY & DOWNLOAD ITS TEMPLATE --}}
+                            <div class="ie-step">
+                                <div class="ie-step-head">
+                                    <div class="ie-step-num">1</div>
+                                    <div>
+                                        <h5 class="ie-step-title">Choose a media category</h5>
+                                        <p class="ie-step-sub">
+                                            Select what you are uploading, then download that category's ready-made
+                                            template. It already has the right columns, filled-in examples and a
+                                            <b>Master Reference</b> sheet, so you only need to add your own rows.
+                                        </p>
+                                        <details class="ie-more">
+                                            <summary>
+                                                What's inside the template?
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                            </summary>
+                                            <p class="ie-more-body">
+                                                Four sheets: the exact <b>header row</b> the importer expects, two
+                                                <b>example rows</b> filled for your category, a
+                                                <b>column-by-column instruction</b> sheet, and a
+                                                <b>Master Reference</b> sheet listing every valid State, District, City,
+                                                Area, Vendor, Category, Illumination, Area Type, Highway and Landmark
+                                                value in the system — copy the names from there and validation will pass
+                                                the first time.
                                             </p>
-
-                                            {{-- Responsive category grid: wraps evenly, never overflows --}}
-                                            <div class="row">
-                                                @forelse ($options['categories'] as $category)
-                                                    <div class="col-6 col-md-4 col-xl-3 mb-3">
-                                                        <div class="border rounded p-3 h-100 text-center d-flex flex-column justify-content-between">
-                                                            <div class="mb-3">
-                                                                <i class="fa fa-th-large fa-2x text-primary d-block mb-2"></i>
-                                                                <b class="d-block">{{ $category->category_name }}</b>
-                                                            </div>
-                                                            <div class="btn-group btn-group-sm w-100" role="group">
-                                                                <a href="{{ route('media.import.template', ['category' => $category->id]) }}"
-                                                                    class="btn btn-success" title="Download sample template">
-                                                                    <i class="fa fa-file-excel"></i> Template
-                                                                </a>
-                                                                <button type="button" class="btn btn-primary btn-import-cat"
-                                                                    data-category-id="{{ $category->id }}"
-                                                                    data-category-name="{{ $category->category_name }}"
-                                                                    title="Upload a file for this category">
-                                                                    <i class="fa fa-upload"></i> Import
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @empty
-                                                    <div class="col-12">
-                                                        <div class="text-muted">No categories found. Please add a category first.</div>
-                                                    </div>
-                                                @endforelse
-                                            </div>
-                                        </div>
+                                        </details>
                                     </div>
                                 </div>
 
-                                {{-- STEP 2 : UPLOAD --}}
-                                <div class="col-12 mb-4">
-                                    <div class="card border h-100">
-                                        <div class="card-body">
-                                            <h5 class="mb-3">
-                                                <span class="badge badge-primary">Step 2</span>
-                                                Upload your file
-                                            </h5>
+                                <div class="ie-step-body">
+                                    <div class="row">
+                                        @forelse ($options['categories'] as $category)
+                                            <div class="col-12 col-sm-6 col-md-4 col-xl-3 mb-3">
+                                                <div class="ie-cat" role="button" tabindex="0"
+                                                    data-category-id="{{ $category->id }}"
+                                                    data-category-name="{{ $category->category_name }}"
+                                                    aria-pressed="false">
+                                                    <i class="fa-solid fa-circle-check ie-cat-check"></i>
 
-                                            <form action="{{ route('media.import.preview') }}" method="POST"
-                                                enctype="multipart/form-data" id="importForm">
-                                                @csrf
+                                                    <div class="ie-cat-icon">
+                                                        <i class="fa-solid {{ $categoryIcon($category->category_name) }}"></i>
+                                                    </div>
 
-                                                <input type="hidden" name="category_id" id="importCategoryId" value="">
+                                                    <span class="ie-cat-name">{{ $category->category_name }}</span>
 
-                                                <div id="importCategoryBadge" class="alert alert-info d-flex justify-content-between align-items-center py-2"
-                                                    style="display:none;">
-                                                    <span>Importing under: <b id="importCategoryName"></b>
-                                                        — rows with a blank <b>Category</b> cell will use this category.</span>
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                        id="clearImportCategory">Change</button>
-                                                </div>
-
-                                                <div class="form-group">
-                                                    <label><b>Excel / CSV file</b> <span class="text-danger">*</span></label>
-                                                    <input type="file" name="file" id="importFile"
-                                                        class="form-control" accept=".xlsx,.xls,.csv" required>
-                                                    <small class="text-muted">
-                                                        Accepted: .xlsx, .xls, .csv &nbsp;|&nbsp; Max size 10MB
-                                                        &nbsp;|&nbsp; Max {{ number_format(\App\Http\Services\Superadm\MediaImportExportService::MAX_ROWS) }}
-                                                        rows per file
-                                                    </small>
-                                                </div>
-
-                                                <div class="form-group">
-                                                    <label><b>Images ZIP</b>
-                                                        <span class="text-muted">(optional)</span></label>
-                                                    <input type="file" name="images_zip" id="importImagesZip"
-                                                        class="form-control" accept=".zip">
-                                                    <small class="text-muted">
-                                                        Put every picture your sheet names into one .zip and upload it
-                                                        here. In the <b>Image URLs</b> column write only the file name —
-                                                        e.g. <code>site-front.jpg, site-side.jpg</code> — and it will be
-                                                        matched to the file of that name inside the ZIP. The
-                                                        <code>.jpg</code> may be left off if the name is unique.
-                                                        &nbsp;|&nbsp; Max
-                                                        {{ round(config('fileConstants.IMAGE_IMPORT_ZIP_MAX_KB') / 1024) }}MB
-                                                        &nbsp;|&nbsp; JPG, PNG, WebP
-                                                    </small>
-                                                    <div class="alert alert-warning mt-2 mb-0 py-2">
-                                                        <small>
-                                                            A path from your own computer such as
-                                                            <code>C:\Users\You\Downloads\image1.jpg</code> will not work —
-                                                            the server has no access to your drive. Use the ZIP, or a
-                                                            direct <code>https://</code> link to the image.
-                                                        </small>
+                                                    <div class="ie-cat-actions">
+                                                        <a href="{{ route('media.import.template', ['category' => $category->id]) }}"
+                                                            class="btn btn-outline-primary ie-cat-template"
+                                                            title="Download the Excel template for {{ $category->category_name }}">
+                                                            <i class="fa-solid fa-download"></i> Download Template
+                                                        </a>
+                                                        <button type="button" class="btn btn-primary ie-cat-import"
+                                                            title="Upload a filled file for {{ $category->category_name }}">
+                                                            <i class="fa-solid fa-upload"></i> Import Data
+                                                        </button>
                                                     </div>
                                                 </div>
-
-                                                <div class="form-group">
-                                                    <label><b>If a Hoarding Code already exists</b></label>
-                                                    <div class="custom-control custom-radio">
-                                                        <input type="radio" id="modeInsert" name="mode" value="insert"
-                                                            class="custom-control-input" checked>
-                                                        <label class="custom-control-label" for="modeInsert">
-                                                            <b>Add new records only</b> — report existing codes as errors
-                                                        </label>
-                                                    </div>
-                                                    <div class="custom-control custom-radio mt-2">
-                                                        <input type="radio" id="modeUpsert" name="mode" value="upsert"
-                                                            class="custom-control-input">
-                                                        <label class="custom-control-label" for="modeUpsert">
-                                                            <b>Add new and update existing</b> — rows whose Hoarding Code
-                                                            already exists will overwrite that record
-                                                        </label>
-                                                    </div>
+                                            </div>
+                                        @empty
+                                            <div class="col-12">
+                                                <div class="alert alert-warning mb-0">
+                                                    No categories found. Please add a category first.
                                                 </div>
-
-                                                <button type="submit" class="btn btn-primary" id="importSubmit">
-                                                    <i class="fa fa-search"></i> Validate &amp; Preview
-                                                </button>
-                                                <small class="text-muted d-block mt-2">
-                                                    Nothing is saved yet — you will see a preview and an error log
-                                                    before anything is published.
-                                                </small>
-                                            </form>
-                                        </div>
+                                            </div>
+                                        @endforelse
                                     </div>
+
+                                    @if (count($options['categories']))
+                                        <p class="ie-grid-hint">
+                                            <i class="fa-solid fa-circle-info mr-1"></i>
+                                            Tap a card to select it — tap the highlighted card again to clear the
+                                            selection. Choosing a category is optional if your file already fills the
+                                            <b>Category</b> column.
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- STEP 2 : UPLOAD THE FILLED FILE --}}
+                            <div class="ie-step">
+                                <div class="ie-step-head">
+                                    <div class="ie-step-num">2</div>
+                                    <div>
+                                        <h5 class="ie-step-title">Upload your filled file</h5>
+                                        <p class="ie-step-sub">
+                                            Attach the completed template. Every row is checked first — you will see a
+                                            preview and an error report before anything is saved.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="ie-step-body">
+                                    <form action="{{ route('media.import.preview') }}" method="POST"
+                                        enctype="multipart/form-data" id="importForm">
+                                        @csrf
+
+                                        <input type="hidden" name="category_id" id="importCategoryId" value="">
+
+                                        <div id="importCategoryBadge" class="ie-chosen">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            <span>
+                                                Importing under <b id="importCategoryName"></b> — any row that leaves the
+                                                <b>Category</b> cell blank will use this category.
+                                            </span>
+                                        </div>
+
+                                        <div class="ie-field">
+                                            <label class="ie-label" for="importFile">
+                                                Excel / CSV file <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="file" name="file" id="importFile" class="ie-file"
+                                                accept=".xlsx,.xls,.csv" required>
+                                            <span class="ie-file-name">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                                <span class="ie-file-name-text"></span>
+                                            </span>
+                                            <small class="ie-hint">
+                                                Accepted formats: .xlsx, .xls, .csv &nbsp;·&nbsp; up to 10 MB
+                                                &nbsp;·&nbsp; up to
+                                                {{ number_format(\App\Http\Services\Superadm\MediaImportExportService::MAX_ROWS) }}
+                                                rows per file.
+                                            </small>
+                                        </div>
+
+                                        <div class="ie-field">
+                                            <label class="ie-label" for="importImagesZip">
+                                                Images ZIP <span class="ie-optional">(optional)</span>
+                                            </label>
+                                            <input type="file" name="images_zip" id="importImagesZip" class="ie-file"
+                                                accept=".zip">
+                                            <span class="ie-file-name">
+                                                <i class="fa-solid fa-circle-check"></i>
+                                                <span class="ie-file-name-text"></span>
+                                            </span>
+                                            <small class="ie-hint">
+                                                Put every picture your sheet names into one .zip and upload it here. In
+                                                the <b>Image URLs</b> column write only the file name — for example
+                                                <code>site-front.jpg, site-side.jpg</code> — and it is matched to the file
+                                                of that name inside the ZIP. The <code>.jpg</code> may be left off when
+                                                the name is unique. &nbsp;·&nbsp; up to
+                                                {{ round(config('fileConstants.IMAGE_IMPORT_ZIP_MAX_KB') / 1024) }} MB
+                                                &nbsp;·&nbsp; JPG, PNG, WebP.
+                                            </small>
+                                            <div class="ie-note">
+                                                <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                                                A path from your own computer such as
+                                                <code>C:\Users\You\Downloads\image1.jpg</code> will not work — the server
+                                                cannot reach your drive. Use the ZIP, or a direct
+                                                <code>https://</code> link to the image.
+                                            </div>
+                                        </div>
+
+                                        <div class="ie-field">
+                                            <label class="ie-label">What should happen to each row</label>
+
+                                            <div class="ie-mode">
+                                                <div class="custom-control custom-radio">
+                                                    <input type="radio" id="modeInsert" name="mode" value="insert"
+                                                        class="custom-control-input" checked>
+                                                    <label class="custom-control-label" for="modeInsert">
+                                                        <b>Add new records only</b>
+                                                        <span class="ie-mode-sub">
+                                                            Every row becomes a new media record — use this to add
+                                                            several faces at one site. A row that is identical to
+                                                            something already in the inventory is reported and skipped,
+                                                            so nothing gets duplicated by accident.
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="ie-mode">
+                                                <div class="custom-control custom-radio">
+                                                    <input type="radio" id="modeUpsert" name="mode" value="upsert"
+                                                        class="custom-control-input">
+                                                    <label class="custom-control-label" for="modeUpsert">
+                                                        <b>Add new and update existing</b>
+                                                        <span class="ie-mode-sub">
+                                                            Use this to change media you already have — for example to
+                                                            revise prices. A row is matched by its <b>Hoarding Code</b>
+                                                            when the file has one, otherwise by its <b>Vendor and GPS
+                                                            position</b>, and that record is updated in place. Only a
+                                                            position nothing is recorded at yet becomes a new record.
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="ie-note" style="border-color:#cfc7f7; background:#f7f5ff; color:#4a3fa8;">
+                                                <i class="fa-solid fa-circle-info mr-1"></i>
+                                                <b>To change media that is already in the system:</b> export it from the
+                                                Export tab, edit the cells you need in that file, keep the
+                                                <b>Hoarding Code</b> column exactly as it is, and upload it here with
+                                                <b>Add new and update existing</b> selected. Blank cells and cells
+                                                holding <code>-</code> are treated as empty, and any column your file
+                                                does not have is left exactly as it is.
+                                                <div class="mt-2">
+                                                    <b>Pictures:</b> whatever the <b>Image URLs</b> cell lists becomes
+                                                    that record's gallery — change a name and the old picture is
+                                                    deleted and the new one saved in its place. Leave the cell empty
+                                                    to keep the existing pictures untouched.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary ie-submit" id="importSubmit">
+                                            <i class="fa-solid fa-magnifying-glass"></i> Validate &amp; Preview
+                                        </button>
+                                        <small class="ie-hint">
+                                            Nothing is saved yet — the next screen shows a preview and a downloadable
+                                            error log before anything is published.
+                                        </small>
+                                    </form>
                                 </div>
                             </div>
 
                             {{-- FIELD REFERENCE --}}
                             <div class="row">
                                 <div class="col-lg-6 mb-4">
-                                    <div class="card border h-100">
-                                        <div class="card-body">
-                                            <h5 class="text-danger mb-3">
-                                                Mandatory columns ({{ count($requiredColumns) }})
-                                            </h5>
-                                            <div class="table-responsive" style="max-height:420px; overflow:auto;">
-                                                <table class="table table-sm table-bordered mb-0">
-                                                    <thead class="table-light">
+                                    <div class="ie-card">
+                                        <div class="ie-card-head">
+                                            <h5>Columns you must fill</h5>
+                                            <span class="ie-count ie-count-req">{{ count($requiredColumns) }}</span>
+                                        </div>
+                                        <div class="ie-scroll">
+                                            <table class="table table-borderless">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:35%">Column</th>
+                                                        <th>How to fill it</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($requiredColumns as $column)
                                                         <tr>
-                                                            <th style="width:35%">Column</th>
-                                                            <th>How to fill</th>
+                                                            <td><b>{{ $column['label'] }}</b></td>
+                                                            <td>{{ $column['help'] }}</td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($requiredColumns as $column)
-                                                            <tr>
-                                                                <td><b>{{ $column['label'] }}</b></td>
-                                                                <td class="text-muted">{{ $column['help'] }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="col-lg-6 mb-4">
-                                    <div class="card border h-100">
-                                        <div class="card-body">
-                                            <h5 class="mb-3">Optional columns ({{ count($optionalColumns) }})</h5>
-                                            <div class="table-responsive" style="max-height:420px; overflow:auto;">
-                                                <table class="table table-sm table-bordered mb-0">
-                                                    <thead class="table-light">
+                                    <div class="ie-card">
+                                        <div class="ie-card-head">
+                                            <h5>Columns you can leave blank</h5>
+                                            <span class="ie-count">{{ count($optionalColumns) }}</span>
+                                        </div>
+                                        <div class="ie-scroll">
+                                            <table class="table table-borderless">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:35%">Column</th>
+                                                        <th>How to fill it</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($optionalColumns as $column)
                                                         <tr>
-                                                            <th style="width:35%">Column</th>
-                                                            <th>How to fill</th>
+                                                            <td>{{ $column['label'] }}</td>
+                                                            <td>{{ $column['help'] }}</td>
                                                         </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($optionalColumns as $column)
-                                                            <tr>
-                                                                <td>{{ $column['label'] }}</td>
-                                                                <td class="text-muted">{{ $column['help'] }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="alert alert-info mb-0">
-                                <b>What gets checked before publishing:</b>
-                                every mandatory field is present · master names (State → District → City → Area, Vendor,
-                                Category, Illumination, Area Type, Highway, Landmarks) exist and match each other ·
-                                Width, Height, Price and GPS coordinates are valid numbers in range ·
-                                category specific fields (Mall Name, Airport Zone, Transit details …) are filled ·
-                                Hoarding Code and Media Code are not repeated in the file and not already taken ·
-                                no two records share the same Vendor and GPS position.
+                            {{-- PRE-PUBLISH CHECKS --}}
+                            <div class="ie-card">
+                                <div class="ie-card-head">
+                                    <h5>What we check before publishing</h5>
+                                </div>
+                                <div class="ie-step-body">
+                                    <ul class="ie-checklist">
+                                        <li>
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>Every mandatory field is present.</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>Master names exist and match each other — State → District → City →
+                                                Area, plus Vendor, Category, Illumination, Area Type, Highway and
+                                                Landmarks.</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>Width, Height, Price and GPS coordinates are valid numbers within
+                                                range.</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>Category specific fields are filled — Mall Name, Airport Zone, Transit
+                                                details and so on.</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>Hoarding Code and Media Code are not repeated in the file and not
+                                                already taken.</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>Rows sharing a Vendor and GPS position with an existing record are
+                                                flagged for a quick look, but still imported — one site can carry
+                                                several media faces.</span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 
@@ -275,197 +1114,214 @@
                                 @csrf
                                 <input type="hidden" name="ids" id="selectedIds">
 
-                                <div class="row">
-                                    <div class="col-md-3 form-group">
-                                        <label><b>State</b></label>
-                                        <select name="state_id" id="f_state" class="form-control">
-                                            <option value="">All States</option>
-                                            @foreach ($options['states'] as $state)
-                                                <option value="{{ $state->id }}"
-                                                    {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
-                                                    {{ $state->state_name }}
+                                <div class="ie-filters">
+                                    <div class="ie-subhead">
+                                        <i class="fa-solid fa-filter"></i> Narrow down what you export
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">State</label>
+                                            <select name="state_id" id="f_state" class="form-control">
+                                                <option value="">All States</option>
+                                                @foreach ($options['states'] as $state)
+                                                    <option value="{{ $state->id }}"
+                                                        {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
+                                                        {{ $state->state_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">District</label>
+                                            <select name="district_id" id="f_district" class="form-control">
+                                                <option value="">All Districts</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">City / Town</label>
+                                            <select name="city_id" id="f_city" class="form-control">
+                                                <option value="">All Cities</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Category (Media Type)</label>
+                                            <select name="category_id" class="form-control">
+                                                <option value="">All Categories</option>
+                                                @foreach ($options['categories'] as $category)
+                                                    <option value="{{ $category->id }}"
+                                                        {{ ($filters['category_id'] ?? '') == $category->id ? 'selected' : '' }}>
+                                                        {{ $category->category_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Vendor / Owner</label>
+                                            <select name="vendor_id" class="form-control">
+                                                <option value="">All Vendors</option>
+                                                @foreach ($options['vendors'] as $vendor)
+                                                    <option value="{{ $vendor->id }}"
+                                                        {{ ($filters['vendor_id'] ?? '') == $vendor->id ? 'selected' : '' }}>
+                                                        {{ $vendor->vendor_name }} ({{ $vendor->vendor_code }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Illumination</label>
+                                            <select name="illumination_id" class="form-control">
+                                                <option value="">All</option>
+                                                @foreach ($options['illuminations'] as $illumination)
+                                                    <option value="{{ $illumination->id }}"
+                                                        {{ ($filters['illumination_id'] ?? '') == $illumination->id ? 'selected' : '' }}>
+                                                        {{ $illumination->illumination_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Area Type</label>
+                                            <select name="areatype_id" class="form-control">
+                                                <option value="">All</option>
+                                                @foreach ($options['areatypes'] as $areatype)
+                                                    <option value="{{ $areatype->id }}"
+                                                        {{ ($filters['areatype_id'] ?? '') == $areatype->id ? 'selected' : '' }}>
+                                                        {{ $areatype->areatype_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Highway</label>
+                                            <select name="highway_id" class="form-control">
+                                                <option value="">All</option>
+                                                @foreach ($options['highways'] as $highway)
+                                                    <option value="{{ $highway->id }}"
+                                                        {{ ($filters['highway_id'] ?? '') == $highway->id ? 'selected' : '' }}>
+                                                        {{ $highway->highway_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Status</label>
+                                            <select name="status" class="form-control">
+                                                <option value="">All</option>
+                                                <option value="1"
+                                                    {{ ($filters['status'] ?? '') === '1' ? 'selected' : '' }}>Active
                                                 </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>District</b></label>
-                                        <select name="district_id" id="f_district" class="form-control">
-                                            <option value="">All Districts</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>City / Town</b></label>
-                                        <select name="city_id" id="f_city" class="form-control">
-                                            <option value="">All Cities</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Category (Media Type)</b></label>
-                                        <select name="category_id" class="form-control">
-                                            <option value="">All Categories</option>
-                                            @foreach ($options['categories'] as $category)
-                                                <option value="{{ $category->id }}"
-                                                    {{ ($filters['category_id'] ?? '') == $category->id ? 'selected' : '' }}>
-                                                    {{ $category->category_name }}
+                                                <option value="0"
+                                                    {{ ($filters['status'] ?? '') === '0' ? 'selected' : '' }}>Inactive
                                                 </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                            </select>
+                                        </div>
 
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Vendor / Owner</b></label>
-                                        <select name="vendor_id" class="form-control">
-                                            <option value="">All Vendors</option>
-                                            @foreach ($options['vendors'] as $vendor)
-                                                <option value="{{ $vendor->id }}"
-                                                    {{ ($filters['vendor_id'] ?? '') == $vendor->id ? 'selected' : '' }}>
-                                                    {{ $vendor->vendor_name }} ({{ $vendor->vendor_code }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Media Type</label>
+                                            <input type="text" name="media_type" class="form-control"
+                                                placeholder="e.g. Unipole" value="{{ $filters['media_type'] ?? '' }}">
+                                        </div>
 
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Illumination</b></label>
-                                        <select name="illumination_id" class="form-control">
-                                            <option value="">All</option>
-                                            @foreach ($options['illuminations'] as $illumination)
-                                                <option value="{{ $illumination->id }}"
-                                                    {{ ($filters['illumination_id'] ?? '') == $illumination->id ? 'selected' : '' }}>
-                                                    {{ $illumination->illumination_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">Search (Code / Title)</label>
+                                            <input type="text" name="hoarding_code" class="form-control"
+                                                placeholder="e.g. HD000007" value="{{ $filters['hoarding_code'] ?? '' }}">
+                                        </div>
 
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Area Type</b></label>
-                                        <select name="areatype_id" class="form-control">
-                                            <option value="">All</option>
-                                            @foreach ($options['areatypes'] as $areatype)
-                                                <option value="{{ $areatype->id }}"
-                                                    {{ ($filters['areatype_id'] ?? '') == $areatype->id ? 'selected' : '' }}>
-                                                    {{ $areatype->areatype_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
+                                            <label class="ie-label">File Format</label>
+                                            <select name="format" class="form-control">
+                                                <option value="xlsx">Excel (.xlsx)</option>
+                                                <option value="csv">CSV (.csv)</option>
+                                            </select>
+                                        </div>
 
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Highway</b></label>
-                                        <select name="highway_id" class="form-control">
-                                            <option value="">All</option>
-                                            @foreach ($options['highways'] as $highway)
-                                                <option value="{{ $highway->id }}"
-                                                    {{ ($filters['highway_id'] ?? '') == $highway->id ? 'selected' : '' }}>
-                                                    {{ $highway->highway_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                        <div class="col-6 col-sm-6 col-lg-3 col-xl-3 ie-field">
+                                            <label class="ie-label">Price From</label>
+                                            <input type="number" name="min_price" class="form-control" min="0"
+                                                step="any" value="{{ $filters['min_price'] ?? '' }}">
+                                        </div>
 
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Status</b></label>
-                                        <select name="status" class="form-control">
-                                            <option value="">All</option>
-                                            <option value="1" {{ ($filters['status'] ?? '') === '1' ? 'selected' : '' }}>
-                                                Active</option>
-                                            <option value="0" {{ ($filters['status'] ?? '') === '0' ? 'selected' : '' }}>
-                                                Inactive</option>
-                                        </select>
-                                    </div>
+                                        <div class="col-6 col-sm-6 col-lg-3 col-xl-3 ie-field">
+                                            <label class="ie-label">Price To</label>
+                                            <input type="number" name="max_price" class="form-control" min="0"
+                                                step="any" value="{{ $filters['max_price'] ?? '' }}">
+                                        </div>
 
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Media Type</b></label>
-                                        <input type="text" name="media_type" class="form-control"
-                                            placeholder="e.g. Unipole" value="{{ $filters['media_type'] ?? '' }}">
-                                    </div>
+                                        <div class="col-6 col-sm-6 col-lg-3 col-xl-3 ie-field">
+                                            <label class="ie-label">Created From</label>
+                                            <input type="date" name="from_date" class="form-control"
+                                                value="{{ $filters['from_date'] ?? '' }}">
+                                        </div>
 
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Search (Code / Title)</b></label>
-                                        <input type="text" name="hoarding_code" class="form-control"
-                                            placeholder="e.g. HD000007" value="{{ $filters['hoarding_code'] ?? '' }}">
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Price From</b></label>
-                                        <input type="number" name="min_price" class="form-control" min="0"
-                                            step="any" value="{{ $filters['min_price'] ?? '' }}">
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Price To</b></label>
-                                        <input type="number" name="max_price" class="form-control" min="0"
-                                            step="any" value="{{ $filters['max_price'] ?? '' }}">
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Created From</b></label>
-                                        <input type="date" name="from_date" class="form-control"
-                                            value="{{ $filters['from_date'] ?? '' }}">
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>Created To</b></label>
-                                        <input type="date" name="to_date" class="form-control"
-                                            value="{{ $filters['to_date'] ?? '' }}">
-                                    </div>
-
-                                    <div class="col-md-3 form-group">
-                                        <label><b>File Format</b></label>
-                                        <select name="format" class="form-control">
-                                            <option value="xlsx">Excel (.xlsx)</option>
-                                            <option value="csv">CSV (.csv)</option>
-                                        </select>
+                                        <div class="col-6 col-sm-6 col-lg-3 col-xl-3 ie-field">
+                                            <label class="ie-label">Created To</label>
+                                            <input type="date" name="to_date" class="form-control"
+                                                value="{{ $filters['to_date'] ?? '' }}">
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="d-flex flex-wrap align-items-center mt-2">
-                                    <button type="submit" class="btn btn-success m-1" id="btnExportAll">
-                                        <i class="fa fa-download"></i> Export Matching Records
+                                <div class="ie-actions">
+                                    <button type="submit" class="btn btn-primary ie-submit" id="btnExportAll">
+                                        <i class="fa-solid fa-download"></i> Export Matching Records
                                     </button>
-                                    <button type="button" class="btn btn-primary m-1" id="btnLoadRecords">
-                                        <i class="fa fa-list"></i> Load Records To Select
+                                    <button type="button" class="btn btn-outline-primary" id="btnLoadRecords">
+                                        <i class="fa-solid fa-list-check mr-1"></i> Load Records To Select
                                     </button>
-                                    <button type="button" class="btn btn-dark m-1" id="btnExportSelected" disabled>
-                                        <i class="fa fa-check-square"></i> Export Selected (<span
-                                            id="selectedCount">0</span>)
+                                    <button type="button" class="btn btn-outline-primary" id="btnExportSelected" disabled>
+                                        <i class="fa-solid fa-file-arrow-down mr-1"></i>
+                                        Export Selected (<span id="selectedCount">0</span>)
                                     </button>
                                     <a href="{{ route('media.import-export', ['tab' => 'export']) }}"
-                                        class="btn btn-secondary m-1">Reset Filters</a>
+                                        class="btn btn-outline-secondary">
+                                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset Filters
+                                    </a>
                                 </div>
 
-                                <small class="text-muted d-block mt-2">
+                                <small class="ie-hint">
                                     With no filters applied, <b>Export Matching Records</b> exports the complete media
-                                    database. The export includes location, commercial, GPS and media specification
+                                    database. Every export includes location, commercial, GPS and media specification
                                     details.
                                 </small>
                             </form>
 
                             {{-- RECORD PICKER --}}
-                            <div id="recordPicker" class="mt-4" style="display:none;">
-                                <hr>
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h5 class="mb-0">Matching Records (<span id="recordTotal">0</span>)</h5>
-                                    <div>
+                            <div id="recordPicker" class="ie-records" style="display:none;">
+                                <hr class="ie-divider">
+
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3"
+                                    style="gap:10px;">
+                                    <div class="ie-subhead mb-0">
+                                        <i class="fa-solid fa-table-list"></i>
+                                        Matching Records (<span id="recordTotal">0</span>)
+                                    </div>
+                                    <div class="ie-actions">
                                         <button type="button" class="btn btn-sm btn-outline-primary" id="btnSelectPage">
                                             Select all on this page
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearSelection">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            id="btnClearSelection">
                                             Clear selection
                                         </button>
                                     </div>
                                 </div>
 
                                 <div class="table-responsive" style="max-height:460px; overflow:auto;">
-                                    <table class="table table-bordered table-striped mb-0">
-                                        <thead class="table-light">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
                                             <tr>
                                                 <th style="width:40px;"><input type="checkbox" id="checkAll"></th>
+                                                <th style="width:70px;">Sr No.</th>
                                                 <th>Hoarding Code</th>
                                                 <th>Media Title</th>
                                                 <th>Category</th>
@@ -480,12 +1336,38 @@
                                     </table>
                                 </div>
 
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <small class="text-muted" id="recordPageInfo"></small>
-                                    <div>
-                                        <button type="button" class="btn btn-sm btn-secondary" id="btnPrevPage">Previous</button>
-                                        <button type="button" class="btn btn-sm btn-secondary" id="btnNextPage">Next</button>
+                                <div class="ie-pager">
+                                    <div class="ie-pager-info">
+                                        <small class="text-muted" id="recordPageInfo"></small>
                                     </div>
+
+                                    <div class="ie-pager-size">
+                                        <label class="mb-0" for="recordPerPage">Rows per page</label>
+                                        <select id="recordPerPage" class="form-control form-control-sm">
+                                            <option value="25">25</option>
+                                            <option value="50" selected>50</option>
+                                            <option value="100">100</option>
+                                            <option value="200">200</option>
+                                        </select>
+                                    </div>
+
+                                    <nav class="ie-pager-nav" aria-label="Matching records pages">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnFirstPage"
+                                            title="First page">
+                                            <i class="fa-solid fa-angles-left"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPrevPage">
+                                            <i class="fa-solid fa-chevron-left"></i>
+                                        </button>
+                                        <span id="recordPages" class="ie-pager-pages"></span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnNextPage">
+                                            <i class="fa-solid fa-chevron-right"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnLastPage"
+                                            title="Last page">
+                                            <i class="fa-solid fa-angles-right"></i>
+                                        </button>
+                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -546,36 +1428,93 @@
                 if (this.id !== 'selectedIds') resetPicker();
             });
 
-            /* ============ IMPORT : PER-CATEGORY IMPORT BUTTON ============ */
-            $('.btn-import-cat').on('click', function () {
-                const id = $(this).data('category-id');
-                const name = $(this).data('category-name');
+            /* ============ IMPORT : CATEGORY SELECTION ============
+               The chosen category is shown by highlighting its card, so there is no
+               separate "change" control — picking another card switches, and picking
+               the highlighted card again clears the choice. */
+            function selectCategory(card, scrollToForm) {
+                $('.ie-cat').removeClass('is-selected').attr('aria-pressed', 'false');
 
-                $('#importCategoryId').val(id);
-                $('#importCategoryName').text(name);
-                $('#importCategoryBadge').show();
-
-                // Bring the upload box into view and prompt for the file.
-                const target = $('#importForm');
-                if (target.length) {
-                    $('html, body').animate({ scrollTop: target.offset().top - 90 }, 300);
+                if (!card) {
+                    $('#importCategoryId').val('');
+                    $('#importCategoryBadge').removeClass('is-visible');
+                    return;
                 }
-                $('#importFile').focus();
+
+                card.addClass('is-selected').attr('aria-pressed', 'true');
+                $('#importCategoryId').val(card.data('category-id'));
+                $('#importCategoryName').text(card.data('category-name'));
+                $('#importCategoryBadge').addClass('is-visible');
+
+                if (scrollToForm) {
+                    const target = $('#importForm');
+                    if (target.length) {
+                        $('html, body').animate({ scrollTop: target.offset().top - 90 }, 300);
+                    }
+                    $('#importFile').focus();
+                }
+            }
+
+            $(document).on('click', '.ie-cat', function (e) {
+                // The template link is a plain download — never treat it as a selection.
+                if ($(e.target).closest('.ie-cat-template').length) return;
+
+                const card = $(this);
+                const viaImportButton = $(e.target).closest('.ie-cat-import').length > 0;
+
+                if (card.hasClass('is-selected') && !viaImportButton) {
+                    selectCategory(null);
+                    return;
+                }
+
+                selectCategory(card, true);
             });
 
-            $('#clearImportCategory').on('click', function () {
-                $('#importCategoryId').val('');
-                $('#importCategoryBadge').hide();
+            $(document).on('keydown', '.ie-cat', function (e) {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                    e.preventDefault();
+                    $(this).trigger('click');
+                }
+            });
+
+            /* ============ IMPORT : CHOSEN FILE FEEDBACK ============ */
+            $('#importFile, #importImagesZip').on('change', function () {
+                const box = $(this).closest('.ie-field').find('.ie-file-name');
+                const file = this.files && this.files[0];
+
+                if (!file) {
+                    box.removeClass('is-visible').find('.ie-file-name-text').text('');
+                    return;
+                }
+
+                box.addClass('is-visible')
+                    .find('.ie-file-name-text')
+                    .text(file.name + ' — ' + (file.size / 1048576).toFixed(2) + ' MB');
+            });
+
+            /* ============ IMPORT : DUPLICATE-HANDLING MODE ============ */
+            $('input[name="mode"]').on('change', function () {
+                $('.ie-mode').removeClass('is-active');
+                $(this).closest('.ie-mode').addClass('is-active');
+            }).filter(':checked').trigger('change');
+
+            // Clicking anywhere in the option box picks that option.
+            $('.ie-mode').on('click', function (e) {
+                if ($(e.target).is('input, label') || $(e.target).closest('label').length) return;
+                $(this).find('input[name="mode"]').prop('checked', true).trigger('change');
             });
 
             /* ============ IMPORT : GUARD AGAINST DOUBLE SUBMIT ============ */
             $('#importForm').on('submit', function () {
                 $('#importSubmit')
                     .prop('disabled', true)
-                    .html('<i class="fa fa-spinner fa-spin"></i> Validating…');
+                    .html('<i class="fa-solid fa-spinner fa-spin"></i> Validating…');
             });
 
-            /* ============ EXPORT : RECORD PICKER ============ */
+            /* ============ EXPORT : RECORD PICKER ============
+               Every page is fetched from the server — only the rows of the
+               current page are ever sent to the browser. */
+            const COLSPAN = 10;
             const selected = new Set();
             let currentPage = 1;
             let lastPage = 1;
@@ -585,6 +1524,8 @@
                 currentPage = 1;
                 $('#recordPicker').hide();
                 $('#recordBody').empty();
+                $('#recordPages').empty();
+                $('#recordPageInfo').text('');
                 syncSelection();
             }
 
@@ -594,17 +1535,47 @@
                 $('#selectedIds').val(Array.from(selected).join(','));
             }
 
+            /**
+             * Page buttons around the current page: 1 … 4 5 [6] 7 8 … 24.
+             */
+            function renderPager(current, last) {
+                const wanted = new Set([1, last, current]);
+                for (let offset = 1; offset <= 2; offset++) {
+                    if (current - offset >= 1) wanted.add(current - offset);
+                    if (current + offset <= last) wanted.add(current + offset);
+                }
+
+                const pages = Array.from(wanted).filter(p => p >= 1 && p <= last).sort((a, b) => a - b);
+
+                let html = '';
+                let previous = 0;
+                pages.forEach(page => {
+                    if (previous && page - previous > 1) {
+                        html += '<span class="ie-pager-gap">…</span>';
+                    }
+                    html += `<button type="button" class="btn btn-sm btn-outline-secondary btn-page`
+                        + `${page === current ? ' is-current' : ''}" data-page="${page}">${page}</button>`;
+                    previous = page;
+                });
+
+                $('#recordPages').html(html);
+
+                $('#btnFirstPage, #btnPrevPage').prop('disabled', current <= 1);
+                $('#btnLastPage, #btnNextPage').prop('disabled', current >= last);
+            }
+
             function loadRecords(page) {
                 const params = $('#exportForm').serializeArray()
                     .filter(f => !['ids', 'format', '_token'].includes(f.name) && f.value !== '');
                 params.push({ name: 'page', value: page });
+                params.push({ name: 'per_page', value: $('#recordPerPage').val() });
 
-                $('#recordBody').html('<tr><td colspan="9" class="text-center">Loading…</td></tr>');
+                $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center py-4">Loading…</td></tr>`);
                 $('#recordPicker').show();
 
                 $.get("{{ route('media.export.records') }}", $.param(params), function (res) {
                     if (!res.status) {
-                        $('#recordBody').html('<tr><td colspan="9" class="text-center text-danger">Could not load records</td></tr>');
+                        $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center text-danger py-4">Could not load records</td></tr>`);
                         return;
                     }
 
@@ -612,18 +1583,29 @@
                     lastPage = res.last_page;
 
                     $('#recordTotal').text(res.total);
-                    $('#recordPageInfo').text(`Page ${res.current_page} of ${res.last_page} — ${res.total} record(s) match`);
+                    renderPager(currentPage, lastPage);
 
                     if (!res.data.length) {
-                        $('#recordBody').html('<tr><td colspan="9" class="text-center">No media records match these filters</td></tr>');
+                        $('#recordPageInfo').text('No records match these filters');
+                        $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center py-4">No media records match these filters</td></tr>`);
                         return;
                     }
 
+                    // Serial numbers continue across pages, so row 51 on page 2
+                    // reads 51 and not 1.
+                    const from = res.from || ((currentPage - 1) * (res.per_page || 50) + 1);
+                    const to = from + res.data.length - 1;
+
+                    $('#recordPageInfo').text(
+                        `Showing ${from}–${to} of ${res.total} record(s) · page ${currentPage} of ${lastPage}`
+                    );
+
                     let html = '';
-                    res.data.forEach(row => {
+                    res.data.forEach((row, index) => {
                         const checked = selected.has(String(row.id)) ? 'checked' : '';
                         html += `<tr>
                             <td><input type="checkbox" class="row-check" value="${row.id}" ${checked}></td>
+                            <td>${from + index}</td>
                             <td>${row.hoarding_code}</td>
                             <td>${row.media_title}</td>
                             <td>${row.category_name}</td>
@@ -638,13 +1620,25 @@
                     $('#recordBody').html(html);
                     $('#checkAll').prop('checked', false);
                 }).fail(function () {
-                    $('#recordBody').html('<tr><td colspan="9" class="text-center text-danger">Could not load records</td></tr>');
+                    $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center text-danger py-4">Could not load records</td></tr>`);
                 });
             }
 
             $('#btnLoadRecords').on('click', () => loadRecords(1));
+            $('#btnFirstPage').on('click', () => currentPage > 1 && loadRecords(1));
+            $('#btnLastPage').on('click', () => currentPage < lastPage && loadRecords(lastPage));
             $('#btnPrevPage').on('click', () => currentPage > 1 && loadRecords(currentPage - 1));
             $('#btnNextPage').on('click', () => currentPage < lastPage && loadRecords(currentPage + 1));
+            $(document).on('click', '.btn-page', function () {
+                const page = Number($(this).data('page'));
+                if (page !== currentPage) loadRecords(page);
+            });
+
+            // Changing the page size restarts from page one; the selection is
+            // kept, since it is held by record id and not by row position.
+            $('#recordPerPage').on('change', function () {
+                if ($('#recordPicker').is(':visible')) loadRecords(1);
+            });
 
             $(document).on('change', '.row-check', function () {
                 this.checked ? selected.add(this.value) : selected.delete(this.value);

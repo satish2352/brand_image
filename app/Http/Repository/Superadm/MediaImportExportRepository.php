@@ -7,6 +7,7 @@ use App\Models\MediaManagement;
 use App\Support\MediaImportSchema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class MediaImportExportRepository
 {
@@ -102,30 +103,133 @@ class MediaImportExportRepository
 
     /**
      * Codes already in the database, used to reject duplicates at preview time.
+     *
+     * 'codes' maps each of those record ids back to its hoarding code, so a
+     * rejected row can name the record it collides with instead of only saying
+     * that a collision happened.
+     *
+     * 'pictures' maps a record id to the picture file names it already holds, so
+     * an edited export can be recognised as naming a record's own images and
+     * skip re-checking and re-downloading them.
      */
     public function existingCodes(): array
     {
         $hoarding = [];
         $media = [];
         $geo = [];
+        $geoAll = [];
+        $codes = [];
+        $pictures = [];
 
         DB::table('media_management')
             ->where('is_deleted', 0)
-            ->select('id', 'hoarding_code', 'media_code', 'vendor_id', 'latitude', 'longitude')
+            ->select('id', 'hoarding_code', 'media_code', 'vendor_id', 'latitude', 'longitude', 'panorama_image')
             ->orderBy('id')
-            ->chunk(2000, function ($rows) use (&$hoarding, &$media, &$geo) {
+            ->chunk(2000, function ($rows) use (&$hoarding, &$media, &$geoAll, &$codes, &$pictures) {
                 foreach ($rows as $row) {
                     if (!empty($row->hoarding_code)) {
                         $hoarding[strtoupper(trim($row->hoarding_code))] = $row->id;
+                        $codes[$row->id] = trim($row->hoarding_code);
                     }
                     if (!empty($row->media_code)) {
                         $media[strtoupper(trim($row->media_code))] = $row->id;
                     }
-                    $geo[$this->geoKey($row->vendor_id, $row->latitude, $row->longitude)] = $row->id;
+                    if (!empty($row->panorama_image)) {
+                        $pictures[$row->id][] = trim($row->panorama_image);
+                    }
+                    // Every record at a position, not just one: an update can only
+                    // be matched on vendor + GPS while exactly one record is there.
+                    $geoAll[$this->geoKey($row->vendor_id, $row->latitude, $row->longitude)][] = $row->id;
                 }
             });
 
-        return ['hoarding' => $hoarding, 'media' => $media, 'geo' => $geo];
+        // The oldest record at each position stands for it.
+        foreach ($geoAll as $key => $ids) {
+            $geo[$key] = $ids[0];
+        }
+
+        DB::table('media_images')
+            ->where('is_deleted', 0)
+            ->select('media_id', 'images')
+            ->orderBy('id')
+            ->chunk(5000, function ($rows) use (&$pictures) {
+                foreach ($rows as $row) {
+                    if (!empty($row->images)) {
+                        $pictures[$row->media_id][] = trim($row->images);
+                    }
+                }
+            });
+
+        return [
+            'hoarding' => $hoarding,
+            'media' => $media,
+            'geo' => $geo,
+            'geo_all' => $geoAll,
+            'codes' => $codes,
+            'pictures' => $pictures,
+        ];
+    }
+
+    /**
+     * The stored values of one record, keyed by the same column names the
+     * importer builds its payload with — used to tell "another face at this
+     * site" apart from "this exact media is already in the inventory".
+     *
+     * @return array<string,mixed>|null
+     */
+    public function recordFields(int $mediaId): ?array
+    {
+        $row = DB::table('media_management')
+            ->where('id', $mediaId)
+            ->first([
+                'category_id', 'width', 'height', 'price', 'media_title', 'address',
+                'facing', 'illumination_id', 'areatype_id', 'highway_id', 'media_code',
+                'media_type', 'media_format', 'mall_name', 'airport_name', 'zone_type',
+                'transit_type', 'branding_type', 'vehicle_count', 'building_name',
+                'wall_length',
+            ]);
+
+        return $row ? (array) $row : null;
+    }
+
+    /**
+     * The last time this exact sheet was published, or null.
+     *
+     * Drives the "you have already imported this file" warning on the preview
+     * screen — see the media_import_history migration for why.
+     */
+    public function lastPublishOf(string $fileHash): ?object
+    {
+        if (!Schema::hasTable('media_import_history')) {
+            return null;
+        }
+
+        return DB::table('media_import_history')
+            ->where('file_hash', $fileHash)
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    /**
+     * Remember a published sheet so an accidental re-upload can be spotted.
+     */
+    public function recordPublish(string $fileHash, ?string $fileName, array $counts): void
+    {
+        if ($fileHash === '' || !Schema::hasTable('media_import_history')) {
+            return;
+        }
+
+        DB::table('media_import_history')->insert([
+            'file_hash' => $fileHash,
+            'file_name' => $fileName,
+            'rows_published' => (int) ($counts['inserted'] ?? 0) + (int) ($counts['updated'] ?? 0),
+            'inserted' => (int) ($counts['inserted'] ?? 0),
+            'updated' => (int) ($counts['updated'] ?? 0),
+            'published_by' => session('user_id') ?? session('id'),
+            'published_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
@@ -177,6 +281,64 @@ class MediaImportExportRepository
         return (int) MediaImage::where('media_id', $mediaId)
             ->where('is_deleted', 0)
             ->count();
+    }
+
+    /**
+     * The picture file names a record already holds.
+     *
+     * MediaExport turns these same names into public links, so an exported
+     * sheet that is edited and uploaded back names images the record already
+     * has — the publisher compares against this list instead of downloading
+     * second copies of them.
+     *
+     * @return array{gallery: array<int,string>, panorama: string}
+     */
+    public function imageFileNames(int $mediaId): array
+    {
+        $gallery = MediaImage::where('media_id', $mediaId)
+            ->where('is_deleted', 0)
+            ->pluck('images')
+            ->filter()
+            ->map(fn ($name) => trim($name))
+            ->all();
+
+        $panorama = (string) MediaManagement::where('id', $mediaId)->value('panorama_image');
+
+        return ['gallery' => array_values($gallery), 'panorama' => trim($panorama)];
+    }
+
+    /**
+     * Drop the pictures a record holds that its uploaded sheet no longer names.
+     *
+     * Same two steps the Media Management screens use: delete the file, then
+     * soft delete the row so history is kept.
+     *
+     * @param array<int,string> $keepNames file names the sheet still lists
+     * @return array<int,string> the names that were removed
+     */
+    public function removeImagesNotNamed(int $mediaId, array $keepNames): array
+    {
+        $keep = array_map(fn ($name) => strtolower(trim((string) $name)), $keepNames);
+        $removed = [];
+
+        $images = MediaImage::where('media_id', $mediaId)
+            ->where('is_deleted', 0)
+            ->get();
+
+        foreach ($images as $image) {
+            $name = trim((string) $image->images);
+
+            if ($name === '' || in_array(strtolower($name), $keep, true)) {
+                continue;
+            }
+
+            removeImage($name, config('fileConstants.IMAGE_DELETE'));
+
+            $image->update(['is_deleted' => 1, 'is_active' => 0]);
+            $removed[] = $name;
+        }
+
+        return $removed;
     }
 
     public function attachImage(int $mediaId, string $fileName): void
