@@ -365,6 +365,59 @@ class MediaImportExportSmokeTest extends TestCase
         @unlink($path);
     }
 
+    /**
+     * The two mode options are flex labels wrapping a plain radio.
+     *
+     * Bootstrap's custom-control puts the description inside an inline <label>,
+     * and a block of text in an inline box escaped the card and overlapped the
+     * option below it instead of making the card taller.
+     */
+    public function test_mode_options_are_laid_out_so_the_text_cannot_escape(): void
+    {
+        $html = $this->admin()->get('/media/import-export')->getContent();
+
+        preg_match_all('#<label class="ie-mode".*?</label>#s', $html, $matches);
+        $this->assertCount(2, $matches[0], 'two mode options');
+
+        $this->assertStringNotContainsString('custom-control custom-radio', $html);
+
+        // Each radio sits inside its own label, so clicking the card selects it
+        // natively and needs no JavaScript shim.
+        foreach (['modeInsert', 'modeUpsert'] as $id) {
+            $this->assertMatchesRegularExpression(
+                '#<label class="ie-mode" for="' . $id . '">\s*<input type="radio" id="' . $id . '"#',
+                $html
+            );
+        }
+        $this->assertStringNotContainsString("\$('.ie-mode').on('click'", $html);
+
+        // Flex row, with the description as a block inside its own span.
+        $this->assertMatchesRegularExpression('#\.ie-mode\s*\{[^}]*display:\s*flex#s', $html);
+        $this->assertMatchesRegularExpression('#\.ie-mode-sub\s*\{[^}]*display:\s*block#s', $html);
+
+        // Exactly one option starts selected, and it is the safe one.
+        $this->assertSame(1, preg_match_all('#<input[^>]*name="mode"[^>]*checked#', $html));
+        $this->assertMatchesRegularExpression(
+            '#<input type="radio" id="modeInsert" name="mode" value="insert"\s+class="ie-mode-input" checked>#',
+            $html
+        );
+
+        // The chosen option is shown by a drawn circle and a worded badge, not by
+        // the browser's own radio, so it looks the same everywhere.
+        $this->assertSame(2, preg_match_all('#class="ie-mode-dot"#', $html));
+        $this->assertSame(2, preg_match_all('#class="ie-mode-flag">Selected#', $html));
+
+        foreach ([
+            '.ie-mode-input:checked ~ .ie-mode-dot {',
+            '.ie-mode-input:checked ~ .ie-mode-dot::after',
+            '.ie-mode-input:checked ~ .ie-mode-text .ie-mode-flag',
+            '.ie-mode-input:focus ~ .ie-mode-dot',
+            '.ie-mode:has(.ie-mode-input:checked)',
+        ] as $rule) {
+            $this->assertStringContainsString($rule, $html, "missing selected-state rule: {$rule}");
+        }
+    }
+
     public function test_media_list_still_renders_with_new_button(): void
     {
         $response = $this->admin()->get('/media/list');

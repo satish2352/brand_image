@@ -438,36 +438,119 @@
             color: #5a6a85;
         }
 
-        /* ---------- mode picker ---------- */
+        /* ---------- mode picker ----------
+           A flex row rather than Bootstrap's custom-control: that puts the
+           description inside an inline <label>, and a block of text inside an
+           inline box escaped the card and overlapped the option below it. */
         .ie-mode {
-            padding: 13px 15px;
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 16px;
             margin-bottom: 10px;
             border: 1px solid var(--ie-border);
             border-radius: 10px;
             cursor: pointer;
-            transition: border-color .15s ease, background .15s ease;
+            transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
         }
 
         .ie-mode:hover {
             border-color: #c6bcf8;
         }
 
-        .ie-mode.is-active {
+        .ie-mode.is-active,
+        .ie-mode:has(.ie-mode-input:checked) {
             border-color: var(--ie-primary);
             background: #faf9ff;
+            box-shadow: 0 0 0 3px rgba(116, 96, 238, .12);
         }
 
-        .ie-mode .custom-control-label {
-            cursor: pointer;
+        /* The real control: kept in the page for the keyboard and the form, with
+           the visible circle drawn next to it so every browser agrees on how a
+           chosen option looks. */
+        .ie-mode-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .ie-mode-dot {
+            position: relative;
+            flex: 0 0 auto;
+            width: 18px;
+            height: 18px;
+            margin-top: 1px;
+            border: 2px solid #cfd6e4;
+            border-radius: 50%;
+            background: #fff;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .ie-mode:hover .ie-mode-dot {
+            border-color: var(--ie-primary);
+        }
+
+        .ie-mode-input:checked ~ .ie-mode-dot {
+            border-color: var(--ie-primary);
+        }
+
+        .ie-mode-input:checked ~ .ie-mode-dot::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            bottom: 3px;
+            left: 3px;
+            border-radius: 50%;
+            background: var(--ie-primary);
+        }
+
+        .ie-mode-input:focus ~ .ie-mode-dot {
+            box-shadow: 0 0 0 3px rgba(116, 96, 238, .25);
+        }
+
+        /* Says which one is chosen in words, not only by colour. */
+        .ie-mode-flag {
+            display: none;
+            margin-left: 8px;
+            padding: 1px 8px;
+            border-radius: 20px;
+            font-size: 10.5px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            background: var(--ie-primary);
+            color: #fff;
+            vertical-align: 2px;
+        }
+
+        .ie-mode-input:checked ~ .ie-mode-text .ie-mode-flag {
+            display: inline-block;
+        }
+
+        .ie-mode-text {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .ie-mode-title {
+            display: block;
             font-size: 13.5px;
+            font-weight: 600;
             color: var(--ie-heading);
         }
 
-        .ie-mode .ie-mode-sub {
+        .ie-mode-sub {
             display: block;
-            margin-top: 3px;
+            margin-top: 4px;
             font-size: 12.5px;
             font-weight: 400;
+            line-height: 1.65;
             color: var(--ie-muted);
         }
 
@@ -942,38 +1025,38 @@
                                         <div class="ie-field">
                                             <label class="ie-label">What should happen to each row</label>
 
-                                            <div class="ie-mode">
-                                                <div class="custom-control custom-radio">
-                                                    <input type="radio" id="modeInsert" name="mode" value="insert"
-                                                        class="custom-control-input" checked>
-                                                    <label class="custom-control-label" for="modeInsert">
-                                                        <b>Add new records only</b>
-                                                        <span class="ie-mode-sub">
-                                                            Every row becomes a new media record — use this to add
-                                                            several faces at one site. A row that is identical to
-                                                            something already in the inventory is reported and skipped,
-                                                            so nothing gets duplicated by accident.
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                            </div>
+                                            <label class="ie-mode" for="modeInsert">
+                                                <input type="radio" id="modeInsert" name="mode" value="insert"
+                                                    class="ie-mode-input" checked>
+                                                <span class="ie-mode-dot" aria-hidden="true"></span>
+                                                <span class="ie-mode-text">
+                                                    <span class="ie-mode-title">Add new records only<span
+                                                            class="ie-mode-flag">Selected</span></span>
+                                                    <span class="ie-mode-sub">
+                                                        Every row becomes a new media record — use this to add several
+                                                        faces at one site. A row that is identical to something already
+                                                        in the inventory is reported and skipped, so nothing gets
+                                                        duplicated by accident.
+                                                    </span>
+                                                </span>
+                                            </label>
 
-                                            <div class="ie-mode">
-                                                <div class="custom-control custom-radio">
-                                                    <input type="radio" id="modeUpsert" name="mode" value="upsert"
-                                                        class="custom-control-input">
-                                                    <label class="custom-control-label" for="modeUpsert">
-                                                        <b>Add new and update existing</b>
-                                                        <span class="ie-mode-sub">
-                                                            Use this to change media you already have — for example to
-                                                            revise prices. A row is matched by its <b>Hoarding Code</b>
-                                                            when the file has one, otherwise by its <b>Vendor and GPS
-                                                            position</b>, and that record is updated in place. Only a
-                                                            position nothing is recorded at yet becomes a new record.
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                            </div>
+                                            <label class="ie-mode" for="modeUpsert">
+                                                <input type="radio" id="modeUpsert" name="mode" value="upsert"
+                                                    class="ie-mode-input">
+                                                <span class="ie-mode-dot" aria-hidden="true"></span>
+                                                <span class="ie-mode-text">
+                                                    <span class="ie-mode-title">Add new and update existing<span
+                                                            class="ie-mode-flag">Selected</span></span>
+                                                    <span class="ie-mode-sub">
+                                                        Use this to change media you already have — for example to
+                                                        revise prices. A row is matched by its <b>Hoarding Code</b> when
+                                                        the file has one, otherwise by its <b>Vendor and GPS
+                                                        position</b>, and that record is updated in place. Only a
+                                                        position nothing is recorded at yet becomes a new record.
+                                                    </span>
+                                                </span>
+                                            </label>
 
                                             <div class="ie-note" style="border-color:#cfc7f7; background:#f7f5ff; color:#4a3fa8;">
                                                 <i class="fa-solid fa-circle-info mr-1"></i>
@@ -1492,17 +1575,13 @@
                     .text(file.name + ' — ' + (file.size / 1048576).toFixed(2) + ' MB');
             });
 
-            /* ============ IMPORT : DUPLICATE-HANDLING MODE ============ */
+            /* ============ IMPORT : DUPLICATE-HANDLING MODE ============
+               Each option is a <label>, so clicking anywhere in the card selects
+               it without help; this only moves the highlight. */
             $('input[name="mode"]').on('change', function () {
                 $('.ie-mode').removeClass('is-active');
                 $(this).closest('.ie-mode').addClass('is-active');
             }).filter(':checked').trigger('change');
-
-            // Clicking anywhere in the option box picks that option.
-            $('.ie-mode').on('click', function (e) {
-                if ($(e.target).is('input, label') || $(e.target).closest('label').length) return;
-                $(this).find('input[name="mode"]').prop('checked', true).trigger('change');
-            });
 
             /* ============ IMPORT : GUARD AGAINST DOUBLE SUBMIT ============ */
             $('#importForm').on('submit', function () {

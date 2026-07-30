@@ -166,19 +166,24 @@
                                 {{-- Publishing stays possible (re-importing after a deletion is
                                      legitimate) but has to be asked for on purpose. --}}
                                 @if (!empty($batch['rows']))
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="allowDuplicateImport">
-                                        <label class="custom-control-label" for="allowDuplicateImport">
+                                    {{-- A flex label, not Bootstrap's custom-control: that nests the
+                                         explanation inside an inline <label>, where a block of text
+                                         escapes the box instead of growing it. --}}
+                                    <label for="allowDuplicateImport"
+                                        style="display:flex; align-items:flex-start; gap:10px; margin:0; cursor:pointer;">
+                                        <input type="checkbox" id="allowDuplicateImport"
+                                            style="flex:0 0 auto; width:16px; height:16px; margin:2px 0 0; cursor:pointer;">
+                                        <span style="flex:1 1 auto; min-width:0;">
                                             <b>I know these are duplicates — add them as
                                                 {{ number_format($batch['summary']['insert']) }} new
                                                 {{ \Illuminate\Support\Str::plural('record', $batch['summary']['insert']) }}
                                                 anyway.</b>
-                                            <span class="d-block text-muted" style="font-size:12.5px;">
+                                            <span class="d-block text-muted" style="font-size:12.5px; margin-top:3px;">
                                                 Tick this only if you deleted them and want them back. Otherwise press
                                                 Cancel Import.
                                             </span>
-                                        </label>
-                                    </div>
+                                        </span>
+                                    </label>
                                 @endif
                             </div>
                         </div>
