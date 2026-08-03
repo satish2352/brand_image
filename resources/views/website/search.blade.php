@@ -471,6 +471,11 @@
                         let url = mediaDetailsRoute.replace('ID_PLACEHOLDER', btoa(m.id));
                         let sqft = (parseFloat(m.width) * parseFloat(m.height)).toFixed(0);
                         let price = '₹' + Number(m.price).toLocaleString('en-IN');
+                        // Media Title is optional outside Hoardings/Billboards, so
+                        // fall back to the category the way the result cards do —
+                        // without this the popup read "null Shirdi".
+                        let title = [m.media_title || m.category_name || '', m.area_name || '']
+                            .filter(Boolean).join(' ');
                         cards += `
                         <div style="
                             min-width:160px;
@@ -499,7 +504,7 @@
                                     -webkit-line-clamp:2;
                                     -webkit-box-orient:vertical;
                                     overflow:hidden;
-                                ">${m.media_title} ${m.area_name}</div>
+                                ">${title}</div>
                                 ${m.hoarding_code ? `<div style="
                                     font-size:10px;
                                     font-weight:600;

@@ -15,7 +15,7 @@
         data-lng="{{ $media->longitude }}">
 
         <div class="explore-card-img">
-            <img src="{{ $img }}" alt="{{ $media->media_title }}">
+            <img src="{{ $img }}" alt="{{ $media->media_title ?: $media->category_name }}">
             @if (!empty($media->hoarding_code))
                 <span class="explore-code">{{ $media->hoarding_code }}</span>
             @endif
@@ -24,7 +24,7 @@
         <div class="explore-card-body">
             <h6 class="explore-title">
                 <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                    {{ $media->media_title }} {{ $media->area_name }}
+                    {{ $media->media_title ?: $media->category_name }} {{ $media->area_name }}
                 </a>
             </h6>
 

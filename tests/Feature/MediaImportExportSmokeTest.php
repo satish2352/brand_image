@@ -641,24 +641,139 @@ class MediaImportExportSmokeTest extends TestCase
      ===================================================================== */
 
     /**
-     * Every category template must carry the Hoarding Code column. It is the
-     * only thing that tells an upload to update a record rather than add
-     * another, so leaving it out made "Add new and update existing" silently
-     * insert duplicates.
+     * Only hoardings are given a Hoarding Code, so only the Hoardings/Billboards
+     * template offers the column — asking for a code on a mall or transit sheet
+     * would be asking for something that record can never have. The
+     * all-categories template keeps it, since a mixed sheet may hold hoardings
+     * and it is the one column that turns an upload into an update.
      */
-    public function test_every_category_template_offers_the_hoarding_code_column(): void
+    public function test_only_the_hoarding_template_offers_the_hoarding_code_column(): void
     {
         $categories = \Illuminate\Support\Facades\DB::table('category')
             ->where('is_deleted', 0)->pluck('category_name');
 
         $this->assertNotEmpty($categories);
 
+        $this->assertContains(
+            'Hoarding Code',
+            \App\Support\MediaImportSchema::labels(),
+            'the all-categories template must keep Hoarding Code'
+        );
+
         foreach ($categories as $name) {
+            $slug = \Illuminate\Support\Str::slug($name);
             $labels = \App\Support\MediaImportSchema::labels(
-                \App\Support\MediaImportSchema::columnsForSlug(\Illuminate\Support\Str::slug($name))
+                \App\Support\MediaImportSchema::columnsForSlug($slug)
             );
 
-            $this->assertContains('Hoarding Code', $labels, "{$name} template is missing Hoarding Code");
+            if (str_contains($slug, 'hoarding') || str_contains($slug, 'billboard')) {
+                $this->assertContains('Hoarding Code', $labels, "{$name} template is missing Hoarding Code");
+            } else {
+                $this->assertNotContains('Hoarding Code', $labels, "{$name} template must not offer Hoarding Code");
+            }
+        }
+    }
+
+    /**
+     * HD###### is a hoarding's code. A bulk upload issues one only to rows in
+     * Hoardings/Billboards — media in every other category is stored without a
+     * code rather than being handed a number that means nothing.
+     */
+    public function test_only_hoardings_are_given_a_hoarding_code_on_import(): void
+    {
+        $labels = \App\Support\MediaImportSchema::labels();
+
+        $shared = [
+            'State' => 'Maharashtra', 'District' => 'Nashik', 'City' => 'Nashik',
+            'Area' => 'Govind Nagar', 'Vendor Code' => 'MAH_NAS_BIMPL',
+            'Width (ft)' => '30', 'Height (ft)' => '15', 'Price (Monthly)' => '55000',
+        ];
+
+        $hoarding = array_merge($shared, [
+            'Category' => 'Hoardings/Billboards',
+            'Latitude' => '19.9711111', 'Longitude' => '73.7711111',
+            'Media Title' => 'ZZCODE Hoarding', 'Facing' => 'North',
+            'Area Type' => 'Urbun', 'Illumination' => 'Front Lit',
+            'Address' => 'ZZCODE address',
+        ]);
+
+        $wallWrap = array_merge($shared, [
+            'Category' => 'Wall Wrap',
+            'Latitude' => '19.9722222', 'Longitude' => '73.7722222',
+            'Media Title' => 'ZZCODE Wall Wrap',
+        ]);
+
+        $coordinates = ['19.9711111', '19.9722222'];
+
+        try {
+            $response = $this->upload([
+                $labels,
+                array_map(fn ($label) => $hoarding[$label] ?? '', $labels),
+                array_map(fn ($label) => $wallWrap[$label] ?? '', $labels),
+            ]);
+
+            $response->assertOk();
+            $batch = $response->viewData('batch');
+
+            $this->assertSame([], $batch['errors']);
+            $this->assertSame(2, $batch['summary']['ready']);
+
+            // The preview says up front which row is getting a code.
+            $this->assertSame('Auto', $batch['rows'][0]['display']['hoarding_code']);
+            $this->assertSame('—', $batch['rows'][1]['display']['hoarding_code']);
+
+            $this->admin()->post('/media/import/publish', ['token' => $batch['token']]);
+
+            $codes = \Illuminate\Support\Facades\DB::table('media_management')
+                ->whereIn('latitude', $coordinates)->orderBy('latitude')
+                ->pluck('hoarding_code', 'media_title')->all();
+
+            $this->assertCount(2, $codes);
+            $this->assertMatchesRegularExpression('/^HD\d{6}$/', (string) $codes['ZZCODE Hoarding']);
+            $this->assertNull($codes['ZZCODE Wall Wrap'], 'a wall wrap must not be given a hoarding code');
+        } finally {
+            \Illuminate\Support\Facades\DB::table('media_management')
+                ->whereIn('latitude', $coordinates)->delete();
+        }
+    }
+
+    /**
+     * A code typed into the sheet is still honoured whatever the category —
+     * the rule only stops codes being invented, it does not throw away one the
+     * admin supplied (that is how an upsert names the record to change).
+     */
+    public function test_a_supplied_code_is_kept_for_a_non_hoarding_row(): void
+    {
+        $labels = \App\Support\MediaImportSchema::labels();
+
+        $values = [
+            'Category' => 'Wall Wrap', 'Hoarding Code' => 'ZZWW000001',
+            'State' => 'Maharashtra', 'District' => 'Nashik', 'City' => 'Nashik',
+            'Area' => 'Govind Nagar', 'Vendor Code' => 'MAH_NAS_BIMPL',
+            'Width (ft)' => '30', 'Height (ft)' => '15', 'Price (Monthly)' => '55000',
+            'Latitude' => '19.9733333', 'Longitude' => '73.7733333',
+            'Media Title' => 'ZZCODE Supplied',
+        ];
+
+        try {
+            $response = $this->upload([
+                $labels,
+                array_map(fn ($label) => $values[$label] ?? '', $labels),
+            ]);
+
+            $response->assertOk();
+            $batch = $response->viewData('batch');
+
+            $this->assertSame([], $batch['errors']);
+            $this->assertSame('ZZWW000001', $batch['rows'][0]['display']['hoarding_code']);
+
+            $this->admin()->post('/media/import/publish', ['token' => $batch['token']]);
+
+            $this->assertSame('ZZWW000001', \Illuminate\Support\Facades\DB::table('media_management')
+                ->where('latitude', '19.9733333')->value('hoarding_code'));
+        } finally {
+            \Illuminate\Support\Facades\DB::table('media_management')
+                ->where('latitude', '19.9733333')->delete();
         }
     }
 
@@ -1192,11 +1307,13 @@ class MediaImportExportSmokeTest extends TestCase
             );
 
             // A row matched on vendor and GPS carries no code of its own, and that
-            // blank must never be written over the record's real Hoarding Code —
-            // it would strip the code and let the next import reissue it.
+            // blank must never be written over whatever the record holds — for a
+            // hoarding it would strip the code and let the next import reissue it.
             $this->assertSame($created, $after, 'the hoarding codes must survive the update');
+
+            // Wall Wrap is not a hoarding, so no HD###### was ever minted for it.
             foreach ($after as $code) {
-                $this->assertNotEmpty($code, 'a record must never be left without a hoarding code');
+                $this->assertNull($code, 'only hoardings may carry a hoarding code');
             }
         } finally {
             \Illuminate\Support\Facades\DB::table('media_management')
@@ -1347,11 +1464,10 @@ class MediaImportExportSmokeTest extends TestCase
             $this->markTestSkipped('No wall painting / wall wrap record available.');
         }
 
-        $labels = \App\Support\MediaImportSchema::labels(
-            \App\Support\MediaImportSchema::columnsForSlug(
-                \Illuminate\Support\Str::slug($target->category_name)
-            )
-        );
+        // The all-categories template on purpose: a wall category's own template
+        // has no Hoarding Code column (only hoardings carry a code), and this
+        // sheet names the record it is editing by its code.
+        $labels = \App\Support\MediaImportSchema::labels();
 
         $lookup = fn ($table, $id, $column) => \Illuminate\Support\Facades\DB::table($table)
             ->where('id', $id)->value($column);

@@ -108,6 +108,10 @@ class MediaImportExportRepository
      * rejected row can name the record it collides with instead of only saying
      * that a collision happened.
      *
+     * 'labels' names every record, code or not: only hoardings carry a Hoarding
+     * Code, so a mall or transit record has to be named by its Media Code or
+     * title for those messages to stay useful.
+     *
      * 'pictures' maps a record id to the picture file names it already holds, so
      * an edited export can be recognised as naming a record's own images and
      * skip re-checking and re-downloading them.
@@ -119,13 +123,23 @@ class MediaImportExportRepository
         $geo = [];
         $geoAll = [];
         $codes = [];
+        $labels = [];
         $pictures = [];
 
         DB::table('media_management')
             ->where('is_deleted', 0)
-            ->select('id', 'hoarding_code', 'media_code', 'vendor_id', 'latitude', 'longitude', 'panorama_image')
+            ->select(
+                'id',
+                'hoarding_code',
+                'media_code',
+                'media_title',
+                'vendor_id',
+                'latitude',
+                'longitude',
+                'panorama_image'
+            )
             ->orderBy('id')
-            ->chunk(2000, function ($rows) use (&$hoarding, &$media, &$geoAll, &$codes, &$pictures) {
+            ->chunk(2000, function ($rows) use (&$hoarding, &$media, &$geoAll, &$codes, &$labels, &$pictures) {
                 foreach ($rows as $row) {
                     if (!empty($row->hoarding_code)) {
                         $hoarding[strtoupper(trim($row->hoarding_code))] = $row->id;
@@ -134,6 +148,13 @@ class MediaImportExportRepository
                     if (!empty($row->media_code)) {
                         $media[strtoupper(trim($row->media_code))] = $row->id;
                     }
+
+                    $labels[$row->id] = match (true) {
+                        !empty($row->hoarding_code) => trim($row->hoarding_code),
+                        !empty($row->media_code) => trim($row->media_code),
+                        !empty($row->media_title) => '"' . trim($row->media_title) . '"',
+                        default => 'record #' . $row->id,
+                    };
                     if (!empty($row->panorama_image)) {
                         $pictures[$row->id][] = trim($row->panorama_image);
                     }
@@ -166,6 +187,7 @@ class MediaImportExportRepository
             'geo' => $geo,
             'geo_all' => $geoAll,
             'codes' => $codes,
+            'labels' => $labels,
             'pictures' => $pictures,
         ];
     }

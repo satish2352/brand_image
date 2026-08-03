@@ -1,6 +1,6 @@
 @extends('website.layout')
 
-@section('title', $media->media_title)
+@section('title', $media->media_title ?: $media->category_name)
 
 @section('content')
 
@@ -326,7 +326,8 @@
                         <div class="card shadow-sm border-0 p-4">
 
                             <h3 class="fw-bold mb-2 detail-title">
-                                {{ ucwords($media->media_title) }} {{ ucwords($media->area_name) }}
+                                {{ ucwords($media->media_title ?: $media->category_name ?? '') }}
+                                {{ ucwords($media->area_name ?? '') }}
                             </h3>
 
                             @if (!empty($media->hoarding_code))

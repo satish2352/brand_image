@@ -136,7 +136,12 @@ class ExploreController extends Controller
             return [
                 'id'            => $m->id,
                 'eid'           => base64_encode($m->id),
-                'title'         => trim(($m->media_title ?? '') . ' ' . ($m->area_name ?? '')),
+                // Media Title is only mandatory for Hoardings/Billboards, so a
+                // mall or transit record falls back to its category name — the
+                // same fallback the result cards use.
+                'title'         => trim(
+                    (($m->media_title ?: $m->category_name) ?? '') . ' ' . ($m->area_name ?? '')
+                ),
                 'hoarding_code' => $m->hoarding_code,
                 'lat'           => (float) $m->latitude,
                 'lng'           => (float) $m->longitude,

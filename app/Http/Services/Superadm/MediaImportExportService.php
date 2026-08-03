@@ -205,7 +205,8 @@ class MediaImportExportService
                 'area' => $location['area_name'],
                 'vendor_code' => $vendor['vendor_code'],
                 'vendor_name' => $vendor['vendor_name'],
-                // Blank so the importer auto generates HD###### for the example.
+                // Blank: a hoarding row is given its HD###### on import, and a
+                // row in any other category is stored without a code.
                 'hoarding_code' => '',
                 'media_code' => '',
                 'address' => 'Near ' . $location['area_name'] . ', ' . $location['city_name'],
@@ -649,7 +650,16 @@ class MediaImportExportService
                     continue;
                 }
 
-                if (empty($payload['hoarding_code'])) {
+                // HD###### is a HOARDING code — only Hoardings/Billboards rows
+                // get one. Every other category (wall painting, airport, transit,
+                // office, wall wrap) previously had one minted too, which burned
+                // sequence numbers on media that can never be a hoarding and made
+                // the code meaningless as an identifier.
+                //
+                // A code supplied in the sheet is still honoured as-is, whatever
+                // the category — the importer does not invent codes here, it only
+                // fills in the blanks for hoardings.
+                if (empty($payload['hoarding_code']) && $this->isHoardingCategory($payload['category_id'] ?? null)) {
                     $sequence++;
                     $payload['hoarding_code'] = 'HD' . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
                 }
@@ -1127,10 +1137,17 @@ class MediaImportExportService
         }
 
         /* ---------- category specific rules (mirrors the Add Media form) ---------- */
+        $slug = $categoryId ? ($categorySlugs[$categoryId] ?? '') : '';
+
         if ($categoryId) {
-            $slug = $categorySlugs[$categoryId] ?? '';
             $errors = array_merge($errors, $this->categoryRules($slug, $row));
         }
+
+        // A Hoarding Code identifies a hoarding / billboard site. Media in the
+        // other categories carry no such code, so none is generated for them —
+        // an explicit code in the sheet is still honoured, as that is how an
+        // upsert names the record it has to change.
+        $codeCategory = $this->slugTakesCode($slug);
 
         /* ---------- duplicates ---------- */
         $hoardingCode = strtoupper(trim((string) ($row['hoarding_code'] ?? '')));
@@ -1194,7 +1211,7 @@ class MediaImportExportService
                     . 'row entered twice.';
             } elseif (isset($existing['geo'][$geoKey]) && $existing['geo'][$geoKey] !== $mediaId) {
                 $geoMatchId = $existing['geo'][$geoKey];
-                $owner = $existing['codes'][$geoMatchId] ?? '';
+                $owner = $existing['labels'][$geoMatchId] ?? '';
                 $notices[] = 'Same vendor and GPS position as '
                     . ($owner !== '' ? $owner : 'a record') . ' already in the inventory — fine for '
                     . 'another face at the same site, but check it is not a duplicate.';
@@ -1218,7 +1235,7 @@ class MediaImportExportService
                                              several records share the position, and
                                              then the code has to be given. */
         if ($geoMatchId && $mediaId === null) {
-            $owner = $existing['codes'][$geoMatchId] ?? '';
+            $owner = $existing['labels'][$geoMatchId] ?? '';
             $sharing = $existing['geo_all'][$geoKey] ?? [];
 
             $candidate = $this->existingFields((int) $geoMatchId);
@@ -1241,7 +1258,7 @@ class MediaImportExportService
             if ($mode === 'upsert' && $hoardingCode === '') {
                 if (count($sharing) > 1) {
                     $codes = array_values(array_filter(array_map(
-                        fn ($id) => $existing['codes'][$id] ?? '',
+                        fn ($id) => $existing['labels'][$id] ?? '',
                         $sharing
                     )));
 
@@ -1408,7 +1425,7 @@ class MediaImportExportService
                 // joins. Read with defaults: an update payload only holds the
                 // columns its file supplies, so these keys may be absent.
                 'display' => [
-                    'hoarding_code' => $hoardingCode ?: 'Auto',
+                    'hoarding_code' => $hoardingCode ?: ($codeCategory ? 'Auto' : '—'),
                     'media_title' => $payload['media_title'] ?? $this->text($row['media_title'] ?? ''),
                     'category' => trim((string) ($row['category'] ?? '')),
                     'state' => trim((string) ($row['state'] ?? '')),
@@ -1428,6 +1445,44 @@ class MediaImportExportService
                 ],
             ],
         ];
+    }
+
+    /** @var array<int,string>|null Category id => slug, filled on first use. */
+    private ?array $hoardingSlugCache = null;
+
+    /**
+     * Is this category Hoardings/Billboards?
+     *
+     * Matches on the slug with str_contains(), the same test categoryRules()
+     * already uses, rather than hardcoding category_id = 1 — the id is seeder
+     * data and an admin can add a second hoarding-like category, but the slug
+     * is derived from the name and stays meaningful.
+     *
+     * Slugs are cached for the call: publish() runs this once per row inside a
+     * transaction and the category table is tiny but does not change mid-import.
+     */
+    private function isHoardingCategory($categoryId): bool
+    {
+        if (empty($categoryId)) {
+            return false;
+        }
+
+        if ($this->hoardingSlugCache === null) {
+            $this->hoardingSlugCache = $this->repo->categorySlugs();
+        }
+
+        return $this->slugTakesCode($this->hoardingSlugCache[(int) $categoryId] ?? '');
+    }
+
+    /**
+     * The one place that decides, from a category slug, whether its media are
+     * issued an HD###### code. 'hoardings-billboards' comes from
+     * "Hoardings/Billboards"; both spellings are accepted so a renamed or
+     * singular category still resolves.
+     */
+    private function slugTakesCode(string $slug): bool
+    {
+        return $slug !== '' && (str_contains($slug, 'hoarding') || str_contains($slug, 'billboard'));
     }
 
     /**

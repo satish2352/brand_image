@@ -97,17 +97,18 @@ class MediaImportSchema
             'samples' => ['Brand Image Outdoor', 'Skyline Media'],
         ],
         [
-            // Present in every template, not just the all-categories one: this is
-            // the only column that tells an upload to update a record instead of
-            // adding another, so leaving it out made "Add new and update
-            // existing" silently insert duplicates.
+            // Only hoardings carry one, so only their template offers the column.
+            // The all-categories template keeps it (no 'scope' => 'full' here):
+            // a mixed sheet may hold hoarding rows, and it is the one column that
+            // tells an upload to update a record instead of adding another.
             'key' => 'hoarding_code',
             'label' => 'Hoarding Code',
             'required' => false,
             'type' => 'text',
+            'categories' => ['hoarding', 'billboard'],
             'aliases' => ['hdcode', 'uniquecode'],
             'help' => 'Leave blank for a new record — a code is generated automatically (HD000001...). '
-                . 'To change a record that is already in the system, put its existing Hoarding Code here '
+                . 'To change a hoarding that is already in the system, put its existing Hoarding Code here '
                 . 'and pick "Add new and update existing" on the Import tab. You can copy the codes from '
                 . 'the Export tab.',
             'samples' => ['', ''],
