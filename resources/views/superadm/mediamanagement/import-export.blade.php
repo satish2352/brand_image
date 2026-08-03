@@ -722,6 +722,73 @@
         }
 
         /* ---------- record picker pager ---------- */
+        /* ---------- record picker : tick box ----------
+           The native box is kept for behaviour but drawn by us, so a selected
+           row carries the same green tick the pager uses. */
+        .ie-pick {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .ie-pick input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .ie-pick-box {
+            display: inline-block;
+            position: relative;
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid #c3cad4;
+            border-radius: 5px;
+            background: #fff;
+            transition: background .15s, border-color .15s;
+        }
+
+        .ie-pick:hover .ie-pick-box {
+            border-color: #1aa053;
+        }
+
+        .ie-pick input:checked+.ie-pick-box {
+            background: #1aa053;
+            border-color: #1aa053;
+        }
+
+        .ie-pick input:checked+.ie-pick-box::after {
+            content: "\2713";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 16px;
+            text-align: center;
+        }
+
+        .ie-pick input:focus-visible+.ie-pick-box {
+            box-shadow: 0 0 0 3px rgba(26, 160, 83, .25);
+        }
+
+        /* Beats the theme's row-hover colour, so a picked row stays green
+           while the pointer is over it. */
+        .ie-records tbody tr.is-picked-row,
+        .ie-records tbody tr.is-picked-row:hover {
+            background: #eefaf2 !important;
+        }
+
+        .ie-records tbody tr.is-picked-row td:first-child {
+            box-shadow: inset 3px 0 0 #1aa053;
+        }
+
         .ie-pager {
             display: flex;
             flex-wrap: wrap;
@@ -1480,7 +1547,12 @@
                                     <table class="table table-hover mb-0">
                                         <thead>
                                             <tr>
-                                                <th style="width:40px;"><input type="checkbox" id="checkAll"></th>
+                                                <th style="width:44px;">
+                                                    <label class="ie-pick" title="Select every row on this page">
+                                                        <input type="checkbox" id="checkAll">
+                                                        <span class="ie-pick-box"></span>
+                                                    </label>
+                                                </th>
                                                 <th style="width:70px;">Sr No.</th>
                                                 <th>Hoarding Code</th>
                                                 <th>Media Title</th>
@@ -1815,9 +1887,15 @@
 
                     let html = '';
                     res.data.forEach((row, index) => {
-                        const checked = selected.has(String(row.id)) ? 'checked' : '';
-                        html += `<tr>
-                            <td><input type="checkbox" class="row-check" value="${row.id}" ${checked}></td>
+                        const isPicked = selected.has(String(row.id));
+                        const checked = isPicked ? 'checked' : '';
+                        html += `<tr class="${isPicked ? 'is-picked-row' : ''}">
+                            <td>
+                                <label class="ie-pick">
+                                    <input type="checkbox" class="row-check" value="${row.id}" ${checked}>
+                                    <span class="ie-pick-box"></span>
+                                </label>
+                            </td>
                             <td>${from + index}</td>
                             <td>${row.hoarding_code}</td>
                             <td>${row.media_title}</td>
@@ -1859,8 +1937,16 @@
                 if ($('#recordPicker').is(':visible')) loadRecords(1);
             });
 
+            // Keeps the green row highlight on the rows whose box is ticked.
+            function paintRows() {
+                $('.row-check').each(function () {
+                    $(this).closest('tr').toggleClass('is-picked-row', this.checked);
+                });
+            }
+
             $(document).on('change', '.row-check', function () {
                 this.checked ? selected.add(this.value) : selected.delete(this.value);
+                $(this).closest('tr').toggleClass('is-picked-row', this.checked);
                 $('#checkAll').prop('checked', pageSelectionState(currentPage) === 'all');
                 syncSelection();
             });
@@ -1872,6 +1958,7 @@
                     check ? selected.add(this.value) : selected.delete(this.value);
                 });
                 if (this.id === 'btnSelectPage') $('#checkAll').prop('checked', true);
+                paintRows();
                 syncSelection();
             });
 
@@ -1879,6 +1966,7 @@
                 selected.clear();
                 $('.row-check').prop('checked', false);
                 $('#checkAll').prop('checked', false);
+                paintRows();
                 syncSelection();
             });
 
