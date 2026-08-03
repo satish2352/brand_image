@@ -779,6 +779,83 @@
             font-weight: 600;
         }
 
+        /* A page whose rows are selected carries a tick, so the pager itself
+           shows where the current selection lives. */
+        .ie-pager-pages .btn-page {
+            position: relative;
+            overflow: visible;
+        }
+
+        .ie-pager-pages .btn-page.is-picked,
+        .ie-pager-pages .btn-page.is-partial {
+            border-color: #1aa053;
+            color: #14803f;
+            font-weight: 600;
+        }
+
+        .ie-pager-pages .btn-page.is-picked {
+            background: #e8f7ee;
+        }
+
+        .ie-pager-pages .btn-page.is-picked.is-current,
+        .ie-pager-pages .btn-page.is-partial.is-current {
+            background: var(--ie-primary);
+            border-color: #1aa053;
+            color: #fff;
+        }
+
+        .ie-pager-pages .btn-page.is-picked::after,
+        .ie-pager-pages .btn-page.is-partial::after {
+            content: "\2713";
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 15px;
+            height: 15px;
+            line-height: 15px;
+            border-radius: 50%;
+            background: #1aa053;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 0 0 2px #fff;
+        }
+
+        .ie-pager-pages .btn-page.is-partial::after {
+            background: #f0a020;
+        }
+
+        .ie-pager-legend {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            font-size: 11.5px;
+            color: var(--ie-muted);
+        }
+
+        .ie-pager-legend.is-visible {
+            display: flex;
+        }
+
+        .ie-pager-legend .ie-legend-tick {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            line-height: 14px;
+            border-radius: 50%;
+            background: #1aa053;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .ie-pager-legend .ie-legend-tick.is-partial {
+            background: #f0a020;
+        }
+
         .ie-pager-gap {
             padding: 0 2px;
             color: var(--ie-muted);
@@ -1422,6 +1499,10 @@
                                 <div class="ie-pager">
                                     <div class="ie-pager-info">
                                         <small class="text-muted" id="recordPageInfo"></small>
+                                        <div class="ie-pager-legend" id="recordPagerLegend">
+                                            <span class="ie-legend-tick">&#10003;</span> all rows selected
+                                            <span class="ie-legend-tick is-partial">&#10003;</span> some rows selected
+                                        </div>
                                     </div>
 
                                     <div class="ie-pager-size">
@@ -1595,16 +1676,22 @@
                current page are ever sent to the browser. */
             const COLSPAN = 10;
             const selected = new Set();
+            // Ids seen on each visited page, so the pager can show which pages
+            // the current selection covers. Cleared whenever the page contents
+            // could change (new filters, different page size).
+            const pageIds = new Map();
             let currentPage = 1;
             let lastPage = 1;
 
             function resetPicker() {
                 selected.clear();
+                pageIds.clear();
                 currentPage = 1;
                 $('#recordPicker').hide();
                 $('#recordBody').empty();
                 $('#recordPages').empty();
                 $('#recordPageInfo').text('');
+                $('#recordPagerLegend').removeClass('is-visible');
                 syncSelection();
             }
 
@@ -1612,6 +1699,48 @@
                 $('#selectedCount').text(selected.size);
                 $('#btnExportSelected').prop('disabled', selected.size === 0);
                 $('#selectedIds').val(Array.from(selected).join(','));
+                markPagerSelection();
+            }
+
+            /**
+             * 'all' / 'partial' / 'none' for a page we have already loaded;
+             * pages never visited stay unmarked because their ids are unknown.
+             */
+            function pageSelectionState(page) {
+                const ids = pageIds.get(page);
+                if (!ids || !ids.length) return 'none';
+
+                const picked = ids.filter(id => selected.has(id)).length;
+                if (picked === 0) return 'none';
+                return picked === ids.length ? 'all' : 'partial';
+            }
+
+            /**
+             * Re-stamps the tick on the page buttons without rebuilding them,
+             * so ticking a row updates the pager straight away.
+             */
+            function markPagerSelection() {
+                let marked = 0;
+
+                $('#recordPages .btn-page').each(function () {
+                    const state = pageSelectionState(Number($(this).data('page')));
+
+                    $(this)
+                        .toggleClass('is-picked', state === 'all')
+                        .toggleClass('is-partial', state === 'partial');
+
+                    if (state === 'all') {
+                        $(this).attr('title', 'All rows on this page are selected');
+                        marked++;
+                    } else if (state === 'partial') {
+                        $(this).attr('title', 'Some rows on this page are selected');
+                        marked++;
+                    } else {
+                        $(this).removeAttr('title');
+                    }
+                });
+
+                $('#recordPagerLegend').toggleClass('is-visible', marked > 0);
             }
 
             /**
@@ -1638,6 +1767,7 @@
                 });
 
                 $('#recordPages').html(html);
+                markPagerSelection();
 
                 $('#btnFirstPage, #btnPrevPage').prop('disabled', current <= 1);
                 $('#btnLastPage, #btnNextPage').prop('disabled', current >= last);
@@ -1660,6 +1790,10 @@
 
                     currentPage = res.current_page;
                     lastPage = res.last_page;
+
+                    // Remember this page's ids first — the pager reads them to
+                    // decide whether the page gets a tick.
+                    pageIds.set(currentPage, res.data.map(row => String(row.id)));
 
                     $('#recordTotal').text(res.total);
                     renderPager(currentPage, lastPage);
@@ -1697,7 +1831,10 @@
                     });
 
                     $('#recordBody').html(html);
-                    $('#checkAll').prop('checked', false);
+                    // Returning to a page that is already fully selected must
+                    // come back with its header box ticked too.
+                    $('#checkAll').prop('checked', pageSelectionState(currentPage) === 'all');
+                    markPagerSelection();
                 }).fail(function () {
                     $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center text-danger py-4">Could not load records</td></tr>`);
                 });
@@ -1716,11 +1853,15 @@
             // Changing the page size restarts from page one; the selection is
             // kept, since it is held by record id and not by row position.
             $('#recordPerPage').on('change', function () {
+                // A different page size reshuffles which record sits on which
+                // page, so the remembered page contents no longer apply.
+                pageIds.clear();
                 if ($('#recordPicker').is(':visible')) loadRecords(1);
             });
 
             $(document).on('change', '.row-check', function () {
                 this.checked ? selected.add(this.value) : selected.delete(this.value);
+                $('#checkAll').prop('checked', pageSelectionState(currentPage) === 'all');
                 syncSelection();
             });
 
