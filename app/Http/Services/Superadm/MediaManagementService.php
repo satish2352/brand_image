@@ -89,7 +89,13 @@ class MediaManagementService
             }
 
             // AUTO-GENERATE UNIQUE HOARDING CODE (HD000001, HD000002, ...)
-            $mediaData['hoarding_code'] = $this->generateHoardingCode();
+            // Only for Hoardings/Billboards — HD###### names a hoarding site, so
+            // a mall, airport, transit or wall record is saved without one
+            // rather than being handed a number nothing ever shows. Matches the
+            // bulk import, which issues codes on the same rule.
+            $mediaData['hoarding_code'] = $this->takesHoardingCode($slug)
+                ? $this->generateHoardingCode()
+                : null;
             // foreach ($optionalFields as $field) {
             //     if ($request->has($field)) {
             //         $mediaData[$field] = $request->$field;
@@ -178,7 +184,7 @@ class MediaManagementService
             ]);
 
             // MEDIA CODE + HOARDING CODE
-            if (str_contains($slug, 'hoardings')) {
+            if ($this->takesHoardingCode($slug)) {
                 $updateData['media_code'] = $request->media_code;
 
                 // Hoarding code is now editable: use the entered value, or
@@ -290,6 +296,18 @@ class MediaManagementService
         $next = str_pad($count + 1, 2, '0', STR_PAD_LEFT);
 
         return $vendorCode . '_' . $next;
+    }
+
+    /**
+     * Does this category's media carry a Hoarding Code at all?
+     *
+     * Only Hoardings/Billboards do. Matched on the slug, the same test the rest
+     * of the form already uses for the Media Code, so a renamed or additional
+     * hoarding-like category still resolves.
+     */
+    private function takesHoardingCode(string $slug): bool
+    {
+        return str_contains($slug, 'hoarding') || str_contains($slug, 'billboard');
     }
 
     /**

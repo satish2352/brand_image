@@ -1897,8 +1897,8 @@
                                 </label>
                             </td>
                             <td>${from + index}</td>
-                            <td>${row.hoarding_code}</td>
-                            <td>${row.media_title}</td>
+                            <td>${row.hoarding_code || '—'}</td>
+                            <td>${row.media_title || row.category_name || '—'}</td>
                             <td>${row.category_name}</td>
                             <td>${row.city_name}</td>
                             <td>${row.area_name}</td>
