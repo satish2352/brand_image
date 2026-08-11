@@ -113,6 +113,26 @@ class MediaImportExportController extends Controller
     {
         $zipMaxKb = (int) config('fileConstants.IMAGE_IMPORT_ZIP_MAX_KB');
 
+        // "The file failed to upload" comes from PHP, not from us, and the
+        // message alone does not say why. Record the raw error code so a
+        // server-side cause (no writable temp dir, full disk, size limits) can
+        // be told apart from a genuinely bad file.
+        foreach ($_FILES as $field => $upload) {
+            if (($upload['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+                Log::error('Media import upload rejected by PHP', [
+                    'field' => $field,
+                    'name' => $upload['name'] ?? null,
+                    'size' => $upload['size'] ?? null,
+                    'php_error_code' => $upload['error'],
+                    'post_max_size' => ini_get('post_max_size'),
+                    'upload_max_filesize' => ini_get('upload_max_filesize'),
+                    'upload_tmp_dir' => ini_get('upload_tmp_dir') ?: sys_get_temp_dir(),
+                    'tmp_dir_writable' => is_writable(ini_get('upload_tmp_dir') ?: sys_get_temp_dir()),
+                    'free_disk_bytes' => @disk_free_space(base_path()),
+                ]);
+            }
+        }
+
         $request->validate(
             [
                 'file' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
