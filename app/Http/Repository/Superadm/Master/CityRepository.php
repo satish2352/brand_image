@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\City;
+use App\Support\LocationCache;
 use Illuminate\Support\Facades\DB;
 
 class CityRepository
@@ -48,7 +49,10 @@ class CityRepository
      */
     public function store(array $data)
     {
-        return City::create($data);
+        $city = City::create($data);
+        LocationCache::forgetCities($city->district_id);
+
+        return $city;
     }
 
     /**
@@ -77,7 +81,14 @@ class CityRepository
      */
     public function update($id, array $data)
     {
-        return City::where('id', $id)->update($data);
+        // Keep the previous district so a moved city drops out of its old bucket too.
+        $oldDistrictId = City::where('id', $id)->value('district_id');
+
+        $updated = City::where('id', $id)->update($data);
+
+        LocationCache::forgetCities($oldDistrictId, $data['district_id'] ?? null);
+
+        return $updated;
     }
 
     /**
@@ -86,9 +97,13 @@ class CityRepository
     public function toggleStatus($id)
     {
         $city = City::findOrFail($id);
-        return $city->update([
+        $updated = $city->update([
             'is_active' => !$city->is_active
         ]);
+
+        LocationCache::forgetCities($city->district_id);
+
+        return $updated;
     }
 
     /**
@@ -96,10 +111,16 @@ class CityRepository
      */
     public function deleteCity($id)
     {
-        return City::where('id', $id)->update([
+        $districtId = City::where('id', $id)->value('district_id');
+
+        $deleted = City::where('id', $id)->update([
             'is_deleted' => 1,
             'is_active'  => 0
         ]);
+
+        LocationCache::forgetCities($districtId);
+
+        return $deleted;
     }
 
     public function isCityUsedInMedia($cityId)
