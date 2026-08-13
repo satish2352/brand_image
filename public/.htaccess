@@ -6,8 +6,12 @@
 # app out of it instead:
 #   noconntimeout — do not cut the request off at Connection Timeout
 #   noabort       — keep running if the browser gives up first
-# Guarded by <IfModule Litespeed>, so it is simply ignored on Apache.
-<IfModule Litespeed>
+# Guarded by mod_rewrite rather than by <IfModule Litespeed>: LiteSpeed's own
+# module name is spelled inconsistently across its docs, and a name that does
+# not match turns the block off without saying so. LiteSpeed emulates
+# mod_rewrite, so this guard holds there, and on Apache the two environment
+# variables are simply set and never read.
+<IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteRule .* - [E=noabort:1,E=noconntimeout:1]
 </IfModule>
