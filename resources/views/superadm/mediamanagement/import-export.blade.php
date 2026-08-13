@@ -1219,6 +1219,10 @@
                                             </div>
                                         </div>
 
+                                        {{-- Filled in by the size guard below; a file too large for the
+                                             server never leaves the browser. --}}
+                                        <div class="alert alert-danger" id="importSizeAlert" style="display:none"></div>
+
                                         <button type="submit" class="btn btn-primary ie-submit" id="importSubmit">
                                             <i class="fa-solid fa-magnifying-glass"></i> Validate &amp; Preview
                                         </button>
@@ -1736,8 +1740,55 @@
                 $(this).closest('.ie-mode').addClass('is-active');
             }).filter(':checked').trigger('change');
 
+            /* ============ IMPORT : SIZE GUARD ============
+               The sheet and the ZIP travel to the server in one POST, so an
+               oversized file is not rejected until the whole thing has been
+               uploaded — minutes of waiting on a slow connection before an
+               error appears, and if the upload outruns the server's
+               max_input_time the request is cut off mid-transfer and the
+               browser shows only a connection reset, with no clue as to why.
+               Checking the size the moment the file is chosen turns all of
+               that into an immediate, readable message. These limits mirror
+               the server's own rules in MediaImportExportController::preview()
+               and must be kept in step with them. */
+            const MAX_SHEET_KB = 10240; // 'file' => max:10240
+            const MAX_ZIP_KB = {{ (int) config('fileConstants.IMAGE_IMPORT_ZIP_MAX_KB') }};
+
+            function overSizeMessage(input, maxKb, label) {
+                const file = input.files && input.files[0];
+
+                if (!file || file.size / 1024 <= maxKb) {
+                    return null;
+                }
+
+                return label + ' is ' + (file.size / 1048576).toFixed(1) + ' MB, over the '
+                    + Math.round(maxKb / 1024) + ' MB limit. Please split it into smaller '
+                    + 'batches and import them one after another.';
+            }
+
+            function checkImportSizes() {
+                const problems = [
+                    overSizeMessage(document.getElementById('importFile'), MAX_SHEET_KB, 'The Excel / CSV file'),
+                    overSizeMessage(document.getElementById('importImagesZip'), MAX_ZIP_KB, 'The images ZIP'),
+                ].filter(Boolean);
+
+                $('#importSizeAlert').html(problems.join('<br>')).toggle(problems.length > 0);
+
+                return problems.length === 0;
+            }
+
+            $('#importFile, #importImagesZip').on('change', checkImportSizes);
+
             /* ============ IMPORT : GUARD AGAINST DOUBLE SUBMIT ============ */
-            $('#importForm').on('submit', function () {
+            $('#importForm').on('submit', function (e) {
+                // Nothing is worth uploading if the server is going to refuse it.
+                if (!checkImportSizes()) {
+                    e.preventDefault();
+                    $('#importSizeAlert')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    return;
+                }
+
                 $('#importSubmit')
                     .prop('disabled', true)
                     .html('<i class="fa-solid fa-spinner fa-spin"></i> Validating…');
