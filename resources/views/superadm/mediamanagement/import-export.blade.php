@@ -159,7 +159,7 @@
             font-size: 13px;
         }
 
-        .ie-more > summary {
+        .ie-more>summary {
             cursor: pointer;
             color: var(--ie-primary);
             font-weight: 500;
@@ -170,15 +170,15 @@
             gap: 7px;
         }
 
-        .ie-more > summary::-webkit-details-marker {
+        .ie-more>summary::-webkit-details-marker {
             display: none;
         }
 
-        .ie-more[open] > summary .fa-chevron-down {
+        .ie-more[open]>summary .fa-chevron-down {
             transform: rotate(180deg);
         }
 
-        .ie-more > summary .fa-chevron-down {
+        .ie-more>summary .fa-chevron-down {
             font-size: 10px;
             transition: transform .18s ease;
         }
@@ -315,7 +315,7 @@
             display: flex;
         }
 
-        .ie-chosen > i {
+        .ie-chosen>i {
             font-size: 15px;
             margin-top: 2px;
             color: var(--ie-primary);
@@ -439,9 +439,9 @@
         }
 
         /* ---------- mode picker ----------
-           A flex row rather than Bootstrap's custom-control: that puts the
-           description inside an inline <label>, and a block of text inside an
-           inline box escaped the card and overlapped the option below it. */
+               A flex row rather than Bootstrap's custom-control: that puts the
+               description inside an inline <label>, and a block of text inside an
+               inline box escaped the card and overlapped the option below it. */
         .ie-mode {
             position: relative;
             display: flex;
@@ -468,8 +468,8 @@
         }
 
         /* The real control: kept in the page for the keyboard and the form, with
-           the visible circle drawn next to it so every browser agrees on how a
-           chosen option looks. */
+               the visible circle drawn next to it so every browser agrees on how a
+               chosen option looks. */
         .ie-mode-input {
             position: absolute;
             width: 1px;
@@ -495,11 +495,11 @@
             border-color: var(--ie-primary);
         }
 
-        .ie-mode-input:checked ~ .ie-mode-dot {
+        .ie-mode-input:checked~.ie-mode-dot {
             border-color: var(--ie-primary);
         }
 
-        .ie-mode-input:checked ~ .ie-mode-dot::after {
+        .ie-mode-input:checked~.ie-mode-dot::after {
             content: "";
             position: absolute;
             top: 3px;
@@ -510,7 +510,7 @@
             background: var(--ie-primary);
         }
 
-        .ie-mode-input:focus ~ .ie-mode-dot {
+        .ie-mode-input:focus~.ie-mode-dot {
             box-shadow: 0 0 0 3px rgba(116, 96, 238, .25);
         }
 
@@ -529,7 +529,7 @@
             vertical-align: 2px;
         }
 
-        .ie-mode-input:checked ~ .ie-mode-text .ie-mode-flag {
+        .ie-mode-input:checked~.ie-mode-text .ie-mode-flag {
             display: inline-block;
         }
 
@@ -723,8 +723,8 @@
 
         /* ---------- record picker pager ---------- */
         /* ---------- record picker : tick box ----------
-           The native box is kept for behaviour but drawn by us, so a selected
-           row carries the same green tick the pager uses. */
+               The native box is kept for behaviour but drawn by us, so a selected
+               row carries the same green tick the pager uses. */
         .ie-pick {
             position: relative;
             display: inline-flex;
@@ -779,7 +779,7 @@
         }
 
         /* Beats the theme's row-hover colour, so a picked row stays green
-           while the pointer is over it. */
+               while the pointer is over it. */
         .ie-records tbody tr.is-picked-row,
         .ie-records tbody tr.is-picked-row:hover {
             background: #eefaf2 !important;
@@ -847,7 +847,7 @@
         }
 
         /* A page whose rows are selected carries a tick, so the pager itself
-           shows where the current selection lives. */
+               shows where the current selection lives. */
         .ie-pager-pages .btn-page {
             position: relative;
             overflow: visible;
@@ -1054,7 +1054,8 @@
                                                     <i class="fa-solid fa-circle-check ie-cat-check"></i>
 
                                                     <div class="ie-cat-icon">
-                                                        <i class="fa-solid {{ $categoryIcon($category->category_name) }}"></i>
+                                                        <i
+                                                            class="fa-solid {{ $categoryIcon($category->category_name) }}"></i>
                                                     </div>
 
                                                     <span class="ie-cat-name">{{ $category->category_name }}</span>
@@ -1155,7 +1156,7 @@
                                                 of that name inside the ZIP. The <code>.jpg</code> may be left off when
                                                 the name is unique. &nbsp;·&nbsp; up to
                                                 {{ round(config('fileConstants.IMAGE_IMPORT_ZIP_MAX_KB') / 1024) }} MB
-                                                &nbsp;·&nbsp; JPG, PNG, WebP.
+                                                &nbsp;·&nbsp; JPG, PNG
                                             </small>
                                             <div class="ie-note">
                                                 <i class="fa-solid fa-triangle-exclamation mr-1"></i>
@@ -1196,13 +1197,14 @@
                                                         Use this to change media you already have — for example to
                                                         revise prices. A row is matched by its <b>Hoarding Code</b> when
                                                         the file has one, otherwise by its <b>Vendor and GPS
-                                                        position</b>, and that record is updated in place. Only a
+                                                            position</b>, and that record is updated in place. Only a
                                                         position nothing is recorded at yet becomes a new record.
                                                     </span>
                                                 </span>
                                             </label>
 
-                                            <div class="ie-note" style="border-color:#cfc7f7; background:#f7f5ff; color:#4a3fa8;">
+                                            <div class="ie-note"
+                                                style="border-color:#cfc7f7; background:#f7f5ff; color:#4a3fa8;">
                                                 <i class="fa-solid fa-circle-info mr-1"></i>
                                                 <b>To change media that is already in the system:</b> export it from the
                                                 Export tab, edit the cells you need in that file, keep the
@@ -1465,7 +1467,8 @@
                                         <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
                                             <label class="ie-label">Search (Code / Title)</label>
                                             <input type="text" name="hoarding_code" class="form-control"
-                                                placeholder="e.g. HD000007" value="{{ $filters['hoarding_code'] ?? '' }}">
+                                                placeholder="e.g. HD000007"
+                                                value="{{ $filters['hoarding_code'] ?? '' }}">
                                         </div>
 
                                         <div class="col-12 col-sm-6 col-lg-4 col-xl-3 ie-field">
@@ -1509,7 +1512,8 @@
                                     <button type="button" class="btn btn-outline-primary" id="btnLoadRecords">
                                         <i class="fa-solid fa-list-check mr-1"></i> Load Records To Select
                                     </button>
-                                    <button type="button" class="btn btn-outline-primary" id="btnExportSelected" disabled>
+                                    <button type="button" class="btn btn-outline-primary" id="btnExportSelected"
+                                        disabled>
                                         <i class="fa-solid fa-file-arrow-down mr-1"></i>
                                         Export Selected (<span id="selectedCount">0</span>)
                                     </button>
@@ -1621,7 +1625,7 @@
 
 @section('scripts')
     <script>
-        $(function () {
+        $(function() {
 
             /* ============ CASCADING LOCATION FILTERS ============ */
             const DISTRICTS = @json($options['districts']);
@@ -1636,7 +1640,8 @@
                 let html = '<option value="">All Districts</option>';
                 DISTRICTS.filter(d => !stateId || String(d.state_id) === String(stateId))
                     .forEach(d => {
-                        html += `<option value="${d.id}" ${String(d.id) === String(selected) ? 'selected' : ''}>${d.district_name}</option>`;
+                        html +=
+                            `<option value="${d.id}" ${String(d.id) === String(selected) ? 'selected' : ''}>${d.district_name}</option>`;
                     });
                 $('#f_district').html(html);
             }
@@ -1645,7 +1650,8 @@
                 let html = '<option value="">All Cities</option>';
                 CITIES.filter(c => !districtId || String(c.district_id) === String(districtId))
                     .forEach(c => {
-                        html += `<option value="${c.id}" ${String(c.id) === String(selected) ? 'selected' : ''}>${c.city_name}</option>`;
+                        html +=
+                            `<option value="${c.id}" ${String(c.id) === String(selected) ? 'selected' : ''}>${c.city_name}</option>`;
                     });
                 $('#f_city').html(html);
             }
@@ -1653,18 +1659,18 @@
             fillDistricts($('#f_state').val(), preset.district);
             fillCities($('#f_district').val(), preset.city);
 
-            $('#f_state').on('change', function () {
+            $('#f_state').on('change', function() {
                 fillDistricts($(this).val(), '');
                 fillCities('', '');
                 resetPicker();
             });
 
-            $('#f_district').on('change', function () {
+            $('#f_district').on('change', function() {
                 fillCities($(this).val(), '');
                 resetPicker();
             });
 
-            $('#exportForm').on('change', 'select, input', function () {
+            $('#exportForm').on('change', 'select, input', function() {
                 if (this.id !== 'selectedIds') resetPicker();
             });
 
@@ -1689,13 +1695,15 @@
                 if (scrollToForm) {
                     const target = $('#importForm');
                     if (target.length) {
-                        $('html, body').animate({ scrollTop: target.offset().top - 90 }, 300);
+                        $('html, body').animate({
+                            scrollTop: target.offset().top - 90
+                        }, 300);
                     }
                     $('#importFile').focus();
                 }
             }
 
-            $(document).on('click', '.ie-cat', function (e) {
+            $(document).on('click', '.ie-cat', function(e) {
                 // The template link is a plain download — never treat it as a selection.
                 if ($(e.target).closest('.ie-cat-template').length) return;
 
@@ -1710,7 +1718,7 @@
                 selectCategory(card, true);
             });
 
-            $(document).on('keydown', '.ie-cat', function (e) {
+            $(document).on('keydown', '.ie-cat', function(e) {
                 if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
                     e.preventDefault();
                     $(this).trigger('click');
@@ -1718,7 +1726,7 @@
             });
 
             /* ============ IMPORT : CHOSEN FILE FEEDBACK ============ */
-            $('#importFile, #importImagesZip').on('change', function () {
+            $('#importFile, #importImagesZip').on('change', function() {
                 const box = $(this).closest('.ie-field').find('.ie-file-name');
                 const file = this.files && this.files[0];
 
@@ -1735,7 +1743,7 @@
             /* ============ IMPORT : DUPLICATE-HANDLING MODE ============
                Each option is a <label>, so clicking anywhere in the card selects
                it without help; this only moves the highlight. */
-            $('input[name="mode"]').on('change', function () {
+            $('input[name="mode"]').on('change', function() {
                 $('.ie-mode').removeClass('is-active');
                 $(this).closest('.ie-mode').addClass('is-active');
             }).filter(':checked').trigger('change');
@@ -1761,14 +1769,15 @@
                     return null;
                 }
 
-                return label + ' is ' + (file.size / 1048576).toFixed(1) + ' MB, over the '
-                    + Math.round(maxKb / 1024) + ' MB limit. Please split it into smaller '
-                    + 'batches and import them one after another.';
+                return label + ' is ' + (file.size / 1048576).toFixed(1) + ' MB, over the ' +
+                    Math.round(maxKb / 1024) + ' MB limit. Please split it into smaller ' +
+                    'batches and import them one after another.';
             }
 
             function checkImportSizes() {
                 const problems = [
-                    overSizeMessage(document.getElementById('importFile'), MAX_SHEET_KB, 'The Excel / CSV file'),
+                    overSizeMessage(document.getElementById('importFile'), MAX_SHEET_KB,
+                    'The Excel / CSV file'),
                     overSizeMessage(document.getElementById('importImagesZip'), MAX_ZIP_KB, 'The images ZIP'),
                 ].filter(Boolean);
 
@@ -1780,11 +1789,14 @@
             $('#importFile, #importImagesZip').on('change', checkImportSizes);
 
             /* ============ IMPORT : GUARD AGAINST DOUBLE SUBMIT ============ */
-            $('#importForm').on('submit', function (e) {
+            $('#importForm').on('submit', function(e) {
                 // Nothing is worth uploading if the server is going to refuse it.
                 if (!checkImportSizes()) {
                     e.preventDefault();
-                    $('#importSizeAlert')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    $('#importSizeAlert')[0].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
 
                     return;
                 }
@@ -1845,7 +1857,7 @@
             function markPagerSelection() {
                 let marked = 0;
 
-                $('#recordPages .btn-page').each(function () {
+                $('#recordPages .btn-page').each(function() {
                     const state = pageSelectionState(Number($(this).data('page')));
 
                     $(this)
@@ -1884,8 +1896,8 @@
                     if (previous && page - previous > 1) {
                         html += '<span class="ie-pager-gap">…</span>';
                     }
-                    html += `<button type="button" class="btn btn-sm btn-outline-secondary btn-page`
-                        + `${page === current ? ' is-current' : ''}" data-page="${page}">${page}</button>`;
+                    html += `<button type="button" class="btn btn-sm btn-outline-secondary btn-page` +
+                        `${page === current ? ' is-current' : ''}" data-page="${page}">${page}</button>`;
                     previous = page;
                 });
 
@@ -1899,15 +1911,23 @@
             function loadRecords(page) {
                 const params = $('#exportForm').serializeArray()
                     .filter(f => !['ids', 'format', '_token'].includes(f.name) && f.value !== '');
-                params.push({ name: 'page', value: page });
-                params.push({ name: 'per_page', value: $('#recordPerPage').val() });
+                params.push({
+                    name: 'page',
+                    value: page
+                });
+                params.push({
+                    name: 'per_page',
+                    value: $('#recordPerPage').val()
+                });
 
                 $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center py-4">Loading…</td></tr>`);
                 $('#recordPicker').show();
 
-                $.get("{{ route('media.export.records') }}", $.param(params), function (res) {
+                $.get("{{ route('media.export.records') }}", $.param(params), function(res) {
                     if (!res.status) {
-                        $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center text-danger py-4">Could not load records</td></tr>`);
+                        $('#recordBody').html(
+                            `<tr><td colspan="${COLSPAN}" class="text-center text-danger py-4">Could not load records</td></tr>`
+                            );
                         return;
                     }
 
@@ -1923,7 +1943,9 @@
 
                     if (!res.data.length) {
                         $('#recordPageInfo').text('No records match these filters');
-                        $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center py-4">No media records match these filters</td></tr>`);
+                        $('#recordBody').html(
+                            `<tr><td colspan="${COLSPAN}" class="text-center py-4">No media records match these filters</td></tr>`
+                            );
                         return;
                     }
 
@@ -1964,8 +1986,10 @@
                     // come back with its header box ticked too.
                     $('#checkAll').prop('checked', pageSelectionState(currentPage) === 'all');
                     markPagerSelection();
-                }).fail(function () {
-                    $('#recordBody').html(`<tr><td colspan="${COLSPAN}" class="text-center text-danger py-4">Could not load records</td></tr>`);
+                }).fail(function() {
+                    $('#recordBody').html(
+                        `<tr><td colspan="${COLSPAN}" class="text-center text-danger py-4">Could not load records</td></tr>`
+                        );
                 });
             }
 
@@ -1974,14 +1998,14 @@
             $('#btnLastPage').on('click', () => currentPage < lastPage && loadRecords(lastPage));
             $('#btnPrevPage').on('click', () => currentPage > 1 && loadRecords(currentPage - 1));
             $('#btnNextPage').on('click', () => currentPage < lastPage && loadRecords(currentPage + 1));
-            $(document).on('click', '.btn-page', function () {
+            $(document).on('click', '.btn-page', function() {
                 const page = Number($(this).data('page'));
                 if (page !== currentPage) loadRecords(page);
             });
 
             // Changing the page size restarts from page one; the selection is
             // kept, since it is held by record id and not by row position.
-            $('#recordPerPage').on('change', function () {
+            $('#recordPerPage').on('change', function() {
                 // A different page size reshuffles which record sits on which
                 // page, so the remembered page contents no longer apply.
                 pageIds.clear();
@@ -1990,21 +2014,21 @@
 
             // Keeps the green row highlight on the rows whose box is ticked.
             function paintRows() {
-                $('.row-check').each(function () {
+                $('.row-check').each(function() {
                     $(this).closest('tr').toggleClass('is-picked-row', this.checked);
                 });
             }
 
-            $(document).on('change', '.row-check', function () {
+            $(document).on('change', '.row-check', function() {
                 this.checked ? selected.add(this.value) : selected.delete(this.value);
                 $(this).closest('tr').toggleClass('is-picked-row', this.checked);
                 $('#checkAll').prop('checked', pageSelectionState(currentPage) === 'all');
                 syncSelection();
             });
 
-            $('#checkAll, #btnSelectPage').on('click', function () {
+            $('#checkAll, #btnSelectPage').on('click', function() {
                 const check = this.id === 'btnSelectPage' ? true : $('#checkAll').is(':checked');
-                $('.row-check').each(function () {
+                $('.row-check').each(function() {
                     this.checked = check;
                     check ? selected.add(this.value) : selected.delete(this.value);
                 });
@@ -2013,7 +2037,7 @@
                 syncSelection();
             });
 
-            $('#btnClearSelection').on('click', function () {
+            $('#btnClearSelection').on('click', function() {
                 selected.clear();
                 $('.row-check').prop('checked', false);
                 $('#checkAll').prop('checked', false);
@@ -2022,12 +2046,12 @@
             });
 
             // Selected export sends ids; the plain export must never carry them.
-            $('#btnExportSelected').on('click', function () {
+            $('#btnExportSelected').on('click', function() {
                 syncSelection();
                 $('#exportForm').submit();
             });
 
-            $('#btnExportAll').on('click', function () {
+            $('#btnExportAll').on('click', function() {
                 $('#selectedIds').val('');
             });
         });

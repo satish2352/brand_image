@@ -22,7 +22,7 @@ class MediaImportExportService
     public const PREVIEW_LIMIT = 100;
 
     /** Hard ceiling per upload, keeps one import inside a sane request budget. */
-    public const MAX_ROWS = 5000;
+    public const MAX_ROWS = 500;
 
     /** Parsed batches live here until published or discarded. */
     private const BATCH_DIR = 'media_imports';
@@ -170,10 +170,16 @@ class MediaImportExportService
         // guaranteed errors.
         $probeBudget = self::TEMPLATE_PROBE_BUDGET;
         $gallery = $this->reachableUrls(
-            $sources['image_urls'] ?? [], MediaImageFetcher::MAX_GALLERY_KB, 3, $probeBudget
+            $sources['image_urls'] ?? [],
+            MediaImageFetcher::MAX_GALLERY_KB,
+            3,
+            $probeBudget
         );
         $panorama = $this->reachableUrls(
-            $sources['panorama_urls'] ?? [], MediaImageFetcher::MAX_PANORAMA_KB, 1, $probeBudget
+            $sources['panorama_urls'] ?? [],
+            MediaImageFetcher::MAX_PANORAMA_KB,
+            1,
+            $probeBudget
         );
 
         $rows = [];
@@ -383,8 +389,8 @@ class MediaImportExportService
         if (empty($rows)) {
             throw new RuntimeException(
                 'There is nothing to read in "' . $fileName . '" — its first sheet has no rows at all. '
-                . 'Please go to Step 1, download the template for the category you are importing, '
-                . 'fill in your rows and upload that file.'
+                    . 'Please go to Step 1, download the template for the category you are importing, '
+                    . 'fill in your rows and upload that file.'
             );
         }
 
@@ -394,9 +400,9 @@ class MediaImportExportService
         if (!empty($missing)) {
             throw new RuntimeException(
                 'These required columns are missing from "' . $fileName . '": '
-                . implode(', ', $missing) . '. Every one of them has to be present as a column '
-                . 'heading, even when some cells are left empty. The quickest fix is to download '
-                . 'the template again from Step 1 and paste your data under its header row.'
+                    . implode(', ', $missing) . '. Every one of them has to be present as a column '
+                    . 'heading, even when some cells are left empty. The quickest fix is to download '
+                    . 'the template again from Step 1 and paste your data under its header row.'
             );
         }
 
@@ -405,7 +411,7 @@ class MediaImportExportService
         if (count($dataRows) > self::MAX_ROWS) {
             throw new RuntimeException(
                 'The file contains ' . count($dataRows) . ' rows. Please split it into files of '
-                . self::MAX_ROWS . ' rows or fewer.'
+                    . self::MAX_ROWS . ' rows or fewer.'
             );
         }
 
@@ -430,8 +436,8 @@ class MediaImportExportService
         if (empty($mapped)) {
             throw new RuntimeException(
                 'The header row in "' . $fileName . '" was read correctly, but there are no data '
-                . 'rows underneath it — the file holds column headings only. Please enter your '
-                . 'media rows below the header row and upload the file again.'
+                    . 'rows underneath it — the file holds column headings only. Please enter your '
+                    . 'media rows below the header row and upload the file again.'
             );
         }
 
@@ -445,11 +451,11 @@ class MediaImportExportService
 
             throw new RuntimeException(
                 'Please choose a media category before uploading. The Category column is empty '
-                . $where . ' "' . $fileName . '", and no category was selected in Step 1, so '
-                . 'there is nothing to say whether these are Hoardings, Wall Painting, Airport '
-                . 'Branding or something else. Either click the category card in Step 1 and upload '
-                . 'again, or fill the Category column in your file with a name from the Category '
-                . 'master.'
+                    . $where . ' "' . $fileName . '", and no category was selected in Step 1, so '
+                    . 'there is nothing to say whether these are Hoardings, Wall Painting, Airport '
+                    . 'Branding or something else. Either click the category card in Step 1 and upload '
+                    . 'again, or fill the Category column in your file with a name from the Category '
+                    . 'master.'
             );
         }
 
@@ -473,7 +479,13 @@ class MediaImportExportService
             }
 
             $result = $this->validateRow(
-                $row, $mode, $masters, $categorySlugs, $existing, $seen, $sheetKeys
+                $row,
+                $mode,
+                $masters,
+                $categorySlugs,
+                $existing,
+                $seen,
+                $sheetKeys
             );
 
             if (!empty($result['errors'])) {
@@ -1083,13 +1095,22 @@ class MediaImportExportService
 
         /* ---------- optional masters ---------- */
         $illuminationId = $this->resolveOptional(
-            $row['illumination'] ?? '', $masters['illuminations'], 'Illumination', $errors
+            $row['illumination'] ?? '',
+            $masters['illuminations'],
+            'Illumination',
+            $errors
         );
         $areatypeId = $this->resolveOptional(
-            $row['area_type'] ?? '', $masters['areatypes'], 'Area Type', $errors
+            $row['area_type'] ?? '',
+            $masters['areatypes'],
+            'Area Type',
+            $errors
         );
         $highwayId = $this->resolveOptional(
-            $row['highway'] ?? '', $masters['highways'], 'Highway', $errors
+            $row['highway'] ?? '',
+            $masters['highways'],
+            'Highway',
+            $errors
         );
 
         $landmarkIds = [];
@@ -1258,7 +1279,7 @@ class MediaImportExportService
             if ($mode === 'upsert' && $hoardingCode === '') {
                 if (count($sharing) > 1) {
                     $codes = array_values(array_filter(array_map(
-                        fn ($id) => $existing['labels'][$id] ?? '',
+                        fn($id) => $existing['labels'][$id] ?? '',
                         $sharing
                     )));
 
@@ -1272,19 +1293,19 @@ class MediaImportExportService
                     $notices = [
                         $identical
                             ? 'Matched to ' . ($owner ?: 'the record') . ' at this vendor and GPS position. '
-                                . 'Nothing in the row differs from it, so publishing changes nothing.'
+                            . 'Nothing in the row differs from it, so publishing changes nothing.'
                             : 'Matched to ' . ($owner ?: 'the record') . ' at this vendor and GPS position, '
-                                . 'so that record is updated rather than another being added. Switch to '
-                                . '"Add new records only" if this really is a separate media at the same site.',
+                            . 'so that record is updated rather than another being added. Switch to '
+                            . '"Add new records only" if this really is a separate media at the same site.',
                     ];
                 }
             } elseif ($identical) {
                 return [
                     'errors' => [
                         'This media is already in the inventory as ' . ($owner ?: 'an existing record')
-                        . ' — the vendor, GPS position, size, price and every other detail in this row '
-                        . 'are identical to it, so there is nothing to add. Remove the row, or choose '
-                        . '"Add new and update existing" to have it matched to that record.',
+                            . ' — the vendor, GPS position, size, price and every other detail in this row '
+                            . 'are identical to it, so there is nothing to add. Remove the row, or choose '
+                            . '"Add new and update existing" to have it matched to that record.',
                     ],
                     'record' => [],
                     'existing_code' => $owner,
@@ -1306,7 +1327,7 @@ class MediaImportExportService
 
         $imageUrls = array_values(array_filter(
             $namedImages,
-            fn ($url) => !$this->alreadyHeld($url, $held)
+            fn($url) => !$this->alreadyHeld($url, $held)
         ));
 
         if (count($imageUrls) > MediaImageFetcher::MAX_GALLERY_IMAGES) {
@@ -1413,7 +1434,7 @@ class MediaImportExportService
                 // The gallery the sheet asks for, by file name. On an update
                 // anything the record holds outside this list is deleted.
                 'gallery_keep' => array_values(array_unique(array_map(
-                    fn ($url) => $this->fileNameOf($url),
+                    fn($url) => $this->fileNameOf($url),
                     $namedImages
                 ))),
                 // Only a filled Image URLs cell rewrites the gallery. Leaving it
@@ -1606,7 +1627,7 @@ class MediaImportExportService
             // A near miss is worth naming: usually one or two headings were
             // renamed and the rest of the row is fine.
             $names = array_map(
-                fn ($key) => MediaImportSchema::labelFor($key),
+                fn($key) => MediaImportSchema::labelFor($key),
                 array_values($recognised)
             );
             $message .= 'Only ' . count($names) . ' of the template headings '
@@ -1649,8 +1670,8 @@ class MediaImportExportService
     {
         foreach (array_slice($rows, 0, 10) as $row) {
             $cells = array_values(array_filter(
-                array_map(fn ($cell) => trim((string) $cell), (array) $row),
-                fn ($cell) => $cell !== ''
+                array_map(fn($cell) => trim((string) $cell), (array) $row),
+                fn($cell) => $cell !== ''
             ));
 
             if (empty($cells)) {

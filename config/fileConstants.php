@@ -19,7 +19,7 @@ return [
       * file above either limit never reaches Laravel at all, so the admin would
       * just see an empty page instead of a validation message.
       */
-     'IMAGE_IMPORT_ZIP_MAX_KB' => env('MEDIA_IMPORT_ZIP_MAX_KB', 51200), // 50MB
+     'IMAGE_IMPORT_ZIP_MAX_KB' => env('MEDIA_IMPORT_ZIP_MAX_KB', 15360), // 50MB
 
      /**
       * Bulk upload fetches "Image URLs" / "Panorama Image URL" cells that hold a
