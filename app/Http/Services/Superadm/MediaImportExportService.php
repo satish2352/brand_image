@@ -22,7 +22,7 @@ class MediaImportExportService
     public const PREVIEW_LIMIT = 100;
 
     /** Hard ceiling per upload, keeps one import inside a sane request budget. */
-    public const MAX_ROWS = 500;
+    public const MAX_ROWS = 1000;
 
     /** Parsed batches live here until published or discarded. */
     private const BATCH_DIR = 'media_imports';
