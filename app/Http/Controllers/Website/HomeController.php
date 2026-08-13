@@ -8,9 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Services\Website\HomeService;
 use Illuminate\Http\Request;
 use Throwable;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use App\Models\HomeSlider;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 
 class HomeController extends Controller
@@ -201,6 +201,8 @@ class HomeController extends Controller
     }
     public function getMediaDetails($mediaId)
     {
+        $rawMediaId = $mediaId;
+
         try {
             $mediaId = base64_decode($mediaId);
 
@@ -248,11 +250,19 @@ class HomeController extends Controller
             $bookedRanges = $merged;
 
             return view('website.media-details', compact('media', 'bookedRanges'));
-        } catch (Exception $e) {
+        } catch (HttpExceptionInterface $e) {
+
+            // abort(404) — the media simply doesn't exist (or is deleted).
+            // Let it render as a real 404 instead of masking it as a redirect.
+            throw $e;
+        } catch (Throwable $e) {
 
             Log::error('Media Details Error', [
-                'media_id' => $mediaId,
-                'message'  => $e->getMessage()
+                'media_id'  => $mediaId,
+                'raw_param' => $rawMediaId,
+                'exception' => get_class($e),
+                'message'   => $e->getMessage(),
+                'file'      => $e->getFile() . ':' . $e->getLine()
             ]);
 
             return redirect()
