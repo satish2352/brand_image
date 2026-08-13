@@ -1,3 +1,17 @@
+# The bulk media import uploads an Excel sheet plus an images ZIP in one POST.
+# On LiteSpeed the server's own "Connection Timeout" ends that request long
+# before PHP is done receiving it, and answers with LiteSpeed's "Request
+# Timeout" page — PHP's max_execution_time never gets a say. Connection Timeout
+# lives in the LiteSpeed admin config, out of reach from cPanel, so we opt this
+# app out of it instead:
+#   noconntimeout — do not cut the request off at Connection Timeout
+#   noabort       — keep running if the browser gives up first
+# Guarded by <IfModule Litespeed>, so it is simply ignored on Apache.
+<IfModule Litespeed>
+    RewriteEngine On
+    RewriteRule .* - [E=noabort:1,E=noconntimeout:1]
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

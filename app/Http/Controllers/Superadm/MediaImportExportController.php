@@ -117,6 +117,8 @@ class MediaImportExportController extends Controller
         // message alone does not say why. Record the raw error code so a
         // server-side cause (no writable temp dir, full disk, size limits) can
         // be told apart from a genuinely bad file.
+        $tmpDir = ini_get('upload_tmp_dir') ?: sys_get_temp_dir();
+
         foreach ($_FILES as $field => $upload) {
             if (($upload['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
                 Log::error('Media import upload rejected by PHP', [
@@ -126,9 +128,16 @@ class MediaImportExportController extends Controller
                     'php_error_code' => $upload['error'],
                     'post_max_size' => ini_get('post_max_size'),
                     'upload_max_filesize' => ini_get('upload_max_filesize'),
-                    'upload_tmp_dir' => ini_get('upload_tmp_dir') ?: sys_get_temp_dir(),
-                    'tmp_dir_writable' => is_writable(ini_get('upload_tmp_dir') ?: sys_get_temp_dir()),
-                    'free_disk_bytes' => @disk_free_space(base_path()),
+                    'upload_tmp_dir' => $tmpDir,
+                    'tmp_dir_writable' => is_writable($tmpDir),
+                    // The upload is written to the temp directory, which on a
+                    // cPanel host is its own small filesystem (/usr/tmpDSK) or,
+                    // under CageFS, the account's own quota. Free space on the
+                    // app's partition says nothing about either, so both are
+                    // reported and the temp one is what an UPLOAD_ERR_CANT_WRITE
+                    // (code 7) is about.
+                    'free_bytes_tmp_dir' => @disk_free_space($tmpDir),
+                    'free_bytes_app_partition' => @disk_free_space(base_path()),
                 ]);
             }
         }
