@@ -439,9 +439,9 @@
         }
 
         /* ---------- mode picker ----------
-                   A flex row rather than Bootstrap's custom-control: that puts the
-                   description inside an inline <label>, and a block of text inside an
-                   inline box escaped the card and overlapped the option below it. */
+                       A flex row rather than Bootstrap's custom-control: that puts the
+                       description inside an inline <label>, and a block of text inside an
+                       inline box escaped the card and overlapped the option below it. */
         .ie-mode {
             position: relative;
             display: flex;
@@ -468,8 +468,8 @@
         }
 
         /* The real control: kept in the page for the keyboard and the form, with
-                   the visible circle drawn next to it so every browser agrees on how a
-                   chosen option looks. */
+                       the visible circle drawn next to it so every browser agrees on how a
+                       chosen option looks. */
         .ie-mode-input {
             position: absolute;
             width: 1px;
@@ -723,8 +723,8 @@
 
         /* ---------- record picker pager ---------- */
         /* ---------- record picker : tick box ----------
-                   The native box is kept for behaviour but drawn by us, so a selected
-                   row carries the same green tick the pager uses. */
+                       The native box is kept for behaviour but drawn by us, so a selected
+                       row carries the same green tick the pager uses. */
         .ie-pick {
             position: relative;
             display: inline-flex;
@@ -779,7 +779,7 @@
         }
 
         /* Beats the theme's row-hover colour, so a picked row stays green
-                   while the pointer is over it. */
+                       while the pointer is over it. */
         .ie-records tbody tr.is-picked-row,
         .ie-records tbody tr.is-picked-row:hover {
             background: #eefaf2 !important;
@@ -847,7 +847,7 @@
         }
 
         /* A page whose rows are selected carries a tick, so the pager itself
-                   shows where the current selection lives. */
+                       shows where the current selection lives. */
         .ie-pager-pages .btn-page {
             position: relative;
             overflow: visible;
@@ -1132,8 +1132,7 @@
                                                 <span class="ie-file-name-text"></span>
                                             </span>
                                             <small class="ie-hint">
-                                                Accepted formats: .xlsx, .xls, .csv &nbsp;·&nbsp;
-                                                &nbsp;·&nbsp; up to
+                                                Accepted formats: .xlsx, .xls, .csv , up to
                                                 {{ number_format(\App\Http\Services\Superadm\MediaImportExportService::MAX_ROWS) }}
                                                 rows per file.
                                             </small>
