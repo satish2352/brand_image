@@ -779,6 +779,12 @@
         // district, town, area and landmark in the country — and the controller
         // still ran the eight master queries to build them.
         $isEmbed = request()->boolean('embed');
+
+        // Defined out here rather than beside the date inputs it fills, because
+        // the script block at the bottom of the page also reads it — and that
+        // block still renders in the embed, where the sidebar holding those
+        // inputs does not.
+        $today = date('Y-m-d');
     @endphp
 
     @unless ($isEmbed)
@@ -914,7 +920,6 @@
                 @endforeach
 
                 {{-- AVAILABILITY (FROM / TO DATE) --}}
-                @php $today = date('Y-m-d'); @endphp
                 <div class="exp-group">
                     <div class="exp-group-title">Availability</div>
                     <div class="exp-range">
