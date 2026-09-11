@@ -66,6 +66,30 @@
             text-transform: uppercase;
         }
 
+        /* The head's title is a button so a phone can open and close the filter
+           list. It is styled to look like the plain heading it replaced, and
+           above 991px it does nothing at all. */
+        .explore-filter-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            padding: 0;
+            border: 0;
+            background: none;
+            text-align: left;
+            cursor: default;
+        }
+
+        .explore-filter-caret {
+            display: none;
+            font-size: 22px;
+            line-height: 1;
+            color: #F97316;
+            transition: transform .2s ease;
+        }
+
         .explore-showing {
             margin-top: 8px;
             font-size: 12px;
@@ -605,6 +629,12 @@
         }
 
         @@media (max-width: 991px) {
+
+            /* body is height:100% / overflow:hidden on this page, so the column
+               has exactly the viewport below the header to share out. The old
+               rules asked for 50vh of filters plus 60vh of map inside it, which
+               is why the map ran off the bottom with nothing to scroll. The
+               filters collapse to their head instead and the map takes the rest. */
             .explore-wrap {
                 flex-direction: column;
                 height: auto;
@@ -613,11 +643,114 @@
             .explore-sidebar {
                 width: 100%;
                 min-width: 0;
-                max-height: 50vh;
+                max-height: none;
+                /* Only as tall as its head until it is opened. */
+                flex: 0 0 auto;
+                border-right: 0;
+                border-bottom: 1px solid rgba(249, 115, 22, 0.12);
             }
 
+            .explore-sidebar-head {
+                padding: 12px 16px;
+            }
+
+            .explore-filter-toggle {
+                cursor: pointer;
+            }
+
+            .explore-filter-caret {
+                display: inline-block;
+                transform: rotate(90deg);
+            }
+
+            .explore-sidebar.is-open .explore-filter-caret {
+                transform: rotate(-90deg);
+            }
+
+            /* Closed by default: on a phone the map is the page, and the whole
+               filter list is one tap away. */
+            .explore-sidebar-body,
+            .explore-sidebar-foot {
+                display: none;
+            }
+
+            .explore-sidebar.is-open .explore-sidebar-body {
+                display: block;
+                /* Leaves the map a usable strip underneath even with the panel
+                   open, and the list scrolls inside it. dvh, not vh: with the
+                   keyboard up, vh still measures the full screen, so the form
+                   ran under the keyboard and the bottom filters were
+                   unreachable. Plain vh stays as the fallback. */
+                max-height: 50vh;
+                max-height: 50dvh;
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                /* Scrolling past the last filter must not start scrolling the
+                   page behind the drawer. */
+                overscroll-behavior: contain;
+                padding: 6px 12px 12px;
+                /* A visible track, so it reads as a scrollable list rather than
+                   a clipped one. */
+                scrollbar-width: thin;
+                scrollbar-color: rgba(249, 115, 22, .55) transparent;
+            }
+
+            .explore-sidebar.is-open .explore-sidebar-body::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .explore-sidebar.is-open .explore-sidebar-body::-webkit-scrollbar-thumb {
+                background: rgba(249, 115, 22, .55);
+                border-radius: 3px;
+            }
+
+            .explore-sidebar.is-open .explore-sidebar-body::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .explore-sidebar.is-open .explore-sidebar-foot {
+                display: flex;
+            }
+
+            /* Takes whatever the filters are not using — no fixed vh, so it
+               cannot overflow the locked viewport. */
             .explore-map-area {
-                height: 60vh;
+                flex: 1 1 auto;
+                height: auto;
+                min-height: 240px;
+            }
+
+            /* Every active filter adds a chip, and wrapped over four or five
+               lines they would push the map off the bottom of a locked
+               viewport. Capped, and scrollable past that. */
+            .explore-topbar {
+                padding: 8px 14px;
+                max-height: 82px;
+                overflow-y: auto;
+            }
+
+            /* The count chip and the zoom buttons are sized for a desktop map. */
+            .explore-map-count {
+                top: 10px;
+                left: 10px;
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+
+            .explore-map-count b {
+                font-size: 15px;
+            }
+
+            .explore-map-area .leaflet-control-zoom {
+                margin-right: 10px;
+            }
+
+            .explore-map-area .leaflet-control-zoom a {
+                width: 34px;
+                height: 34px;
+                line-height: 34px;
+                font-size: 20px;
             }
 
             /* Stacked, the sidebar takes half the height — fine on a real page,
@@ -720,7 +853,15 @@
         {{-- ================= LEFT : FILTER SIDEBAR ================= --}}
         <aside class="explore-sidebar">
             <div class="explore-sidebar-head">
-                <div class="title">Filters</div>
+                {{-- On a phone this head is the drawer handle: the filter list
+                     starts closed so the map owns the screen, and this opens it.
+                     Above 991px the panel is always open and the button is inert
+                     furniture — it renders exactly as the plain title did. --}}
+                <button type="button" class="explore-filter-toggle" id="exploreFilterToggle"
+                    aria-expanded="false" aria-controls="exploreForm">
+                    <span class="title">Filters</span>
+                    <span class="explore-filter-caret" aria-hidden="true">&rsaquo;</span>
+                </button>
                 <div class="explore-showing">
                     <span>Showing</span>
                     <span><b id="exploreCount">{{ number_format($mediaList->total()) }}</b> /
@@ -1342,6 +1483,39 @@
             // show any chips / search-clear icon that exist on first load
             toggleQClear();
             renderChips();
+
+
+            /* ============ FILTER DRAWER (phones and small tablets) ============
+               Below 992px the filter list is collapsed so the map owns the
+               screen. Opening it takes height away from the map, so Leaflet is
+               told to re-measure; without that the tiles tear and the pins land
+               in the wrong place. The query is checked on every click rather
+               than once, so rotating the device cannot leave a stale answer. */
+            const $filterToggle = $('#exploreFilterToggle');
+            const $sidebar = $('.explore-sidebar');
+
+            $filterToggle.on('click', function() {
+                if (!window.matchMedia('(max-width: 991px)').matches) return;
+
+                const open = !$sidebar.hasClass('is-open');
+                $sidebar.toggleClass('is-open', open);
+                $filterToggle.attr('aria-expanded', open ? 'true' : 'false');
+
+                // The CSS transition is on the caret only, so one tick is enough
+                // for the map's box to have settled.
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 0);
+            });
+
+            // Back on a desktop width the panel is always open, so the collapsed
+            // state is cleared rather than left to reappear on the next rotation.
+            $(window).on('resize', function() {
+                if (!window.matchMedia('(max-width: 991px)').matches) {
+                    $sidebar.removeClass('is-open');
+                    $filterToggle.attr('aria-expanded', 'false');
+                }
+            });
 
             /* ============ INITIAL RENDER ============ */
             // defer one tick so the flex layout (header + sidebar) has settled and

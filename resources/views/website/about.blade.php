@@ -276,8 +276,10 @@
 
             <div class="bi-quotes-body" data-aos="fade-up" data-aos-delay="100">
 
-                {{-- The portrait fills the circle the quote mark used to. --}}
-                <img id="t-img" src="" alt="" class="bi-quotes-portrait">
+                {{-- A quote mark in a filled disc, not a portrait: the panel
+                     rotates through three people and the photographs were
+                     doing nothing the name below does not already say. --}}
+                <span class="bi-quotes-mark" aria-hidden="true">&ldquo;</span>
 
                 <figure class="bi-quotes-figure">
                     <blockquote id="t-content"></blockquote>
@@ -516,17 +518,14 @@
 
     <script>
         const testimonials = [{
-                img: "{{ asset('assets/img/testimonials/test1.jpg') }}",
                 name: "Vaibhav Patil",
                 content: "I take great pleasure in writing to acknowledge the excellent experiences we had while working with Brand Adda."
             },
             {
-                img: "{{ asset('assets/img/testimonials/test2.jpg') }}",
                 name: "Sagar Thakare",
                 content: "We have been working across the region with Brand Adda for several years and are always impressed by their ‘can do’ attitude, creative ideas and flawless execution."
             },
             {
-                img: "{{ asset('assets/img/testimonials/test3.jpg') }}",
                 name: "Sureka Sarode",
                 content: "From start to finish the journey with Brand Iamge has been nothing but exceptional. It was an incredible event."
             }
@@ -535,7 +534,6 @@
         let index = 0;
 
         function renderTestimonial() {
-            document.getElementById("t-img").src = testimonials[index].img;
             document.getElementById("t-name").innerText = testimonials[index].name;
             document.getElementById("t-content").innerText = testimonials[index].content;
         }

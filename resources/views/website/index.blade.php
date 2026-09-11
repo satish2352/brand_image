@@ -820,11 +820,13 @@
             </p>
 
             <div class="cta-actions">
-                <a href="{{ url('/contact-us') }}" class="btn-cta primary">
+                <a href="{{ url('/contact-us') }}" class="btn-cta primary" data-aos="fade-up" data-aos-delay="100" data-aos-duration="700"
+                    data-aos-easing="ease-out-cubic">
                     Get Free Quote <i class="bi bi-arrow-right"></i>
                 </a>
 
-                <a href="tel:+9177700 09506" class="btn-cta outline">
+                <a href="tel:+9177700 09506" class="btn-cta outline" data-aos="fade-up" data-aos-delay="220" data-aos-duration="700"
+                    data-aos-easing="ease-out-cubic">
                     <i class="bi bi-telephone"></i> Call Us Now
                 </a>
             </div>
