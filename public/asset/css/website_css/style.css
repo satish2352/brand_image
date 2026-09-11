@@ -547,79 +547,114 @@ Header .navbar-custom {
 
 /* ===============================
    USER DROPDOWN – CARD STYLE
+   A white card, one column of full-width rows. The previous version pinned
+   every row to 175px inside a 200px card and grew them on hover, so the rows
+   sat off-centre and the whole menu shifted under the pointer.
 ================================ */
 
 .user-menu-v2 {
-    width: 200px !important;
-    padding: 14px;
+    width: 264px !important;
+    padding: 8px;
     border-radius: 16px;
-    border: none;
-    background: #E5E7EB;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+    border: 1px solid var(--brand-grey);
+    background: var(--brand-white);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .18);
 }
 
 /* USER INFO */
 .user-menu-v2 .user-info {
-    text-align: center;
-    padding: 14px 10px;
-    border-radius: 12px;
-    background: #E5E7EB;
-    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 10px 14px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--brand-grey);
+}
+
+.user-menu-v2 .user-info-avatar {
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: rgba(249, 115, 22, .12);
+}
+
+/* min-width:0 is what lets the email actually truncate: without it the flex
+   item refuses to shrink below its content and widens the card instead. */
+.user-menu-v2 .user-info-text {
+    min-width: 0;
 }
 
 .user-menu-v2 .user-info strong {
     display: block;
     font-size: 15px;
-    font-weight: 600;
-    color: #0F172A;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--brand-navy);
 }
 
 .user-menu-v2 .user-info span {
-    font-size: 13px;
-    color: #0F172A;
-    white-space: normal;
-    word-break: break-word;
+    display: block;
+    font-size: 12.5px;
+    color: rgba(15, 23, 42, .55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* ACTIONS WRAPPER */
-.user-menu-v2 .menu-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* BUTTON STYLE */
+/* ROWS */
 .user-menu-v2 .menu-btn {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: 500;
+    gap: 11px;
+    width: 100%;
+    padding: 11px 12px;
+    margin-bottom: 4px;
+    border-radius: 11px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--brand-navy);
     text-decoration: none;
-    background: #E5E7EB;
-    color: #0F172A;
-    transition: all 0.25s ease;
+    transition: background .2s ease, color .2s ease;
 }
 
-/* ACTIVE (Dashboard) */
-.user-menu-v2 .menu-btn.active {
-    width: 175px !important;
-    background: #F97316;
-    color: #FFFFFF;
+.user-menu-v2 .menu-btn i {
+    font-size: 16px;
+    color: var(--brand-orange);
+    transition: color .2s ease;
+}
+
+.user-menu-v2 .menu-btn:hover {
+    background: rgba(249, 115, 22, .10);
+    color: var(--brand-orange);
+}
+
+/* PRIMARY (Dashboard) */
+.user-menu-v2 .menu-btn.active,
+.user-menu-v2 .menu-btn.active:hover {
+    background: var(--brand-orange);
+    color: var(--brand-white);
+}
+
+.user-menu-v2 .menu-btn.active i {
+    color: var(--brand-white);
+}
+
+/* Divider before the one destructive row, so it is not fired by accident on
+   the way to Profile. */
+.user-menu-v2 .menu-sep {
+    height: 1px;
+    margin: 6px 4px;
+    border: 0;
+    background: var(--brand-grey);
+    opacity: 1;
 }
 
 /* LOGOUT */
 .user-menu-v2 .menu-btn.logout {
-    width: 175px !important;
-    color: #F97316;
-}
-
-/* HOVER EFFECT */
-.user-menu-v2 .menu-btn:hover {
-    width: 175px;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+    margin-bottom: 0;
+    color: var(--brand-orange);
 }
 
 /* profile website */
@@ -5190,6 +5225,23 @@ svg {
     }
 }
 
+/* The media-details page opens with the banner wrapper and then reuses the
+   same class as a plain container for the detail row. The header clearance
+   above is meant for the first one only — on the second it repeats as a
+   70-77px gap under the artwork. */
+.about-banner-img+.about-banner-img {
+    margin-top: 0;
+}
+
+/* The theme utility turns .mt-150 NEGATIVE on phones, to pull content up
+   under a banner. With the duplicate clearance above gone that would drag the
+   detail card 40px into the artwork instead of sitting under it. */
+@media (max-width: 767.98px) {
+    #media-details.mt-150 {
+        margin-top: 26px;
+    }
+}
+
 .about-banner-copy {
     position: absolute;
     inset: 0;
@@ -6793,5 +6845,399 @@ body:has(.bi-contact) .bi-contact {
     .bi-float-panel {
         margin-top: -120px;
         height: 120px;
+    }
+}
+
+/* =========================================================
+   USER DASHBOARD — sidebar card + artwork header
+   The page artwork is a background on the section: its skyline and billboard
+   sit in the top-right, which is the half the page header leaves empty, and
+   its pale left is where the sidebar card lands. Replaces the two <img> rows
+   the layout used to stack above the content.
+   ========================================================= */
+.bi-dash {
+    /* The hero banner above already clears the fixed header, so this only
+       needs breathing room under it. */
+    padding: 46px 0 72px;
+    background-color: var(--brand-white);
+    /* Veiled hard: the banner directly above is the same scene at full
+       strength, so behind the cards it reads as a tint, not a second photo. */
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .86), rgba(255, 255, 255, .86)),
+        url("../../../assets/img/campagin_desktop.webp");
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+}
+
+/* ---- sidebar ---- */
+.bi-dash-side {
+    position: sticky;
+    top: 110px;
+    padding: 22px 18px;
+    border-radius: 20px;
+    background: var(--brand-white);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .10);
+}
+
+.bi-dash-side-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 18px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--brand-grey);
+}
+
+.bi-dash-side-ico {
+    display: grid;
+    place-items: center;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(249, 115, 22, .12);
+    color: var(--brand-orange);
+    font-size: 20px;
+}
+
+.bi-dash-side-title {
+    display: block;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--brand-navy);
+    line-height: 1.2;
+}
+
+.bi-dash-side-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    color: rgba(15, 23, 42, .55);
+}
+
+/* ---- nav ----
+   The three campaign views are a collapsible child list, but they read as
+   siblings of their parent rather than as an indented sub-menu: on a panel
+   this narrow the indent only made the labels wrap. */
+.bi-dash-nav,
+.bi-dash-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bi-dash-nav li {
+    margin-bottom: 6px;
+}
+
+/* The child list opens directly under its parent link, inside the same <li>,
+   so the 6px above only separates siblings — without this the parent pill and
+   the first child pill sit edge to edge. */
+.bi-dash-nav ul {
+    margin-top: 10px;
+}
+
+.bi-dash-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 14px;
+    border-radius: 14px;
+    color: var(--brand-navy);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .2s ease, color .2s ease;
+}
+
+.bi-dash-nav a>i:first-child {
+    font-size: 17px;
+    color: var(--brand-orange);
+    transition: color .2s ease;
+}
+
+/* The caret is pushed to the far edge and is decoration, so it stays quiet. */
+.bi-dash-nav-caret {
+    margin-left: auto;
+    font-size: 12px;
+    color: rgba(15, 23, 42, .35);
+    transition: color .2s ease;
+}
+
+.bi-dash-nav a:hover {
+    background: rgba(249, 115, 22, .10);
+    color: var(--brand-orange);
+}
+
+/* The current page and the open group both take the solid pill; everything
+   inside it flips to white so the icon and caret do not vanish into it. */
+.bi-dash-nav>li.is-active>a,
+.bi-dash-nav a.is-current {
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    box-shadow: 0 8px 20px rgba(249, 115, 22, .32);
+}
+
+.bi-dash-nav>li.is-active>a i,
+.bi-dash-nav a.is-current i {
+    color: var(--brand-white);
+}
+
+.bi-dash-nav>li.is-active>a .bi-dash-nav-caret,
+.bi-dash-nav a.is-current .bi-dash-nav-caret {
+    color: rgba(255, 255, 255, .8);
+}
+
+/* ---- promo card ---- */
+.bi-dash-promo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 18px;
+    padding: 16px 14px;
+    border-radius: 16px;
+    background: rgba(249, 115, 22, .10);
+}
+
+.bi-dash-promo-ico {
+    display: grid;
+    place-items: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: var(--brand-white);
+    color: var(--brand-orange);
+    font-size: 17px;
+}
+
+.bi-dash-promo strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--brand-navy);
+}
+
+.bi-dash-promo span {
+    display: block;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: rgba(15, 23, 42, .62);
+}
+
+/* ---- page header on the artwork ---- */
+.bi-dash-head {
+    padding: 6px 4px 22px;
+}
+
+.bi-dash-crumb {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: rgba(15, 23, 42, .55);
+}
+
+.bi-dash-crumb a {
+    color: var(--brand-orange);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.bi-dash-crumb a:hover {
+    text-decoration: underline;
+}
+
+.bi-dash-crumb i {
+    font-size: 11px;
+    color: rgba(15, 23, 42, .4);
+}
+
+.bi-dash-title {
+    margin: 0 0 8px;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+    color: var(--brand-navy);
+}
+
+.bi-dash-sub {
+    margin: 0;
+    font-size: 16px;
+    color: rgba(15, 23, 42, .62);
+}
+
+/* ---- the cards the pages put under the header ---- */
+.bi-dash-card {
+    padding: 26px;
+    border-radius: 20px;
+    background: var(--brand-white);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .10);
+}
+
+.bi-dash-card+.bi-dash-card {
+    margin-top: 22px;
+}
+
+/* ---- search row ---- */
+.bi-dash-search {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* The magnifier sits inside the field, so the input carries room for it
+   rather than the icon overlapping the placeholder. */
+.bi-dash-search-field {
+    position: relative;
+    flex: 1 1 320px;
+}
+
+.bi-dash-search-field>i {
+    position: absolute;
+    top: 50%;
+    left: 18px;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: rgba(15, 23, 42, .45);
+    pointer-events: none;
+}
+
+.bi-dash-search-field .form-control {
+    height: 52px;
+    padding-left: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--brand-grey);
+    font-size: 15px;
+}
+
+.bi-dash-search-field .form-control:focus {
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 .15rem rgba(249, 115, 22, .2);
+}
+
+.bi-dash-search .btn {
+    height: 52px;
+    min-width: 150px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    font-weight: 700;
+}
+
+.bi-dash-search .btn:hover {
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    filter: brightness(1.05);
+}
+
+/* ---- empty state ---- */
+.bi-dash-empty {
+    padding: 56px 26px 60px;
+    text-align: center;
+}
+
+.bi-dash-empty-art {
+    display: block;
+    width: 230px;
+    max-width: 70%;
+    height: auto;
+    margin: 0 auto 26px;
+}
+
+.bi-dash-empty h3 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--brand-navy);
+}
+
+.bi-dash-empty p {
+    margin: 0 0 26px;
+    font-size: 15px;
+    color: rgba(15, 23, 42, .6);
+}
+
+.bi-dash-empty .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 28px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 10px 26px rgba(249, 115, 22, .3);
+}
+
+.bi-dash-empty .btn:hover {
+    color: var(--brand-white);
+    filter: brightness(1.05);
+}
+
+/* ---- responsive ---- */
+@media (max-width: 1199.98px) {
+    .bi-dash-title {
+        font-size: 34px;
+    }
+}
+
+@media (max-width: 991.98px) {
+
+    /* Portrait artwork below the split: the desktop banner is a 3:1 strip and
+       cover crops it sideways until only the middle of the skyline is left. */
+    .bi-dash {
+        padding: 34px 0 56px;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, .86), rgba(255, 255, 255, .86)),
+            url("../../../assets/img/campagin_mobile.webp");
+        background-size: cover;
+        background-position: top center;
+    }
+
+    .bi-dash-side {
+        position: static;
+    }
+
+    .bi-dash-head {
+        padding-bottom: 18px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .bi-dash {
+        padding: 28px 0 48px;
+    }
+
+    .bi-dash-title {
+        font-size: 28px;
+    }
+
+    .bi-dash-sub {
+        font-size: 15px;
+    }
+
+    .bi-dash-card {
+        padding: 18px;
+    }
+
+    .bi-dash-search .btn {
+        width: 100%;
+    }
+
+    .bi-dash-empty {
+        padding: 38px 16px 42px;
+    }
+
+    .bi-dash-empty h3 {
+        font-size: 20px;
     }
 }

@@ -2,41 +2,81 @@
 
 @section('title', 'Campaign List')
 
+{{-- The layout draws the breadcrumb and the heading over the artwork, so the
+     page only has to say what it is. Same three labels as before. --}}
+@section('dashboard-title')
+    @if ($type === 'open')
+        Campaign List
+    @elseif($type === 'booked')
+        Booked Campaign List
+    @else
+        Past Campaign List
+    @endif
+@endsection
+
+@section('dashboard-subtitle')
+    @if ($type === 'open')
+        Search and manage all your campaigns in one place.
+    @elseif($type === 'booked')
+        Every campaign you have placed an order for.
+    @else
+        Campaigns that have finished their booking period.
+    @endif
+@endsection
+
 @section('dashboard-content')
 
-    <div class="container-fluid">
-
-        {{-- PAGE TITLE --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            {{-- <h4 class="mb-0">Campaign List</h4> --}}
-            <h4 class="mb-0">
-                @if ($type === 'open')
-                    Campaign List
-                @elseif($type === 'booked')
-                    Booked Campaign List
-                @else
-                    Past Campaign List
-                @endif
-            </h4>
-
-        </div>
-
-        {{-- SEARCH --}}
-        <form method="GET" action="{{ url()->current() }}" class="row g-2 mb-4">
-            <div class="col-12 col-md-6 col-lg-4">
+    {{-- SEARCH --}}
+    <div class="bi-dash-card">
+        <form method="GET" action="{{ url()->current() }}" class="bi-dash-search">
+            <div class="bi-dash-search-field">
+                <i class="bi bi-search" aria-hidden="true"></i>
                 <input type="text" name="campaign_name" class="form-control" placeholder="Search Campaign Name"
                     value="{{ request('campaign_name') }}">
             </div>
-            <div class="col-12 col-md-3 col-lg-2">
-                <button class="btn btn-primary w-100">Search</button>
-            </div>
+            <button class="btn">Search</button>
         </form>
-        @if ($campaigns->isEmpty())
-            <div class="alert alert-info text-center">
-                {{ $type === 'past' ? 'No past campaigns found.' : 'No active campaigns found.' }}
-            </div>
-        @else
-            {{-- CAMPAIGN ACCORDION --}}
+    </div>
+
+    @if ($campaigns->isEmpty())
+        {{-- Empty state. The artwork is inline SVG rather than a file: it is two
+             flat shapes in the brand colours, so it costs nothing to ship and
+             cannot 404. --}}
+        <div class="bi-dash-card bi-dash-empty">
+            <svg class="bi-dash-empty-art" viewBox="0 0 220 150" fill="none" role="img"
+                aria-label="No campaigns illustration">
+                <ellipse cx="110" cy="82" rx="88" ry="56" fill="#F97316" fill-opacity=".12" />
+                <rect x="58" y="26" width="70" height="92" rx="8" fill="#FFFFFF" stroke="#CBD5E1"
+                    stroke-width="2" />
+                <rect x="72" y="44" width="42" height="6" rx="3" fill="#CBD5E1" />
+                <rect x="72" y="58" width="42" height="6" rx="3" fill="#CBD5E1" />
+                <rect x="72" y="72" width="28" height="6" rx="3" fill="#CBD5E1" />
+                <path d="M118 96l34-18v40l-34-18z" fill="#F97316" />
+                <rect x="104" y="88" width="18" height="18" rx="4" fill="#F97316" />
+                <path d="M160 72h14M158 88l12-7M158 96l12 7" stroke="#F97316" stroke-width="3"
+                    stroke-linecap="round" />
+                <circle cx="46" cy="70" r="4" fill="#F97316" fill-opacity=".35" />
+                <rect x="40" y="88" width="12" height="3" rx="1.5" fill="#F97316" fill-opacity=".35" />
+            </svg>
+
+            <h3>{{ $type === 'past' ? 'No past campaigns found.' : 'No active campaigns found.' }}</h3>
+            <p>
+                @if ($type === 'past')
+                    Campaigns move here once their booking period ends.
+                @else
+                    It looks like you don&rsquo;t have any active campaigns at the moment.
+                @endif
+            </p>
+
+            @if ($type !== 'past')
+                <a href="{{ route('website.explore') }}" class="btn">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> Create New Campaign
+                </a>
+            @endif
+        </div>
+    @else
+        {{-- CAMPAIGN ACCORDION --}}
+        <div class="bi-dash-card">
             <div class="accordion" id="campaignAccordion">
 
                 @foreach ($campaigns as $campaignId => $items)
@@ -256,6 +296,6 @@
                     </div>
                 @endforeach
             </div>
-        @endif
-    </div>
+        </div>
+    @endif
 @endsection

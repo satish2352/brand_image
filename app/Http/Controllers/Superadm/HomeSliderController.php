@@ -30,15 +30,15 @@ class HomeSliderController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'desktop_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:1024',
-            'mobile_image'  => 'required|image|mimes:jpg,jpeg,png,webp|max:1024',
+            'desktop_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'mobile_image'  => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
         ];
 
         $messages = [
             'desktop_image.required' => 'Desktop image is required',
-            'desktop_image.max' => 'Desktop image size must be less than 1 MB',
+            'desktop_image.max' => 'Desktop image size must be less than 2 MB',
             'mobile_image.required' => 'Mobile image is required',
-            'mobile_image.max' => 'Mobile image size must be less than 1 MB',
+            'mobile_image.max' => 'Mobile image size must be less than 2 MB',
         ];
 
         Validator::make($request->all(), $rules, $messages)
@@ -46,20 +46,20 @@ class HomeSliderController extends Controller
 
                 if ($request->hasFile('desktop_image')) {
                     [$w, $h] = getimagesize($request->file('desktop_image'));
-                    if ($w != 2000 || $h != 600) {
+                    if ($w != 2560 || $h != 1700) {
                         $validator->errors()->add(
                             'desktop_image',
-                            'Desktop image size must be exactly 2000 x 600 pixels'
+                            'Desktop image size must be exactly 2560 x 1700 pixels'
                         );
                     }
                 }
 
                 if ($request->hasFile('mobile_image')) {
                     [$w, $h] = getimagesize($request->file('mobile_image'));
-                    if ($w != 2000 || $h != 900) {
+                    if ($w != 1080 || $h != 2280) {
                         $validator->errors()->add(
                             'mobile_image',
-                            'Mobile image size must be exactly 2000 x 900 pixels'
+                            'Mobile image size must be exactly 1080 x 2280 pixels'
                         );
                     }
                 }
@@ -105,13 +105,13 @@ class HomeSliderController extends Controller
         $id = base64_decode($encodedId);
 
         $rules = [
-            'desktop_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
-            'mobile_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:1024',
+            'desktop_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'mobile_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ];
 
         $messages = [
-            'desktop_image.max' => 'Desktop image size must be less than 1 MB',
-            'mobile_image.max'  => 'Mobile image size must be less than 1 MB',
+            'desktop_image.max' => 'Desktop image size must be less than 2 MB',
+            'mobile_image.max'  => 'Mobile image size must be less than 2 MB',
         ];
 
         Validator::make($request->all(), $rules, $messages)
@@ -119,20 +119,20 @@ class HomeSliderController extends Controller
 
                 if ($request->hasFile('desktop_image')) {
                     [$w, $h] = getimagesize($request->file('desktop_image'));
-                    if ($w != 2000 || $h != 600) {
+                    if ($w != 2560 || $h != 1700) {
                         $validator->errors()->add(
                             'desktop_image',
-                            'Desktop image must be exactly 2000 × 600 pixels'
+                            'Desktop image must be exactly 2560 × 1700 pixels'
                         );
                     }
                 }
 
                 if ($request->hasFile('mobile_image')) {
                     [$w, $h] = getimagesize($request->file('mobile_image'));
-                    if ($w != 2000 || $h != 900) {
+                    if ($w != 1080 || $h != 2280) {
                         $validator->errors()->add(
                             'mobile_image',
-                            'Mobile image must be exactly 2000 × 900 pixels'
+                            'Mobile image must be exactly 1080 × 2280 pixels'
                         );
                     }
                 }

@@ -214,46 +214,48 @@
                                         alt="User">
                                 </button>
 
-                                <!-- SUPER ATTRACTIVE DROPDOWN -->
+                                <!-- USER MENU -->
                                 <ul class="dropdown-menu dropdown-menu-end user-menu-v2">
 
                                     <!-- USER INFO -->
                                     <li class="user-info">
-                                        <strong>{{ Auth::guard('website')->user()->name }}</strong>
-                                        <span>{{ Auth::guard('website')->user()->email }}</span>
+                                        <img src="{{ asset('asset/images/website/user.png') }}"
+                                            class="user-info-avatar" alt="">
+                                        <div class="user-info-text">
+                                            <strong>{{ Auth::guard('website')->user()->name }}</strong>
+                                            {{-- The full address is on the title, since a long one is
+                                                 truncated rather than allowed to wrap the card. --}}
+                                            <span title="{{ Auth::guard('website')->user()->email }}">
+                                                {{ Auth::guard('website')->user()->email }}
+                                            </span>
+                                        </div>
                                     </li>
 
                                     <!-- ACTIONS -->
-                                    <li class="menu-actions">
+                                    <li>
                                         <a href="{{ route('dashboard.home') }}" class="menu-btn active">
-                                            <i class="bi bi-speedometer2"></i>
+                                            <i class="bi bi-speedometer2" aria-hidden="true"></i>
                                             Dashboard
                                         </a>
                                     </li>
-                                    <li class="menu-actions">
-                                        <a href="{{ route('website.profile.view') }}" class="menu-btn"
-                                            style="width: 175px !important; margin :5px 10px 5px 10px">
-                                            <i class="bi bi-speedometer2"></i>
+
+                                    <li>
+                                        <a href="{{ route('website.profile.view') }}" class="menu-btn">
+                                            <i class="bi bi-person" aria-hidden="true"></i>
                                             Profile
                                         </a>
                                     </li>
-                                    {{-- <a href="{{ route('website.profile.edit') }}" class="menu-btn">
-                                            <i class="bi bi-pencil-square"></i>
-                                            Edit Profile
-                                        </a>
 
-                                        <a href="{{ route('website.profile.change-password') }}" class="menu-btn">
-                                            <i class="bi bi-shield-lock"></i>
-                                            Change Password
-                                        </a> --}}
+                                    <li>
+                                        <hr class="menu-sep">
+                                    </li>
 
-                                    <li class="menu-actions">
+                                    <li>
                                         <a href="{{ route('website.logout') }}" class="menu-btn logout">
-                                            <i class="bi bi-box-arrow-right"></i>
+                                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                                             Logout
                                         </a>
                                     </li>
-
 
                                 </ul>
 

@@ -280,12 +280,12 @@
         <div class="row">
             <!-- Desktop Image -->
             <div class="col-md-12 d-none d-md-block">
-                <img src="{{ asset('assets/img/viewdetail2.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/media_desk.png') }}" alt="Media banner" class="img-fluid w-100">
             </div>
 
             <!-- Mobile Image -->
             <div class="col-md-12 d-block d-md-none">
-                <img src="{{ asset('assets/img/mobilviewdetail(1).png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/media_mobile.png') }}" alt="Media banner" class="img-fluid w-100">
             </div>
         </div>
     </div>
