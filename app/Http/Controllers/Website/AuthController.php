@@ -8,11 +8,49 @@ use App\Models\WebsiteUser;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\WebsiteOtpMail;
+use Throwable;
 
 class AuthController extends Controller
 {
+    /**
+     * Send an OTP, reporting failure instead of throwing.
+     *
+     * Mail is the one step here that depends on something outside the
+     * application — SMTP credentials, a reachable host, a valid From address.
+     * When any of that is wrong every one of these calls used to escape as a
+     * 500 from inside the mailer, which is both useless to the visitor and, in
+     * signup's case, actively harmful: the account row had already been written
+     * by then (see signup()).
+     *
+     * The real reason is logged for whoever has to fix the configuration; the
+     * visitor gets told the mail did not go out, not why.
+     */
+    private function sendOtp(string $email, int $otp): bool
+    {
+        try {
+            Mail::to($email)->send(new WebsiteOtpMail($otp));
+
+            return true;
+        } catch (Throwable $e) {
+            Log::error('OTP email could not be sent', [
+                'email' => $email,
+                'error' => $e->getMessage(),
+                // The two settings that are wrong in practically every case.
+                'mail_from' => config('mail.from.address'),
+                'mail_mailer' => config('mail.default'),
+            ]);
+
+            return false;
+        }
+    }
+
+    /** The one message a visitor sees when the OTP could not be delivered. */
+    private const OTP_FAILED_MESSAGE =
+        'We could not send the verification code right now. Please try again in a few minutes, '
+        . 'or contact us if it keeps happening.';
     public function signup(Request $req)
     {
         $req->validate([
@@ -51,7 +89,12 @@ class AuthController extends Controller
                 'otp_expires_at' => Carbon::now()->addMinutes(2),
             ]);
 
-            Mail::to($existingUser->email)->send(new WebsiteOtpMail($otp));
+            if (!$this->sendOtp($existingUser->email, $otp)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => self::OTP_FAILED_MESSAGE,
+                ], 503);
+            }
 
             return response()->json([
                 'status' => true,
@@ -77,7 +120,23 @@ class AuthController extends Controller
             'is_deleted' => 0,
         ]);
 
-        Mail::to($user->email)->send(new WebsiteOtpMail($otp));
+        // The row exists by now, so a failed send cannot just bubble up: the
+        // address would be left registered but unverified, and every retry would
+        // fall into the "NOT VERIFIED → RESEND OTP" branch above and fail there
+        // too. "Already registered" never fires for it either, because that is
+        // gated on is_email_verified. The address would be unusable for good.
+        // Undo the registration instead, so the visitor can simply try again.
+        if (!$this->sendOtp($user->email, $otp)) {
+            // A real delete, not the is_deleted flag: the flag would leave the
+            // row behind and the "account has been deleted by admin" check at
+            // the top of this method would then block the address instead.
+            $user->delete();
+
+            return response()->json([
+                'status' => false,
+                'message' => self::OTP_FAILED_MESSAGE,
+            ], 503);
+        }
 
         return response()->json([
             'status' => true,
@@ -158,7 +217,12 @@ class AuthController extends Controller
             'otp_expires_at' => Carbon::now()->addMinutes(2),
         ]);
 
-        Mail::to($user->email)->send(new WebsiteOtpMail($otp));
+        if (!$this->sendOtp($user->email, $otp)) {
+            return response()->json([
+                'status' => false,
+                'message' => self::OTP_FAILED_MESSAGE,
+            ], 503);
+        }
 
         return response()->json(['status' => true, 'message' => 'OTP resent']);
     }
