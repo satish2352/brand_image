@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\Website\ExploreService;
+use App\Support\LocationCache;
 use App\Support\MasterCache;
 use App\Support\RadiusRange;
 use Illuminate\Http\Request;
@@ -196,17 +197,40 @@ class ExploreController extends Controller
         });
     }
 
+    /**
+     * The eight lists behind the filter panel.
+     *
+     * These were eight uncached queries on every load of this page — and the
+     * home page hero embeds it, so every visit to the site's front door paid
+     * for them too. They are master data: they change when an admin edits a
+     * master, not between two page loads.
+     *
+     * Cached through MasterCache / LocationCache rather than a key invented
+     * here, because those are what the admin master repositories already call
+     * on every write. A renamed city therefore clears this the moment it is
+     * saved, instead of showing the old name until the hour is up.
+     */
     private function masters(): array
     {
+        $remember = fn(string $key, callable $query) => Cache::remember($key, MasterCache::TTL, $query);
+
         return [
-            'states'     => DB::table('states')->where('is_active', 1)->where('is_deleted', 0)->orderBy('state_name')->get(),
-            'districts'  => DB::table('districts')->where('is_active', 1)->where('is_deleted', 0)->orderBy('district_name')->get(),
-            'cities'     => DB::table('cities')->where('is_active', 1)->where('is_deleted', 0)->orderBy('city_name')->get(),
-            'areas'      => DB::table('areas')->where('is_active', 1)->where('is_deleted', 0)->orderBy('area_name')->get(),
-            'categories' => DB::table('category')->where('is_active', 1)->where('is_deleted', 0)->orderBy('category_name')->get(),
-            'areaTypes'  => DB::table('areatype')->where('is_active', 1)->where('is_deleted', 0)->orderBy('areatype_name')->get(),
-            'highways'   => DB::table('highway')->where('is_active', 1)->where('is_deleted', 0)->orderBy('highway_name')->get(),
-            'landmarks'  => DB::table('landmark')->where('is_active', 1)->where('is_deleted', 0)->orderBy('landmark_name')->get(),
+            'states'     => $remember(LocationCache::EXPLORE_STATES, fn() =>
+                DB::table('states')->where('is_active', 1)->where('is_deleted', 0)->orderBy('state_name')->get()),
+            'districts'  => $remember(LocationCache::EXPLORE_DISTRICTS, fn() =>
+                DB::table('districts')->where('is_active', 1)->where('is_deleted', 0)->orderBy('district_name')->get()),
+            'cities'     => $remember(LocationCache::EXPLORE_CITIES, fn() =>
+                DB::table('cities')->where('is_active', 1)->where('is_deleted', 0)->orderBy('city_name')->get()),
+            'areas'      => $remember(LocationCache::EXPLORE_AREAS, fn() =>
+                DB::table('areas')->where('is_active', 1)->where('is_deleted', 0)->orderBy('area_name')->get()),
+            'categories' => $remember(MasterCache::EXPLORE_CATEGORIES, fn() =>
+                DB::table('category')->where('is_active', 1)->where('is_deleted', 0)->orderBy('category_name')->get()),
+            'areaTypes'  => $remember(MasterCache::EXPLORE_AREA_TYPES, fn() =>
+                DB::table('areatype')->where('is_active', 1)->where('is_deleted', 0)->orderBy('areatype_name')->get()),
+            'highways'   => $remember(MasterCache::EXPLORE_HIGHWAY_ROWS, fn() =>
+                DB::table('highway')->where('is_active', 1)->where('is_deleted', 0)->orderBy('highway_name')->get()),
+            'landmarks'  => $remember(MasterCache::EXPLORE_LANDMARK_ROWS, fn() =>
+                DB::table('landmark')->where('is_active', 1)->where('is_deleted', 0)->orderBy('landmark_name')->get()),
         ];
     }
 }

@@ -16,6 +16,15 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class HomeController extends Controller
 {
+    /**
+     * How many hoardings the home page teaser carousel holds.
+     *
+     * It shows three at a time and loops, so this is about how much a visitor
+     * could plausibly swipe through before using the Explore page instead —
+     * not a cap on the inventory, which /explore pages through in full.
+     */
+    private const HOME_BILLBOARD_LIMIT = 24;
+
     public function __construct(private HomeService $homeService) {}
 
     private function getCachedAreaTypes()
@@ -89,6 +98,12 @@ class HomeController extends Controller
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
 
+            // The home page carousel only ever renders Hoardings — the view
+            // threw every other category away with an @if after the database
+            // had already fetched, joined and hydrated it. Filtered here
+            // instead, so the rows are never built in the first place.
+            ->where('m.category_id', 1)
+
             ->select([
                 'm.id',
                 'm.media_title',
@@ -124,6 +139,12 @@ class HomeController extends Controller
 
             ])
 
+            // This is a three-at-a-time teaser carousel, but it had no limit at
+            // all: every active hoarding in the inventory was rendered into it,
+            // each with its own image, so the home page grew heavier with every
+            // record the team added. Newest first, capped.
+            ->orderByDesc('m.id')
+            ->limit(self::HOME_BILLBOARD_LIMIT)
             ->get()
         );
 

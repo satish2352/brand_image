@@ -4,6 +4,7 @@ namespace App\Support;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use App\Support\ImageResizer;
 use RuntimeException;
 use Throwable;
 
@@ -187,7 +188,7 @@ class MediaImageFetcher
         }
 
         // Trust the bytes over the headers — a wrong Content-Type is common.
-        return $this->storeImageBody($body);
+        return $this->storeImageBody($body, self::widthBudget($maxKb));
     }
 
     /**
@@ -214,7 +215,7 @@ class MediaImageFetcher
             throw new RuntimeException('file is empty or could not be read');
         }
 
-        return $this->storeImageBody($body);
+        return $this->storeImageBody($body, self::widthBudget($maxKb));
     }
 
     /**
@@ -222,7 +223,7 @@ class MediaImageFetcher
      *
      * @throws RuntimeException
      */
-    private function storeImageBody(string $body): string
+    private function storeImageBody(string $body, int $maxWidth = ImageResizer::MAX_WIDTH): string
     {
         $dimensions = @getimagesizefromstring($body);
         if ($dimensions === false) {
@@ -239,7 +240,11 @@ class MediaImageFetcher
         $fileName = time() . '_' . uniqid() . '.' . $extension;
         $path = config('fileConstants.IMAGE_ADD') . '/' . $fileName;
 
-        Storage::disk('public')->put($path, $body);
+        // Imported pictures went in at whatever size the vendor's sheet pointed
+        // at, which is normally an untouched camera original. Shrink it the same
+        // way a manual upload is shrunk, so a bulk import cannot quietly refill
+        // the inventory with multi-megabyte images.
+        Storage::disk('public')->put($path, ImageResizer::optimise($body, $maxWidth, $maxWidth));
 
         if (!Storage::disk('public')->exists($path)) {
             throw new RuntimeException('could not be saved to storage');
@@ -438,6 +443,21 @@ class MediaImageFetcher
         }
 
         return false;
+    }
+
+    /**
+     * How wide this picture is allowed to be stored, inferred from the size
+     * budget it was fetched under.
+     *
+     * A 360° panorama is wrapped around the inside of a sphere, so the viewer
+     * magnifies a narrow slice of it and detail that a flat photo would never
+     * miss becomes obvious. They are fetched under a much larger byte budget
+     * for exactly that reason, and get a matching width budget here rather than
+     * being squeezed down to the gallery's 1920.
+     */
+    private static function widthBudget(int $maxKb): int
+    {
+        return $maxKb >= self::MAX_PANORAMA_KB ? 8192 : ImageResizer::MAX_WIDTH;
     }
 
     private function readableSize(int $bytes): string

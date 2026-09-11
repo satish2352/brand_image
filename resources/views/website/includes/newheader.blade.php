@@ -626,6 +626,19 @@
             let otpTime = 120; // ⏱ 2 minutes
             let otpInterval = null;
             let resendLocked = false;
+
+            /**
+             * Hand the Resend button back to the visitor.
+             *
+             * The click handler locks it before the request goes out, and the
+             * lock is normally lifted by the countdown reaching zero. If the
+             * request itself fails there is no countdown running to do that, so
+             * without this the button stays disabled until the modal is closed.
+             */
+            function releaseResend() {
+                resendLocked = false;
+                $("#resendOtpBtn").removeClass("d-none").prop("disabled", false);
+            }
             /* ================= OTP TIMER ================= */
             function validateOtp() {
                 const otp = $("#otpInput").val();
@@ -752,6 +765,13 @@
                             $("#otpArea").fadeIn();
                             $("#otpEmail").val($("#signupEmail").val());
                             startOtpTimer();
+                        } else {
+                            // The controller answers "already registered",
+                            // "deleted by admin" and the like as a normal 200
+                            // carrying status:false. Without this the form just
+                            // sat there and the visitor was told nothing.
+                            Swal.fire("Could not sign up", res.message ||
+                                "Something went wrong. Please try again.", "warning");
                         }
                     },
 
@@ -764,6 +784,14 @@
                                     .after(
                                         `<span class="text-danger">${msg[0]}</span>`);
                             });
+                        } else {
+                            // Anything else — a 503 because the OTP mail could
+                            // not go out, or a genuine server error. Previously
+                            // the loader vanished and nothing happened at all,
+                            // so the button looked simply broken.
+                            Swal.fire("Could not sign up",
+                                (xhr.responseJSON && xhr.responseJSON.message) ||
+                                "Something went wrong. Please try again.", "error");
                         }
                     }
                 });
@@ -834,11 +862,36 @@
                         email: $("#otpEmail").val() // editable email
                     },
 
-                    success: function() {
+                    success: function(res) {
                         hideLoader();
+
+                        // A 200 can still carry status:false ("Email not
+                        // registered"). This used to announce "New OTP has been
+                        // sent" regardless, and restart the timer on an OTP that
+                        // was never sent.
+                        if (res && res.status === false) {
+                            releaseResend();
+                            $("#otpError").text(res.message ||
+                                "Could not resend the code. Please try again.");
+                            return;
+                        }
+
                         clearOtpInputs(); // CLEAR OLD OTP
                         startOtpTimer(); // restart 2 min
                         showOtpSuccessMessage(); // show success msg
+                    },
+
+                    // There was no error callback here at all, so a failed
+                    // resend left the global loader spinning and the button
+                    // disabled for good — the visitor was stranded on the OTP
+                    // screen with no way forward and nothing explaining why.
+                    error: function(xhr) {
+                        hideLoader();
+                        releaseResend();
+                        $("#otpError").text(
+                            (xhr.responseJSON && xhr.responseJSON.message) ||
+                            "Could not resend the code. Please try again."
+                        );
                     }
                 });
             });

@@ -111,8 +111,23 @@ return [
     |
     */
 
+    /*
+     * The address is checked here rather than trusted straight from the
+     * environment.
+     *
+     * A deployment whose .env still carries an unreplaced placeholder (a test
+     * server went out with MAIL_FROM_ADDRESS=YOUR_QA_MAIL_USERNAME) hands that
+     * literal string to Symfony, which rejects it with an RfcComplianceException
+     * — a 500 raised deep inside the mailer, on a page that was only trying to
+     * send an OTP. Falling back to the authenticated SMTP user, and then to a
+     * safe default, keeps that a delivery problem instead of a crash.
+     */
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+        'address' => collect([env('MAIL_FROM_ADDRESS'), env('MAIL_USERNAME')])
+            ->first(
+                fn ($address) => is_string($address)
+                    && filter_var($address, FILTER_VALIDATE_EMAIL) !== false
+            ) ?: 'no-reply@' . (parse_url((string) env('APP_URL'), PHP_URL_HOST) ?: 'localhost'),
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
     'admin_email' => env('ADMIN_EMAIL'),

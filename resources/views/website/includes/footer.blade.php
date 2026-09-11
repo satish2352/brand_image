@@ -90,11 +90,15 @@
 {{-- if admin deactive or delete user then run below --}}
 @if (session('auto_logout_message'))
     <script>
-        Swal.fire({
-            icon: 'warning',
-            title: 'Logged Out',
-            text: "{{ session('auto_logout_message') }}",
-            confirmButtonText: 'OK'
+        // SweetAlert is loaded with defer, so it does not exist yet while this
+        // inline script parses — wait for the deferred scripts to have run.
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Logged Out',
+                text: "{{ session('auto_logout_message') }}",
+                confirmButtonText: 'OK'
+            });
         });
     </script>
 @endif
@@ -234,26 +238,27 @@
     });
 </script>
 
-<!-- jquery -->
-<script src="{{ asset('assets/js/jquery-1.11.3.min.js') }}"></script>
-<!-- bootstrap -->
-{{-- <script src="{{ asset('assets/bootstrap/js/bootstrap.min.js') }}"></script> --}}
-<!-- count down -->
-<script src="{{ asset('assets/js/jquery.countdown.js') }}"></script>
-<!-- isotope -->
-<script src="{{ asset('assets/js/jquery.isotope-3.0.6.min.js') }}"></script>
-<!-- waypoints -->
-<script src="{{ asset('assets/js/waypoints.js') }}"></script>
-<!-- owl carousel -->
-<script src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
-<!-- magnific popup -->
-<script src="{{ asset('assets/js/jquery.magnific-popup.min.js') }}"></script>
+{{-- Everything below used to start with a second copy of jQuery (1.11.3), which
+     replaced the jQuery 3 the layout had already loaded in the head — that is
+     what the meanmenu version workaround in layout.blade.php is about. One
+     jQuery now, loaded once in the head.
+
+     The theme's plugin set went with it. owl.carousel, isotope, magnific-popup,
+     countdown and waypoints were all still being downloaded on every page to
+     drive elements this site no longer has: nothing renders .homepage-slider,
+     .product-lists, .popup-youtube, .time-countdown or anything with a
+     .waypoint() call. The sliders here are Swiper and the hero is a Bootstrap 5
+     carousel. Together with the duplicate jQuery that is ~204KB of JavaScript
+     over six requests, removed with no behaviour change.
+
+     meanmenu (mobile menu) and sticker (sticky header) are kept — those two are
+     the only ones whose elements still exist, both in newheader.blade.php. --}}
 <!-- mean menu -->
-<script src="{{ asset('assets/js/jquery.meanmenu.min.js') }}"></script>
+<script src="{{ asset('assets/js/jquery.meanmenu.min.js') }}" defer></script>
 <!-- sticker js -->
-<script src="{{ asset('assets/js/sticker.js') }}"></script>
+<script src="{{ asset('assets/js/sticker.js') }}" defer></script>
 <!-- main js -->
-<script src="{{ asset('assets/js/main.js') }}"></script>
+<script src="{{ asset('assets/js/main.js') }}" defer></script>
 
 <script>
     function setRedirect(url) {
@@ -261,7 +266,11 @@
     }
 </script>
 
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+{{-- Scroll animations are decorative, so they must never hold up first paint. --}}
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
 <script>
-    AOS.init();
+    // defer means AOS is not defined yet when this runs inline, so wait for it.
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.AOS) AOS.init();
+    });
 </script>

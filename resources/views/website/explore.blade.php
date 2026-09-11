@@ -773,6 +773,19 @@
     </style>
 
     @php
+        // ?embed=1 is this page inside the home page hero panel. It gets the
+        // same filters and the same map as the full page — only the stacked
+        // phone layout drops the sidebar, which the is-embed rule in the mobile
+        // media query above handles.
+        $isEmbed = request()->boolean('embed');
+
+        // Read in two places that are far apart: the From / To date inputs in
+        // the sidebar, and the TODAY constant in the script block at the very
+        // bottom. Defined up here so it cannot depend on which of them renders.
+        $today = date('Y-m-d');
+    @endphp
+
+    @php
         $groups = [
             [
                 'key' => 'state_id',
@@ -849,7 +862,7 @@
     </div>
 
     {{-- ?embed=1 renders this page inside the home page hero panel. --}}
-    <div class="explore-wrap{{ request()->boolean('embed') ? ' is-embed' : '' }}">
+    <div class="explore-wrap{{ $isEmbed ? ' is-embed' : '' }}">
         {{-- ================= LEFT : FILTER SIDEBAR ================= --}}
         <aside class="explore-sidebar">
             <div class="explore-sidebar-head">
@@ -902,7 +915,6 @@
                 @endforeach
 
                 {{-- AVAILABILITY (FROM / TO DATE) --}}
-                @php $today = date('Y-m-d'); @endphp
                 <div class="exp-group">
                     <div class="exp-group-title">Availability</div>
                     <div class="exp-range">
