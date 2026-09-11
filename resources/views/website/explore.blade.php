@@ -773,6 +773,16 @@
     </style>
 
     @php
+        // Inside the home page hero panel the filter sidebar is not shown at
+        // all. It used to be rendered in full and then hidden with CSS, which
+        // meant the browser still downloaded an <option> for every state,
+        // district, town, area and landmark in the country — and the controller
+        // still ran the eight master queries to build them.
+        $isEmbed = request()->boolean('embed');
+    @endphp
+
+    @unless ($isEmbed)
+    @php
         $groups = [
             [
                 'key' => 'state_id',
@@ -847,10 +857,12 @@
         <div class="explore-chips-list" id="exploreChipsList"></div>
         <button type="button" class="explore-chips-clear" id="exploreChipsClear">Clear all</button>
     </div>
+    @endunless
 
     {{-- ?embed=1 renders this page inside the home page hero panel. --}}
-    <div class="explore-wrap{{ request()->boolean('embed') ? ' is-embed' : '' }}">
+    <div class="explore-wrap{{ $isEmbed ? ' is-embed' : '' }}">
         {{-- ================= LEFT : FILTER SIDEBAR ================= --}}
+        @unless ($isEmbed)
         <aside class="explore-sidebar">
             <div class="explore-sidebar-head">
                 {{-- On a phone this head is the drawer handle: the filter list
@@ -983,6 +995,7 @@
                 <span class="explore-spinner" id="exploreSpinner">Updating…</span>
             </div>
         </aside>
+        @endunless
 
         {{-- ================= RIGHT : MAP ================= --}}
         <div class="explore-map-area">

@@ -146,9 +146,20 @@
 
             {{-- The real map page, framed under the buttons the way the reference
                  floats its product shot. ?embed=1 drops the site header inside
-                 the frame; lazy so it only loads when scrolled to. --}}
+                 the frame.
+
+                 This is a whole second page — its own Laravel render, its own
+                 copy of the stylesheets, Leaflet, and a marker for every active
+                 hoarding — so when it loads matters as much as what it loads.
+                 loading="lazy" was not enough: the panel sits roughly one screen
+                 down, well inside the distance at which the browser decides a
+                 lazy frame is "about to be needed" and fetches it anyway, so it
+                 was competing with the hero image for bandwidth on every visit.
+
+                 Holding the URL in data-src instead means nothing is requested
+                 until the panel is genuinely scrolled to, and then only once. --}}
             <div class="bi-hero-panel" data-aos="fade-up" data-aos-delay="300">
-                <iframe class="bi-hero-frame" src="{{ route('website.explore') }}?embed=1"
+                <iframe class="bi-hero-frame" data-src="{{ route('website.explore') }}?embed=1"
                     title="Explore available outdoor media on the map" loading="lazy"></iframe>
             </div>
 
@@ -156,7 +167,44 @@
     </div>
 </section>
 
+{{-- Loads the framed map page the moment its panel actually comes into view.
+     Deliberately not deferred to a separate file: it has to be able to start
+     the load before the rest of the page's JavaScript has finished arriving. --}}
+<script>
+    (function () {
+        var frame = document.querySelector('.bi-hero-frame[data-src]');
+        if (!frame) return;
 
+        function load() {
+            var src = frame.getAttribute('data-src');
+            if (!src) return;
+            frame.removeAttribute('data-src');
+            frame.src = src;
+        }
+
+        // No IntersectionObserver (old browsers) — fall back to loading it once
+        // the rest of the page has finished, which is still later than the
+        // browser's own lazy heuristic was firing.
+        if (!('IntersectionObserver' in window)) {
+            window.addEventListener('load', load);
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                observer.disconnect();
+                load();
+            });
+        }, {
+            // A small margin so the map has a moment to draw before it is
+            // properly on screen, without pre-loading it from the top of the page.
+            rootMargin: '200px 0px'
+        });
+
+        observer.observe(frame);
+    })();
+</script>
 
 <!-- FEATURES SECTION -->
 {{-- Lifted so it overlaps the bottom of the hero, the way the reference floats

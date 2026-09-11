@@ -7,6 +7,28 @@
     {{-- <title>@yield('title', 'Website')</title> --}}
     <title>Printing | Branding | Outdoor Advertising Agency
         Nashik | Brand Adda</title>
+
+    {{-- This page pulls CSS and JS from four third party origins, and the
+         browser cannot start any of them until it has done a DNS lookup, a TCP
+         connection and a TLS handshake for each — serially, while rendering is
+         blocked. Warming the connections here lets all four happen at once,
+         alongside the HTML parse, instead of one after another.
+
+         The uploaded pictures come from FILE_VIEW, which is a different host
+         again from the site itself, so that one is warmed too — otherwise the
+         hero slider image cannot even begin downloading until its handshake
+         finishes. --}}
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://code.jquery.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    @php
+        $fileHost = rtrim((string) env('FILE_VIEW'), '/');
+        $fileOrigin = $fileHost ? parse_url($fileHost, PHP_URL_SCHEME) . '://' . parse_url($fileHost, PHP_URL_HOST) : null;
+    @endphp
+    @if ($fileOrigin && $fileOrigin !== rtrim(config('app.url'), '/'))
+        <link rel="preconnect" href="{{ $fileOrigin }}" crossorigin>
+    @endif
+
     {{-- Bootstrap 5 CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -16,18 +38,20 @@
     <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css" />
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    {{-- Date pickers are only built inside click handlers, never while the page
+         parses, so this does not have to block the first paint. --}}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
 
     <!-- fontawesome -->
     <link rel="stylesheet" href="{{ asset('assets/css/all.min.css') }}">
     <!-- bootstrap -->
     {{-- <link rel="stylesheet" href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}"> --}}
-    <!-- owl carousel -->
-    <link rel="stylesheet" href="{{ asset('assets/css/owl.carousel.css') }}">
-    <!-- magnific popup -->
-    <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
-    <!-- animate css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}">
+    {{-- owl carousel, magnific popup and animate.css were removed: all three
+         were render blocking on every page and styled nothing. The elements
+         they dress (.owl-carousel, .mfp-*) are not rendered anywhere any more —
+         the sliders are Swiper — and no stylesheet or view uses an animate.css
+         class, the page animations being AOS and this site's own keyframes.
+         animate.css alone was 66KB of blocking CSS. --}}
     <!-- mean menu css -->
     <link rel="stylesheet" href="{{ asset('assets/css/meanmenu.min.css') }}">
     @php
@@ -47,9 +71,14 @@
     <link rel="stylesheet"
         href="{{ asset('asset/css/website_css/style.css') }}?v={{ $cssVersion('asset/css/website_css/style.css') }}">
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- Swal.fire() is only ever called from a handler or a ready callback. --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 
-    <!-- jQuery -->
+    {{-- jQuery stays render blocking on purpose: inline <script> blocks all over
+         the site use $ as the page parses (every $(document).ready(...) among
+         them), and those run before any deferred script would have defined it.
+         It is loaded once here — the footer used to load a second, older copy
+         over the top of this one. --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,7 +90,9 @@
     {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"> --}}
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    {{-- Every slider is constructed inside DOMContentLoaded, which fires after
+         deferred scripts have run — so this no longer has to block the parse. --}}
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -178,7 +209,8 @@
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"
+        defer>
     </script>
 
     <!-- GLOBAL LOADER -->
@@ -192,7 +224,8 @@
     </div>
 
     @yield('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
+    {{-- The 360° viewer is only built when someone opens a panorama. --}}
+    <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js" defer></script>
     @if(session('password_changed'))
     <script>
         $(document).ready(function () {

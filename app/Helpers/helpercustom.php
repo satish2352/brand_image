@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\ImageResizer;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
@@ -12,9 +13,13 @@ function uploadImage($file, $folder)
     // Generate unique file name
     $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-    // Convert image to base64 and back (as requested)
-    $base64 = base64_encode(file_get_contents($file));
-    $binary = base64_decode($base64);
+    $binary = file_get_contents($file);
+
+    // Nothing used to resize these, so a full resolution camera photo was
+    // stored and then served to every visitor at its original size. Shrunk to
+    // something a web page can afford; a picture ImageResizer cannot handle
+    // comes back unchanged, so an upload never fails over this.
+    $binary = ImageResizer::optimise($binary);
 
     // Path inside public disk
     // This WILL create: upload/images/media automatically
