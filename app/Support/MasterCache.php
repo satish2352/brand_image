@@ -29,19 +29,27 @@ class MasterCache
     public const RADIUS            = 'search_form_radius';
     public const AREA_TYPES        = 'home_area_types';
 
+    // Flat lists behind the Explore page's filter panel. Separate from the
+    // AJAX ones above because those carry two columns and these carry the
+    // whole row, but they go stale on exactly the same writes.
+    public const EXPLORE_CATEGORIES = 'explore_categories';
+    public const EXPLORE_AREA_TYPES = 'explore_areatypes';
+    public const EXPLORE_HIGHWAY_ROWS = 'explore_highway_rows';
+    public const EXPLORE_LANDMARK_ROWS = 'explore_landmark_rows';
+
     public static function forgetCategories(): void
     {
-        self::forget(self::CATEGORIES, self::FIRST_CATEGORY);
+        self::forget(self::CATEGORIES, self::FIRST_CATEGORY, self::EXPLORE_CATEGORIES);
     }
 
     public static function forgetHighways(): void
     {
-        self::forget(self::HIGHWAYS, self::EXPLORE_HIGHWAYS);
+        self::forget(self::HIGHWAYS, self::EXPLORE_HIGHWAYS, self::EXPLORE_HIGHWAY_ROWS);
     }
 
     public static function forgetLandmarks(): void
     {
-        self::forget(self::LANDMARKS, self::EXPLORE_LANDMARKS);
+        self::forget(self::LANDMARKS, self::EXPLORE_LANDMARKS, self::EXPLORE_LANDMARK_ROWS);
     }
 
     public static function forgetRadius(): void
@@ -51,7 +59,7 @@ class MasterCache
 
     public static function forgetAreaTypes(): void
     {
-        self::forget(self::AREA_TYPES);
+        self::forget(self::AREA_TYPES, self::EXPLORE_AREA_TYPES);
     }
 
     private static function forget(string ...$keys): void

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\Website\ExploreService;
+use App\Support\LocationCache;
 use App\Support\MasterCache;
 use App\Support\RadiusRange;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -30,21 +30,10 @@ class ExploreController extends Controller
         $filters['_sort_col'] = $col;
         $filters['_sort_dir'] = $dir;
 
-        // ?embed=1 is the home page hero panel, which shows the map and nothing
-        // else. The filter sidebar is not rendered there at all, so the work
-        // that exists purely to fill it is skipped: the eight master lists and
-        // the first page of results, whose only use on this page is the "showing
-        // X" count inside that sidebar. The home page pays for this render on
-        // every visit, so it should only pay for the map.
-        $embed = $request->boolean('embed');
-
-        $mediaList = $embed
-            ? new LengthAwarePaginator([], 0, 50)
-            : $this->service->searchMedia($filters, 50, (int) $request->input('page', 1));
-
+        $mediaList = $this->service->searchMedia($filters, 50, (int) $request->input('page', 1));
         $mapMedia  = $this->service->getMapMarkers($filters);
 
-        $masters = $embed ? $this->emptyMasters() : $this->masters();
+        $masters = $this->masters();
 
         // Grand total of all active hoardings (denominator for "showing X / Y").
         $grandTotal = DB::table('media_management')
@@ -209,33 +198,39 @@ class ExploreController extends Controller
     }
 
     /**
-     * The same shape as masters(), with nothing in it.
+     * The eight lists behind the filter panel.
      *
-     * The embed never renders the filter sidebar, so the view never reads these
-     * — but handing it the full set of keys keeps the two paths interchangeable
-     * and means a future reference cannot land on an undefined variable.
+     * These were eight uncached queries on every load of this page — and the
+     * home page hero embeds it, so every visit to the site's front door paid
+     * for them too. They are master data: they change when an admin edits a
+     * master, not between two page loads.
      *
-     * @return array<string,\Illuminate\Support\Collection>
+     * Cached through MasterCache / LocationCache rather than a key invented
+     * here, because those are what the admin master repositories already call
+     * on every write. A renamed city therefore clears this the moment it is
+     * saved, instead of showing the old name until the hour is up.
      */
-    private function emptyMasters(): array
-    {
-        return array_fill_keys(
-            ['states', 'districts', 'cities', 'areas', 'categories', 'areaTypes', 'highways', 'landmarks'],
-            collect()
-        );
-    }
-
     private function masters(): array
     {
+        $remember = fn(string $key, callable $query) => Cache::remember($key, MasterCache::TTL, $query);
+
         return [
-            'states'     => DB::table('states')->where('is_active', 1)->where('is_deleted', 0)->orderBy('state_name')->get(),
-            'districts'  => DB::table('districts')->where('is_active', 1)->where('is_deleted', 0)->orderBy('district_name')->get(),
-            'cities'     => DB::table('cities')->where('is_active', 1)->where('is_deleted', 0)->orderBy('city_name')->get(),
-            'areas'      => DB::table('areas')->where('is_active', 1)->where('is_deleted', 0)->orderBy('area_name')->get(),
-            'categories' => DB::table('category')->where('is_active', 1)->where('is_deleted', 0)->orderBy('category_name')->get(),
-            'areaTypes'  => DB::table('areatype')->where('is_active', 1)->where('is_deleted', 0)->orderBy('areatype_name')->get(),
-            'highways'   => DB::table('highway')->where('is_active', 1)->where('is_deleted', 0)->orderBy('highway_name')->get(),
-            'landmarks'  => DB::table('landmark')->where('is_active', 1)->where('is_deleted', 0)->orderBy('landmark_name')->get(),
+            'states'     => $remember(LocationCache::EXPLORE_STATES, fn() =>
+                DB::table('states')->where('is_active', 1)->where('is_deleted', 0)->orderBy('state_name')->get()),
+            'districts'  => $remember(LocationCache::EXPLORE_DISTRICTS, fn() =>
+                DB::table('districts')->where('is_active', 1)->where('is_deleted', 0)->orderBy('district_name')->get()),
+            'cities'     => $remember(LocationCache::EXPLORE_CITIES, fn() =>
+                DB::table('cities')->where('is_active', 1)->where('is_deleted', 0)->orderBy('city_name')->get()),
+            'areas'      => $remember(LocationCache::EXPLORE_AREAS, fn() =>
+                DB::table('areas')->where('is_active', 1)->where('is_deleted', 0)->orderBy('area_name')->get()),
+            'categories' => $remember(MasterCache::EXPLORE_CATEGORIES, fn() =>
+                DB::table('category')->where('is_active', 1)->where('is_deleted', 0)->orderBy('category_name')->get()),
+            'areaTypes'  => $remember(MasterCache::EXPLORE_AREA_TYPES, fn() =>
+                DB::table('areatype')->where('is_active', 1)->where('is_deleted', 0)->orderBy('areatype_name')->get()),
+            'highways'   => $remember(MasterCache::EXPLORE_HIGHWAY_ROWS, fn() =>
+                DB::table('highway')->where('is_active', 1)->where('is_deleted', 0)->orderBy('highway_name')->get()),
+            'landmarks'  => $remember(MasterCache::EXPLORE_LANDMARK_ROWS, fn() =>
+                DB::table('landmark')->where('is_active', 1)->where('is_deleted', 0)->orderBy('landmark_name')->get()),
         ];
     }
 }

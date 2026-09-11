@@ -773,21 +773,18 @@
     </style>
 
     @php
-        // Inside the home page hero panel the filter sidebar is not shown at
-        // all. It used to be rendered in full and then hidden with CSS, which
-        // meant the browser still downloaded an <option> for every state,
-        // district, town, area and landmark in the country — and the controller
-        // still ran the eight master queries to build them.
+        // ?embed=1 is this page inside the home page hero panel. It gets the
+        // same filters and the same map as the full page — only the stacked
+        // phone layout drops the sidebar, which the is-embed rule in the mobile
+        // media query above handles.
         $isEmbed = request()->boolean('embed');
 
-        // Defined out here rather than beside the date inputs it fills, because
-        // the script block at the bottom of the page also reads it — and that
-        // block still renders in the embed, where the sidebar holding those
-        // inputs does not.
+        // Read in two places that are far apart: the From / To date inputs in
+        // the sidebar, and the TODAY constant in the script block at the very
+        // bottom. Defined up here so it cannot depend on which of them renders.
         $today = date('Y-m-d');
     @endphp
 
-    @unless ($isEmbed)
     @php
         $groups = [
             [
@@ -863,12 +860,10 @@
         <div class="explore-chips-list" id="exploreChipsList"></div>
         <button type="button" class="explore-chips-clear" id="exploreChipsClear">Clear all</button>
     </div>
-    @endunless
 
     {{-- ?embed=1 renders this page inside the home page hero panel. --}}
     <div class="explore-wrap{{ $isEmbed ? ' is-embed' : '' }}">
         {{-- ================= LEFT : FILTER SIDEBAR ================= --}}
-        @unless ($isEmbed)
         <aside class="explore-sidebar">
             <div class="explore-sidebar-head">
                 {{-- On a phone this head is the drawer handle: the filter list
@@ -1000,7 +995,6 @@
                 <span class="explore-spinner" id="exploreSpinner">Updating…</span>
             </div>
         </aside>
-        @endunless
 
         {{-- ================= RIGHT : MAP ================= --}}
         <div class="explore-map-area">
