@@ -452,7 +452,9 @@ Header .navbar-custom {
 .new-header-icons {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    /* The cart and account tiles are wide solid blocks, so 1rem between them
+       read as a seam rather than a gap. */
+    gap: 20px;
 }
 
 /* Mobile View */
@@ -3939,6 +3941,7 @@ svg {
 }
 
 .journey-icon {
+    position: relative;
     display: grid;
     place-items: center;
     width: 124px;
@@ -3974,6 +3977,136 @@ svg {
     color: rgba(255, 255, 255, .8);
 }
 
+/* ---- the travelling spark ----
+   A glowing dot runs up each arrow in turn and the disc it reaches flashes,
+   so the six steps light one after another and then the cycle starts over.
+   One 6s timeline for the lot: each element sits idle for the rest of it and
+   is offset by its position in the row, which keeps the relay in step
+   without any JS. */
+.journey-spark {
+    position: absolute;
+    /* The arrow is a 2px line at top:60px, so its centre is 61px; half the
+       dot's 10px puts it on that centre. */
+    top: 56px;
+    left: -22px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #FFD9A8;
+    box-shadow:
+        0 0 6px 2px rgba(249, 115, 22, .9),
+        0 0 18px 7px rgba(249, 115, 22, .45);
+    opacity: 0;
+    animation: journey-spark-run 6s linear infinite;
+}
+
+/* The first step has no arrow running into it, so it has no dot either. */
+.journey-step:first-child .journey-spark {
+    display: none;
+}
+
+.journey-step:nth-child(2) .journey-spark {
+    animation-delay: 0s;
+}
+
+.journey-step:nth-child(3) .journey-spark {
+    animation-delay: 1s;
+}
+
+.journey-step:nth-child(4) .journey-spark {
+    animation-delay: 2s;
+}
+
+.journey-step:nth-child(5) .journey-spark {
+    animation-delay: 3s;
+}
+
+.journey-step:nth-child(6) .journey-spark {
+    animation-delay: 4s;
+}
+
+/* Travels the 44px of arrow, fading in as it leaves and out as it lands —
+   which is 18% of the timeline, so each dot is visible only in its own slot. */
+@keyframes journey-spark-run {
+    0% {
+        opacity: 0;
+        transform: translateX(0) scale(.5);
+    }
+
+    3% {
+        opacity: 1;
+        transform: translateX(3px) scale(1);
+    }
+
+    14% {
+        opacity: 1;
+        transform: translateX(36px) scale(1);
+    }
+
+    18%,
+    100% {
+        opacity: 0;
+        transform: translateX(42px) scale(.5);
+    }
+}
+
+/* The disc flashes as the dot lands on it: a ring just outside the icon,
+   one second per step so it stays in time with the relay above. */
+.journey-icon::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 2px rgba(249, 115, 22, .55),
+        0 0 30px 8px rgba(249, 115, 22, .35);
+    opacity: 0;
+    pointer-events: none;
+    animation: journey-step-glow 6s ease-out infinite;
+}
+
+.journey-step:nth-child(1) .journey-icon::after {
+    animation-delay: 0s;
+}
+
+.journey-step:nth-child(2) .journey-icon::after {
+    animation-delay: 1s;
+}
+
+.journey-step:nth-child(3) .journey-icon::after {
+    animation-delay: 2s;
+}
+
+.journey-step:nth-child(4) .journey-icon::after {
+    animation-delay: 3s;
+}
+
+.journey-step:nth-child(5) .journey-icon::after {
+    animation-delay: 4s;
+}
+
+.journey-step:nth-child(6) .journey-icon::after {
+    animation-delay: 5s;
+}
+
+@keyframes journey-step-glow {
+    0% {
+        opacity: 0;
+        transform: scale(.9);
+    }
+
+    4% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    16%,
+    100% {
+        opacity: 0;
+        transform: scale(1.08);
+    }
+}
+
 @media (max-width: 1199.98px) {
     .journey-title {
         font-size: 42px;
@@ -3991,6 +4124,11 @@ svg {
     .journey-step+.journey-step::after {
         top: 45px;
     }
+
+    /* Follows the arrow up to its new line. */
+    .journey-spark {
+        top: 46px;
+    }
 }
 
 /* Three across, then two, then one — the connector is dropped as soon as the
@@ -4004,6 +4142,12 @@ svg {
     .journey-step+.journey-step::before,
     .journey-step+.journey-step::after {
         content: none;
+    }
+
+    /* No arrow to run along once the row wraps. The discs keep flashing in
+       order, which still reads as the journey. */
+    .journey-spark {
+        display: none;
     }
 
     .journey-title {
@@ -4074,6 +4218,14 @@ svg {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
+    }
+
+    /* The relay is decoration that never stops, so it is the first thing to
+       go: the dots are dropped and the discs are left unlit. */
+    .journey-spark,
+    .journey-icon::after {
+        animation: none !important;
+        opacity: 0 !important;
     }
 }
 
@@ -4232,8 +4384,8 @@ svg {
    ========================================================= */
 .bi-search-hero .media-search-card .select2-container--default .select2-selection--single {
     /* Same height as the plain selects in this card, which the partial pins
-       to 44px in that same inline block. */
-    height: 44px;
+       to 46px in that same inline block. */
+    height: 46px;
     padding: 0 34px 0 12px;
     border-radius: 10px;
     border-color: var(--brand-grey);
@@ -4247,7 +4399,7 @@ svg {
 
 .bi-search-hero .media-search-card .select2-container--default .select2-selection--single .select2-selection__rendered {
     padding: 0;
-    line-height: 42px;
+    line-height: 44px;
     font-size: 14px;
     color: var(--brand-navy);
 }
@@ -4259,14 +4411,17 @@ svg {
 }
 
 /* ---- compact (results page) ---- */
+/* Same 46px as every other field in the card; these two were still carrying
+   the heights from the old tighter layout, which left them visibly short
+   beside the plain State / Area selects. */
 .bi-search-hero.is-compact .media-search-card .select2-container--default .select2-selection--single {
-    height: 34px;
-    background-size: 14px 10px;
+    height: 46px;
+    background-size: 16px 12px;
 }
 
 .bi-search-hero.is-compact .media-search-card .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 32px;
-    font-size: 13px;
+    line-height: 44px;
+    font-size: 14px;
 }
 
 /* ---- the result badge ---- */

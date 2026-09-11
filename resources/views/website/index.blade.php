@@ -655,6 +655,9 @@
         <ol class="journey-steps">
 
                 <li class="journey-step" data-aos="fade-up" data-aos-delay="100">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
                     <div class="journey-icon">
                         {{-- The step number is drawn into the artwork, so it is not
                              repeated as markup — only as the label a screen reader
@@ -667,6 +670,9 @@
                 </li>
 
                 <li class="journey-step" data-aos="fade-up" data-aos-delay="200">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
                     <div class="journey-icon">
                         {{-- The step number is drawn into the artwork, so it is not
                              repeated as markup — only as the label a screen reader
@@ -679,6 +685,9 @@
                 </li>
 
                 <li class="journey-step" data-aos="fade-up" data-aos-delay="300">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
                     <div class="journey-icon">
                         {{-- The step number is drawn into the artwork, so it is not
                              repeated as markup — only as the label a screen reader
@@ -691,6 +700,9 @@
                 </li>
 
                 <li class="journey-step" data-aos="fade-up" data-aos-delay="400">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
                     <div class="journey-icon">
                         {{-- The step number is drawn into the artwork, so it is not
                              repeated as markup — only as the label a screen reader
@@ -703,6 +715,9 @@
                 </li>
 
                 <li class="journey-step" data-aos="fade-up" data-aos-delay="500">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
                     <div class="journey-icon">
                         {{-- The step number is drawn into the artwork, so it is not
                              repeated as markup — only as the label a screen reader
@@ -715,6 +730,9 @@
                 </li>
 
                 <li class="journey-step" data-aos="fade-up" data-aos-delay="600">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
                     <div class="journey-icon">
                         {{-- The step number is drawn into the artwork, so it is not
                              repeated as markup — only as the label a screen reader
@@ -818,7 +836,7 @@
     document.addEventListener("DOMContentLoaded", function() {
 
         const hoardingSwiper = new Swiper(".hoarding-slider", {
-            slidesPerView: 4,
+            slidesPerView: 3,
             spaceBetween: 20,
             loop: true,
             centeredSlides: false,
@@ -850,10 +868,10 @@
                     slidesPerView: 3
                 },
                 992: {
-                    slidesPerView: 4
+                    slidesPerView: 3
                 },
                 1200: {
-                    slidesPerView: 4
+                    slidesPerView: 3
                 }
             }
         });
