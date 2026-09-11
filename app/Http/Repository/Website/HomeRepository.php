@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Support\RadiusRange;
 
 class HomeRepository
 {
@@ -114,9 +115,18 @@ class HomeRepository
         }
 
 
-        if (!empty($filters['radius_id']) && $centerLat && $centerLng) {
+        // The Radius slider posts free-form km, so pin it to the range the slider
+        // actually offers — otherwise a hand-crafted request could ask for a
+        // 10,000 km radius and, via the city rule below, search everything.
+        // 0 km is the off position and means "no radius filter".
+        $radiusKm = RadiusRange::clamp($filters['radius_id'] ?? null);
 
-            $radiusKm = (float)$filters['radius_id'];
+        // Tracks whether the distance filter really made it into the query. A
+        // radius asked for on a city with no lat/lng silently does nothing, and
+        // the city rule below must not drop its own filter on that basis.
+        $radiusApplied = false;
+
+        if ($radiusKm > 0 && $centerLat && $centerLng) {
 
             $query->whereNotNull('m.latitude')
                 ->whereNotNull('m.longitude');
@@ -133,6 +143,8 @@ class HomeRepository
                 ->addBinding([(float)$centerLat, (float)$centerLng, (float)$centerLat], 'select')
                 ->having('distance', '<=', $radiusKm)
                 ->orderBy('distance', 'asc');
+
+            $radiusApplied = true;
 
             Log::info(' Radius Filter Applied', [
                 'center_lat' => $centerLat,
@@ -153,7 +165,8 @@ class HomeRepository
         if (!empty($filters['district_id'])) {
             $query->where('m.district_id', $filters['district_id']);
         }
-        if (!empty($filters['city_id']) && empty($filters['radius_id'])) {
+        // Only widen past the city when the distance filter actually replaced it.
+        if (!empty($filters['city_id']) && !$radiusApplied) {
             $query->where('m.city_id', $filters['city_id']);
         }
         // if (!empty($filters['city_id'])) {

@@ -23,7 +23,7 @@
 
             .items-table th,
             .items-table td {
-                border: 1px solid #000 !important;
+                border: 1px solid #0F172A !important;
             }
 
             .summary-label,
@@ -49,12 +49,12 @@
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 13px;
-            color: #000;
+            color: #0F172A;
         }
 
         .header-table {
             width: 100%;
-            border-bottom: 2px solid #000;
+            border-bottom: 2px solid #0F172A;
             margin-bottom: 15px;
         }
 
@@ -79,8 +79,8 @@
         }
 
         .badge {
-            background: #28a745;
-            color: #fff;
+            background: #0F172A;
+            color: #FFFFFF;
             padding: 3px 8px;
             font-size: 12px;
             border-radius: 4px;
@@ -94,13 +94,13 @@
 
         .items-table th,
         .items-table td {
-            border: 1px solid #000;
+            border: 1px solid #0F172A;
             padding: 6px;
             text-align: center;
         }
 
         .items-table th {
-            background: #f2f2f2;
+            background: #E5E7EB;
         }
 
         .total-table {
@@ -111,7 +111,7 @@
         }
 
         .total-table td {
-            border: 1px solid #000;
+            border: 1px solid #0F172A;
             padding: 6px;
         }
 
@@ -154,31 +154,31 @@
         /* Label column */
         .summary-label {
             text-align: right;
-            background: #fafafa;
-            border-left: 1px solid #000;
+            background: #FFFFFF;
+            border-left: 1px solid #0F172A;
         }
 
         /* Value column */
         .summary-value {
             text-align: center;
-            background: #fafafa;
+            background: #FFFFFF;
         }
 
         /* Grand Total emphasis (NOT full width) */
         .grand-total-row .summary-label,
         .grand-total-row .summary-value {
-            background: #eaf7ee;
+            background: #0F172A;
             font-size: 14px;
             font-weight: 700;
-            border-top: 2px solid #000;
+            border-top: 2px solid #0F172A;
         }
 
         .summary-row .summary-label,
         .summary-row .summary-value {
-            background: #eaf7ee;
+            background: #0F172A;
             font-size: 12px;
             font-weight: 700;
-            /* border-top: 2px solid #000; */
+            /* border-top: 2px solid #0F172A; */
         }
 
         /* Space between items & totals */
@@ -199,7 +199,7 @@
     <table class="header-table">
         <tr>
             <td>
-                <img src="{{ public_path('asset/campaign/images/logo.png') }}" height="45">
+                <img src="{{ public_path('assets/img/logo/brand_adda.png') }}" alt="Brand Adda" height="45">
             </td>
             <td class="header-title">
                 RECEIPT

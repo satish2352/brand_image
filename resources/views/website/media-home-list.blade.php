@@ -24,12 +24,12 @@
         }
 
         .card-shadow {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
             transition: all 0.3s ease;
             margin-bottom: 15px;
             padding: 10px;
             overflow: hidden;
-            background: #fff;
+            background: #FFFFFF;
             border-radius: 10px;
         }
 
@@ -40,8 +40,8 @@
         }
 
         .media-card.selected {
-            border-color: #e53935;
-            box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.30), 0 8px 20px rgba(0, 0, 0, 0.18);
+            border-color: #F97316;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.3), 0 8px 20px rgba(15, 23, 42, 0.18);
         }
 
         /* ⭐ IMPORTANT FIX */
@@ -83,34 +83,34 @@
         }
 
         .single-latest-news {
-            background: #fff;
+            background: #FFFFFF;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
             padding: 15px;
             transition: 0.3s;
         }
 
         .single-latest-news:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
         }
 
         .media-title a {
             font-size: 21px;
             font-weight: 600;
-            color: #f28123;
+            color: #F97316;
             /* ⭐ ORANGE */
             text-decoration: none;
         }
 
         .media-title a:hover {
-            color: #f28123;
+            color: #F97316;
         }
 
         .card-btn.cart {
-            background: #f28123 !important;
+            background: #F97316 !important;
             border: none !important;
-            color: #fff !important;
+            color: #FFFFFF !important;
             border-radius: 30px;
             padding: 5px 9px;
             font-weight: 600;
@@ -118,7 +118,7 @@
         }
 
         .card-btn.cart:hover {
-            background: #f28123 !important;
+            background: #F97316 !important;
             transform: scale(1.05);
         }
 
@@ -137,7 +137,7 @@
 
         @media (max-width: 768px) {
             .card-shadow {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
 
                 transition: all 0.3s ease;
                 margin-bottom: 20px;

@@ -115,12 +115,12 @@
                                 </div>
                                 <style>
                                     .table-bordered> :not(caption)>*>* {
-                                        border-color: #dadada !important;
+                                        border-color: #E5E7EB !important;
                                     }
 
                                     .table-darks {
-                                        background: linear-gradient(90deg, #ffb300, #ff9800) !important;
-                                        color: #000000 !important;
+                                        background: linear-gradient(90deg, #F97316, #F97316) !important;
+                                        color: #0F172A !important;
                                         font-weight: 600;
                                     }
                                 </style>

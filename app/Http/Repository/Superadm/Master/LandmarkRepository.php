@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\Landmark;
+use App\Support\MasterCache;
 
 class LandmarkRepository
 {
@@ -27,7 +28,10 @@ class LandmarkRepository
 
     public function store(array $data)
     {
-        return Landmark::create($data);
+        $result = Landmark::create($data);
+        MasterCache::forgetLandmarks();
+
+        return $result;
     }
 
     public function findDeletedByName($name)
@@ -46,20 +50,29 @@ class LandmarkRepository
 
     public function update($id, array $data)
     {
-        return Landmark::where('id', $id)->update($data);
+        $result = Landmark::where('id', $id)->update($data);
+        MasterCache::forgetLandmarks();
+
+        return $result;
     }
 
     public function toggleStatus($id)
     {
         $item = Landmark::findOrFail($id);
-        return $item->update(['is_active' => !$item->is_active]);
+        $result = $item->update(['is_active' => !$item->is_active]);
+        MasterCache::forgetLandmarks();
+
+        return $result;
     }
 
     public function softDelete($id)
     {
-        return Landmark::where('id', $id)->update([
+        $result = Landmark::where('id', $id)->update([
             'is_deleted' => 1,
             'is_active'  => 0
         ]);
+        MasterCache::forgetLandmarks();
+
+        return $result;
     }
 }

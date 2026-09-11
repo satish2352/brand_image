@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Coming Soon | Brand Image</title>
+    <title>Coming Soon | Brand Adda</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Google Font -->
@@ -20,12 +20,12 @@
         body {
             height: 100vh;
             background:
-                linear-gradient(rgba(228, 148, 72, 0.65), rgba(72, 60, 43, 0.65)),
+                linear-gradient(rgba(249, 115, 22, 0.65), rgba(249, 115, 22, 0.65)),
                 url("{{ asset('assets/img/coming-soon-bg.jpg') }}") center/cover no-repeat;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            color: #FFFFFF;
         }
 
         .coming-wrapper {
@@ -51,21 +51,21 @@
 
         p {
             font-size: 18px;
-            color: #ddd;
+            color: #E5E7EB;
             margin-bottom: 30px;
         }
 
         .divider {
             width: 80px;
             height: 4px;
-            background: #ffc107;
+            background: #F97316;
             margin: 0 auto 30px;
             border-radius: 5px;
         }
 
         .footer-text {
             font-size: 14px;
-            color: #bbb;
+            color: rgba(15, 23, 42, 0.55);
             margin-top: 40px;
         }
 
@@ -87,7 +87,7 @@
 
         <!-- LOGO -->
         <div class="logo">
-            <img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand Image">
+            <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda">
         </div>
 
         <h1>🚀 Coming Soon</h1>
@@ -100,7 +100,7 @@
         </p>
 
         <div class="footer-text">
-            © {{ date('Y') }} Brand Image. All rights reserved.
+            © {{ date('Y') }} Brand Adda. All rights reserved.
         </div>
 
     </div>

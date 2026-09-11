@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\Category;
+use App\Support\MasterCache;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +23,10 @@ class CategoryRepository
 
     public function create(array $data)
     {
-        return Category::create($data);
+        $result = Category::create($data);
+        MasterCache::forgetCategories();
+
+        return $result;
     }
 
     public function findById($id)
@@ -32,16 +36,25 @@ class CategoryRepository
 
     public function updateById($id, array $data)
     {
-        return Category::where('id', $id)->update($data);
+        $result = Category::where('id', $id)->update($data);
+        MasterCache::forgetCategories();
+
+        return $result;
     }
 
     public function softDelete($id)
     {
-        return Category::where('id', $id)->update(['is_deleted' => 1]);
+        $result = Category::where('id', $id)->update(['is_deleted' => 1]);
+        MasterCache::forgetCategories();
+
+        return $result;
     }
 
     public function updateStatus($id, $status)
     {
-        return Category::where('id', $id)->update(['is_active' => $status]);
+        $result = Category::where('id', $id)->update(['is_active' => $status]);
+        MasterCache::forgetCategories();
+
+        return $result;
     }
 }

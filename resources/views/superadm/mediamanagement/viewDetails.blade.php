@@ -198,20 +198,50 @@
                 </div>
 
                 {{-- ================= DIMENSIONS ================= --}}
+                {{-- Panel-sized media (Bus Shelter) has a size per face instead of
+                     one Width x Height, so it shows those rows instead. --}}
                 <div class="info-card">
-                    <div class="info-card-header">Dimensions</div>
+                    <div class="info-card-header">
+                        {{ ($media->location_sizes ?? collect())->isNotEmpty() ? 'Location Size' : 'Dimensions' }}
+                    </div>
                     <div class="info-card-body">
 
-                        <div class="info-row">
-                            <div class="info-col">
-                                <div class="info-label">Width (ft)</div>
-                                <div class="info-value">{{ $media->width ?? '-' }}</div>
+                        @if (($media->location_sizes ?? collect())->isNotEmpty())
+                            @foreach ($media->location_sizes as $panel)
+                                <div class="info-row">
+                                    <div class="info-col">
+                                        <div class="info-label">{{ $panel->label }} — Width (ft)</div>
+                                        <div class="info-value">{{ $panel->width ?? '-' }}</div>
+                                    </div>
+                                    <div class="info-col">
+                                        <div class="info-label">{{ $panel->label }} — Height (ft)</div>
+                                        <div class="info-value">{{ $panel->height ?? '-' }}</div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            <div class="info-row">
+                                <div class="info-col">
+                                    <div class="info-label">Total Area (sq.ft)</div>
+                                    <div class="info-value">{{ $media->area_auto ?? '-' }}</div>
+                                </div>
+                                <div class="info-col">
+                                    <div class="info-label">Illumination</div>
+                                    <div class="info-value">{{ $media->illumination_name ?? '-' }}</div>
+                                </div>
                             </div>
-                            <div class="info-col">
-                                <div class="info-label">Height (ft)</div>
-                                <div class="info-value">{{ $media->height ?? '-' }}</div>
+                        @else
+                            <div class="info-row">
+                                <div class="info-col">
+                                    <div class="info-label">Width (ft)</div>
+                                    <div class="info-value">{{ $media->width ?? '-' }}</div>
+                                </div>
+                                <div class="info-col">
+                                    <div class="info-label">Height (ft)</div>
+                                    <div class="info-value">{{ $media->height ?? '-' }}</div>
+                                </div>
                             </div>
-                        </div>
+                        @endif
 
                     </div>
                 </div>

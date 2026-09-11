@@ -5,7 +5,7 @@
 @section('content')
     <style>
         .leaflet-container {
-            font-family: "Outfit", sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         /* Pin with a count badge for stacked / repeated-location media */
@@ -35,10 +35,10 @@
             position: relative;
             width: 30px;
             height: 42px;
-            background: #f28123;
+            background: #F97316;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -46,10 +46,10 @@
 
         .multi-media-count {
             transform: rotate(45deg);
-            color: #fff;
+            color: #FFFFFF;
             font-weight: 700;
             font-size: 13px;
-            font-family: "Outfit", sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         /* white centre dot for a single-location orange pin */
@@ -57,7 +57,7 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: #fff;
+            background: #FFFFFF;
             transform: rotate(45deg);
         }
 
@@ -73,10 +73,10 @@
             width: 38px;
             height: 52px;
             /* darker orange so the selected pin stays on-brand (no red) */
-            background: #d96f15;
-            border: 3px solid #fff;
+            background: #F97316;
+            border: 3px solid #FFFFFF;
             border-radius: 50% 50% 50% 0;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -85,7 +85,7 @@
         }
 
         .selected-media-pin .multi-media-count {
-            color: #fff;
+            color: #FFFFFF;
         }
 
         @keyframes selectedMarkerBounce {
@@ -107,16 +107,16 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: #f28123;
-            border: 3px solid #fff;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+            background: #F97316;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            color: #FFFFFF;
             font-weight: 700;
             font-size: 14px;
-            font-family: "Outfit", sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         .leaflet-popup-content {
@@ -158,13 +158,13 @@
         .blog-meta {
             font-size: 16px;
             margin-bottom: 8px;
-            color: #6c757d
+            color: #0F172A
         }
 
         .media-price {
             font-size: 16px;
             font-weight: 700;
-            color: #f28123;
+            color: #F97316;
             /* margin: 6px 0 10px; */
         }
 
@@ -183,22 +183,22 @@
         }
 
         .card-btn.cart {
-            background: #F28123;
-            color: #fff;
+            background: #F97316;
+            color: #FFFFFF;
         }
 
         .card-btn.contact {
-            background: #ffb100;
-            color: #000;
+            background: #F97316;
+            color: #0F172A;
         }
 
         .card-btn.read {
             background: transparent;
-            color: #f28123;
+            color: #F97316;
         }
 
         .pricepermonth {
-            color: #a0a0a0;
+            color: rgba(15, 23, 42, 0.55);
             font-weight: 400;
         }
     </style>
@@ -361,16 +361,16 @@
                     count = opts.count || 0,
                     cls = opts.className || 'media-pin-marker';
                 const inner = count > 1 ?
-                    '<circle cx="16" cy="15" r="9.5" fill="#fff"/>' +
+                    '<circle cx="16" cy="15" r="9.5" fill="#FFFFFF"/>' +
                     '<text x="16" y="19.5" text-anchor="middle" font-size="12.5" font-weight="700" ' +
-                    'fill="' + color + '" font-family="Outfit, sans-serif">' + count + '</text>' :
-                    '<circle cx="16" cy="16" r="6" fill="#fff"/>';
+                    'fill="' + color + '" font-family="Montserrat, sans-serif">' + count + '</text>' :
+                    '<circle cx="16" cy="16" r="6" fill="#FFFFFF"/>';
                 const svg =
                     '<svg width="' + w + '" height="' + h + '" viewBox="0 0 32 44" ' +
                     'xmlns="http://www.w3.org/2000/svg" ' +
                     // overflow:visible so the 2.5px stroke + shadow aren't clipped
                     // at the viewBox edges (that was cutting the pin's left/right)
-                    'style="overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.4));">' +
+                    'style="overflow:visible;filter:drop-shadow(0 3px 3px rgba(15, 23, 42, 0.4));">' +
                     '<path d="M16 0C7.16 0 0 7.16 0 16c0 11.5 16 28 16 28s16-16.5 16-28C32 7.16 24.84 0 16 0z" ' +
                     'fill="' + color + '" stroke="#ffffff" stroke-width="2.5"/>' + inner + '</svg>';
                 return L.divIcon({
@@ -383,12 +383,12 @@
             }
 
             // A distinct, larger BLUE pin used to highlight the selected marker —
-            // same blue (#2b6cb0) as the Map/explore page's active pin.
+            // same blue (#0F172A) as the Map/explore page's active pin.
             function buildSelectedIcon(count) {
                 return buildPinIcon({
                     w: 40,
                     h: 54,
-                    color: '#2b6cb0',
+                    color: '#0F172A',
                     count: count,
                     className: 'media-pin-marker selected'
                 });
@@ -441,7 +441,7 @@
                 let defaultIcon = buildPinIcon({
                     w: items.length > 1 ? 34 : 32,
                     h: items.length > 1 ? 46 : 44,
-                    color: '#f28123',
+                    color: '#F97316',
                     count: items.length
                 });
                 let marker = L.marker([lat, lng], { icon: defaultIcon });
@@ -480,10 +480,10 @@
                         <div style="
                             min-width:160px;
                             max-width:160px;
-                            background:#fff;
+                            background:#FFFFFF;
                             border-radius:10px;
                             overflow:hidden;
-                            box-shadow:0 2px 8px rgba(0,0,0,0.12);
+                            box-shadow:0 2px 8px rgba(15, 23, 42, 0.12);
                             flex-shrink:0;
                             display:flex;
                             flex-direction:column;
@@ -497,8 +497,8 @@
                                 
                                     font-size:12px;
                                     font-weight:700;
-                                    color:#222;
-                                    font-family: "Outfit", sans-serif;
+                                    color:#0F172A;
+                                    font-family: "Montserrat", sans-serif;
                                     line-height:1.3;
                                     display:-webkit-box;
                                     -webkit-line-clamp:2;
@@ -508,24 +508,24 @@
                                 ${m.hoarding_code ? `<div style="
                                     font-size:10px;
                                     font-weight:600;
-                                    color:#fff;
-                                    background:#f28123;
+                                    color:#FFFFFF;
+                                    background:#F97316;
                                     border-radius:4px;
                                     padding:1px 6px;
                                     align-self:flex-start;
                                     letter-spacing:.3px;
                                 ">${m.hoarding_code}</div>` : ''}
-                                <div style="font-size:11px;color:#888;">${sqft} sqft</div>
-                                <div style="font-size:10px;color:#999;display:flex;align-items:center;gap:3px;">
+                                <div style="font-size:11px;color:#0F172A;">${sqft} sqft</div>
+                                <div style="font-size:10px;color:#0F172A;display:flex;align-items:center;gap:3px;">
                                     📍 ${parseFloat(m.latitude).toFixed(6)}, ${parseFloat(m.longitude).toFixed(6)}
                                 </div>
-                                <div style="font-size:13px;font-weight:700;color:#f28123;">${price}</div>
+                                <div style="font-size:13px;font-weight:700;color:#F97316;">${price}</div>
                                 <a href="${url}" style="
                                     display:block;
                                     margin-top:auto;
                                     padding:5px 0;
-                                    background:#f28123;
-                                    color:#fff;
+                                    background:#F97316;
+                                    color:#FFFFFF;
                                     border-radius:20px;
                                     text-align:center;
                                     font-size:11px;
@@ -544,8 +544,8 @@
                         ? `<div style="
                                 font-size:12px;
                                 font-weight:700;
-                                color:#222;
-                                font-family:'Outfit',sans-serif;
+                                color:#0F172A;
+                                font-family:'Montserrat',sans-serif;
                                 padding:2px 2px 6px;
                             ">${items.length} media at this location${items.length > 3 ? ' — scroll to see all →' : ''}</div>`
                         : '';

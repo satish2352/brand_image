@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Throwable;
 use Illuminate\Support\Facades\DB;
 use App\Models\HomeSlider;
+use App\Support\MasterCache;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 
@@ -20,8 +21,8 @@ class HomeController extends Controller
     private function getCachedAreaTypes()
     {
         return Cache::remember(
-            'home_area_types',
-            3600,
+            MasterCache::AREA_TYPES,
+            MasterCache::TTL,
             fn() =>
             DB::table('areatype')->where('is_active', 1)->where('is_deleted', 0)->get()
         );
@@ -36,7 +37,11 @@ class HomeController extends Controller
             DB::table('media_management')
                 ->where('is_deleted', 0)
                 ->where('is_active', 1)
-                ->selectRaw('CAST(MIN(area_auto) AS UNSIGNED) as min_area, CAST(MAX(area_auto) AS UNSIGNED) as max_area')
+                // area_auto is a VARCHAR, so MIN()/MAX() compare it as TEXT: the old
+                // 'CAST(MIN(area_auto) AS UNSIGNED)' aggregated the strings first and
+                // only then cast, which returned min=1122 / max=800 — a backwards
+                // range that left the size slider dead. Cast per row, then aggregate.
+                ->selectRaw('MIN(CAST(area_auto AS DECIMAL(15,2))) as min_area, MAX(CAST(area_auto AS DECIMAL(15,2))) as max_area')
                 ->first()
         );
     }
@@ -49,9 +54,11 @@ class HomeController extends Controller
         // here and hand the view a cheap empty paginator instead.
         $mediaList = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
 
+        // Key and TTL come from the model so the admin writes that evict this
+        // cache (HomeSliderRepository) can never target a different key.
         $sliders = Cache::remember(
-            'home_sliders',
-            1800,
+            HomeSlider::CACHE_KEY,
+            HomeSlider::CACHE_TTL,
             fn() =>
             HomeSlider::where('is_active', 1)->where('is_deleted', 0)->orderBy('id', 'desc')->get()
         );

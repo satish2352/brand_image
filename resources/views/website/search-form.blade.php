@@ -1,11 +1,27 @@
+{{-- Select2 powers the searchable District / Town dropdowns below. jQuery is
+     already loaded by the layout <head>, so only the plugin is needed here.
+     Blade @-once keeps it to one copy if the partial is ever included twice. --}}
+@once
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // The theme footer loads a SECOND, much older jQuery (1.11.3) that takes
+        // over window.jQuery/$ — and it does so while the page is still parsing,
+        // so by DOM-ready the global $ is the old one, which has no Select2 on it.
+        // Select2 registered itself on the jQuery that is current right here, so
+        // pin that instance now and drive the searchable dropdowns with it.
+        window.jQuerySelect2 = window.jQuery;
+    </script>
+@endonce
+
 <style>
     .bg-light {
-        background-color: rgb(233 225 225) !important;
+        background-color: #E5E7EB !important;
     }
 
     .result-badge {
-        background: #fff9d9;
-        border-left: 5px solid #ffb100;
+        background: rgba(249, 115, 22, 0.12);
+        border-left: 5px solid #F97316;
         padding: 0px 15px;
         border-radius: 8px;
         font-weight: 600;
@@ -20,23 +36,22 @@
     }
 
     .result-badge .count {
-        color: #007bff;
+        color: #0F172A;
         font-weight: 700;
     }
 
     .result-badge .label {
-        color: #333;
+        color: #0F172A;
     }
 
     .result-badge.no-result {
-        border-left-color: #dc3545;
-        background: #ffe6e8;
+        border-left-color: #F97316;
+        background: rgba(249, 115, 22, 0.12);
     }
 
     .result-badge.no-result .count {
-        color: #dc3545;
+        color: #F97316;
     }
-
 
     /* Uniform height for all inputs & selects */
     .media-search-card .form-select,
@@ -52,45 +67,72 @@
     }
 
     .media-search-card .select2-container--default .select2-selection--single {
-        height: 44px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
+        /* Matches .media-search-card .form-select exactly — the District and Town
+           fields are the only Select2 ones, and at 44px/6px they sat short and
+           squarer than the native selects beside them. */
+        height: 46px;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         padding: 0 10px;
-        background: #fff;
+        background: #FFFFFF;
     }
 
     .media-search-card .select2-container--default .select2-selection--single .select2-selection__rendered {
         line-height: 1.4;
-        color: #333;
+        color: #0F172A;
         padding: 0;
     }
 
     .media-search-card .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: #6c757d;
+        color: #0F172A;
     }
 
     .media-search-card .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 42px;
+        height: 44px;
     }
 
     .media-search-card .select2-container--default.select2-container--focus .select2-selection--single,
     .media-search-card .select2-container--default.select2-container--open .select2-selection--single {
-        border-color: #f28123;
+        border-color: #F97316;
         outline: none;
+    }
+
+    /* the type-ahead box at the top of the District / Town dropdowns */
+    .bi-orange-dropdown .select2-search--dropdown {
+        padding: 8px;
+    }
+
+    .bi-orange-dropdown .select2-search--dropdown .select2-search__field {
+        height: 38px;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 0 10px;
+        outline: none;
+    }
+
+    .bi-orange-dropdown .select2-search--dropdown .select2-search__field:focus {
+        border-color: #F97316;
+        box-shadow: none;
+    }
+
+    /* "Searching…" / "No match found" rows */
+    .bi-orange-dropdown .select2-results__message {
+        color: #0F172A;
+        padding: 8px 12px;
     }
 
     /* dropdown options — hover/active in LIGHT ORANGE (not blue) */
     .bi-orange-dropdown .select2-results__option--highlighted[aria-selected] {
-        background-color: #fde3cf !important;
-        color: #b95e16 !important;
+        background-color: rgba(249, 115, 22, 0.12) !important;
+        color: #F97316 !important;
     }
 
     /* the already-selected option */
     .bi-orange-dropdown .select2-results__option[aria-selected=true] {
-        background-color: #fff3e6 !important;
-        color: #b95e16 !important;
+        background-color: rgba(249, 115, 22, 0.12) !important;
+        color: #F97316 !important;
         font-weight: 600;
     }
 
@@ -115,8 +157,8 @@
     .bi-orange-dropdown .select2-results__option {
         display: list-item;
         list-style: none;
-        color: #333;
-        background-color: #fff;
+        color: #0F172A;
+        background-color: #FFFFFF;
         padding: 8px 12px;
     }
 
@@ -146,7 +188,7 @@
 
     .range-slider-container input[type=range]::-webkit-slider-runnable-track {
         height: 6px;
-        background: #d7d7d7;
+        background: #E5E7EB;
         border-radius: 3px;
     }
 
@@ -155,11 +197,11 @@
         pointer-events: auto;
         width: 18px;
         height: 18px;
-        background: #f28123;
+        background: #F97316;
         border-radius: 50%;
         cursor: pointer;
         border: 2px solid white;
-        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 0px 5px rgba(15, 23, 42, 0.3);
         margin-top: -6px;
         /* ⭐ PERFECT vertical centering */
         z-index: 5;
@@ -169,7 +211,7 @@
     .range-slider-fill {
         position: absolute;
         height: 6px;
-        background: #f28123;
+        background: #F97316;
         top: 10px;
         border-radius: 3px;
         z-index: 2;
@@ -193,7 +235,7 @@
 
     .range-slider-container input[type=range]::-webkit-slider-runnable-track {
         height: 6px;
-        background: #d7d7d7;
+        background: #E5E7EB;
         border-radius: 5px;
     }
 
@@ -206,14 +248,46 @@
     .range-slider-fill {
         position: absolute;
         height: 6px;
-        background: #f28123;
+        background: #F97316;
         top: 10px;
         border-radius: 5px;
         z-index: 2;
     }
+
+    /* SINGLE-HANDLE SLIDER (Radius) — the pointer-events dance above exists so
+       two overlapping thumbs stay grabbable; with one thumb it just makes the
+       track dead, so give the whole input its clicks back. */
+    .range-slider-container.single input[type=range] {
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    /* Radius is only selectable for some categories, and only once a Town is
+       chosen — grey the whole track out rather than tinting a box. */
+    .range-slider-container.single.is-disabled {
+        opacity: .45;
+        pointer-events: none;
+    }
 </style>
+{{-- On the results page the same partial renders in a compact form: the
+     marketing copy is dropped and the card tightens up, so results sit above
+     the fold instead of a screen further down. Same path test the layout uses
+     for the footer. --}}
+@php $biSearchCompact = request()->is('search') || request()->is('brand_image/public/search'); @endphp
+<section class="bi-search-hero{{ $biSearchCompact ? ' is-compact' : '' }}">
 <div class="container-fluid mt-5 mb-5">
-    <h3 class="text-center orange-text">Discover Media Spaces Near You</h3>
+    {{-- Hero copy, sitting on the pale left half of the artwork. --}}
+    <div class="bi-search-hero-copy">
+        <span class="bi-search-eyebrow">Outdoor Media Platform</span>
+        <h2 class="bi-search-hero-title">
+            Big Spaces.
+            <span class="accent">Bigger Opportunities.</span>
+        </h2>
+        <p class="bi-search-hero-sub">
+            Discover, plan and book the best outdoor media spaces across India
+        </p>
+        
+    </div>
     <div class="media-search-card">
 
         <form method="POST" id="searchForm" action="{{ route('website.search') }}">
@@ -278,21 +352,13 @@
                     </select>
                 </div>
 
-                <!-- Radius -->
-                <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
-                    <label class="form-label">Radius</label>
-                    <select name="radius_id" class="form-select" id="radius_id">
-                        <option value="">Radius</option>
-                        @foreach ($radiusList as $r)
-                            <option value="{{ $r->radius }}"
-                                {{ (string) ($filters['radius_id'] ?? '') === (string) $r->radius ? 'selected' : '' }}>
-                                {{ $r->radius }} KM
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
+                <!-- Area Type -->
+                {{-- No wrapper id on purpose: it used to carry a stray duplicate
+                     id="radius_wrapper", and now that it sits BEFORE the Radius
+                     slider, $('#radius_wrapper') would have resolved to this box
+                     instead and the category show/hide would have driven the
+                     wrong field. Nothing targets this wrapper. --}}
+                <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Area Type</label>
                     <select name="areatype_id" class="form-select" id="areatype_id">
                         <option value="">Select Type</option>
@@ -385,6 +451,18 @@
                         </option>
                     </select>
                 </div>
+
+                {{-- Pads the dropdown row above to a full 12 columns. It only has
+                     five fields, and justify-content-lg-between would otherwise
+                     share the spare column out as gaps between them — which left
+                     this row sitting on different columns than the row above it. --}}
+                <div class="col-lg-2 d-none d-lg-block" aria-hidden="true"></div>
+
+                {{-- Row break so the Media Size slider starts the slider row
+                     instead of riding up into the padding above. Desktop only —
+                     the md/sm layouts wrap at a different count. --}}
+                <div class="w-100 d-none d-lg-block"></div>
+
                 <div class="col-lg-2 col-md-4 col-sm-6">
 
                     <label class="form-label">Media Size (sq.ft)</label>
@@ -418,6 +496,32 @@
                     </div>
 
                 </div>
+
+                <!-- Radius -->
+                <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
+                    <label class="form-label">Radius</label>
+
+                    <div class="d-flex justify-content-between">
+                        {{-- Left = what is currently selected, right = the ceiling,
+                             mirroring the Media Size slider's two-label row. --}}
+                        <span id="radiusValueLabel"></span>
+                        <span>{{ $radiusMax }} KM</span>
+                    </div>
+
+                    <div class="range-slider-container single" id="radiusSlider">
+
+                        <div class="range-slider-fill" id="radiusRangeFill"></div>
+
+                        {{-- Posts as radius_id, the same km value the old <select>
+                             sent. 0 is the off position: the backend skips the
+                             distance filter and falls back to the plain city match. --}}
+                        <input type="range" name="radius_id" id="radius_id" min="{{ $radiusMin }}"
+                            max="{{ $radiusMax }}" step="1"
+                            value="{{ (int) ($filters['radius_id'] ?? $radiusMin) }}">
+
+                    </div>
+                </div>
+
                 {{-- <div class="col-lg-2 col-md-4 col-sm-6" id="size_wrapper">
                     <label class="form-label">Media Size</label>
 
@@ -464,16 +568,29 @@
 
                 </div>
 
-                <div class="row " style="padding-top:15px">
+                {{-- Pads the slider row out to a full 12 columns. The three
+                     sliders only fill half of it, and justify-content-lg-between
+                     would otherwise fling them apart to the card edges instead of
+                     leaving them on the grid columns the dropdowns above use.
+                     On /search that same empty half is where the buttons go, so
+                     there is nothing left to pad and the card saves a whole row
+                     of height. --}}
+                @unless ($biSearchCompact)
+                    <div class="col-lg-6 d-none d-lg-block" aria-hidden="true"></div>
+                @endunless
+
+                {{-- Compact: also a column, so the three actions ride up beside
+                     the sliders and sit on their bottom edge. --}}
+                <div class="row {{ $biSearchCompact ? 'col-lg-6 align-self-lg-end' : '' }}" style="padding-top:15px">
                     <!-- Buttons -->
-                    <div class="col-lg-2 col-md-4 col-sm-12 d-grid mt-md-auto">
+                    <div class="{{ $biSearchCompact ? 'col-lg-4' : 'col-lg-2' }} col-md-4 col-sm-12 d-grid mt-md-auto">
                         <button type="button" class="btn btn-search"
                             onclick="document.getElementById('searchForm').submit();">
                             Search Media
                         </button>
                     </div>
 
-                    <div class="col-lg-2 col-md-4 col-sm-12 d-grid mt-md-auto mt-3 ">
+                    <div class="{{ $biSearchCompact ? 'col-lg-4' : 'col-lg-2' }} col-md-4 col-sm-12 d-grid mt-md-auto mt-3 ">
                         <button type="button" class="btn btn-clear" id="clearFilters">
                             Clear Filters
                         </button>
@@ -481,7 +598,7 @@
                     @if (($filters['category_id'] ?? '') != '')
                         @php $catName = $mediaList->first()->category_name ?? ''; @endphp
 
-                        <div class="col-lg-2 col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
+                        <div class="{{ $biSearchCompact ? 'col-lg-4' : 'col-lg-2' }} col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
                             @if ($mediaList->total() > 0)
                                 <div class="result-badge">
                                     <span class="icon">📍</span>
@@ -503,7 +620,9 @@
         </form>
 
     </div>
+
 </div>
+</section>
 
 {{-- jQuery is already loaded by the layout <head>. Native <select> dropdowns are
      used here for reliability (Select2 was breaking the cascading filters). --}}
@@ -569,6 +688,47 @@
     });
 </script>
 <script>
+    // ===== Radius slider =====================================================
+    // Replaces the old Radius <select>: one handle from 0 km up to the largest
+    // radius in the admin's radius master. It posts the same `radius_id` km
+    // value the <select> used to, and the backend clamps to the same ceiling.
+    $(document).ready(function() {
+
+        const slider = $("#radius_id");
+        if (!slider.length) return;
+
+        const fill = $("#radiusRangeFill");
+        const label = $("#radiusValueLabel");
+
+        const minLimit = Number(slider.attr("min"));
+        const maxLimit = Number(slider.attr("max"));
+
+        function updateRadiusSlider() {
+
+            const val = Number(slider.val());
+            const percent = maxLimit > minLimit ?
+                ((val - minLimit) / (maxLimit - minLimit)) * 100 : 0;
+
+            // One handle, so the fill always runs from the left edge.
+            fill.css({
+                left: "0%",
+                width: percent + "%"
+            });
+
+            // 0 is the off position — the backend skips the distance filter and
+            // falls back to the plain Town match, so say that rather than "0 KM".
+            label.text(val > minLimit ? val + " KM" : "Any");
+        }
+
+        slider.on("input change", updateRadiusSlider);
+
+        // Clear Filters resets the input directly and needs the track repainted.
+        window.updateRadiusSlider = updateRadiusSlider;
+
+        updateRadiusSlider();
+    });
+</script>
+<script>
     $(document).ready(function() {
         let today = new Date().toISOString().split('T')[0];
         $('#from_date').attr('min', today);
@@ -591,87 +751,125 @@
         let hasCity = $('#city_id').val();
         let hasArea = $('#area_id').val();
 
-        if (
+        // Boolean(), not the bare || chain: that yields hasArea's *string* value,
+        // and jQuery's toggleClass(cls, state) only honours a real boolean —
+        // anything else makes it TOGGLE, which flip-flopped the greyed state on
+        // every call (enabled, then greyed again the moment areas finished
+        // loading).
+        const off = Boolean(
             !allowedCategories.includes(categoryId) ||
             !hasCity ||
             hasArea
-        ) {
-            $('#radius_id')
-                // .val('')
-                .prop('disabled', true)
-                .addClass('bg-light')
-                .trigger('change.select2');
-        } else {
-            $('#radius_id')
-                .prop('disabled', false)
-                .removeClass('bg-light')
-                .trigger('change.select2');
-        }
+        );
+
+        // Radius is a slider now, so "unavailable" has to grey out the whole
+        // track — .bg-light only ever tinted the old <select>'s box. A disabled
+        // input is not submitted, so the value is kept rather than cleared.
+        $('#radius_id').prop('disabled', off);
+        $('#radiusSlider').toggleClass('is-disabled', off);
     }
 </script>
 <script>
-    $(document).ready(function() {
+    // Runs against the PINNED jQuery (window.jQuerySelect2, set where Select2 is
+    // loaded at the top of this file), not the global $ — by the time this
+    // executes the global is the theme's old jQuery, which has neither Select2
+    // nor the handlers Select2 binds, so everything below would silently no-op.
+    (function($) {
+        $(function() {
 
         const csrf = "{{ csrf_token() }}";
 
-        // After replacing a dependent select's <option>s, Select2 must be told to
-        // re-read them — otherwise the dropdown shows "No results found". Destroy +
-        // re-init is the most reliable refresh. Falls back to nothing for native.
-        function refreshSelect2(sel) {
-            const $sel = $(sel);
-            if ($sel.hasClass('select2-hidden-accessible')) {
-                $sel.select2('destroy');
-                $sel.select2({
-                    width: '100%',
-                    minimumResultsForSearch: 15,
-                    dropdownCssClass: 'bi-orange-dropdown',
-                    placeholder: ($sel.find('option[value=""]').first().text() || 'Select').trim()
-                });
-            }
-        }
+        // ===== District & Town: searchable, server-backed dropdowns ============
+        // These two levels are the long ones (a state has dozens of districts, a
+        // district hundreds of towns), so rather than dumping every option into
+        // the <select> they are Select2 dropdowns whose search box queries the
+        // backend — LocationController::getDistricts / getCities take a `q` term
+        // and return the parent-scoped matches. State / Area stay native: those
+        // lists are short enough to scroll.
 
-        function loadDistricts(stateId, selected = '') {
-
-            if (!stateId) return;
-
-            $.post("{{ route('ajax.districts') }}", {
-                _token: csrf,
-                state_id: stateId
-            }, function(data) {
-
-                let html = '<option value="">Select District</option>';
-
-                data.forEach(d => {
-                    html += `<option value="${d.id}" ${d.id == selected ? 'selected' : ''}>
-                            ${d.district_name}
-                         </option>`;
-                });
-
-                $('#district_id').html(html);
+        // Wires up one searchable level. `parentVal` is read lazily on every
+        // request, so the dropdown always searches inside whatever its parent
+        // select currently holds — no re-init needed when the parent changes.
+        function searchableSelect(sel, url, parentKey, parentVal, labelKey, placeholder) {
+            $(sel).select2({
+                width: '100%',
+                placeholder: placeholder,
+                allowClear: true,
+                dropdownCssClass: 'bi-orange-dropdown',
+                ajax: {
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250, // debounce keystrokes
+                    data: function(params) {
+                        const payload = {
+                            _token: csrf,
+                            q: params.term || ''
+                        };
+                        payload[parentKey] = parentVal();
+                        return payload;
+                    },
+                    processResults: function(rows) {
+                        return {
+                            results: (rows || []).map(function(row) {
+                                return {
+                                    id: row.id,
+                                    text: row[labelKey]
+                                };
+                            })
+                        };
+                    }
+                },
+                language: {
+                    searching: function() {
+                        return 'Searching…';
+                    },
+                    noResults: function() {
+                        // Empty parent is the common cause, so say so instead of
+                        // leaving the user staring at a bare "No results".
+                        return parentVal() ? 'No match found' : 'Choose the level above first';
+                    }
+                }
             });
         }
 
-        function loadCities(districtId, selected = '') {
+        searchableSelect('#district_id', "{{ route('ajax.districts') }}", 'state_id',
+            function() {
+                return $('#state_id').val();
+            }, 'district_name', 'Select District');
 
-            if (!districtId) return;
+        searchableSelect('#city_id', "{{ route('ajax.cities') }}", 'district_id',
+            function() {
+                return $('#district_id').val();
+            }, 'city_name', 'Select Town');
 
-            $.post("{{ route('ajax.cities') }}", {
-                _token: csrf,
-                district_id: districtId
-            }, function(data) {
+        // Clears a searchable select back to its placeholder. `change.select2` is
+        // Select2's own namespace: it repaints the widget without firing the
+        // delegated `change` handlers below, so a reset never cascades twice.
+        function resetSearchable(sel, placeholder) {
+            $(sel).empty()
+                .append(new Option(placeholder, '', false, false))
+                .val(null)
+                .trigger('change.select2');
+        }
 
-                let html = '<option value="">Select Town</option>';
+        function resetAreas() {
+            $('#area_id').html('<option value="">Select Area</option>');
+        }
 
-                data.forEach(c => {
-                    html += `<option value="${c.id}" ${c.id == selected ? 'selected' : ''}>
-                            ${c.city_name}
-                         </option>`;
-                });
-
-                $('#city_id').html(html);
-                refreshSelect2('#city_id');
-
-                toggleRadius(); // ⭐ IMPORTANT
+        // A Select2 in ajax mode only knows the options it has fetched, so a value
+        // restored from $filters has to be injected by hand: pull the parent's
+        // unfiltered list once and turn the matching row into the selected option.
+        function preselect(sel, url, params, labelKey, id) {
+            return $.post(url, $.extend({
+                _token: csrf
+            }, params)).then(function(rows) {
+                const row = (rows || []).filter(function(r) {
+                    return String(r.id) === String(id);
+                })[0];
+                if (!row) return;
+                $(sel).append(new Option(row[labelKey], row.id, true, true))
+                    .trigger('change.select2');
             });
         }
 
@@ -693,7 +891,6 @@
                 });
 
                 $('#area_id').html(html);
-                refreshSelect2('#area_id');
 
                 toggleRadius(); // ⭐ IMPORTANT
             });
@@ -703,39 +900,57 @@
 
         $(document).on('change', '#state_id', function() {
 
-            loadDistricts(this.value);
-
-            $('#city_id').html('<option value="">Select Town</option>');
-            $('#area_id').html('<option value="">Select Area</option>');
-            refreshSelect2('#city_id');
-            refreshSelect2('#area_id');
+            resetSearchable('#district_id', 'Select District');
+            resetSearchable('#city_id', 'Select Town');
+            resetAreas();
 
             toggleRadius();
         });
 
         $(document).on('change', '#district_id', function() {
 
-            loadCities(this.value);
+            resetSearchable('#city_id', 'Select Town');
+            resetAreas();
 
-            $('#area_id').html('<option value="">Select Area</option>');
-            refreshSelect2('#area_id');
+            toggleRadius();
         });
 
         $(document).on('change', '#city_id', function() {
 
-            loadAreas(this.value);
+            // Also fires when the "×" clears the town, and then there is no city
+            // to load areas for — drop the stale ones instead.
+            if (this.value) {
+                loadAreas(this.value);
+            } else {
+                resetAreas();
+            }
+
             toggleRadius();
         });
 
         $(document).on('change', '#area_id', toggleRadius);
 
-        // INITIAL LOAD
-        if (selectedState) loadDistricts(selectedState, selectedDistrict);
-        if (selectedDistrict) loadCities(selectedDistrict, selectedCity);
-        if (selectedCity) loadAreas(selectedCity, selectedArea);
+        // INITIAL LOAD — restore the saved district → town → area chain in order,
+        // each step waiting for the one it depends on.
+        if (selectedDistrict) {
+            preselect('#district_id', "{{ route('ajax.districts') }}", {
+                    state_id: selectedState
+                }, 'district_name', selectedDistrict)
+                .then(function() {
+                    if (!selectedCity) return;
+                    return preselect('#city_id', "{{ route('ajax.cities') }}", {
+                        district_id: selectedDistrict
+                    }, 'city_name', selectedCity);
+                })
+                .then(function() {
+                    if (selectedCity) loadAreas(selectedCity, selectedArea);
+                    toggleRadius();
+                });
+        }
 
         toggleRadius();
-    });
+        });
+    })(window.jQuerySelect2 || window.jQuery);
 </script>
 <script>
     document.getElementById('clearFilters').addEventListener('click', function() {
@@ -743,10 +958,14 @@
         // Reset form fields
         document.getElementById('searchForm').reset();
 
-        // Reset dependent dropdowns
-        $('#district_id').html('<option value="">Select District</option>').trigger('change.select2');
-        $('#city_id').html('<option value="">Select Town</option>').trigger('change.select2');
-        $('#area_id').html('<option value="">Select Area</option>').trigger('change.select2');
+        // Reset dependent dropdowns. District and Town are Select2 widgets, so
+        // the value has to be cleared too — swapping the <option>s alone would
+        // leave the old label painted — and the repaint must go through the
+        // PINNED jQuery, since that is the instance Select2's handlers live on.
+        const $s2 = window.jQuerySelect2 || window.jQuery;
+        $s2('#district_id').html('<option value="">Select District</option>').val(null).trigger('change.select2');
+        $s2('#city_id').html('<option value="">Select Town</option>').val(null).trigger('change.select2');
+        $('#area_id').html('<option value="">Select Area</option>');
 
         // Reset slider
         $("#minRange").val(0);
@@ -761,6 +980,10 @@
             left: "0%",
             width: "100%"
         });
+
+        // Radius back to 0 ("Any"), track repainted to match
+        $("#radius_id").val($("#radius_id").attr("min"));
+        if (window.updateRadiusSlider) window.updateRadiusSlider();
 
         // Optional: reload default media via form submit
         // (keeps layout stable)
@@ -918,8 +1141,8 @@
     .landmark-toggle {
         width: 100%;
         /* keep the same dropdown caret as the native .form-select dropdowns
-           (a plain `background:#fff` shorthand had wiped out the caret image) */
-        background-color: #fff;
+           (a plain `background:#FFFFFF` shorthand had wiped out the caret image) */
+        background-color: #FFFFFF;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right 0.75rem center;
@@ -939,10 +1162,10 @@
         z-index: 1000;
         max-height: 220px;
         overflow-y: auto;
-        background: #fff;
-        border: 1px solid #ddd;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
         border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
         padding: 6px;
     }
     .landmark-dropdown.open .landmark-menu {
@@ -959,17 +1182,17 @@
         font-weight: 400;
     }
     .landmark-option:hover {
-        background: #f0f0f0;
+        background: #E5E7EB;
     }
     .landmark-option input[type="checkbox"] {
         width: 16px;
         height: 16px;
-        accent-color: #f28123;
+        accent-color: #F97316;
         cursor: pointer;
     }
     .landmark-empty {
         padding: 8px 10px;
-        color: #888;
+        color: #0F172A;
         font-size: 14px;
     }
 </style>
@@ -1036,6 +1259,12 @@
                 // Digital Wall Painting → show only Radius
                 $('#radius_wrapper').show().find('select, input').prop('disabled', false).trigger('change.select2');
             }
+
+            // This runs LAST of the category handlers (it is the delegated one),
+            // and it just re-enabled every input in #radius_wrapper — including
+            // the Radius slider, which has its own rules about Town and Area.
+            // Let toggleRadius have the final say.
+            toggleRadius();
         }
 
         // Fire whenever the category changes (delegated → survives Select2 wrapping)
@@ -1045,3 +1274,4 @@
         setTimeout(applyCategoryFilters, 350);
     });
 </script>
+

@@ -6,14 +6,14 @@
             max-width: 680px;
             margin: 130px auto 60px auto;
             border-radius: 14px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 4px 24px rgba(15, 23, 42, 0.1);
             overflow: hidden;
         }
 
         .profile-card-header {
-            background: #f28123;
+            background: #F97316;
             padding: 32px 32px 24px;
-            color: #fff;
+            color: #FFFFFF;
             display: flex;
             align-items: center;
             gap: 20px;
@@ -44,14 +44,14 @@
 
         .profile-card-body {
             padding: 30px 32px;
-            background: #fff;
+            background: #FFFFFF;
         }
 
         .profile-field {
             display: flex;
             align-items: flex-start;
             padding: 14px 0;
-            border-bottom: 1px solid #f1f1f1;
+            border-bottom: 1px solid #E5E7EB;
             gap: 16px;
         }
 
@@ -63,18 +63,18 @@
             width: 36px;
             height: 36px;
             border-radius: 8px;
-            background: #fff5ec;
+            background: rgba(249, 115, 22, 0.12);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #f28123;
+            color: #F97316;
             font-size: 16px;
             flex-shrink: 0;
         }
 
         .profile-field-label {
             font-size: 12px;
-            color: #999;
+            color: #0F172A;
             margin-bottom: 2px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -82,12 +82,12 @@
 
         .profile-field-value {
             font-size: 15px;
-            color: #222;
+            color: #0F172A;
             font-weight: 500;
         }
 
         .profile-field-value.muted {
-            color: #aaa;
+            color: rgba(15, 23, 42, 0.55);
             font-style: italic;
             font-weight: 400;
         }

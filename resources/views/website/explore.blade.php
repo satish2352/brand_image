@@ -46,30 +46,30 @@
             width: 320px;
             min-width: 320px;
             /* soft brand-warm theme tint instead of plain white */
-            background: #fdf4ec;
-            border-right: 1px solid #f0e2d4;
+            background: rgba(249, 115, 22, 0.12);
+            border-right: 1px solid rgba(249, 115, 22, 0.12);
             display: flex;
             flex-direction: column;
         }
 
         .explore-sidebar-head {
             padding: 16px 18px 10px;
-            background: #fdf4ec;
-            border-bottom: 1px solid #f0e2d4;
+            background: rgba(249, 115, 22, 0.12);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.12);
         }
 
         .explore-sidebar-head .title {
             font-size: 13px;
             font-weight: 700;
             letter-spacing: 2px;
-            color: #f28123;
+            color: #F97316;
             text-transform: uppercase;
         }
 
         .explore-showing {
             margin-top: 8px;
             font-size: 12px;
-            color: #888;
+            color: #0F172A;
             text-transform: uppercase;
             letter-spacing: 1px;
             display: flex;
@@ -79,7 +79,7 @@
 
         .explore-showing b {
             font-size: 18px;
-            color: #222;
+            color: #0F172A;
         }
 
         .explore-sidebar-body {
@@ -91,19 +91,19 @@
 
         /* each menu = a clean white card on the warm sidebar (no divider lines) */
         .exp-group {
-            background: #fff;
-            border: 1px solid #f0e2d4;
+            background: #FFFFFF;
+            border: 1px solid rgba(249, 115, 22, 0.12);
             border-radius: 10px;
             padding: 12px 14px;
             margin-bottom: 10px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, .03);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
         }
 
         .exp-group-title {
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 1.5px;
-            color: #f28123;
+            color: #F97316;
             text-transform: uppercase;
             margin-bottom: 8px;
         }
@@ -111,7 +111,7 @@
         .grp-filter,
         .exp-search-input {
             width: 100%;
-            border: 1px solid #ddd;
+            border: 1px solid #E5E7EB;
             border-radius: 6px;
             padding: 7px 10px;
             font-size: 13px;
@@ -138,8 +138,8 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: #f28123;
-            color: #fff;
+            background: #F97316;
+            color: #FFFFFF;
             font-size: 14px;
             line-height: 18px;
             text-align: center;
@@ -148,7 +148,7 @@
         }
 
         .exp-search-clear:hover {
-            background: #d96f15;
+            background: #F97316;
         }
 
         .exp-search-wrap.has-text .exp-search-clear {
@@ -157,7 +157,7 @@
 
         .grp-filter:focus,
         .exp-search-input:focus {
-            border-color: #f28123;
+            border-color: #F97316;
         }
 
         .exp-options {
@@ -171,7 +171,7 @@
         }
 
         .exp-options::-webkit-scrollbar-thumb {
-            background: #ccc;
+            background: #E5E7EB;
             border-radius: 3px;
         }
 
@@ -182,14 +182,14 @@
             padding: 5px 4px;
             margin: 0;
             font-size: 14px;
-            color: #333;
+            color: #0F172A;
             font-weight: 400;
             cursor: pointer;
             border-radius: 5px;
         }
 
         .exp-check:hover {
-            background: #fff7f0;
+            background: rgba(249, 115, 22, 0.12);
         }
 
         /* force native checkbox to render (some global CSS hides them) */
@@ -204,7 +204,7 @@
             margin: 0 !important;
             position: static !important;
             opacity: 1 !important;
-            accent-color: #f28123;
+            accent-color: #F97316;
             cursor: pointer;
         }
 
@@ -214,7 +214,7 @@
 
         .exp-empty-opt {
             font-size: 12px;
-            color: #aaa;
+            color: rgba(15, 23, 42, 0.55);
             padding: 4px;
         }
 
@@ -236,7 +236,7 @@
 
         .exp-range-field label {
             font-size: 11px;
-            color: #999;
+            color: #0F172A;
             font-weight: 600;
             margin: 0;
         }
@@ -245,7 +245,7 @@
             width: 100%;
             box-sizing: border-box;
             max-width: 100%;
-            border: 1px solid #ddd;
+            border: 1px solid #E5E7EB;
             border-radius: 6px;
             padding: 7px 9px;
             font-size: 13px;
@@ -253,7 +253,7 @@
         }
 
         .exp-range-input:focus {
-            border-color: #f28123;
+            border-color: #F97316;
         }
 
         /* dual-handle range slider (budget + media size) */
@@ -262,7 +262,7 @@
             justify-content: space-between;
             font-size: 12px;
             font-weight: 600;
-            color: #333;
+            color: #0F172A;
             margin-bottom: 4px;
         }
 
@@ -284,15 +284,35 @@
             pointer-events: none;
         }
 
+        /* single-handle variant (radius) — the pointer-events juggling above is
+           only there so two overlapping thumbs stay grabbable; with one thumb it
+           just makes the track dead, so give the input its clicks back */
+        .exp-slider.single input[type=range] {
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* radius needs a town to measure from, so it greys out until there is one */
+        .exp-slider.single.is-disabled {
+            opacity: .45;
+            pointer-events: none;
+        }
+
+        .exp-slider-hint {
+            font-size: 11px;
+            color: #0F172A;
+            margin-top: 2px;
+        }
+
         .exp-slider input[type=range]::-webkit-slider-runnable-track {
             height: 6px;
-            background: #d7d7d7;
+            background: #E5E7EB;
             border-radius: 3px;
         }
 
         .exp-slider input[type=range]::-moz-range-track {
             height: 6px;
-            background: #d7d7d7;
+            background: #E5E7EB;
             border-radius: 3px;
         }
 
@@ -302,11 +322,11 @@
             pointer-events: auto;
             width: 16px;
             height: 16px;
-            background: #f28123;
+            background: #F97316;
             border-radius: 50%;
             cursor: pointer;
-            border: 2px solid #fff;
-            box-shadow: 0 0 4px rgba(0, 0, 0, .3);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 0 4px rgba(15, 23, 42, 0.3);
             margin-top: -5px;
             position: relative;
             z-index: 5;
@@ -316,17 +336,17 @@
             pointer-events: auto;
             width: 16px;
             height: 16px;
-            background: #f28123;
+            background: #F97316;
             border-radius: 50%;
             cursor: pointer;
-            border: 2px solid #fff;
-            box-shadow: 0 0 4px rgba(0, 0, 0, .3);
+            border: 2px solid #FFFFFF;
+            box-shadow: 0 0 4px rgba(15, 23, 42, 0.3);
         }
 
         .exp-slider-fill {
             position: absolute;
             height: 6px;
-            background: #f28123;
+            background: #F97316;
             top: 8px;
             border-radius: 3px;
             z-index: 2;
@@ -336,8 +356,8 @@
         .explore-sidebar-foot {
             position: sticky;
             bottom: 0;
-            background: #fdf4ec;
-            border-top: 1px solid #f0e2d4;
+            background: rgba(249, 115, 22, 0.12);
+            border-top: 1px solid rgba(249, 115, 22, 0.12);
             padding: 10px 18px;
             display: flex;
             gap: 8px;
@@ -345,25 +365,25 @@
 
         .btn-clear-all {
             flex: 1;
-            background: #f28123;
+            background: #F97316;
             border: none;
             padding: 10px;
             border-radius: 6px;
             font-weight: 700;
             cursor: pointer;
-            color: #fff;
-            box-shadow: 0 2px 6px rgba(242, 129, 35, .35);
+            color: #FFFFFF;
+            box-shadow: 0 2px 6px rgba(249, 115, 22, 0.35);
             transition: background .15s ease;
         }
 
         .btn-clear-all:hover {
-            background: #d96f15;
+            background: #F97316;
         }
 
         /* ---------------- ACTIVE FILTER CHIPS ---------------- */
         .explore-chips {
             padding: 10px 18px;
-            border-bottom: 1px solid #f0e2d4;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.12);
             display: flex;
             align-items: flex-start;
             gap: 8px;
@@ -382,9 +402,9 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: #fff3e8;
-            color: #d96f15;
-            border: 1px solid #f6c79a;
+            background: rgba(249, 115, 22, 0.12);
+            color: #F97316;
+            border: 1px solid #F97316;
             border-radius: 14px;
             padding: 3px 6px 3px 10px;
             font-size: 12px;
@@ -407,8 +427,8 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #f28123;
-            color: #fff;
+            background: #F97316;
+            color: #FFFFFF;
             font-size: 12px;
             line-height: 1;
             cursor: pointer;
@@ -416,13 +436,13 @@
         }
 
         .exp-chip .exp-chip-x:hover {
-            background: #d96f15;
+            background: #F97316;
         }
 
         .explore-chips-clear {
             background: none;
             border: none;
-            color: #f28123;
+            color: #F97316;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
@@ -440,9 +460,9 @@
             align-items: center;
             gap: 10px;
             padding: 10px 18px;
-            background: #fdf4ec;
-            border-bottom: 1px solid #f0e2d4;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
+            background: rgba(249, 115, 22, 0.12);
+            border-bottom: 1px solid rgba(249, 115, 22, 0.12);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
             flex-wrap: wrap;
             flex: 0 0 auto;
         }
@@ -451,7 +471,7 @@
             font-size: 12px;
             font-weight: 700;
             letter-spacing: 1.5px;
-            color: #f28123;
+            color: #F97316;
             text-transform: uppercase;
             white-space: nowrap;
         }
@@ -462,7 +482,7 @@
 
         /* CLEAR ALL as a bordered pill (matches the reference look) */
         .explore-topbar .explore-chips-clear {
-            border: 1px solid #f28123;
+            border: 1px solid #F97316;
             border-radius: 16px;
             padding: 5px 14px;
             letter-spacing: .5px;
@@ -471,13 +491,13 @@
 
         .explore-topbar .explore-chips-clear:hover {
             text-decoration: none;
-            background: #f28123;
-            color: #fff;
+            background: #F97316;
+            color: #FFFFFF;
         }
 
         .explore-spinner {
             font-size: 11px;
-            color: #f28123;
+            color: #F97316;
             align-self: center;
             display: none;
         }
@@ -499,14 +519,14 @@
             top: 14px;
             left: 14px;
             z-index: 1000;
-            background: #fff;
-            color: #333;
+            background: #FFFFFF;
+            color: #0F172A;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.22);
             padding: 7px 14px;
             font-size: 13px;
             font-weight: 500;
-            font-family: "Outfit", sans-serif;
+            font-family: "Montserrat", sans-serif;
             display: flex;
             align-items: baseline;
             gap: 5px;
@@ -516,7 +536,7 @@
         .explore-map-count b {
             font-size: 17px;
             font-weight: 700;
-            color: #f28123;
+            color: #F97316;
         }
 
         /* +/- zoom buttons — vertically centered on the map's right edge */
@@ -528,7 +548,7 @@
 
         .explore-map-area .leaflet-control-zoom {
             border: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
             margin-right: 14px;
         }
 
@@ -537,13 +557,13 @@
             height: 38px;
             line-height: 38px;
             font-size: 22px;
-            color: #333;
-            background: #fff;
+            color: #0F172A;
+            background: #FFFFFF;
         }
 
         .explore-map-area .leaflet-control-zoom a:hover {
-            background: #fff7f0;
-            color: #f28123;
+            background: rgba(249, 115, 22, 0.12);
+            color: #F97316;
         }
 
         /* orange cluster bubbles (override Leaflet's default green/yellow) */
@@ -555,30 +575,30 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: #f28123;
-            border: 3px solid #fff;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+            background: #F97316;
+            border: 3px solid #FFFFFF;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            color: #FFFFFF;
             font-weight: 700;
             font-size: 14px;
-            font-family: "Outfit", sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
 
         /* selected map marker */
         .exp-pin {
             width: 28px;
             height: 40px;
-            background: #f28123;
+            background: #F97316;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.35);
         }
 
         .exp-pin.selected {
-            background: #2b6cb0;
+            background: #0F172A;
             width: 36px;
             height: 50px;
             z-index: 9999;
@@ -598,6 +618,23 @@
 
             .explore-map-area {
                 height: 60vh;
+            }
+
+            /* Stacked, the sidebar takes half the height — fine on a real page,
+               but inside the home page hero panel it leaves the map a sliver.
+               In the embed the filters are dropped and the map gets the whole
+               frame; the full page is one tap away on the button above it. */
+            .explore-wrap.is-embed .explore-sidebar {
+                display: none;
+            }
+
+            .explore-wrap.is-embed .explore-map-area {
+                height: 100%;
+                min-height: 100%;
+            }
+
+            .explore-wrap.is-embed {
+                height: 100%;
             }
         }
     </style>
@@ -678,7 +715,8 @@
         <button type="button" class="explore-chips-clear" id="exploreChipsClear">Clear all</button>
     </div>
 
-    <div class="explore-wrap">
+    {{-- ?embed=1 renders this page inside the home page hero panel. --}}
+    <div class="explore-wrap{{ request()->boolean('embed') ? ' is-embed' : '' }}">
         {{-- ================= LEFT : FILTER SIDEBAR ================= --}}
         <aside class="explore-sidebar">
             <div class="explore-sidebar-head">
@@ -739,6 +777,23 @@
                                 min="{{ $today }}">
                         </div>
                     </div>
+                </div>
+
+                {{-- RADIUS (SINGLE-HANDLE SLIDER) --}}
+                {{-- Measures out from the towns ticked above, so it only bites
+                     once at least one Town is selected. 0 = off. --}}
+                <div class="exp-group">
+                    <div class="exp-group-title">Radius</div>
+                    <div class="exp-slider-labels">
+                        <span id="expRadiusLabel">Any</span>
+                        <span>{{ $radiusMax }} KM</span>
+                    </div>
+                    <div class="exp-slider single">
+                        <div class="exp-slider-fill" id="expRadiusFill"></div>
+                        <input type="range" name="radius_id" id="expRadiusRange" min="{{ $radiusMin }}"
+                            max="{{ $radiusMax }}" step="1" value="{{ $radiusMin }}">
+                    </div>
+                    <div class="exp-slider-hint" id="expRadiusHint">Select a Town to use this</div>
                 </div>
 
                 {{-- BUDGET (PRICE RANGE SLIDER) --}}
@@ -851,7 +906,7 @@
             let selectedId = null;
 
             function pinIcon(selected) {
-                const color = selected ? '#2b6cb0' : '#f28123';
+                const color = selected ? '#0F172A' : '#F97316';
                 const w = selected ? 40 : 32;
                 const h = selected ? 54 : 44;
                 const svg =
@@ -859,7 +914,7 @@
                     'xmlns="http://www.w3.org/2000/svg" ' +
                     // overflow:visible so the 2.5px stroke + shadow aren't clipped
                     // at the viewBox edges (that was cutting the pin's left/right)
-                    'style="overflow:visible;filter:drop-shadow(0 3px 3px rgba(0,0,0,.4));">' +
+                    'style="overflow:visible;filter:drop-shadow(0 3px 3px rgba(15, 23, 42, 0.4));">' +
                     '<path d="M16 0C7.16 0 0 7.16 0 16c0 11.5 16 28 16 28s16-16.5 16-28C32 7.16 24.84 0 16 0z" ' +
                     'fill="' + color + '" stroke="#ffffff" stroke-width="2.5"/>' +
                     '<circle cx="16" cy="16" r="6" fill="#ffffff"/>' +
@@ -878,19 +933,19 @@
                     '<img src="' + m.image +
                     '" style="width:100%;height:90px;object-fit:cover;border-radius:6px;margin-bottom:6px;">' :
                     '';
-                let code = m.hoarding_code ? '<div style="font-size:11px;color:#666;">' + m.hoarding_code +
+                let code = m.hoarding_code ? '<div style="font-size:11px;color:#0F172A;">' + m.hoarding_code +
                     '</div>' : '';
-                let hw = m.highway_name ? '<div style="font-size:11px;color:#666;">🛣 ' + m.highway_name +
+                let hw = m.highway_name ? '<div style="font-size:11px;color:#0F172A;">🛣 ' + m.highway_name +
                     '</div>' : '';
-                let lm = m.landmarks ? '<div style="font-size:11px;color:#888;">📍 ' + m.landmarks + '</div>' : '';
+                let lm = m.landmarks ? '<div style="font-size:11px;color:#0F172A;">📍 ' + m.landmarks + '</div>' : '';
                 return '<div style="width:190px;">' + img + code +
                     '<div style="font-weight:600;">' + (m.title || '') + '</div>' +
                     '<div style="font-size:12px;">' + (m.width || '') + ' × ' + (m.height || '') + ' ft</div>' +
                     hw + lm +
-                    '<div style="color:#f28123;font-weight:700;margin-top:2px;">₹ ' + Number(m.price)
+                    '<div style="color:#F97316;font-weight:700;margin-top:2px;">₹ ' + Number(m.price)
                     .toLocaleString() + '</div>' +
                     '<a href="' + EXPLORE.mediaDetailsBase + '/' + m.eid +
-                    '" style="color:#2b6cb0;font-size:12px;">View Details →</a>' +
+                    '" style="color:#0F172A;font-size:12px;">View Details →</a>' +
                     '</div>';
             }
 
@@ -1001,9 +1056,16 @@
                 const priceFull = sliderFull('exp_min_price', 'exp_max_price', 'expMaxPriceRange');
                 const areaFull = sliderFull('exp_min_area', 'exp_max_area', 'expMaxAreaRange');
 
+                // Radius at its floor is "off". Read it straight off the input
+                // rather than through the slider object — runSearch is declared
+                // well before that object exists.
+                const $radius = $('#expRadiusRange');
+                const radiusOff = Number($radius.val()) <= Number($radius.attr('min'));
+
                 params = params.filter(function(p) {
                     if (priceFull && (p.name === 'min_price' || p.name === 'max_price')) return false;
                     if (areaFull && (p.name === 'min_area' || p.name === 'max_area')) return false;
+                    if (radiusOff && p.name === 'radius_id') return false;
                     return true;
                 });
 
@@ -1196,6 +1258,61 @@
                 gap: 1
             });
 
+            /* ---- single-handle range slider (radius) ---- */
+            // Radius measures out from the ticked Towns, so it is only usable
+            // once at least one Town is checked — and 0 means "off", which is
+            // why the value is dropped from the request in runSearch().
+            const radiusSlider = (function() {
+                const $range = $('#expRadiusRange');
+                const $fill = $('#expRadiusFill');
+                const $label = $('#expRadiusLabel');
+                const $wrap = $range.closest('.exp-slider');
+                const $hint = $('#expRadiusHint');
+
+                const lo = Number($range.attr('min'));
+                const hi = Number($range.attr('max'));
+                const span = (hi - lo) || 1;
+
+                function paint() {
+                    const val = Number($range.val());
+                    // one handle, so the fill always starts at the left edge
+                    $fill.css({
+                        left: '0%',
+                        width: (((val - lo) / span) * 100) + '%'
+                    });
+                    $label.text(val > lo ? val + ' KM' : 'Any');
+                }
+
+                function syncAvailability() {
+                    const hasTown = $('#exploreForm input[name="city_id[]"]:checked').length > 0;
+                    $wrap.toggleClass('is-disabled', !hasTown);
+                    $hint.toggle(!hasTown);
+                }
+
+                function reset() {
+                    $range.val(lo);
+                    paint();
+                    syncAvailability();
+                }
+
+                $range.on('input', paint);
+                $range.on('change', function() {
+                    paint();
+                    clearTimeout(rangeTimer);
+                    rangeTimer = setTimeout(runSearch, 300);
+                });
+
+                // a Town going on or off changes whether radius applies at all
+                $(document).on('change', '#exploreForm input[name="city_id[]"]', syncAvailability);
+
+                paint();
+                syncAvailability();
+
+                return {
+                    reset: reset
+                };
+            })();
+
             // type-to-filter inside a checkbox group
             $('.grp-filter').on('input', function() {
                 let term = $(this).val().toLowerCase();
@@ -1215,6 +1332,7 @@
                 // restore sliders to their full range + repaint fill/labels
                 priceSlider.update(false);
                 areaSlider.update(false);
+                radiusSlider.reset();
                 $('.grp-filter').trigger('input');
                 toggleQClear();
                 runSearch();

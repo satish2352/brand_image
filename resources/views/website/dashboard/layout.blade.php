@@ -7,14 +7,14 @@
     <style>
         /* Parent active style */
         .dashboard-sidebar>ul>li.active>a {
-            background: linear-gradient(90deg, #ffb300, #ff9800);
-            color: #000;
+            background: linear-gradient(90deg, #F97316, #F97316);
+            color: #0F172A;
         }
 
         /* ONLY child active highlight */
         .dashboard-sidebar ul ul a.active {
-            background: linear-gradient(90deg, #ffb300, #ff9800);
-            color: #000;
+            background: linear-gradient(90deg, #F97316, #F97316);
+            color: #0F172A;
         }
 
         .sidebar-menu li.active a {

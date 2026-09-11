@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Website;
 
 use Illuminate\Support\Facades\DB;
+use App\Support\RadiusRange;
 
 /**
  * Repository for the new multi-select Explore page (Feature 4).
@@ -84,7 +85,14 @@ class ExploreRepository
         /* ---------- LOCATION GROUPS (OR within / AND across) ---------- */
         $this->applyInFilter($query, 'm.state_id', $filters['state_id'] ?? null);
         $this->applyInFilter($query, 'm.district_id', $filters['district_id'] ?? null);
-        $this->applyInFilter($query, 'm.city_id', $filters['city_id'] ?? null);
+
+        // Town + Radius are one decision: a radius measures OUT from the ticked
+        // towns, so when it applies it REPLACES the plain town match rather than
+        // narrowing it — otherwise the slider could never reach past the town.
+        if (!$this->applyRadiusFilter($query, $filters)) {
+            $this->applyInFilter($query, 'm.city_id', $filters['city_id'] ?? null);
+        }
+
         $this->applyInFilter($query, 'm.area_id', $filters['area_id'] ?? null);
         $this->applyInFilter($query, 'm.category_id', $filters['category_id'] ?? null);
         $this->applyInFilter($query, 'm.areatype_id', $filters['areatype_id'] ?? null);
@@ -177,6 +185,62 @@ class ExploreRepository
     /**
      * Apply an "OR within group" filter: whereIn for a list, where for a scalar.
      */
+    /**
+     * "Within N km of the ticked towns" — Explore is multi-select, so a row
+     * qualifies when it is inside the radius of ANY of them, matching the
+     * OR-within-a-group rule the rest of this page uses.
+     *
+     * Returns whether the filter actually made it into the query: with no town
+     * ticked there is no centre to measure from, and a town with no coordinates
+     * cannot be one either, so the caller keeps its plain town match instead.
+     */
+    private function applyRadiusFilter($query, array $filters): bool
+    {
+        // Clamped to the same ceiling the slider offers — it is only an <input>,
+        // so a hand-crafted request must not be able to ask for 10,000 km.
+        $radiusKm = RadiusRange::clamp($filters['radius_id'] ?? null);
+        $cityIds  = $this->toIntArray($filters['city_id'] ?? null);
+
+        if ($radiusKm <= 0 || empty($cityIds)) {
+            return false;
+        }
+
+        $centres = DB::table('cities')
+            ->whereIn('id', $cityIds)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->get(['latitude', 'longitude']);
+
+        if ($centres->isEmpty()) {
+            return false;
+        }
+
+        $query->whereNotNull('m.latitude')->whereNotNull('m.longitude');
+
+        $query->where(function ($outer) use ($centres, $radiusKm) {
+            foreach ($centres as $centre) {
+                // LEAST(1, ...) keeps acos() in domain — floating point can push
+                // the cosine a hair over 1 for a point on top of the centre,
+                // which would make the whole expression NULL.
+                $outer->orWhereRaw(
+                    '(6371 * acos(LEAST(1,
+                        cos(radians(?)) * cos(radians(m.latitude))
+                        * cos(radians(m.longitude) - radians(?))
+                        + sin(radians(?)) * sin(radians(m.latitude))
+                    ))) <= ?',
+                    [
+                        (float) $centre->latitude,
+                        (float) $centre->longitude,
+                        (float) $centre->latitude,
+                        $radiusKm,
+                    ]
+                );
+            }
+        });
+
+        return true;
+    }
+
     private function applyInFilter($query, string $column, $value): void
     {
         $ids = $this->toIntArray($value);

@@ -57,6 +57,24 @@ class MediaManagement extends Model
         return $this->hasMany(MediaImage::class, 'media_id');
     }
 
+    /**
+     * Per-panel dimensions (Bus Shelter's Front / Back / Side). Empty for
+     * categories that are a single Width x Height.
+     */
+    public function locationSizes()
+    {
+        return $this->hasMany(MediaLocationSize::class, 'media_id');
+    }
+
+    /**
+     * The panels keyed by position, so a form or a details page can ask for
+     * `$media->locationSizesByPosition['front']` without a lookup loop.
+     */
+    public function getLocationSizesByPositionAttribute()
+    {
+        return $this->locationSizes->keyBy('position');
+    }
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);

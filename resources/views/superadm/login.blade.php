@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/campaign/images/logo.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/logo/brand_adda.png') }}">
 
     <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -171,7 +171,7 @@
 
                     {{-- Logo --}}
                     <div class="login-logo text-center mb-3">
-                        <img src="{{ asset('asset/campaign/images/logo.png') }}" alt="Brand Image Logo">
+                        <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda">
                     </div>
 
                     {{-- Title --}}

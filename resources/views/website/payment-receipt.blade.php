@@ -13,12 +13,12 @@
 
         .invoice-card {
             width: 240mm;
-            background: #fff;
+            background: #FFFFFF;
             padding: 18mm;
             font-family: Arial, sans-serif;
             font-size: 14px;
-            color: #000;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
+            color: #0F172A;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
             margin-top: 5rem;
         }
 
@@ -39,7 +39,7 @@
         }
 
         .hr-line {
-            border-top: 2px solid #000;
+            border-top: 2px solid #0F172A;
             margin: 10px 0 15px;
         }
 
@@ -50,8 +50,8 @@
         }
 
         .badge-paid {
-            background: #28a745;
-            color: #fff;
+            background: #0F172A;
+            color: #FFFFFF;
             padding: 3px 10px;
             font-size: 12px;
             border-radius: 4px;
@@ -66,13 +66,13 @@
 
         .invoice-table th,
         .invoice-table td {
-            border: 1px solid #000;
+            border: 1px solid #0F172A;
             padding: 8px;
             text-align: center;
         }
 
         .invoice-table th {
-            background: #f2f2f2;
+            background: #E5E7EB;
         }
 
         /* TOTAL */
@@ -83,7 +83,7 @@
         }
 
         .invoice-total td {
-            border: 1px solid #000;
+            border: 1px solid #0F172A;
             padding: 8px;
         }
 
@@ -137,7 +137,7 @@
                 height: 297mm;
                 margin: 0;
                 padding: 0;
-                background: #fff;
+                background: #FFFFFF;
             }
 
             body * {
@@ -212,23 +212,23 @@
         /* Label column */
         .summary-label {
             text-align: right;
-            background: #fafafa;
-            border-left: 1px solid #000;
+            background: #FFFFFF;
+            border-left: 1px solid #0F172A;
         }
 
         /* Value column */
         .summary-value {
             text-align: center;
-            background: #fafafa;
+            background: #FFFFFF;
         }
 
         /* Grand Total emphasis (NOT full width) */
         .grand-total-row .summary-label,
         .grand-total-row .summary-value {
-            background: #eaf7ee;
+            background: #0F172A;
             font-size: 15px;
             font-weight: 700;
-            border-top: 2px solid #000;
+            border-top: 2px solid #0F172A;
         }
 
         /* Space between items & totals */
@@ -337,7 +337,7 @@
 
             {{-- HEADER --}}
             <div class="invoice-header">
-                <img src="{{ asset('asset/campaign/images/logo.png') }}" height="45">
+                <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda" height="45">
                 <h2>RECEIPT</h2>
             </div>
             <div class="hr-line"></div>

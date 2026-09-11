@@ -92,7 +92,7 @@
                                     Campaign Name
                                     <span> : {{ $campaign->first()->campaign_name }}</span>
                                 </h3>
-                                <p class="mb-3 " style="color: #2b64b5;">
+                                <p class="mb-3 " style="color: #0F172A;">
                                     {{ $row->media_title ?? 'Media' }}
                                 </p>
 

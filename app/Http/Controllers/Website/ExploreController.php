@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\Website\ExploreService;
+use App\Support\MasterCache;
+use App\Support\RadiusRange;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +48,10 @@ class ExploreController extends Controller
             'grandTotal'  => $grandTotal,
             'areaRange'   => $ranges['area'],
             'priceRange'  => $ranges['price'],
+            // Bounds for the Radius slider — the same ceiling the repository
+            // clamps a submitted radius to.
+            'radiusMin'   => RadiusRange::MIN,
+            'radiusMax'   => RadiusRange::max(),
         ]));
     }
 
@@ -85,7 +91,7 @@ class ExploreController extends Controller
     public function landmarks()
     {
         return response()->json(
-            Cache::remember('explore_landmarks', 3600, fn() =>
+            Cache::remember(MasterCache::EXPLORE_LANDMARKS, MasterCache::TTL, fn() =>
             DB::table('landmark')->where('is_active', 1)->where('is_deleted', 0)
                 ->select('id', 'landmark_name')->orderBy('landmark_name')->get())
         );
@@ -97,7 +103,7 @@ class ExploreController extends Controller
     public function highways()
     {
         return response()->json(
-            Cache::remember('explore_highways', 3600, fn() =>
+            Cache::remember(MasterCache::EXPLORE_HIGHWAYS, MasterCache::TTL, fn() =>
             DB::table('highway')->where('is_active', 1)->where('is_deleted', 0)
                 ->select('id', 'highway_name')->orderBy('highway_name')->get())
         );
@@ -117,6 +123,7 @@ class ExploreController extends Controller
             'areatype_id'  => $request->input('areatype_id'),
             'highway_id'   => $request->input('highway_id'),
             'landmark_ids' => $request->input('landmark_ids'),
+            'radius_id'    => $request->input('radius_id'),
             'min_price'    => $request->input('min_price'),
             'max_price'    => $request->input('max_price'),
             'min_area'     => $request->input('min_area'),
@@ -167,7 +174,11 @@ class ExploreController extends Controller
         return Cache::remember('explore_ranges', 300, function () {
             $area = DB::table('media_management')
                 ->where('is_deleted', 0)->where('is_active', 1)
-                ->selectRaw('CAST(MIN(area_auto) AS UNSIGNED) as min_area, CAST(MAX(area_auto) AS UNSIGNED) as max_area')
+                // area_auto is a VARCHAR, so MIN()/MAX() compare it as TEXT: the old
+                // 'CAST(MIN(area_auto) AS UNSIGNED)' aggregated the strings first and
+                // only then cast, which returned min=1122 / max=800 — a backwards
+                // range that left the size slider dead. Cast per row, then aggregate.
+                ->selectRaw('MIN(CAST(area_auto AS DECIMAL(15,2))) as min_area, MAX(CAST(area_auto AS DECIMAL(15,2))) as max_area')
                 ->first();
 
             $price = DB::table('media_management')

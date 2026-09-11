@@ -6,14 +6,14 @@
             max-width: 540px;
             margin: 130px auto 60px auto;
             border-radius: 14px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 4px 24px rgba(15, 23, 42, 0.1);
             overflow: hidden;
         }
 
         .cp-card-header {
-            background: #f28123;
+            background: #F97316;
             padding: 24px 32px;
-            color: #fff;
+            color: #FFFFFF;
             display: flex;
             align-items: center;
             gap: 14px;
@@ -26,7 +26,7 @@
         }
 
         .cp-card-body {
-            background: #fff;
+            background: #FFFFFF;
             padding: 30px 32px;
         }
 
@@ -36,8 +36,8 @@
         }
 
         .cp-card-body .form-control:focus {
-            border-color: #f28123;
-            box-shadow: 0 0 0 0.2rem rgba(242, 129, 35, 0.20);
+            border-color: #F97316;
+            box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.2);
         }
 
         .cp-password-wrapper {
@@ -50,14 +50,14 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #888;
+            color: #0F172A;
             font-size: 16px;
             z-index: 5;
             user-select: none;
         }
 
         .cp-password-wrapper .cp-toggle:hover {
-            color: #f28123;
+            color: #F97316;
         }
 
         .cp-password-wrapper .form-control {
@@ -190,27 +190,27 @@
 
                 const levels = [{
                         pct: '20%',
-                        color: '#dc3545',
+                        color: '#F97316',
                         text: 'Very Weak'
                     },
                     {
                         pct: '40%',
-                        color: '#fd7e14',
+                        color: '#F97316',
                         text: 'Weak'
                     },
                     {
                         pct: '60%',
-                        color: '#ffc107',
+                        color: '#F97316',
                         text: 'Fair'
                     },
                     {
                         pct: '80%',
-                        color: '#20c997',
+                        color: '#0F172A',
                         text: 'Strong'
                     },
                     {
                         pct: '100%',
-                        color: '#198754',
+                        color: '#0F172A',
                         text: 'Very Strong'
                     },
                 ];

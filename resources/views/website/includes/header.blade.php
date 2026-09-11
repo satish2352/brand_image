@@ -4,7 +4,7 @@
 
         <!-- Logo -->
         <a class="navbar-brand fw-bold" href="{{ url('/') }}">
-            <img src="{{ asset('asset/images/website/logo.png') }}" alt="..." style="height: 65px;">
+            <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda" style="height: 65px;">
         </a>
 
         <!-- Toggle -->

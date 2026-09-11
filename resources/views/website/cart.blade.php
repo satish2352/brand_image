@@ -5,14 +5,14 @@
     <style>
         .flatpickr-day.flatpickr-disabled,
         .flatpickr-day.flatpickr-disabled:hover {
-            color: #979393 !important;
+            color: #0F172A !important;
             /* keep same disabled color */
             background: transparent !important;
             cursor: not-allowed;
         }
 
         .text-muted {
-            color: #474f53 !important;
+            color: #0F172A !important;
             font-size: 15px !important;
         }
 
@@ -21,14 +21,14 @@
             backdrop-filter: blur(6px);
             border-radius: 16px;
             padding: 18px;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
             transition: all 0.35s ease;
         }
 
         .cart-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 25px 55px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 25px 55px rgba(15, 23, 42, 0.12);
         }
 
         /* .cart-img-wrapper {
@@ -58,16 +58,16 @@
         .cart-thumbs img:hover,
         .cart-thumbs img.active {
             opacity: 1;
-            border-color: #ff9800;
+            border-color: #F97316;
         }
 
         .cart-main-img {
             width: 100%;
             border-radius: 14px;
             overflow: hidden;
-            background: #f8f8f8;
+            background: #FFFFFF;
             cursor: zoom-in;
-            box-shadow: 0 0 20px #ddd
+            box-shadow: 0 0 20px #E5E7EB
         }
 
         .cart-main-img img {
@@ -94,7 +94,7 @@
         .cart-info p {
             font-size: 14px;
             margin-bottom: 6px;
-            color: #555;
+            color: #0F172A;
         }
 
         .cart-footer {
@@ -102,7 +102,7 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 8px;
-            /* border-top: 1px solid #eee; */
+            /* border-top: 1px solid #E5E7EB; */
             padding-top: 8px;
         }
 
@@ -127,8 +127,8 @@
         }
 
         .remove-btn:hover {
-            background: #dc3545;
-            color: #fff;
+            background: #F97316;
+            color: #FFFFFF;
         }
 
         .cart-btn {
@@ -152,34 +152,34 @@
         }
 
         .cart-btn-primary {
-            background: linear-gradient(135deg, #ff9800, #ffb703);
-            color: #fff;
+            background: linear-gradient(135deg, #F97316, #F97316);
+            color: #FFFFFF;
         }
 
         .cart-btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 14px 32px rgba(255, 152, 0, 0.4);
+            box-shadow: 0 14px 32px rgba(249, 115, 22, 0.4);
         }
 
         .cart-btn-dark {
-            background: #ffc107;
-            color: #fff;
+            background: #F97316;
+            color: #FFFFFF;
         }
 
         .cart-btn-dark:hover {
-            background: #ffc107;
+            background: #F97316;
             transform: translateY(-3px);
         }
 
         .cart-btn-outline {
             background: transparent;
-            border: 1.5px solid rgba(0, 0, 0, 0.35);
-            color: #ffc107;
+            border: 1.5px solid rgba(15, 23, 42, 0.35);
+            color: #F97316;
         }
 
         .cart-btn-outline:hover {
-            border-color: #ff9800;
-            color: #ff9800;
+            border-color: #F97316;
+            color: #F97316;
             transform: translateY(-3px);
         }
 
@@ -192,13 +192,13 @@
 
         .cart-summary {
             background: linear-gradient(135deg,
-                    #fff7e6 0%,
+                    rgba(249, 115, 22, 0.12) 0%,
                     #ffffff 45%,
-                    #fff1d6 100%);
-            border: 1px solid rgba(255, 165, 0, 0.35);
+                    rgba(249, 115, 22, 0.12) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.35);
             border-radius: 20px;
             padding: 20px 30px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
         }
 
         .campaign-modal-footer {
@@ -207,7 +207,7 @@
             justify-content: flex-end;
             gap: 12px;
 
-            border-top: 1px solid #eee;
+            border-top: 1px solid #E5E7EB;
         }
 
         /* Base */
@@ -226,24 +226,24 @@
         /* Outline */
         .campaign-btn-outline {
             background: transparent;
-            border: 1.5px solid #ccc;
-            color: #333;
+            border: 1.5px solid #E5E7EB;
+            color: #0F172A;
         }
 
         .campaign-btn-outline:hover {
-            border-color: #ff9800;
-            color: #ff9800;
+            border-color: #F97316;
+            color: #F97316;
         }
 
         /* Primary */
         .campaign-btn-primary {
-            background: linear-gradient(135deg, #ff9800, #ffb703);
-            color: #000;
+            background: linear-gradient(135deg, #F97316, #F97316);
+            color: #0F172A;
         }
 
         .campaign-btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(255, 152, 0, 0.4);
+            box-shadow: 0 10px 28px rgba(249, 115, 22, 0.4);
         }
 
         @media(max-width: 575px) {
@@ -263,7 +263,7 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(12px);
 
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
             overflow: hidden;
         }
 
@@ -273,14 +273,14 @@
             justify-content: space-between;
             align-items: center;
 
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #E5E7EB;
         }
 
         .campaign-modal-header h5 {
             margin: 0;
             font-size: 20px;
             font-weight: 700;
-            color: #111;
+            color: #0F172A;
         }
 
         .campaign-close {
@@ -289,12 +289,12 @@
             font-size: 28px;
             line-height: 1;
             cursor: pointer;
-            color: #999;
+            color: #0F172A;
             transition: 0.3s;
         }
 
         .campaign-close:hover {
-            color: #000;
+            color: #0F172A;
         }
 
         /* THUMBNAILS CONTAINER */
@@ -312,7 +312,7 @@
         }
 
         .cart-thumbs-horizontal::-webkit-scrollbar-thumb {
-            background: #ffc107;
+            background: #F97316;
             border-radius: 10px;
         }
 
@@ -332,7 +332,7 @@
         .cart-thumbs-horizontal img:hover,
         .cart-thumbs-horizontal img.active {
             opacity: 1;
-            border-color: #ff9800;
+            border-color: #F97316;
         }
 
         /* Plese do not distrb this css and stay on this internal page css do not paste in external css */
@@ -459,7 +459,7 @@
 
 
                                                 <button type="button" class="btn  btn-sm mt-2 add-date-btn"
-                                                    style="background-color: #f28123; color:#fff;">
+                                                    style="background-color: #F97316; color:#FFFFFF;">
                                                     Add Dates
                                                 </button>
                                                 <small class="text-danger cart-date-error d-none mt-2 ms-5"
@@ -481,7 +481,7 @@
                                 <div class="col-lg-4 col-md-12 col-sm-12">
                                     <div class=" d-flex justify-content-end"> <button type="button"
                                             class="btn btn-danger btn-sm mt-2 remove-btn ms-2"
-                                            style="background-color: #f13939;"
+                                            style="background-color: #F97316;"
                                             onclick="confirmRemove('{{ route('cart.remove', base64_encode($item->id)) }}')">
                                             <i class="fa fa-trash" aria-hidden="true"></i>
                                         </button>
@@ -860,8 +860,8 @@
                 confirmButtonText: 'Yes, remove it',
                 cancelButtonText: 'Cancel',
                 reverseButtons: true,
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
+                confirmButtonColor: '#F97316',
+                cancelButtonColor: '#0F172A'
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = url;

@@ -12,7 +12,7 @@
         /* Disable hover color change for disabled dates */
         .flatpickr-day.flatpickr-disabled,
         .flatpickr-day.flatpickr-disabled:hover {
-            color: #979393 !important;
+            color: #0F172A !important;
             /* keep same disabled color */
             background: transparent !important;
             cursor: not-allowed;
@@ -23,16 +23,16 @@
         }
 
         .calendar-wrapper {
-            border: 1px solid #eee;
+            border: 1px solid #E5E7EB;
             border-radius: 8px;
             padding: 10px;
-            background: #fafafa;
+            background: #FFFFFF;
         }
 
         .price {
             font-size: 22px;
             font-weight: 700;
-            color: #f28123;
+            color: #F97316;
         }
 
         .media-info p {
@@ -45,11 +45,11 @@
             padding: 12px 18px;
             font-size: 16px;
             font-weight: 600;
-            color: #fff;
-            background: linear-gradient(135deg, #f28123, #ff9f43);
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #F97316, #F97316);
             border: none;
             border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(242, 129, 35, 0.35);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
@@ -59,8 +59,8 @@
 
         /* Hover */
         .add-to-cart-btn:hover {
-            background: linear-gradient(135deg, #e06b0c, #ff851b);
-            box-shadow: 0 6px 18px rgba(242, 129, 35, 0.45);
+            background: linear-gradient(135deg, #F97316, #F97316);
+            box-shadow: 0 6px 18px rgba(249, 115, 22, 0.45);
             transform: translateY(-1px);
         }
 
@@ -71,14 +71,14 @@
 
         /* Disabled state (optional future use) */
         .add-to-cart-btn:disabled {
-            background: #ccc;
+            background: #E5E7EB;
             cursor: not-allowed;
             box-shadow: none;
         }
 
         .flatpickr-day.booked-date {
-            background: #dc3545 !important;
-            color: #fff !important;
+            background: #F97316 !important;
+            color: #FFFFFF !important;
             border-radius: 5%;
             overflow: visible !important;
 
@@ -91,8 +91,8 @@
             height: 15px;
             line-height: 15px;
             /* aligns text */
-            background: #000;
-            color: #fff;
+            background: #0F172A;
+            color: #FFFFFF;
             padding: 0 6px;
             font-size: 8px;
             border-radius: 3px;
@@ -110,8 +110,8 @@
             left: 50%;
             height: 15px;
             line-height: 15px;
-            background: #2a8aff;
-            color: #fff;
+            background: #0F172A;
+            color: #FFFFFF;
             padding: 0 6px;
             font-size: 8px;
             border-radius: 3px;
@@ -128,8 +128,8 @@
         .flatpickr-day.inRange,
         .flatpickr-day.startRange,
         .flatpickr-day.endRange {
-            background: #f28123 !important;
-            color: #fff !important;
+            background: #F97316 !important;
+            color: #FFFFFF !important;
         }
 
 
@@ -150,13 +150,13 @@
             width: 100%;
             height: 70px;
             object-fit: cover;
-            border: 1px solid #ddd;
+            border: 1px solid #E5E7EB;
             border-radius: 4px;
             cursor: pointer;
         }
 
         .media-thumbs img.active {
-            border: 2px solid #f28123;
+            border: 2px solid #F97316;
         }
 
         /* ===== IMAGE GALLERY ===== */
@@ -193,7 +193,7 @@
         }
 
         .media-thumbs-bottom::-webkit-scrollbar-thumb {
-            background: #ccc;
+            background: #E5E7EB;
             border-radius: 10px;
         }
 
@@ -212,7 +212,7 @@
         }
 
         .thumb-img.active {
-            border-color: #f28123;
+            border-color: #F97316;
         }
 
         /* Mobile */
@@ -236,26 +236,26 @@
         .price {
             font-size: 18px;
             font-weight: 700;
-            color: #f28123;
+            color: #F97316;
         }
 
         .per-day {
             font-size: 14px;
-            color: #666;
+            color: #0F172A;
         }
 
         .add-to-cart-btn:disabled {
-            background: #ddd;
-            color: #888;
+            background: #E5E7EB;
+            color: #0F172A;
         }
 
         .add-to-cart-btn:not(:disabled) {
-            background: linear-gradient(135deg, #f28123, #ff9f43);
+            background: linear-gradient(135deg, #F97316, #F97316);
             cursor: pointer;
         }
 
         .details-contact-us:hover {
-            color: #fff;
+            color: #FFFFFF;
         }
     </style>
     @php
@@ -333,7 +333,7 @@
                             @if (!empty($media->hoarding_code))
                                 <p class="mb-2">
                                     <span class="badge"
-                                        style="background:#f28123;color:#fff;font-size:13px;font-weight:600;letter-spacing:.5px;">
+                                        style="background:#F97316;color:#FFFFFF;font-size:13px;font-weight:600;letter-spacing:.5px;">
                                         {{ $media->hoarding_code }}
                                     </span>
                                 </p>

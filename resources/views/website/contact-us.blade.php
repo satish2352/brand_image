@@ -3,38 +3,75 @@
 @section('title', 'Contact Us')
 
 @section('content')
-    <!-- breadcrumb-section -->
-    <div class="container-fluid about-banner-img g-0">
-        <div class="row g-0">
-            <!-- Desktop Image -->
-            <div class="col-md-12 d-none d-md-block">
-                <img src="{{ asset('assets/img/47.png') }}" alt="About Banner" class="img-fluid">
-            </div>
-            <!-- Mobile Image -->
-            <div class="col-md-12 d-block d-md-none">
-                <img src="{{ asset('assets/img/46.png') }}" alt="About Banner" class="img-fluid">
-            </div>
-        </div>
-    </div>
-    <!-- end breadcrumb section -->
-
-    <!-- contact form -->
-    <div id="contact-form" class="contact-from-section conatact-top conatact-bottom">
+    {{-- ================= CONTACT ================= --}}
+    {{-- The form, its field names, the .mb-3 / .error-space pairing the
+         validation script walks, the character counters, the captcha holder and
+         #submitBtn are all unchanged — only the layout around them is new. --}}
+    <section class="bi-contact">
         <div class="container">
-            <div class="row contact-modern-wrapper">
+            <div class="row bi-contact-row">
 
-                <div class="col-lg-8 mb-5 mb-lg-0">
-                    <div class="contact-card light-card">
-                        <div class="form-title">
-                            <h2>Send us a message</h2>
-                            <p>Do you have a question, a concern, or need help choosing the right media option? Feel free to
-                                reach out — our team is always happy to help.</p>
-                        </div>
+                {{-- LEFT: the pitch and the ways to reach us --}}
+                <div class="col-lg-5 bi-contact-info">
+                    <span class="bi-contact-eyebrow"><span aria-hidden="true"></span> Get in touch</span>
 
-                        {{-- Success Message --}}
+                    <h1 class="bi-contact-title">
+                        Let&rsquo;s Create <span class="accent">Something Great</span> Together
+                    </h1>
+
+                    <p class="bi-contact-lead">
+                        Have a question, feedback, or a new project in mind? We&rsquo;d love to hear
+                        from you. Reach out to us and our team will get back to you as soon as possible.
+                    </p>
+
+                    <!-- <ul class="bi-contact-list">
+                        <li>
+                            <span class="bi-contact-ico"><i class="bi bi-telephone-fill" aria-hidden="true"></i></span>
+                            <div>
+                                <span class="bi-contact-k">Phone</span>
+                                <a class="bi-contact-v" href="tel:+917770009506">+91 777 000 9506</a>
+                                <span class="bi-contact-note">Mon - Fri: 9 to 8 PM &middot; Sat - Sun: 10 to 7 PM</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="bi-contact-ico"><i class="bi bi-envelope-fill" aria-hidden="true"></i></span>
+                            <div>
+                                <span class="bi-contact-k">Email</span>
+                                <a class="bi-contact-v" href="mailto:sales@brand-image.co.in">sales@brand-image.co.in</a>
+                                <span class="bi-contact-note">We reply within 24 hours</span>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="bi-contact-ico"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i></span>
+                            <div>
+                                <span class="bi-contact-k">Our Office</span>
+                                <a class="bi-contact-v bi-contact-addr"
+                                    href="https://www.google.com/maps/search/?api=1&query=Brand+Image+Media+Pvt+Ltd+Sadashiv+Nagar+Nashik+422009"
+                                    target="_blank" rel="noopener">
+                                    Brand Adda Media Pvt Ltd, Office No-4, 1st Floor,<br>
+                                    Sadashiv Motkari Sankul, Sadashiv Nagar,<br>
+                                    Opp. Sagar Sweet, Nashik - 422009.
+                                </a>
+                            </div>
+                        </li>
+                    </ul> -->
+                </div>
+
+                {{-- RIGHT: the form --}}
+                <div class="col-lg-7">
+                    <div class="bi-contact-card">
+                        <span class="bi-contact-eyebrow dark"> Drop us a
+                            message</span>
+                        <h2 class="bi-contact-h2">Contact Us</h2>
+                        <p class="bi-contact-sub">Fill out the form below and we&rsquo;ll get back to you shortly.</p>
+
                         @if (session('success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
                         @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+
                         <div class="contact-form">
                             <form method="POST" id="contactForm" action="{{ route('contact.store') }}" novalidate>
                                 @csrf
@@ -43,24 +80,36 @@
 
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <input type="text" class="form-control" placeholder="Full Name" name="full_name">
+                                        <div class="bi-field">
+                                            <i class="bi bi-person" aria-hidden="true"></i>
+                                            <input type="text" class="form-control" placeholder="Full Name *" name="full_name">
+                                        </div>
                                         <div class="error-space"></div>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <input type="email" class="form-control" placeholder="Email" name="email">
+                                        <div class="bi-field">
+                                            <i class="bi bi-envelope" aria-hidden="true"></i>
+                                            <input type="email" class="form-control" placeholder="Email *" name="email">
+                                        </div>
                                         <div class="error-space"></div>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <input type="tel" class="form-control" placeholder="Mobile" name="mobile_no">
+                                        <div class="bi-field">
+                                            <i class="bi bi-telephone" aria-hidden="true"></i>
+                                            <input type="tel" class="form-control" placeholder="Mobile *" name="mobile_no">
+                                        </div>
                                         <div class="error-space"></div>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <textarea name="address" class="form-control" rows="5" placeholder="Address"></textarea>
+                                        <div class="bi-field bi-field-area">
+                                            <i class="bi bi-building" aria-hidden="true"></i>
+                                            <textarea name="address" class="form-control" rows="5" placeholder="Address *"></textarea>
+                                        </div>
                                         <div class="d-flex justify-content-between align-items-center mt-1">
                                             <div class="error-space"></div>
                                             <small class="text-muted" id="addressCounter">0 / 200</small>
@@ -68,7 +117,10 @@
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <textarea name="remark" class="form-control" rows="5" placeholder="Requirements"></textarea>
+                                        <div class="bi-field bi-field-area">
+                                            <i class="bi bi-chat-square-text" aria-hidden="true"></i>
+                                            <textarea name="remark" class="form-control" rows="5" placeholder="Requirements *"></textarea>
+                                        </div>
                                         <div class="d-flex justify-content-between align-items-center mt-1">
                                             <div class="error-space"></div>
                                             <small class="text-muted" id="remarkCounter">0 / 300</small>
@@ -76,70 +128,50 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        {{-- <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
-                            </div> --}}
-                                        <div id="contactCaptcha"></div>
-                                    </div>
 
-                                    <div class="col-md-6 d-flex justify-content-center justify-content-lg-end">
+                                {{-- Captcha first, then the reassurance strip and the submit. --}}
+                                <div class="bi-contact-captcha">
+                                    {{-- <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
+                            </div> --}}
+                                    <div id="contactCaptcha"></div>
+                                </div>
+
+                                <div class="bi-contact-foot">
+                                <ul class="bi-contact-trust">
+                                    <li>
+                                        <i class="bi bi-shield-check" aria-hidden="true"></i>
+                                        <strong>Quick Response</strong>
+                                        <span>We reply within 24 hours</span>
+                                    </li>
+                                    <li>
+                                        <i class="bi bi-people" aria-hidden="true"></i>
+                                        <strong>Expert Team</strong>
+                                        <span>Get support from our experienced team</span>
+                                    </li>
+                                    <li>
+                                        <i class="bi bi-lock" aria-hidden="true"></i>
+                                        <strong>Your Privacy Matters</strong>
+                                        <span>Your information is safe with us</span>
+                                    </li>
+                                </ul>
+
+                                    <div class="bi-contact-send">
                                         <input type="submit" id="submitBtn" value="Submit" class="boxed-btn">
                                     </div>
                                 </div>
                             </form>
                         </div>
-
-
                     </div>
                 </div>
 
-
-                <!-- RIGHT SIDE (UNCHANGED) -->
-                <div class="col-lg-4">
-                    <div class="contact-card dark-card">
-                        <div class="contact-form-wrap">
-                            <div class="contact-form-box">
-                                <h4><i class="fas fa-map"></i> Shop Address</h4>
-                                <p>
-                                    <a href="https://www.google.com/maps/search/?api=1&query=Brand+Image+Media+Pvt+Ltd+Sadashiv+Nagar+Nashik+422009"
-                                        target="_blank" style="text-decoration: none; color: inherit;">
-                                        Brand Image Media Pvt Ltd,
-                                        Office No-4, 1st Floor,
-                                        Sadashiv Motkari Sankul,
-                                        Sadashiv Nagar,Opp.Sagar
-                                        Sweet, Nashik - 422009.
-                                    </a>
-                                </p>
-                            </div>
-
-                            <div class="contact-form-box">
-                                <h4><i class="far fa-clock"></i> Shop Hours</h4>
-                                <p>MON - FRI: 9 to 8 PM <br> SAT - SUN: 10 to 7 PM</p>
-                            </div>
-
-                            <div class="contact-form-box">
-                                <h4><i class="fas fa-address-book"></i> Contact</h4>
-                                <p class="contact-us-page-detail">
-                                    Phone:
-                                    <a href="tel:+917770009506">+91 777 000 9506</a>
-                                    <br>
-                                    Email:
-                                    <a href="mailto:sales@brand-image.co.in">sales@brand-image.co.in</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
-    </div>
-    </div>
-    <!-- end contact form -->
+    </section>
+    {{-- end contact --}}
 
 
     <!-- find our location -->
-    <div class="find-location blue-bg">
+    <!-- <div class="find-location blue-bg">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
@@ -147,17 +179,17 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- end find our location -->
 
     <!-- google map section -->
-    <div class="embed-responsive embed-responsive-21by9">
+    <!-- <div class="embed-responsive embed-responsive-21by9">
         {{-- <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26432.42324808999!2d-118.34398767954286!3d34.09378509738966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2bf07045279bf%3A0xf67a9a6797bdfae4!2sHollywood%2C%20Los%20Angeles%2C%20CA%2C%20USA!5e0!3m2!1sen!2sbd!4v1576846473265!5m2!1sen!2sbd" width="100%" height="450" frameborder="0" style="border:0;" allowfullscreen="" class="embed-responsive-item"></iframe> --}}
         <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3749.6197830459505!2d73.77288857500191!3d19.982486081417772!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bddeb2094f5d9ff%3A0x57bf9c97dbf22492!2sBrand%20Image%20Media%20Pvt%20Ltd%20%7C%20Outdoor%20Advertising%20Agency!5e0!3m2!1sen!2sin!4v1766986988381!5m2!1sen!2sin"
             width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
             referrerpolicy="no-referrer-when-downgrade" class="embed-responsive-item"></iframe>
-    </div>
+    </div> -->
     <!-- end google map section -->
 
     {{-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> --}}
@@ -167,9 +199,20 @@
     <script>
         let contactCaptchaWidget = null;
 
+        // Read through config, not env(): once 'php artisan config:cache' has
+        // been run — which production normally does — env() returns null
+        // outside config files, and the widget would silently stop rendering.
+        const contactCaptchaSiteKey = @json(config('services.recaptcha.site'));
+
         function onloadCallback() {
+            // grecaptcha.render() throws 'Missing required parameters: sitekey'
+            // when the key is blank, which aborts the rest of this callback.
+            if (!contactCaptchaSiteKey) {
+                console.warn('reCAPTCHA site key is not configured — set RECAPTCHA_SITE_KEY in .env');
+                return;
+            }
             contactCaptchaWidget = grecaptcha.render('contactCaptcha', {
-                'sitekey': '{{ env('RECAPTCHA_SITE_KEY') }}'
+                'sitekey': contactCaptchaSiteKey
             });
         }
     </script>
@@ -272,7 +315,10 @@
                 if (!remark.val()) error(remark, 'Requirements are required');
 
                 /* ===== reCAPTCHA ===== */
-                if (typeof grecaptcha !== 'undefined' && window.location.hostname !== 'localhost') {
+                // Only enforce it when a widget actually rendered — otherwise
+                // getResponse(undefined) throws and the form can never submit.
+                if (typeof grecaptcha !== 'undefined' && contactCaptchaWidget !== null &&
+                    window.location.hostname !== 'localhost') {
                     if (grecaptcha.getResponse(contactCaptchaWidget).length === 0) {
                         $('#contactCaptcha').after(`
                             <small class="text-danger d-block mt-1">

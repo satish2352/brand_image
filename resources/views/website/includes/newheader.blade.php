@@ -10,12 +10,12 @@
         height: 50px;
         text-align: center;
         font-size: 22px;
-        border: 1px solid #ccc;
+        border: 1px solid #E5E7EB;
         border-radius: 6px;
     }
 
     .otp-box:focus {
-        border-color: #000;
+        border-color: #0F172A;
         outline: none;
     }
 
@@ -23,7 +23,7 @@
         width: 55px;
         height: 46px;
         padding: 0;
-        background: #f28123;
+        background: #F97316;
         border-radius: 6px;
         justify-content: center;
         gap: 5px;
@@ -47,21 +47,21 @@
         padding: 0 !important;
         border-radius: 12px !important;
         overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-        border: 1px solid #eee !important;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+        border: 1px solid #E5E7EB !important;
     }
 
     .user-menu-v2 .user-info {
         display: block;
         padding: 14px 16px 10px;
-        background: #f9f9f9;
-        border-bottom: 1px solid #eee;
+        background: #FFFFFF;
+        border-bottom: 1px solid #E5E7EB;
     }
 
     .user-menu-v2 .user-info strong {
         display: block;
         font-size: 14px;
-        color: #222;
+        color: #0F172A;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -70,7 +70,7 @@
     .user-menu-v2 .user-info span {
         display: block;
         font-size: 12px;
-        color: #888;
+        color: #0F172A;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -88,7 +88,7 @@
         padding: 9px 16px !important;
         font-size: 13.5px !important;
         font-weight: 500;
-        color: #333 !important;
+        color: #0F172A !important;
         text-decoration: none !important;
         white-space: nowrap !important;
         transition: background 0.15s;
@@ -97,19 +97,19 @@
     }
 
     .menu-btn:hover {
-        background: #fff5ec;
-        color: #f28123 !important;
+        background: rgba(249, 115, 22, 0.12);
+        color: #F97316 !important;
     }
 
     .menu-btn i {
         font-size: 15px;
-        color: #f28123;
+        color: #F97316;
         flex-shrink: 0;
     }
 
     .menu-btn.active {
-        background: #f28123 !important;
-        color: #fff !important;
+        background: #F97316 !important;
+        color: #FFFFFF !important;
         margin: 4px 10px;
         border-radius: 8px;
         width: calc(100% - 20px);
@@ -117,26 +117,26 @@
     }
 
     .menu-btn.active i {
-        color: #fff;
+        color: #FFFFFF;
     }
 
     .menu-btn.active:hover {
-        background: #d96e10 !important;
+        background: #F97316 !important;
     }
 
     .menu-btn.logout {
-        color: #dc3545 !important;
-        border-top: 1px solid #eee;
+        color: #F97316 !important;
+        border-top: 1px solid #E5E7EB;
         margin-top: 4px;
     }
 
     .menu-btn.logout i {
-        color: #dc3545;
+        color: #F97316;
     }
 
     .menu-btn.logout:hover {
-        background: #fff0f1;
-        color: #b02a37 !important;
+        background: rgba(249, 115, 22, 0.12);
+        color: #F97316 !important;
     }
 </style>
 
@@ -157,7 +157,7 @@
                     <!-- logo -->
                     <div class="site-logo">
                         <a href="{{ url('/') }}">
-                            <img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand_Image_Logo">
+                            <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda">
                         </a>
                     </div>
                     <!-- logo -->

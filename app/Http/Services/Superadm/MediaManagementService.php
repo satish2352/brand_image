@@ -6,6 +6,7 @@ use App\Http\Repository\Superadm\MediaManagementRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\MediaImage;
+use App\Models\MediaLocationSize;
 use Illuminate\Support\Facades\Storage;
 
 class MediaManagementService
@@ -88,11 +89,16 @@ class MediaManagementService
                 $mediaData[$field] = $request->input($field);
             }
 
+            // Panel-sized categories overwrite what the (hidden) Width/Height and
+            // Area inputs posted — see applyLocationSizeDimensions.
+            $panels = $this->panelsFromRequest($request);
+            $mediaData = $this->applyLocationSizeDimensions($mediaData, $slug, $panels);
+
             // AUTO-GENERATE UNIQUE HOARDING CODE (HD000001, HD000002, ...)
             // Only for Hoardings/Billboards — HD###### names a hoarding site, so
-            // a mall, airport, transit or wall record is saved without one
-            // rather than being handed a number nothing ever shows. Matches the
-            // bulk import, which issues codes on the same rule.
+            // a mall, airport, transit, bus shelter or wall record is saved
+            // without one rather than being handed a number nothing ever shows.
+            // Matches the bulk import, which issues codes on the same rule.
             $mediaData['hoarding_code'] = $this->takesHoardingCode($slug)
                 ? $this->generateHoardingCode()
                 : null;
@@ -113,6 +119,9 @@ class MediaManagementService
             /** SYNC LANDMARKS (many-to-many) */
             $landmarkIds = array_filter((array) $request->input('landmark_ids', []));
             $media->landmarks()->sync($landmarkIds);
+
+            /** SAVE PER-PANEL SIZES (Bus Shelter's Front / Back / Side) */
+            $this->syncLocationSizes($media, $slug, $panels);
 
             /**  SAVE IMAGES */
             if ($request->hasFile('images')) {
@@ -199,12 +208,19 @@ class MediaManagementService
                 $updateData['media_code'] = null;
             }
 
+            // Panel-sized categories overwrite the posted Width/Height/Area.
+            $panels = $this->panelsFromRequest($request);
+            $updateData = $this->applyLocationSizeDimensions($updateData, $slug, $panels);
+
             /** UPDATE BASIC DATA */
             $this->repo->update($id, $updateData);
 
             /** SYNC LANDMARKS (many-to-many) */
             $landmarkIds = array_filter((array) $request->input('landmark_ids', []));
             $media->landmarks()->sync($landmarkIds);
+
+            /** SYNC PER-PANEL SIZES (Bus Shelter's Front / Back / Side) */
+            $this->syncLocationSizes($media, $slug, $panels);
 
             /** 🔥 PANORAMA UPDATE */
             if ($request->hasFile('panorama_image')) {
@@ -311,6 +327,98 @@ class MediaManagementService
     }
 
     /**
+     * Categories that are sized panel by panel instead of by one face.
+     *
+     * A Bus Shelter carries a Front, a Back and a Side, each with its own
+     * dimensions, so the Add / Edit form hides Width and Height for it and
+     * collects location_sizes[position][width|height] instead.
+     */
+    private function usesLocationSizes(string $slug): bool
+    {
+        return str_contains($slug, 'bus-shelter');
+    }
+
+    /**
+     * The posted panels, normalised to [position => ['width' => ?float,
+     * 'height' => ?float]] and limited to the positions the form offers.
+     *
+     * A panel is only kept when BOTH dimensions are present: a half-filled row
+     * means someone started typing and moved on, not a panel of unknown height.
+     */
+    private function panelsFromRequest(Request $request): array
+    {
+        $posted = (array) $request->input('location_sizes', []);
+        $panels = [];
+
+        foreach (array_keys(MediaLocationSize::POSITIONS) as $position) {
+            $width  = $this->numericOrNull($posted[$position]['width']  ?? null);
+            $height = $this->numericOrNull($posted[$position]['height'] ?? null);
+
+            if ($width !== null && $height !== null) {
+                $panels[$position] = ['width' => $width, 'height' => $height];
+            }
+        }
+
+        return $panels;
+    }
+
+    private function numericOrNull($value): ?float
+    {
+        return is_numeric($value) ? (float) $value : null;
+    }
+
+    /**
+     * For a panel-sized category, replace the dimension columns with what the
+     * panels actually say.
+     *
+     * The Width / Height / Area inputs are hidden rather than removed for these
+     * categories, so the browser still posts them as empty strings - and MySQL
+     * outside strict mode turns an empty string into a very convincing 0.00.
+     * Nulling them keeps "this shelter has no single face" distinct from "this
+     * shelter is zero feet wide".
+     *
+     * area_auto is the panels added together: it is what the public site's
+     * Media Size filter reads, so leaving it empty would drop these records out
+     * of that filter entirely.
+     */
+    private function applyLocationSizeDimensions(array $data, string $slug, array $panels): array
+    {
+        if (!$this->usesLocationSizes($slug)) {
+            return $data;
+        }
+
+        $data['width']  = null;
+        $data['height'] = null;
+
+        $area = 0.0;
+        foreach ($panels as $panel) {
+            $area += $panel['width'] * $panel['height'];
+        }
+
+        $data['area_auto'] = $panels ? number_format($area, 2, '.', '') : null;
+
+        return $data;
+    }
+
+    /**
+     * Store the posted panels against a media record, dropping any that are no
+     * longer there - so clearing a panel, or moving a record to a category that
+     * has none, never leaves an orphan row behind.
+     */
+    private function syncLocationSizes($media, string $slug, array $panels): void
+    {
+        $panels = $this->usesLocationSizes($slug) ? $panels : [];
+
+        $media->locationSizes()
+            ->whereNotIn('position', array_keys($panels) ?: [''])
+            ->delete();
+
+        foreach ($panels as $position => $dimensions) {
+            $media->locationSizes()->updateOrCreate(['position' => $position], $dimensions);
+        }
+    }
+
+    /**
      * Generate the next globally-unique hoarding code: HD000001, HD000002, ...
      * Runs inside the caller's DB transaction; the UNIQUE constraint on the
      * column is the final guard against concurrent collisions.
@@ -352,6 +460,14 @@ class MediaManagementService
             ->where('l.is_deleted', 0)
             ->pluck('l.landmark_name')
             ->toArray();
+
+        // Per-panel sizes (Bus Shelter's Front / Back / Side), in the order the
+        // form offers them so the details page reads the same way.
+        $panels = MediaLocationSize::where('media_id', $id)->get()->keyBy('position');
+        $media->location_sizes = collect(MediaLocationSize::POSITIONS)
+            ->map(fn($label, $position) => $panels->get($position))
+            ->filter()
+            ->values();
 
         return $media;
     }

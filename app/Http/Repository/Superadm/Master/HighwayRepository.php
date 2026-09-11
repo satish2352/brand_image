@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\Highway;
+use App\Support\MasterCache;
 
 class HighwayRepository
 {
@@ -27,7 +28,10 @@ class HighwayRepository
 
     public function store(array $data)
     {
-        return Highway::create($data);
+        $result = Highway::create($data);
+        MasterCache::forgetHighways();
+
+        return $result;
     }
 
     public function findDeletedByName($name)
@@ -46,20 +50,29 @@ class HighwayRepository
 
     public function update($id, array $data)
     {
-        return Highway::where('id', $id)->update($data);
+        $result = Highway::where('id', $id)->update($data);
+        MasterCache::forgetHighways();
+
+        return $result;
     }
 
     public function toggleStatus($id)
     {
         $item = Highway::findOrFail($id);
-        return $item->update(['is_active' => !$item->is_active]);
+        $result = $item->update(['is_active' => !$item->is_active]);
+        MasterCache::forgetHighways();
+
+        return $result;
     }
 
     public function softDelete($id)
     {
-        return Highway::where('id', $id)->update([
+        $result = Highway::where('id', $id)->update([
             'is_deleted' => 1,
             'is_active'  => 0
         ]);
+        MasterCache::forgetHighways();
+
+        return $result;
     }
 }

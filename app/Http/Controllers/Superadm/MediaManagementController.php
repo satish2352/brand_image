@@ -15,6 +15,7 @@ use App\Models\{
     Illumination,
     MediaManagement,
     MediaImage,
+    MediaLocationSize,
     Vendor,
     State,
     City,
@@ -116,12 +117,16 @@ class MediaManagementController extends Controller
 
         $slug = Str::slug($category->slug ?? $category->category_name);
 
+        $panelSized = $this->isPanelSized($slug);
+
         $rules = [
             'area_id'     => 'required|integer',
             'category_id' => 'required|integer',
 
-            'width'       => 'required|numeric|min:0',
-            'height'      => 'required|numeric|min:0',
+            // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
+            // has no single Width x Height to demand - location_sizes carries it.
+            'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
+            'height'      => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
 
             'latitude'    => 'required|numeric|between:-90,90',
             'longitude'   => 'required|numeric|between:-180,180',
@@ -141,6 +146,11 @@ class MediaManagementController extends Controller
         ];
 
         switch (true) {
+
+            //  Bus Shelter - Illumination plus a size per panel
+            case $panelSized:
+                $rules += self::busShelterRules();
+                break;
 
             //  Hoardings / Billboards
             case str_contains($slug, 'hoardings'):
@@ -219,7 +229,7 @@ class MediaManagementController extends Controller
             'panorama_image.max'   => 'Image must not exceed 5MB.',
             'panorama_image.image' => 'File must be an image.',
         ];
-        $request->validate($rules, $messages);
+        $request->validate($rules, $messages + self::busShelterMessages());
 
         try {
             $this->mediaService->store($request, $slug);
@@ -279,6 +289,13 @@ class MediaManagementController extends Controller
                 ->pluck('landmark_id')
                 ->toArray();
 
+            // Per-panel sizes (Bus Shelter's Front / Back / Side), keyed by
+            // position so the form can fill each pair. $media above is a plain
+            // DB row rather than a model, so these are fetched on their own.
+            $locationSizes = MediaLocationSize::where('media_id', $id)
+                ->get()
+                ->keyBy('position');
+
             return view('superadm.mediamanagement.edit', compact(
                 'media',
                 'categories',
@@ -291,7 +308,8 @@ class MediaManagementController extends Controller
                 'areatype',
                 'highways',
                 'landmarks',
-                'selectedLandmarks'
+                'selectedLandmarks',
+                'locationSizes'
             ));
         } catch (\Exception $e) {
             return redirect()->route('media.list')->with('error', 'Invalid media ID');
@@ -303,12 +321,16 @@ class MediaManagementController extends Controller
         $category = Category::findOrFail($request->category_id);
         $slug = Str::slug($category->slug ?? $category->category_name);
 
+        $panelSized = $this->isPanelSized($slug);
+
         $rules = [
             'area_id'     => 'required|integer',
             'category_id' => 'required|integer',
 
-            'width'       => 'required|numeric|min:0',
-            'height'      => 'required|numeric|min:0',
+            // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
+            // has no single Width x Height to demand - location_sizes carries it.
+            'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
+            'height'      => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
 
             'latitude'    => 'required|numeric|between:-90,90',
             'longitude'   => 'required|numeric|between:-180,180',
@@ -330,6 +352,11 @@ class MediaManagementController extends Controller
             'panorama_image.image' => 'File must be an image.',
         ];
         switch (true) {
+
+            //  Bus Shelter - Illumination plus a size per panel
+            case $panelSized:
+                $rules += self::busShelterRules();
+                break;
 
             case str_contains($slug, 'hoardings'):
                 $rules += [
@@ -379,7 +406,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
         }
-        $request->validate($rules);
+        $request->validate($rules, $messages + self::busShelterMessages());
         try {
             $this->mediaService->update($id, $request, $slug);
 
@@ -391,6 +418,69 @@ class MediaManagementController extends Controller
             return back()->withInput()->with('error', 'Update failed');
         }
     }
+    /**
+     * Categories sized panel by panel rather than by one face.
+     *
+     * A Bus Shelter advertises on a Front, a Back and a Side, each with its own
+     * dimensions, so the form hides Width/Height for it and posts
+     * location_sizes[position][width|height] instead. Kept in step with
+     * MediaManagementService::usesLocationSizes().
+     */
+    private function isPanelSized(string $slug): bool
+    {
+        return str_contains($slug, 'bus-shelter');
+    }
+
+    /**
+     * Validation for the panel-sized categories.
+     *
+     * Each panel is optional on its own - a shelter may have no side face - but
+     * a panel must be given as a PAIR (a width with no height is not a size),
+     * and at least one panel has to be filled in or the record has no size at
+     * all.
+     */
+    private static function busShelterRules(): array
+    {
+        return [
+            'illumination_id' => 'required|integer|exists:illuminations,id',
+
+            'location_sizes' => [
+                'required',
+                'array',
+                function ($attribute, $value, $fail) {
+                    $filled = collect($value)->filter(
+                        fn($panel) => is_numeric($panel['width'] ?? null)
+                            && is_numeric($panel['height'] ?? null)
+                    );
+
+                    if ($filled->isEmpty()) {
+                        $fail('Enter the width and height of at least one panel (Front, Back or Side).');
+                    }
+                },
+            ],
+
+            'location_sizes.*.width'  => 'nullable|numeric|min:0|required_with:location_sizes.*.height',
+            'location_sizes.*.height' => 'nullable|numeric|min:0|required_with:location_sizes.*.width',
+        ];
+    }
+
+    /**
+     * Readable wording for the panel rules — the default messages would name the
+     * raw input, e.g. "The location_sizes.front.height field is required".
+     */
+    private static function busShelterMessages(): array
+    {
+        return [
+            'illumination_id.required' => 'Please select an illumination.',
+            'illumination_id.exists'   => 'Please select a valid illumination.',
+            'location_sizes.required'  => 'Enter the size of at least one panel.',
+            'location_sizes.*.width.required_with'  => 'Give a panel both a width and a height, or leave it empty.',
+            'location_sizes.*.height.required_with' => 'Give a panel both a width and a height, or leave it empty.',
+            'location_sizes.*.width.numeric'  => 'Panel width must be a number.',
+            'location_sizes.*.height.numeric' => 'Panel height must be a number.',
+        ];
+    }
+
     public function updateStatus(Request $request)
     {
         try {

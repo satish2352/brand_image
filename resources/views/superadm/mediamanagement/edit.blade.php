@@ -12,6 +12,8 @@
                                                                                                                                         } */
         #wallWrap,
         #hoardingExtra,
+        #illuminationField,
+        #busShelterSection,
         #radiusSection {
             display: none;
         }
@@ -193,8 +195,24 @@
                     </div>
 
                     <div class="col-md-4 mb-3">
+                        <label>Address <span class="text-danger">*</span></label>
+                        <textarea name="address" class="form-control @error('address') is-invalid @enderror">{{ old('address', $media->address) }}</textarea>
+                        @error('address')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- Illumination is shared by more than one category (Hoardings and
+                     Bus Shelter), so it lives in its own toggleable column rather
+                     than inside a single category's section — two selects with the
+                     same name would both post and fight over the value. --}}
+                <div class="row">
+                    <div class="col-md-4 mb-3" id="illuminationField">
                         <label>Illumination <span class="text-danger">*</span></label>
-                        <select name="illumination_id" class="form-control @error('illumination_id') is-invalid @enderror">
+                        <select name="illumination_id" id="illumination_id"
+                            class="form-control @error('illumination_id') is-invalid @enderror">
+                            <option value="">Select</option>
                             @foreach ($illuminations as $ill)
                                 <option value="{{ $ill->id }}"
                                     {{ old('illumination_id', $media->illumination_id) == $ill->id ? 'selected' : '' }}>
@@ -202,14 +220,52 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label>Address <span class="text-danger">*</span></label>
-                        <textarea name="address" class="form-control @error('address') is-invalid @enderror">{{ old('address', $media->address) }}</textarea>
-                        @error('address')
+                        @error('illumination_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
+
+                {{-- ================= BUS SHELTER ================= --}}
+                {{-- A shelter advertises on separate panels instead of one face,
+                     so it replaces Width/Height with a size per panel. --}}
+                @php $panels = $locationSizes ?? collect(); @endphp
+                <div class="row" id="busShelterSection">
+                    <div class="col-12 mb-2">
+                        <label class="fw-bold mb-0">Location Size (ft)</label>
+                        <div class="text-muted small">
+                            Enter the panels this shelter carries — leave a panel blank if it has none.
+                        </div>
+                    </div>
+
+                    @foreach (\App\Models\MediaLocationSize::POSITIONS as $position => $label)
+                        <div class="col-md-4 mb-3">
+                            <label>{{ $label }}</label>
+                            <div class="d-flex align-items-center">
+                                <input type="number" step="0.01" min="0"
+                                    name="location_sizes[{{ $position }}][width]"
+                                    value="{{ old('location_sizes.' . $position . '.width', optional($panels->get($position))->width) }}"
+                                    placeholder="Width"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.width') is-invalid @enderror">
+                                <span class="mx-2 text-muted">&times;</span>
+                                <input type="number" step="0.01" min="0"
+                                    name="location_sizes[{{ $position }}][height]"
+                                    value="{{ old('location_sizes.' . $position . '.height', optional($panels->get($position))->height) }}"
+                                    placeholder="Height"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.height') is-invalid @enderror">
+                            </div>
+                            @error('location_sizes.' . $position . '.width')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('location_sizes.' . $position . '.height')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endforeach
+
+                    @error('location_sizes')
+                        <div class="col-12"><div class="text-danger small">{{ $message }}</div></div>
+                    @enderror
                 </div>
                 {{-- ================= MALL MEDIA ================= --}}
                 <div class="row" id="mallMedia">
@@ -341,7 +397,9 @@
 
                 {{-- ================= COMMON ================= --}}
                 <div class="row">
-                    <div class="col-md-3 mb-3">
+                    {{-- Hidden for Bus Shelter, which sizes each panel separately
+                         in #busShelterSection instead of having one face. --}}
+                    <div class="col-md-3 mb-3 dimension-field">
                         <label>Width <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="width" name="width"
                             value="{{ old('width', $media->width) }}"
@@ -351,7 +409,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-3 mb-3 dimension-field">
                         <label>Height <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="height" name="height"
                             value="{{ old('height', $media->height) }}"
@@ -645,19 +703,31 @@
         $(document).ready(function() {
 
             function hideAllSections() {
-                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap, #hoardingExtra')
+                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap, #hoardingExtra, #illuminationField, #busShelterSection')
                     .hide();
+
+                // Width/Height are the default for every category, so they come
+                // back on unless a category explicitly replaces them.
+                $('.dimension-field').show();
             }
 
             function showSection(category) {
                 hideAllSections();
                 if (!category) return;
 
+                //  BUS SHELTER — panels instead of one Width x Height
+                if (category.includes('bus-shelter')) {
+                    $('#illuminationField').show();
+                    $('#busShelterSection').show();
+                    $('.dimension-field').hide();
+                }
+
                 //  HOARDINGS
                 if (category.includes('hoardings')) {
                     $('#billboardsId').show();
                     $('#radiusSection').show();
                     $('#hoardingExtra').show();
+                    $('#illuminationField').show();
                 }
 
                 //  DIGITAL WALL / WALL PAINTING

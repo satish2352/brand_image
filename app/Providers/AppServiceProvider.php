@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use App\Models\CartItem;
+use App\Support\MasterCache;
+use App\Support\RadiusRange;
 use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
@@ -46,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
         ======================================== */
         View::composer('website.search-form', function ($view) {
 
-            $categories = Cache::remember('search_form_categories', 3600, fn() =>
+            $categories = Cache::remember(MasterCache::CATEGORIES, MasterCache::TTL, fn() =>
                 DB::table('category')
                     ->where('is_active', 1)
                     ->where('is_deleted', 0)
@@ -62,15 +64,9 @@ class AppServiceProvider extends ServiceProvider
                     ->get()
             );
 
-            $radiusList = Cache::remember('search_form_radius', 86400, fn() =>
-                DB::table('radius_master')
-                    ->where('is_active', 1)
-                    ->where('is_deleted', 0)
-                    ->orderBy('radius')
-                    ->get()
-            );
+            $radiusList = RadiusRange::options();
 
-            $highways = Cache::remember('search_form_highways', 3600, fn() =>
+            $highways = Cache::remember(MasterCache::HIGHWAYS, MasterCache::TTL, fn() =>
                 DB::table('highway')
                     ->where('is_active', 1)
                     ->where('is_deleted', 0)
@@ -78,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
                     ->get()
             );
 
-            $landmarks = Cache::remember('search_form_landmarks', 3600, fn() =>
+            $landmarks = Cache::remember(MasterCache::LANDMARKS, MasterCache::TTL, fn() =>
                 DB::table('landmark')
                     ->where('is_active', 1)
                     ->where('is_deleted', 0)
@@ -86,7 +82,14 @@ class AppServiceProvider extends ServiceProvider
                     ->get()
             );
 
-            $view->with(compact('categories', 'states', 'radiusList', 'highways', 'landmarks'));
+            // Bounds for the Radius slider - same ceiling the backend clamps to.
+            $radiusMin = RadiusRange::MIN;
+            $radiusMax = RadiusRange::max();
+
+            $view->with(compact(
+                'categories', 'states', 'radiusList', 'highways', 'landmarks',
+                'radiusMin', 'radiusMax'
+            ));
         });
 
         /* ========================================
@@ -94,7 +97,7 @@ class AppServiceProvider extends ServiceProvider
         ======================================== */
         View::composer('superadm.admin-booking.search-form', function ($view) {
 
-            $firstCategoryName = Cache::remember('admin_first_category', 3600, fn() =>
+            $firstCategoryName = Cache::remember(MasterCache::FIRST_CATEGORY, MasterCache::TTL, fn() =>
                 DB::table('category')
                     ->where('is_active', 1)
                     ->where('is_deleted', 0)
@@ -110,13 +113,7 @@ class AppServiceProvider extends ServiceProvider
                     ->get()
             );
 
-            $radiusList = Cache::remember('search_form_radius', 86400, fn() =>
-                DB::table('radius_master')
-                    ->where('is_active', 1)
-                    ->where('is_deleted', 0)
-                    ->orderBy('radius')
-                    ->get()
-            );
+            $radiusList = RadiusRange::options();
 
             $view->with(compact('firstCategoryName', 'states', 'radiusList'));
         });
