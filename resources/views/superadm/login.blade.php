@@ -179,6 +179,7 @@
             <div class="col-12 col-md-5 col-form d-flex align-items-center justify-content-center p-4">
                 <div class="login-card">
 
+                
                     {{-- Logo --}}
                     <div class="login-logo text-center mb-3">
                         <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda">
