@@ -7846,3 +7846,27 @@ body:has(.bi-contact) .bi-contact {
         font-size: 14px;
     }
 }
+
+/* =========================================================
+   SEARCH BAR — Landmarks menu items are not field labels
+   Each option in the Landmarks dropdown is a <label> wrapping its checkbox,
+   so every rule styling the search card's FIELD labels was landing on it too:
+   uppercase, 11.5px, letter-spaced, and — in the compact sticky bar — white.
+   The menu's own panel is white, so the option text was painting white on
+   white and reading as a column of empty checkboxes.
+
+   The menu is its own surface sitting over the bar, not part of it, so its
+   options opt out of the field-label treatment entirely.
+   ========================================================= */
+.media-search-card .landmark-menu .landmark-option,
+.bi-search-hero .media-search-card .landmark-menu .landmark-option,
+.bi-search-hero.is-compact .media-search-card .landmark-menu .landmark-option {
+    color: #0F172A;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-transform: none;
+    text-shadow: none;
+    margin-bottom: 0;
+}

@@ -124,13 +124,13 @@
         <div class="container">
 
             <h1 class="bi-hero-title" data-aos="fade-up">
-                <span class="bi-hero-line1">Premium Outdoor Media</span>
-                <span class="bi-hero-line2">Booked In Real Time</span>
+                <span class="bi-hero-line1">Maharashtra's Outdoor </span>
+                <span class="bi-hero-line2">Media Paltform</span>
             </h1>
 
             <p class="bi-hero-sub" data-aos="fade-up" data-aos-delay="100">
-                Brand Adda is a smart outdoor media portal offering real-time hoarding
-                availability, 360&deg; location views and instant booking across India.
+              Brand Adda is a technology-driven OOH media platform that 
+              fragmented outdoor advertising inventory onto one searchable ecosystem
             </p>
 
             <div class="bi-hero-actions" data-aos="fade-up" data-aos-delay="200">
@@ -222,7 +222,7 @@
                     </div>
                     <div class="content">
                         <h3>Wide Media Reach</h3>
-                        <p>Extensive outdoor media coverage <br>across prime locations in India.</p>
+                        <p>Extensive outdoor media coverage <br>across prime locations in Maharashtra.</p>
                     </div>
                 </div>
             </div>
