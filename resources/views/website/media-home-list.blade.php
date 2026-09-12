@@ -151,8 +151,16 @@
             }
         }
     </style>
-
     <div class="card-shadow media-card" data-media-id="{{ $media->id }}" id="media-card-{{ $media->id }}">
+        {{-- Shortlist tick. Only a logged-in team member sees it; a visitor's
+             card is exactly as it was. $shareable is set by the search page and
+             absent everywhere else this partial is used. --}}
+        @if (!empty($shareable) && session()->has('user_id'))
+            <label class="share-pick" title="Shortlist this hoarding">
+                <input type="checkbox" class="share-pick-input" value="{{ $media->id }}">
+                <span>Select</span>
+            </label>
+        @endif
         <div class="row">
             <div class="col-lg-5 col-md-5 col-sm-5 px-0">
 

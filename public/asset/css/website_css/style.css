@@ -4513,6 +4513,32 @@ svg {
     line-height: 1.2;
 }
 
+/* The rows inside the Landmarks menu are <label> elements too, so every
+   field-label rule above was landing on them: uppercased, letter-spaced,
+   shrunk, and — on the compact card — turned white, which is invisible on the
+   menu's own white panel. They are option text on a white surface, not labels
+   sitting on the card, so they are reset here. Both variants, and the compact
+   selector carries the same weight as the rule it has to beat. */
+.bi-search-hero .media-search-card .landmark-option,
+.bi-search-hero.is-compact .media-search-card .landmark-option {
+    margin-bottom: 0;
+    font-size: 13.5px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--brand-navy);
+}
+
+/* The "no landmarks" placeholder sits on the same panel. */
+.bi-search-hero .media-search-card .landmark-empty,
+.bi-search-hero.is-compact .media-search-card .landmark-empty {
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: normal;
+    color: rgba(15, 23, 42, .6);
+}
+
 .bi-search-hero.is-compact .media-search-card .form-control,
 .bi-search-hero.is-compact .media-search-card .form-select,
 .bi-search-hero.is-compact .media-search-card .landmark-toggle {
@@ -4569,6 +4595,12 @@ svg {
     .bi-search-hero.is-compact .media-search-card label {
         font-size: 10px;
         letter-spacing: .4px;
+    }
+
+    /* Menu rows are not field labels; they keep a readable size here too. */
+    .bi-search-hero.is-compact .media-search-card .landmark-option {
+        font-size: 13px;
+        letter-spacing: normal;
     }
 }
 
@@ -7844,5 +7876,346 @@ body:has(.bi-contact) .bi-contact {
 
     .bi-media-empty p {
         font-size: 14px;
+    }
+}
+
+/* =========================================================
+   SHAREABLE HOARDING SHORTLISTS
+   The tick boxes and the Share bar are rendered for a logged-in team member
+   only, so none of this is ever seen by a visitor. The client's own page
+   (/shared/{token}) reuses the ordinary result cards and only adds its header.
+   ========================================================= */
+
+/* ---- the tick on a result card ---- */
+.media-card {
+    position: relative;
+}
+
+.share-pick {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 6px 11px 6px 8px;
+    border: 1px solid var(--brand-grey);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .12);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--brand-navy);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+.share-pick:hover {
+    border-color: var(--brand-orange);
+}
+
+.share-pick input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: var(--brand-orange);
+    cursor: pointer;
+}
+
+/* A ticked card is outlined, so the shortlist is readable at a glance while
+   scrolling a long result list. */
+.media-card.is-picked {
+    outline: 2px solid var(--brand-orange);
+    outline-offset: -2px;
+    border-radius: 10px;
+}
+
+.media-card.is-picked .share-pick {
+    border-color: var(--brand-orange);
+    background: var(--brand-orange);
+    color: var(--brand-white);
+}
+
+/* ---- the floating bar ---- */
+.share-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px 12px 20px;
+    border-radius: 999px;
+    background: var(--brand-navy);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .35);
+    /* Out of the way until something is ticked; translate rather than display
+       so it slides up instead of appearing under the pointer. */
+    transform: translate(-50%, 130%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform .25s ease, opacity .25s ease, visibility .25s ease;
+}
+
+.share-bar.is-visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.share-bar-count {
+    font-size: 14px;
+    color: rgba(255, 255, 255, .8);
+    white-space: nowrap;
+}
+
+.share-bar-count strong {
+    color: var(--brand-white);
+    font-size: 16px;
+}
+
+.share-bar-clear {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, .6);
+    cursor: pointer;
+}
+
+.share-bar-clear:hover {
+    color: var(--brand-white);
+    text-decoration: underline;
+}
+
+.share-bar-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: filter .2s ease;
+}
+
+.share-bar-go:hover:not(:disabled) {
+    filter: brightness(1.06);
+}
+
+.share-bar-go:disabled {
+    opacity: .7;
+    cursor: default;
+}
+
+/* ---- the generated-link dialog ---- */
+.share-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, .55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+}
+
+.share-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.share-modal-card {
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+    border-radius: 18px;
+    background: var(--brand-white);
+    box-shadow: 0 30px 80px rgba(15, 23, 42, .35);
+}
+
+.share-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.share-modal-head h5 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--brand-navy);
+}
+
+.share-modal-close {
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    font-size: 26px;
+    line-height: 1;
+    color: rgba(15, 23, 42, .45);
+    cursor: pointer;
+}
+
+.share-modal-close:hover {
+    color: var(--brand-orange);
+}
+
+.share-modal-sub {
+    margin: 6px 0 18px;
+    font-size: 14px;
+    color: rgba(15, 23, 42, .6);
+}
+
+.share-copy {
+    display: flex;
+    gap: 8px;
+}
+
+.share-copy input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid var(--brand-grey);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, .03);
+    font-size: 13.5px;
+    color: var(--brand-navy);
+}
+
+.share-copy button {
+    flex: 0 0 auto;
+    height: 46px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--brand-navy);
+    color: var(--brand-white);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.share-send {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.share-send-btn {
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 46px;
+    border-radius: 10px;
+    border: 1px solid var(--brand-grey);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brand-navy);
+    text-decoration: none;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+.share-send-btn:hover {
+    background: rgba(249, 115, 22, .08);
+    border-color: var(--brand-orange);
+    color: var(--brand-orange);
+}
+
+.share-modal-note {
+    margin: 16px 0 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: rgba(15, 23, 42, .5);
+}
+
+/* ---- the client's page ---- */
+.shared-head {
+    padding: 34px 0 6px;
+}
+
+.shared-head h1 {
+    margin: 8px 0 10px;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -.4px;
+    color: var(--brand-navy);
+}
+
+.shared-head p {
+    max-width: 70ch;
+    margin: 0;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: rgba(15, 23, 42, .62);
+}
+
+.shared-list {
+    max-height: 78vh;
+    overflow-y: auto;
+}
+
+#sharedMap {
+    height: 78vh;
+    width: 100%;
+    border-radius: 10px;
+}
+
+@media (max-width: 991.98px) {
+    .shared-head h1 {
+        font-size: 26px;
+    }
+
+    /* Stacked, an inner scroll area traps the page scroll on a phone; the
+       list simply runs its full length instead. */
+    .shared-list {
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    #sharedMap {
+        height: 60vh;
+        margin-top: 22px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .share-bar {
+        left: 12px;
+        right: 12px;
+        bottom: 16px;
+        justify-content: space-between;
+        padding: 10px 10px 10px 16px;
+        border-radius: 16px;
+        transform: translate(0, 130%);
+    }
+
+    .share-bar.is-visible {
+        transform: translate(0, 0);
+    }
+
+    .share-bar-count {
+        font-size: 13px;
+    }
+
+    .share-send {
+        flex-direction: column;
     }
 }

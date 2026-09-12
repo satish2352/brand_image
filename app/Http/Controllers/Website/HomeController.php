@@ -204,7 +204,13 @@ class HomeController extends Controller
             if ($mediaList->isEmpty()) {
                 return '';
             }
-            return view('website.media-home-list', compact('mediaList'))->render();
+            // Lazy-loaded pages are the same search results, so they carry the
+            // shortlist ticks too — otherwise cards appended on scroll would
+            // have no checkbox and could not be shared.
+            return view('website.media-home-list', [
+                'mediaList' => $mediaList,
+                'shareable' => true,
+            ])->render();
         }
         $areaTypes = $this->getCachedAreaTypes();
         $areaRange = $this->getCachedAreaRange();

@@ -29,6 +29,26 @@ class HomeRepository
             ->get();
     }
 
+
+    /**
+     * The hoardings on a shared link, in the order the team shortlisted them.
+     *
+     * Not paginated: a shortlist is a handful of rows the client is meant to
+     * see all of at once, and the page plots the same set on its map.
+     */
+    public function getMediaByIds(array $ids)
+    {
+        if (empty($ids)) {
+            return collect();
+        }
+
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+
+        // FIELD() keeps the team's own ordering, which whereIn does not.
+        return $this->buildSearchQuery(['media_ids' => $ids])
+            ->orderByRaw('FIELD(m.id, ' . implode(',', $ids) . ')')
+            ->get();
+    }
     private function buildSearchQuery(array $filters)
     {
         $query = DB::table('media_management as m')
@@ -308,6 +328,17 @@ END AS is_available_days
         // if (isset($filters['max_area']) && $filters['max_area'] !== '') {
         //     $query->whereRaw('(m.width * m.height) <= ?', [$filters['max_area']]);
         // }
+
+        /* ──────────────────────────────
+         SHARED LINK: an explicit shortlist
+         The /shared/{token} page reuses this whole builder so its cards carry
+         the same first_image, landmark_names and is_booked as the search
+         results do; it just narrows the set to the ids on the link.
+         ───────────────────────────────*/
+        if (!empty($filters['media_ids'])) {
+            $query->whereIn('m.id', array_map('intval', (array) $filters['media_ids']));
+        }
+
         // area_auto is stored as VARCHAR, so cast to a number to avoid
         // lexicographic comparison (e.g. '60000' wrongly > '120000').
         if (!empty($filters['min_area'])) {

@@ -31,6 +31,7 @@ use App\Http\Controllers\Superadm\WebsiteUserController;
 use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
+use App\Http\Controllers\Website\SharedLinkController;
 use App\Http\Controllers\Website\PaymentHistoryController;
 use App\Http\Controllers\Website\ProfileController;
 use App\Http\Controllers\Superadm\CampaingController;
@@ -307,6 +308,14 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
 Route::get('/search', [HomeController::class, 'searchView'])->name('website.search.view');
 Route::post('/search', [HomeController::class, 'search'])->name('website.search');
+
+/* ============ SHAREABLE HOARDING SHORTLISTS ============
+   The team ticks hoardings on /search and generates a link; the client opens
+   it and sees only those. Generating is admin-gated inside the controller
+   (the admin session is `user_id`, not a guard, so it cannot use auth:*).
+   Viewing is deliberately public — the token IS the credential. */
+Route::post('/shared-links', [SharedLinkController::class, 'store'])->name('shared.link.store');
+Route::get('/shared/{token}', [SharedLinkController::class, 'show'])->name('shared.link.show');
 
 /* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
 Route::get('/explore', [ExploreController::class, 'index'])->name('website.explore');

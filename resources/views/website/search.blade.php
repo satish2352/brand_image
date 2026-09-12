@@ -221,7 +221,7 @@
                 {{-- LEFT: Media Cards --}}
                 <div class="col-lg-6 col-md-6 col-sm-12" style="height:78vh; overflow-y:auto;">
                     <div class="row" id="media-container">
-                        @include('website.media-home-list', ['mediaList' => $mediaList])
+                        @include('website.media-home-list', ['mediaList' => $mediaList, 'shareable' => true])
                     </div>
                 </div>
 
@@ -238,6 +238,189 @@
         <div class="text-center my-4 d-none" id="lazy-loader">
             <span class="spinner-border text-warning"></span>
         </div>
+    @else
+        {{-- Nothing matched. The filters stay as the visitor set them, so the
+             message names the two that most often narrow the list to nothing
+             rather than just saying "no results". --}}
+        <div class="container-fluid mt-4 mb-5">
+            <div class="bi-media-empty">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <h4>No media matches these filters</h4>
+                <p>
+                    Nothing in our inventory fits the options above. Try widening the
+                    media size or budget, or use <strong>Clear Filters</strong> to start
+                    the search again.
+                </p>
+            </div>
+        </div>
+    @endif
+
+    {{-- ================= SHORTLIST & SHARE (team only) =================
+         Appears once a hoarding is ticked. The bar and the dialog are rendered
+         only for a logged-in team member; the generate endpoint checks the
+         session again rather than trusting that. --}}
+    @if (session()->has('user_id'))
+        <div class="share-bar" id="shareBar" aria-live="polite">
+            <div class="share-bar-count">
+                <strong id="shareCount">0</strong> hoarding<span id="shareCountPlural"></span> shortlisted
+            </div>
+            <button type="button" class="share-bar-clear" id="shareClear">Clear</button>
+            <button type="button" class="share-bar-go" id="shareGenerate">
+                <i class="bi bi-link-45deg" aria-hidden="true"></i> Share selected
+            </button>
+        </div>
+
+        <div class="share-modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+            <div class="share-modal-card">
+                <div class="share-modal-head">
+                    <h5 id="shareModalTitle">Shareable link ready</h5>
+                    <button type="button" class="share-modal-close" id="shareModalClose" aria-label="Close">&times;</button>
+                </div>
+
+                <p class="share-modal-sub" id="shareModalSub"></p>
+
+                <div class="share-copy">
+                    <input type="text" id="shareUrl" readonly>
+                    <button type="button" id="shareCopy">Copy</button>
+                </div>
+
+                <div class="share-send">
+                    <a href="#" target="_blank" rel="noopener" id="shareWhatsApp" class="share-send-btn wa">
+                        <i class="bi bi-whatsapp" aria-hidden="true"></i> WhatsApp
+                    </a>
+                    <a href="#" id="shareEmail" class="share-send-btn mail">
+                        <i class="bi bi-envelope" aria-hidden="true"></i> Email
+                    </a>
+                </div>
+
+                <p class="share-modal-note">
+                    Anyone with this link can view only these hoardings. It does not expire.
+                </p>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                const bar = document.getElementById('shareBar');
+                const countEl = document.getElementById('shareCount');
+                const pluralEl = document.getElementById('shareCountPlural');
+                const modal = document.getElementById('shareModal');
+                const urlInput = document.getElementById('shareUrl');
+                const generateBtn = document.getElementById('shareGenerate');
+
+                // The ticked ids live here rather than being read off the DOM:
+                // lazy loading appends more cards as you scroll, and re-reading
+                // the DOM would still work, but a Set survives a card being
+                // replaced and keeps the count honest.
+                const picked = new Set();
+
+                function render() {
+                    countEl.textContent = picked.size;
+                    pluralEl.textContent = picked.size === 1 ? '' : 's';
+                    bar.classList.toggle('is-visible', picked.size > 0);
+                }
+
+                // Delegated: cards arrive after this script runs.
+                document.addEventListener('change', function (e) {
+                    const box = e.target.closest('.share-pick-input');
+                    if (!box) return;
+
+                    const id = parseInt(box.value, 10);
+                    if (box.checked) {
+                        picked.add(id);
+                    } else {
+                        picked.delete(id);
+                    }
+                    box.closest('.media-card')?.classList.toggle('is-picked', box.checked);
+                    render();
+                });
+
+                document.getElementById('shareClear').addEventListener('click', function () {
+                    picked.clear();
+                    document.querySelectorAll('.share-pick-input:checked').forEach(function (box) {
+                        box.checked = false;
+                        box.closest('.media-card')?.classList.remove('is-picked');
+                    });
+                    render();
+                });
+
+                generateBtn.addEventListener('click', function () {
+                    if (!picked.size) return;
+
+                    generateBtn.disabled = true;
+                    generateBtn.textContent = 'Generating…';
+
+                    fetch("{{ route('shared.link.store') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ media_ids: Array.from(picked) }),
+                    })
+                        .then(r => r.json().then(body => ({ ok: r.ok, body })))
+                        .then(({ ok, body }) => {
+                            if (!ok || !body.ok) {
+                                alert(body.message || 'Could not generate the link. Please try again.');
+                                return;
+                            }
+                            openModal(body.url, body.count);
+                        })
+                        .catch(() => alert('Could not generate the link. Please try again.'))
+                        .finally(() => {
+                            generateBtn.disabled = false;
+                            generateBtn.innerHTML = '<i class="bi bi-link-45deg"></i> Share selected';
+                        });
+                });
+
+                function openModal(url, count) {
+                    urlInput.value = url;
+                    document.getElementById('shareModalSub').textContent =
+                        count + ' hoarding' + (count === 1 ? '' : 's') + ' in this shortlist.';
+
+                    const message = 'Here are the hoardings we have shortlisted for you: ' + url;
+                    document.getElementById('shareWhatsApp').href =
+                        'https://wa.me/?text=' + encodeURIComponent(message);
+                    document.getElementById('shareEmail').href =
+                        'mailto:?subject=' + encodeURIComponent('Shortlisted hoardings from Brand Adda') +
+                        '&body=' + encodeURIComponent(message);
+
+                    modal.classList.add('is-open');
+                }
+
+                function closeModal() {
+                    modal.classList.remove('is-open');
+                }
+
+                document.getElementById('shareModalClose').addEventListener('click', closeModal);
+                modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+                document.addEventListener('keydown', e => {
+                    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+                });
+
+                document.getElementById('shareCopy').addEventListener('click', function () {
+                    const btn = this;
+                    // execCommand fallback: the async clipboard API needs a
+                    // secure context, and this panel is used on plain http in
+                    // local and staging.
+                    const done = () => {
+                        btn.textContent = 'Copied';
+                        setTimeout(() => (btn.textContent = 'Copy'), 1600);
+                    };
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(urlInput.value).then(done);
+                    } else {
+                        urlInput.select();
+                        document.execCommand('copy');
+                        done();
+                    }
+                });
+
+                render();
+            })();
+        </script>
     @endif
 
     <script>
