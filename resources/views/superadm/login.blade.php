@@ -7,7 +7,9 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/logo/brand_adda.png') }}">
+    <link rel="icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="shortcut icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
 
     <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
@@ -20,6 +22,14 @@
         html,
         body {
             height: 100%;
+        }
+
+        /* .container-fluid carries 12px of gutter padding on both sides. g-0
+           on the row zeroes the ROW gutter, not the container, so the artwork
+           stopped 12px short of the left edge and showed the page through. */
+        .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
         }
 
         /* Left column: full-height image */
@@ -161,7 +171,7 @@
 
             {{-- Left: Image Panel (hidden on mobile) --}}
             <div class="col-md-7 col-img d-none d-md-block">
-                <img src="{{ asset('asset/campaign/images/loginbg.jpeg') }}" alt="Brand Image">
+                <img src="{{ asset('asset/campaign/images/admin_log_img.png') }}" alt="Brand Adda">
                 <div class="overlay"></div>
             </div>
 

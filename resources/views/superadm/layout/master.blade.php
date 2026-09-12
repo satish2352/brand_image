@@ -9,7 +9,9 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/campaign/images/logo.png') }}"> -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('asset/campaign/images/favicon.png') }}">
+    <link rel="icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="shortcut icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
     <title>Printing | Branding | Outdoor Advertising Agency
         Nashik | Brand Image</title>
     <link href="{{ asset('asset/css/style.css') }}" rel="stylesheet">
@@ -78,7 +80,7 @@
                     <a class="navbar-brand" href="">
 
 
-                        <img src="{{ asset('asset/images/background/logo.png') }}" class="light-logo" alt="homepage"
+                        <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" class="light-logo" alt="Brand Adda"
                             style="height: 50px; marign:10px !important;" />
                     </a>
                 </div>

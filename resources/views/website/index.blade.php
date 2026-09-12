@@ -425,7 +425,9 @@
                                         {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
                                         <h3 style="font-size: 21px;">
                                             <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                                                {{ \Illuminate\Support\Str::limit(($media->area_name ?? $media->category_name) . ' ' . $media->facing, 25, '...') }}
+                                                {{-- Same pairing the search result cards use: the media's own
+                                                     title, falling back to its category, then the area. --}}
+                                                {{ \Illuminate\Support\Str::limit(ucfirst($media->media_title ?? $media->category_name) . ' ' . $media->area_name, 25, '...') }}
                                             </a>
                                         </h3>
 
@@ -530,16 +532,10 @@
                 </div>
             </div>
 
-            {{-- Slider controls: autoplay toggle and progress dots on the left,
-                 prev/next on the right, sitting under the cards. --}}
+            {{-- Slider controls: prev/next on the right, sitting under the
+                 cards. The autoplay toggle and the progress dots used to sit
+                 on the left of this bar. --}}
             <div class="bi-slider-bar">
-                <div class="bi-slider-group">
-                    <button type="button" class="bi-slider-play" id="hoardingPlay"
-                        aria-label="Pause automatic sliding" aria-pressed="true">
-                        <i class="fas fa-pause" aria-hidden="true"></i>
-                    </button>
-                    <div class="bi-slider-dots hoarding-pagination"></div>
-                </div>
 
                 <div class="bi-slider-group">
                     <button type="button" class="swiper-btn swiper-btn-prev" aria-label="Previous slide">

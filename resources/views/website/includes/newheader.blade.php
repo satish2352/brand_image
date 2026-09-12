@@ -41,103 +41,10 @@
         margin-right: 2px;
     }
 
-    /* Profile dropdown fixes */
-    .user-menu-v2 {
-        min-width: 210px !important;
-        padding: 0 !important;
-        border-radius: 12px !important;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
-        border: 1px solid #E5E7EB !important;
-    }
-
-    .user-menu-v2 .user-info {
-        display: block;
-        padding: 14px 16px 10px;
-        background: #FFFFFF;
-        border-bottom: 1px solid #E5E7EB;
-    }
-
-    .user-menu-v2 .user-info strong {
-        display: block;
-        font-size: 14px;
-        color: #0F172A;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .user-menu-v2 .user-info span {
-        display: block;
-        font-size: 12px;
-        color: #0F172A;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .user-menu-v2 .menu-actions {
-        display: block;
-        padding: 6px 0;
-    }
-
-    .menu-btn {
-        display: flex !important;
-        align-items: center;
-        gap: 9px;
-        padding: 9px 16px !important;
-        font-size: 13.5px !important;
-        font-weight: 500;
-        color: #0F172A !important;
-        text-decoration: none !important;
-        white-space: nowrap !important;
-        transition: background 0.15s;
-        width: 100%;
-        margin: 4px 10px !important;
-    }
-
-    .menu-btn:hover {
-        background: rgba(249, 115, 22, 0.12);
-        color: #F97316 !important;
-    }
-
-    .menu-btn i {
-        font-size: 15px;
-        color: #F97316;
-        flex-shrink: 0;
-    }
-
-    .menu-btn.active {
-        background: #F97316 !important;
-        color: #FFFFFF !important;
-        margin: 4px 10px;
-        border-radius: 8px;
-        width: calc(100% - 20px);
-        padding: 9px 14px !important;
-    }
-
-    .menu-btn.active i {
-        color: #FFFFFF;
-    }
-
-    .menu-btn.active:hover {
-        background: #F97316 !important;
-    }
-
-    .menu-btn.logout {
-        color: #F97316 !important;
-        border-top: 1px solid #E5E7EB;
-        margin-top: 4px;
-    }
-
-    .menu-btn.logout i {
-        color: #F97316;
-    }
-
-    .menu-btn.logout:hover {
-        background: rgba(249, 115, 22, 0.12);
-        color: #F97316 !important;
-    }
+    {{-- The user dropdown is styled in website_css/style.css. It used to be
+         duplicated here as well, with !important on nearly every line, and the
+         two copies fought: the inline set won and reinstated the old fixed
+         widths and margins. One source only. --}}
 </style>
 
 <!--PreLoader-->

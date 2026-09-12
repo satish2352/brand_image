@@ -367,7 +367,7 @@
                     <span class="bi-deliver-eyebrow"><span aria-hidden="true"></span> Our Services</span>
                     <h2 class="bi-deliver-title">The Way We <span class="accent">Deliver</span></h2>
                     <p class="bi-deliver-sub">
-                        Insight-driven planning and smart execution that brings your brand to the forefront.
+                        Making Outdoor Media simple, transparent & accessible.
                     </p>
                 
                 </div>
@@ -383,36 +383,27 @@
                 <div class="col-lg-8">
                     <ul class="bi-deliver-grid">
                         <li data-aos="fade-up" data-aos-delay="100">
-                            <span class="bi-deliver-ico"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
-                            <i  aria-hidden="true"></i>
-                            <h3>Client Brief</h3>
-                            <p>A client brief is a document that outlines the requirements and scope of a project or
-                                campaign as set forth by a client.</p>
+                            <span class="bi-deliver-ico"><i class="bi bi-search" aria-hidden="true"></i></span>
+                            <h3>Explore</h3>
+                            <p>Find hoardings, billboards and outdoor media locations across Maharashtra</p>
                         </li>
 
                         <li data-aos="fade-up" data-aos-delay="150">
-                            <span class="bi-deliver-ico"><i class="bi bi-lightbulb" aria-hidden="true"></i></span>
-                            <i aria-hidden="true"></i>
-                            <h3>Brainstorming</h3>
-                            <p>Brainstorming is a general technique for coming up with an idea, but sometimes it's not
-                                good enough to just sit down and tell yourself you're going to brainstorm until you get
-                                an idea.</p>
+                            <span class="bi-deliver-ico"><i class="bi bi-bar-chart" aria-hidden="true"></i></span>
+                            <h3>Compare</h3>
+                            <p>Compare locations, sizes, rates, visibility and other media details in one place.</p>
                         </li>
 
                         <li data-aos="fade-up" data-aos-delay="200">
-                            <span class="bi-deliver-ico"><i class="bi bi-easel" aria-hidden="true"></i></span>
-                            <i  aria-hidden="true"></i>
-                            <h3>Present</h3>
-                            <p>Discuss the common demographics of the market, where people shop and how they spend, all
-                                of which you will use to justify your creative ideas.</p>
+                            <span class="bi-deliver-ico"><i class="bi bi-calendar-check" aria-hidden="true"></i></span>
+                            <h3>Book</h3>
+                            <p>Select your preferred media location and submit your campaign requirements.</p>
                         </li>
 
                         <li data-aos="fade-up" data-aos-delay="250">
-                            <span class="bi-deliver-ico"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
-                            <i  aria-hidden="true"></i>
+                            <span class="bi-deliver-ico"><i class="bi bi-truck" aria-hidden="true"></i></span>
                             <h3>Deliver</h3>
-                            <p>The term Ad Delivery means the delivery of online advertisements or advertising-related
-                                services using Ad Reporting Data.</p>
+                            <p>We coordinate the campaign process and provide installation/reporting support.</p>
                         </li>
                     </ul>
                 </div>
@@ -424,7 +415,7 @@
     {{-- ================= CLIENT LOGOS =================
          Eyebrow, heading and subtext as everywhere else, with the marks in a
          plain row beneath. Same five images as before. --}}
-    <section class="bi-logos">
+    <!-- <section class="bi-logos">
         <div class="container">
 
 
@@ -514,7 +505,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <script>
         const testimonials = [{
@@ -527,7 +518,7 @@
             },
             {
                 name: "Sureka Sarode",
-                content: "From start to finish the journey with Brand Iamge has been nothing but exceptional. It was an incredible event."
+                content: "From start to finish the journey with Brand Adda has been nothing but exceptional. It was an incredible event."
             }
         ];
 

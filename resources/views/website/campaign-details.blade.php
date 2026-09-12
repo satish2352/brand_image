@@ -13,13 +13,12 @@
         <div class="row">
             <!-- Desktop Image -->
             <div class="col-md-12 d-none d-md-block">
-                <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid"
-                    style="width: inherit !important;">
+                <img src="{{ asset('assets/img/cap_hero.png') }}" alt="Campaign banner" class="img-fluid w-100">
             </div>
 
             <!-- Mobile Image -->
             <div class="col-md-12 d-block d-md-none">
-                <img src="{{ asset('assets/img/mobile_campain_page.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/cap_hero_mob.png') }}" alt="Campaign banner" class="img-fluid w-100">
             </div>
         </div>
 

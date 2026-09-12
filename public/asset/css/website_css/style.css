@@ -550,43 +550,51 @@ Header .navbar-custom {
    A white card, one column of full-width rows. The previous version pinned
    every row to 175px inside a 200px card and grew them on hover, so the rows
    sat off-centre and the whole menu shifted under the pointer.
+
+   Selectors carry .user-dropdown as well as the menu class. Two classes was
+   not enough weight: several theme rules reach these links through the
+   surrounding header, and a row that never declares its own background simply
+   takes whichever of those lands last — which is how every row ended up
+   orange with the labels lost inside it.
 ================================ */
 
-.user-menu-v2 {
+.user-dropdown .dropdown-menu.user-menu-v2 {
     width: 264px !important;
     padding: 8px;
     border-radius: 16px;
     border: 1px solid var(--brand-grey);
-    background: var(--brand-white);
+    background-color: var(--brand-white) !important;
+    background-image: none;
     box-shadow: 0 18px 44px rgba(15, 23, 42, .18);
 }
 
 /* USER INFO */
-.user-menu-v2 .user-info {
+.user-dropdown .user-menu-v2 .user-info {
     display: flex;
     align-items: center;
     gap: 11px;
     padding: 10px 10px 14px;
     margin-bottom: 6px;
+    background-color: transparent;
     border-bottom: 1px solid var(--brand-grey);
 }
 
-.user-menu-v2 .user-info-avatar {
+.user-dropdown .user-menu-v2 .user-info-avatar {
     flex: 0 0 40px;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    background: rgba(249, 115, 22, .12);
+    background-color: rgba(249, 115, 22, .12);
 }
 
 /* min-width:0 is what lets the email actually truncate: without it the flex
    item refuses to shrink below its content and widens the card instead. */
-.user-menu-v2 .user-info-text {
+.user-dropdown .user-menu-v2 .user-info-text {
     min-width: 0;
 }
 
-.user-menu-v2 .user-info strong {
+.user-dropdown .user-menu-v2 .user-info strong {
     display: block;
     font-size: 15px;
     font-weight: 700;
@@ -594,7 +602,7 @@ Header .navbar-custom {
     color: var(--brand-navy);
 }
 
-.user-menu-v2 .user-info span {
+.user-dropdown .user-menu-v2 .user-info span {
     display: block;
     font-size: 12.5px;
     color: rgba(15, 23, 42, .55);
@@ -603,58 +611,71 @@ Header .navbar-custom {
     text-overflow: ellipsis;
 }
 
-/* ROWS */
-.user-menu-v2 .menu-btn {
+/* ROWS
+   background-color is declared here on purpose, even though transparent is
+   the default: without a declaration of its own the row inherits whatever
+   else in the cascade reaches it. */
+.user-dropdown .user-menu-v2 .menu-btn {
     display: flex;
     align-items: center;
     gap: 11px;
     width: 100%;
+    box-sizing: border-box;
     padding: 11px 12px;
-    margin-bottom: 4px;
+    margin: 0 0 4px;
     border-radius: 11px;
+    background-color: transparent !important;
+    background-image: none;
     font-size: 14.5px;
     font-weight: 600;
-    color: var(--brand-navy);
+    color: var(--brand-navy) !important;
     text-decoration: none;
-    transition: background .2s ease, color .2s ease;
+    transition: background-color .2s ease, color .2s ease;
 }
 
-.user-menu-v2 .menu-btn i {
+/* The icon takes the row's own colour rather than a fixed orange: navy beside
+   a navy label, white inside the solid Dashboard pill, orange on Logout and
+   on hover. One less colour fighting the label next to it. */
+.user-dropdown .user-menu-v2 .menu-btn i {
     font-size: 16px;
-    color: var(--brand-orange);
+    color: inherit !important;
     transition: color .2s ease;
 }
 
-.user-menu-v2 .menu-btn:hover {
-    background: rgba(249, 115, 22, .10);
-    color: var(--brand-orange);
+.user-dropdown .user-menu-v2 .menu-btn:hover {
+    background-color: rgba(249, 115, 22, .10) !important;
+    color: var(--brand-orange) !important;
 }
 
-/* PRIMARY (Dashboard) */
-.user-menu-v2 .menu-btn.active,
-.user-menu-v2 .menu-btn.active:hover {
-    background: var(--brand-orange);
-    color: var(--brand-white);
+/* PRIMARY (Dashboard) — the one row that is meant to be solid. */
+.user-dropdown .user-menu-v2 .menu-btn.active,
+.user-dropdown .user-menu-v2 .menu-btn.active:hover {
+    background-color: var(--brand-orange) !important;
+    color: var(--brand-white) !important;
 }
 
-.user-menu-v2 .menu-btn.active i {
-    color: var(--brand-white);
+.user-dropdown .user-menu-v2 .menu-btn.active i {
+    color: var(--brand-white) !important;
 }
 
 /* Divider before the one destructive row, so it is not fired by accident on
    the way to Profile. */
-.user-menu-v2 .menu-sep {
+.user-dropdown .user-menu-v2 .menu-sep {
     height: 1px;
     margin: 6px 4px;
     border: 0;
-    background: var(--brand-grey);
+    background-color: var(--brand-grey);
     opacity: 1;
 }
 
 /* LOGOUT */
-.user-menu-v2 .menu-btn.logout {
+.user-dropdown .user-menu-v2 .menu-btn.logout,
+.user-dropdown .user-menu-v2 .menu-btn.logout i {
+    color: var(--brand-orange) !important;
+}
+
+.user-dropdown .user-menu-v2 .menu-btn.logout {
     margin-bottom: 0;
-    color: var(--brand-orange);
 }
 
 /* profile website */
@@ -2942,7 +2963,9 @@ Header .navbar-custom {
 .bi-slider-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    /* Only the prev/next group is left in this bar; space-between would park
+       it on the left edge. */
+    justify-content: flex-end;
     gap: 20px;
     margin-top: 26px;
 }
@@ -3225,6 +3248,15 @@ a:focus {
     background-color: var(--brand-grey) !important;
 }
 
+/* Bootstrap's base .btn colour (#212529) reaches any button that does not set
+   its own — the search form's dashed "Clear" button, for one. It has to sit
+   BEFORE the variants below: at the same weight as .btn-dark and friends it
+   was winning on source order and painting navy text onto navy buttons, which
+   left the Edit Profile button with no readable label at all. */
+.btn {
+    color: var(--brand-navy);
+}
+
 .btn-primary,
 .btn-warning,
 .btn-danger,
@@ -3258,6 +3290,20 @@ a:focus {
     background-color: var(--brand-white);
     border-color: var(--brand-grey);
     color: var(--brand-navy);
+}
+
+/* No hover was defined for these, so Bootstrap's own took over: a flat #6c757d
+   grey with white text. Off-brand, and at this size the white-on-mid-grey has
+   so little contrast that the label reads as smudged rather than as a button
+   being pointed at. A light orange tint keeps it clearly the secondary action
+   next to the solid navy primary beside it. */
+.btn-light:hover,
+.btn-light:focus,
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: rgba(249, 115, 22, .10);
+    border-color: var(--brand-orange);
+    color: var(--brand-orange);
 }
 
 .btn-outline-primary,
@@ -3471,26 +3517,98 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 /* ---------- SweetAlert2 ---------- */
+.swal2-popup {
+    width: 30em;
+    max-width: calc(100vw - 32px);
+    padding: 30px 28px 26px;
+    border-radius: 20px;
+    box-shadow: 0 30px 70px rgba(15, 23, 42, .28);
+}
+
+.swal2-popup .swal2-title {
+    padding: 0;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -.3px;
+    color: var(--brand-navy);
+}
+
+.swal2-popup .swal2-html-container {
+    margin: 10px 0 0;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: rgba(15, 23, 42, .62);
+}
+
+/* ---- buttons ---- */
+.swal2-actions {
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.swal2-styled {
+    height: 46px;
+    min-width: 124px;
+    padding: 0 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.swal2-styled:focus {
+    box-shadow: none !important;
+}
+
 .swal2-styled.swal2-confirm {
     background-color: var(--brand-orange) !important;
+    color: var(--brand-white) !important;
+    box-shadow: 0 10px 24px rgba(249, 115, 22, .28) !important;
 }
 
 .swal2-styled.swal2-cancel,
 .swal2-styled.swal2-deny {
     background-color: var(--brand-navy) !important;
+    color: var(--brand-white) !important;
 }
 
+/* ---- icons ----
+   The success mark is built from a transparent disc (.swal2-success-ring) with
+   two lines drawn across it. The previous rule gave that ring a solid orange
+   BACKGROUND rather than a border, so the disc filled in and buried the tick
+   underneath it — the orange blob. Border only here, and the two lines get the
+   colour instead. */
 .swal2-icon {
-    border-color: var(--brand-orange) !important;
-    color: var(--brand-orange) !important;
+    margin: 4px auto 8px;
+    border-width: 3px;
 }
 
-.swal2-icon .swal2-icon-content,
-.swal2-icon [class^="swal2-"][class$="-line"],
-.swal2-icon .swal2-success-ring {
-    color: var(--brand-orange) !important;
+.swal2-icon.swal2-success {
+    border-color: rgba(249, 115, 22, .3);
+    color: var(--brand-orange);
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+    background-color: transparent !important;
+    border: 3px solid rgba(249, 115, 22, .3) !important;
+}
+
+.swal2-icon.swal2-success [class^="swal2-success-line"] {
     background-color: var(--brand-orange) !important;
-    border-color: var(--brand-orange) !important;
+}
+
+/* The two quarter-arcs swal draws while the tick animates in. They sit on the
+   popup, so they have to match its background, not the brand colour. */
+.swal2-icon.swal2-success [class^="swal2-success-circular-line"],
+.swal2-icon.swal2-success .swal2-success-fix {
+    background-color: transparent !important;
+}
+
+/* Error and warning keep their own colours: they are the only signal that the
+   message is not a success, and a dialog full of brand orange loses it. */
+.swal2-icon.swal2-info,
+.swal2-icon.swal2-question {
+    border-color: rgba(249, 115, 22, .3);
+    color: var(--brand-orange);
 }
 
 /* The map pages pull Leaflet's stylesheet in their own @section, so it lands
@@ -3549,11 +3667,6 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     border-color: transparent transparent var(--brand-navy) transparent !important;
 }
 
-/* Bootstrap's base .btn colour (#212529) reaches any button that does not set
-   its own — the search form's dashed "Clear" button, for one. */
-.btn {
-    color: var(--brand-navy);
-}
 
 /* An <svg> with no fill of its own defaults to black. */
 svg {
@@ -3561,11 +3674,13 @@ svg {
 }
 
 /* The header's cart and account controls are solid orange tiles; their glyphs
-   read as white, not as the .btn default the block above sets. */
-.header-icons .btn,
-.header-icons a,
-.header-icons .btn i,
-.header-icons a i {
+   read as white, not as the .btn default the block above sets.
+   Direct children only: the account menu hangs inside this same container, and
+   as a descendant rule this painted every row in it white on white. */
+.header-icons>.btn,
+.header-icons>a,
+.header-icons>.btn i,
+.header-icons>a i {
     color: var(--brand-white);
 }
 
@@ -6889,9 +7004,11 @@ body:has(.bi-contact) .bi-contact {
     border-bottom: 1px solid var(--brand-grey);
 }
 
+/* Same construct as the promo tile below, centred the same way. */
 .bi-dash-side-ico {
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 42px;
     width: 42px;
     height: 42px;
@@ -6899,6 +7016,12 @@ body:has(.bi-contact) .bi-contact {
     background: rgba(249, 115, 22, .12);
     color: var(--brand-orange);
     font-size: 20px;
+    line-height: 1;
+}
+
+.bi-dash-side-ico i {
+    display: block;
+    line-height: 1;
 }
 
 .bi-dash-side-title {
@@ -7001,8 +7124,12 @@ body:has(.bi-contact) .bi-contact {
 }
 
 .bi-dash-promo-ico {
-    display: grid;
-    place-items: center;
+    /* flex rather than grid: the glyph is a Bootstrap Icons ::before with its
+       own vertical-align and line-height, which grid centring leaves sitting
+       high and to one side of the tile. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 38px;
     width: 38px;
     height: 38px;
@@ -7010,6 +7137,13 @@ body:has(.bi-contact) .bi-contact {
     background: var(--brand-white);
     color: var(--brand-orange);
     font-size: 17px;
+    line-height: 1;
+}
+
+.bi-dash-promo-ico i {
+    display: block;
+    line-height: 1;
+    vertical-align: middle;
 }
 
 .bi-dash-promo strong {
@@ -7239,5 +7373,391 @@ body:has(.bi-contact) .bi-contact {
 
     .bi-dash-empty h3 {
         font-size: 20px;
+    }
+}
+
+/* =========================================================
+   AUTH MODAL — navy panel
+   The dialog's rules had accumulated in four places earlier in this file,
+   several of them duplicates that disagreed (three .password-wrapper blocks,
+   two .password-toggle, two .auth-switch), so the result depended on which
+   happened to come last. Everything here is scoped to #authModal, which
+   outranks all of them and leaves the shared classes alone for the
+   change-password page that also uses them.
+
+   Markup is untouched: every field, name, id and handler is as it was.
+   ========================================================= */
+
+#authModal .modal-dialog {
+    max-width: 430px;
+}
+
+/* Solid navy, not the frosted white panel it was. overflow:hidden is what
+   keeps the two soft discs below inside the rounded corners. */
+#authModal .modal-content {
+    position: relative;
+    background: var(--brand-navy);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 20px;
+    box-shadow: 0 34px 90px rgba(15, 23, 42, .55);
+    overflow: hidden;
+}
+
+/* Two barely-there discs, so the panel reads as a surface rather than a flat
+   block. Decoration only, and behind everything. */
+#authModal .modal-content::before,
+#authModal .modal-content::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .04);
+    pointer-events: none;
+    z-index: 0;
+}
+
+#authModal .modal-content::before {
+    top: -60px;
+    right: -50px;
+    width: 190px;
+    height: 190px;
+}
+
+#authModal .modal-content::after {
+    bottom: -70px;
+    left: -60px;
+    width: 220px;
+    height: 220px;
+}
+
+#authModal .modal-header,
+#authModal .modal-body {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- header ---- */
+#authModal .modal-header {
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, .10);
+}
+
+#authModal .modal-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: var(--brand-orange);
+}
+
+/* Bootstrap's close glyph is a near-black SVG; inverted it reads on navy. */
+#authModal .btn-close {
+    padding: 7px;
+    margin: 0;
+    border-radius: 8px;
+    filter: invert(1) grayscale(1) brightness(1.8);
+    opacity: .7;
+    transition: opacity .2s ease, background-color .2s ease;
+}
+
+/* background-COLOR, not the background shorthand: the shorthand resets
+   background-image, and the glyph itself IS a background-image — using it
+   here wiped the cross off the button the moment you pointed at it. */
+#authModal .btn-close:hover,
+#authModal .btn-close:focus {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, .12);
+    box-shadow: none;
+}
+
+/* ---- body ---- */
+#authModal .modal-body {
+    max-height: min(74vh, 620px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, .25) transparent;
+}
+
+#authModal .modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .25);
+    border-radius: 3px;
+}
+
+#authModal .modal-body>.row>[class*="col-"] {
+    padding: 26px 26px 28px !important;
+}
+
+#authModal .auth-title {
+    margin: 0 0 22px;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.4px;
+    color: var(--brand-white);
+}
+
+/* ---- fields ---- */
+#authModal .mb-3,
+#authModal .mb-2 {
+    margin-bottom: 16px !important;
+}
+
+#authModal label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, .72);
+}
+
+#authModal .text-danger {
+    color: var(--brand-orange) !important;
+}
+
+#authModal .form-control {
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .06);
+    font-size: 14.5px;
+    color: var(--brand-white);
+    box-shadow: none;
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+#authModal .form-control::placeholder {
+    color: rgba(255, 255, 255, .38);
+}
+
+#authModal .form-control:focus {
+    background: rgba(255, 255, 255, .09);
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 .18rem rgba(249, 115, 22, .22);
+    color: var(--brand-white);
+}
+
+#authModal .form-control[readonly] {
+    background: rgba(255, 255, 255, .04);
+    color: rgba(255, 255, 255, .6);
+}
+
+/* Chrome paints autofilled inputs a hard white — which on a navy panel is the
+   one thing that gives the theme away. The inset shadow is the only way to
+   repaint that layer. */
+#authModal .form-control:-webkit-autofill,
+#authModal .form-control:-webkit-autofill:hover,
+#authModal .form-control:-webkit-autofill:focus {
+    -webkit-text-fill-color: #FFFFFF;
+    -webkit-box-shadow: 0 0 0 1000px #1C2740 inset;
+    caret-color: #FFFFFF;
+    transition: background-color 9999s ease-out;
+}
+
+/* ---- password eye ----
+   The old rule pinned it to top:26px, measured from the top of the WRAPPER on
+   the assumption the label sat outside it. Centring it works whatever the
+   label above does. */
+#authModal .password-wrapper {
+    position: relative;
+}
+
+#authModal .password-field {
+    padding-right: 44px;
+}
+
+#authModal .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    z-index: 3;
+    font-size: 17px;
+    line-height: 1;
+    color: rgba(255, 255, 255, .55);
+    cursor: pointer;
+    transition: color .2s ease;
+}
+
+#authModal .password-toggle:hover {
+    color: var(--brand-orange);
+}
+
+/* ---- buttons ---- */
+#authModal .btn-dark {
+    height: 50px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 12px 26px rgba(249, 115, 22, .30);
+    transition: filter .2s ease;
+}
+
+#authModal .btn-dark:hover:not(:disabled),
+#authModal .btn-dark:focus:not(:disabled) {
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    filter: brightness(1.06);
+}
+
+#authModal .btn-dark:disabled {
+    background: rgba(249, 115, 22, .40);
+    color: rgba(255, 255, 255, .75);
+    box-shadow: none;
+}
+
+#authModal .btn-link {
+    color: var(--brand-orange);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+#authModal .btn-link:hover {
+    text-decoration: underline;
+}
+
+/* ---- google ----
+   A translucent pill like the fields, rather than the white card it was: on
+   navy that white block was the loudest thing in the dialog, louder than the
+   primary action above it. The logo keeps its own colours. */
+#authModal .social-login {
+    margin: 18px 0 0;
+}
+
+#authModal .google-btn {
+    width: 100%;
+    height: 48px;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .06);
+    color: var(--brand-white);
+    font-size: 14.5px;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+#authModal .google-btn:hover {
+    background: rgba(255, 255, 255, .11);
+    border-color: rgba(255, 255, 255, .28);
+    color: var(--brand-white);
+    box-shadow: none;
+    transform: none;
+}
+
+/* ---- footer switch ---- */
+#authModal .auth-switch {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, .10);
+    text-align: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, .6);
+}
+
+#authModal .auth-switch a {
+    color: var(--brand-orange);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ---- recaptcha ----
+   The widget is a Google iframe and cannot be themed from here, so it is set
+   in a panel of its own instead of floating as a white slab on the navy. */
+#authModal .g-recaptcha {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .06);
+}
+
+/* ---- messages ---- */
+#authModal .text-muted {
+    color: rgba(255, 255, 255, .55) !important;
+}
+
+#authModal #otpTimer {
+    font-weight: 700;
+    color: var(--brand-orange);
+}
+
+#authModal .alert-success {
+    border: 1px solid rgba(34, 197, 94, .35);
+    border-radius: 10px;
+    background: rgba(34, 197, 94, .14);
+    color: #86EFAC;
+}
+
+/* ---- OTP ---- */
+#authModal .otp-box-wrapper {
+    gap: 8px;
+}
+
+#authModal .otp-box {
+    width: 46px;
+    height: 52px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .06);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--brand-white);
+}
+
+#authModal .otp-box:focus {
+    background: rgba(255, 255, 255, .09);
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 .18rem rgba(249, 115, 22, .22);
+    outline: none;
+}
+
+/* ---- narrow screens ---- */
+@media (max-width: 575.98px) {
+    #authModal .modal-dialog {
+        max-width: none;
+        margin: 10px;
+    }
+
+    #authModal .modal-content {
+        border-radius: 16px;
+    }
+
+    #authModal .modal-header {
+        padding: 14px 18px;
+    }
+
+    #authModal .modal-body {
+        max-height: calc(100dvh - 130px);
+    }
+
+    #authModal .modal-body>.row>[class*="col-"] {
+        padding: 20px 18px 22px !important;
+    }
+
+    #authModal .auth-title {
+        font-size: 21px;
+        margin-bottom: 18px;
+    }
+
+    /* Six boxes plus their gaps do not fit a 320px screen at the desktop
+       size, so they share the row instead. */
+    #authModal .otp-box {
+        width: 100%;
+        max-width: 46px;
+        height: 48px;
+        font-size: 18px;
+    }
+
+    /* The widget is a fixed 304px iframe — scaled down, with its box
+       re-measured to match, so it stops overflowing the panel. */
+    #authModal .g-recaptcha {
+        transform: scale(.86);
+        transform-origin: center;
+        height: 86px;
+        padding: 6px;
     }
 }
