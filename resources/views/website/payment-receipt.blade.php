@@ -226,6 +226,10 @@
         .grand-total-row .summary-label,
         .grand-total-row .summary-value {
             background: #0F172A;
+            /* The row fills navy but never set a text colour, so the figure
+               inherited the table's dark navy and vanished into its own
+               background. */
+            color: #FFFFFF;
             font-size: 15px;
             font-weight: 700;
             border-top: 2px solid #0F172A;

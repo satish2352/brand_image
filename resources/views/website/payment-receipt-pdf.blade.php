@@ -168,6 +168,9 @@
         .grand-total-row .summary-label,
         .grand-total-row .summary-value {
             background: #0F172A;
+            /* body sets color:#0F172A, so a navy fill with no colour of its
+               own renders the figure invisible in the PDF. */
+            color: #FFFFFF;
             font-size: 14px;
             font-weight: 700;
             border-top: 2px solid #0F172A;
@@ -176,6 +179,7 @@
         .summary-row .summary-label,
         .summary-row .summary-value {
             background: #0F172A;
+            color: #FFFFFF;
             font-size: 12px;
             font-weight: 700;
             /* border-top: 2px solid #0F172A; */
