@@ -566,10 +566,18 @@
                 </div>
             </div>
         </div>
-        {{-- ================= OTHER MEDIA SECTION ================= --}}
+        {{-- ================= OTHER MEDIA SECTION =================
+             Billboards have their own slider above, so they are filtered out
+             here first: the list can arrive non-empty and still leave this row
+             with nothing in it, which @forelse alone would not catch. --}}
+        @php
+            $otherMediaList = collect($otherMedia)->reject(
+                fn($m) => $m->category_name === 'Hoardings/Billboards',
+            );
+        @endphp
         <div class="row">
 
-            @foreach ($otherMedia as $media)
+            @forelse ($otherMediaList as $media)
                 @if ($media->category_name !== 'Hoardings/Billboards')
                     @php
                         $width = (float) ($media->width ?? 0);
@@ -674,7 +682,22 @@
                     </div>
 
                 @endif
-            @endforeach
+            @empty
+                {{-- Nothing to show. The heading above promises a row of cards,
+                     so an empty section reads as a page that failed to load
+                     rather than as a catalogue that is still being filled. --}}
+                <div class="col-12">
+                    <div class="bi-media-empty">
+                        <i class="bi bi-collection" aria-hidden="true"></i>
+                        <h4>No other media listed yet</h4>
+                        <p>
+                            We are adding transit, mall, airport and wall media to the
+                            platform. Tell us what you are looking for and our team will
+                            source it for you.
+                        </p>
+                    </div>
+                </div>
+            @endforelse
         </div>
 
     </div>
@@ -869,7 +892,7 @@
                     Get Free Quote <i class="bi bi-arrow-right"></i>
                 </a>
 
-                <a href="tel:+9177700 09506" class="btn-cta outline" data-aos="fade-up" data-aos-delay="220" data-aos-duration="700"
+                <a href="tel:+917770018173" class="btn-cta outline" data-aos="fade-up" data-aos-delay="220" data-aos-duration="700"
                     data-aos-easing="ease-out-cubic">
                     <i class="bi bi-telephone"></i> Call Us Now
                 </a>

@@ -69,7 +69,7 @@
             </p>
 
             @if ($type !== 'past')
-                <a href="{{ route('website.explore') }}" class="btn">
+                <a href="{{ route('website.search.view') }}" class="btn">
                     <i class="bi bi-plus-lg" aria-hidden="true"></i> Create New Campaign
                 </a>
             @endif

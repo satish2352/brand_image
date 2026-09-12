@@ -3284,22 +3284,27 @@ table.order-details tbody td {
   overflow: hidden;
 }
 
-/* COMMON RIBBON */
+/* COMMON RIBBON
+   The band is rotated -45deg about its own centre, so the corner stays
+   covered only while that centre sits on the corner's diagonal — i.e. while
+   (left + width/2) is about equal to (top + height/2). Both were reduced
+   together here; changing one alone slides the band off the corner. */
 .media-badge {
   position: absolute;
-  top: 25px;
-  left: -45px;
+  top: 18px;
+  left: -44px;
   /* 🔥 left cross */
-  width: 180px;
+  width: 150px;
   text-align: center;
-  padding: 8px 0;
-  font-size: 14px;
+  padding: 6px 0;
+  font-size: 11.5px;
   font-weight: 700;
+  letter-spacing: .4px;
   color: #FFFFFF;
   text-transform: uppercase;
   transform: rotate(-45deg);
   z-index: 10;
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.3);
 }
 
 /* BOOKED */

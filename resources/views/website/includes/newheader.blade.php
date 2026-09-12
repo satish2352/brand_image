@@ -205,14 +205,14 @@
 
                                     <div class="mb-3">
                                         <label>Email Address *</label>
-                                        <input type="email" name="login_email" class="form-control">
+                                        <input type="email" name="login_email" class="form-control" placeholder="Enter your email address">
                                     </div>
 
                                     <div class="mb-3">
                                         <label>Password *</label>
                                         <div class="password-wrapper">
                                             <input type="password" name="login_password"
-                                                class="form-control password-field">
+                                                class="form-control password-field" placeholder="Enter your password">
                                             <i class="bi bi-eye-slash password-toggle"></i>
                                         </div>
                                     </div>
@@ -255,35 +255,35 @@
 
                                     <div class="mb-3">
                                         <label>Full Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="signup_name" class="form-control">
+                                        <input type="text" name="signup_name" class="form-control" placeholder="Enter your full name">
                                     </div>
 
                                     <div class="mb-3">
                                         <label>Email Id <span class="text-danger">*</span></label>
-                                        <input type="email" name="signup_email" id="signupEmail" class="form-control">
+                                        <input type="email" name="signup_email" id="signupEmail" class="form-control" placeholder="Enter your email address">
                                     </div>
 
                                     <div class="mb-3">
                                         <label>Mobile Number <span class="text-danger">*</span></label>
                                         <input type="text" name="signup_mobile_number" class="form-control"
-                                            maxlength="10" inputmode="numeric" autocomplete="off">
+                                            maxlength="10" inputmode="numeric" autocomplete="off" placeholder="10-digit mobile number">
                                     </div>
 
                                     <div class="mb-3">
                                         <label>Organisation (optional)</label>
-                                        <input type="text" name="signup_organisation" class="form-control">
+                                        <input type="text" name="signup_organisation" class="form-control" placeholder="Company or agency name">
                                     </div>
 
                                     <div class="mb-3">
                                         <label>GST (optional)</label>
-                                        <input type="text" name="signup_gst" maxlength="15" class="form-control">
+                                        <input type="text" name="signup_gst" maxlength="15" class="form-control" placeholder="15-character GST number">
                                     </div>
 
                                     <div class="mb-3">
                                         <label>Password <span class="text-danger">*</span></label>
                                         <div class="password-wrapper">
                                             <input type="password" name="signup_password"
-                                                class="form-control password-field">
+                                                class="form-control password-field" placeholder="Create a password">
                                             <i class="bi bi-eye-slash password-toggle"></i>
                                         </div>
                                     </div>
