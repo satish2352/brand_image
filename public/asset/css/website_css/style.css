@@ -8111,14 +8111,24 @@ body:has(.bi-contact) .bi-contact {
     cursor: pointer;
 }
 
+/* A grid, not a row: there are five channels now and the last one is only
+   revealed on devices that have a share sheet, so the count changes. */
 .share-send {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     margin-top: 14px;
 }
 
+/* When "More apps" is hidden the four that remain still pair up evenly; when
+   it shows, it takes a row of its own rather than leaving a gap. */
+.share-send .share-send-btn.more {
+    grid-column: 1 / -1;
+}
+
 .share-send-btn {
-    flex: 1 1 0;
+    /* Grid cells size themselves; the button just needs to fill its cell. */
+    width: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -8215,7 +8225,49 @@ body:has(.bi-contact) .bi-contact {
         font-size: 13px;
     }
 
+    /* One per row on a narrow phone; the grid handles it, no flex switch. */
     .share-send {
-        flex-direction: column;
+        grid-template-columns: minmax(0, 1fr);
     }
+}
+
+/* ---- select-all toolbar above the results ---- */
+.share-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 12px 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--brand-grey);
+    border-radius: 12px;
+    background: var(--brand-white);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .06);
+}
+
+.share-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--brand-navy);
+    cursor: pointer;
+    user-select: none;
+}
+
+.share-all input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--brand-orange);
+    cursor: pointer;
+}
+
+.share-toolbar-hint {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgba(15, 23, 42, .55);
+    white-space: nowrap;
 }

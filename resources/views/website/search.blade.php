@@ -220,6 +220,21 @@
 
                 {{-- LEFT: Media Cards --}}
                 <div class="col-lg-6 col-md-6 col-sm-12" style="height:78vh; overflow-y:auto;">
+
+                    {{-- Team only: tick every card currently in the list. More
+                         cards load as this column is scrolled, so the label
+                         says "loaded" rather than implying the whole result
+                         set has been shortlisted. --}}
+                    @if (session()->has('user_id'))
+                        <div class="share-toolbar">
+                            <label class="share-all">
+                                <input type="checkbox" id="shareSelectAll">
+                                <span>Select all loaded</span>
+                            </label>
+                            <span class="share-toolbar-hint" id="shareToolbarHint"></span>
+                        </div>
+                    @endif
+
                     <div class="row" id="media-container">
                         @include('website.media-home-list', ['mediaList' => $mediaList, 'shareable' => true])
                     </div>
@@ -291,6 +306,18 @@
                     <a href="#" id="shareEmail" class="share-send-btn mail">
                         <i class="bi bi-envelope" aria-hidden="true"></i> Email
                     </a>
+                    <a href="#" id="shareSms" class="share-send-btn sms">
+                        <i class="bi bi-chat-dots" aria-hidden="true"></i> SMS
+                    </a>
+                    <a href="#" target="_blank" rel="noopener" id="shareTelegram" class="share-send-btn tg">
+                        <i class="bi bi-telegram" aria-hidden="true"></i> Telegram
+                    </a>
+                    {{-- The device's own share sheet — anything else the team has
+                         installed. Revealed only where the browser supports it,
+                         which in practice means phones and tablets. --}}
+                    <button type="button" id="shareMore" class="share-send-btn more" hidden>
+                        <i class="bi bi-three-dots" aria-hidden="true"></i> More apps
+                    </button>
                 </div>
 
                 <p class="share-modal-note">
@@ -314,10 +341,52 @@
                 // replaced and keeps the count honest.
                 const picked = new Set();
 
+                const selectAll = document.getElementById('shareSelectAll');
+                const hintEl = document.getElementById('shareToolbarHint');
+
+                function allBoxes() {
+                    return Array.from(document.querySelectorAll('#media-container .share-pick-input'));
+                }
+
                 function render() {
                     countEl.textContent = picked.size;
                     pluralEl.textContent = picked.size === 1 ? '' : 's';
                     bar.classList.toggle('is-visible', picked.size > 0);
+
+                    // Keep the master tick honest: checked only when every card
+                    // on screen is picked, indeterminate while it is a partial
+                    // selection, so it never claims more than it has done.
+                    const boxes = allBoxes();
+                    const ticked = boxes.filter(b => b.checked).length;
+
+                    if (selectAll) {
+                        selectAll.checked = boxes.length > 0 && ticked === boxes.length;
+                        selectAll.indeterminate = ticked > 0 && ticked < boxes.length;
+                    }
+                    if (hintEl) {
+                        hintEl.textContent = boxes.length ? ticked + ' of ' + boxes.length + ' selected' : '';
+                    }
+                }
+
+                function setBox(box, on) {
+                    box.checked = on;
+                    const id = parseInt(box.value, 10);
+                    if (on) {
+                        picked.add(id);
+                    } else {
+                        picked.delete(id);
+                    }
+                    box.closest('.media-card')?.classList.toggle('is-picked', on);
+                }
+
+                if (selectAll) {
+                    selectAll.addEventListener('change', function () {
+                        // Only the cards already in the DOM. Scrolling loads more,
+                        // and silently shortlisting rows the team has not seen is
+                        // the wrong default for a link that goes to a client.
+                        allBoxes().forEach(box => setBox(box, selectAll.checked));
+                        render();
+                    });
                 }
 
                 // Delegated: cards arrive after this script runs.
@@ -325,13 +394,7 @@
                     const box = e.target.closest('.share-pick-input');
                     if (!box) return;
 
-                    const id = parseInt(box.value, 10);
-                    if (box.checked) {
-                        picked.add(id);
-                    } else {
-                        picked.delete(id);
-                    }
-                    box.closest('.media-card')?.classList.toggle('is-picked', box.checked);
+                    setBox(box, box.checked);
                     render();
                 });
 
@@ -379,12 +442,35 @@
                     document.getElementById('shareModalSub').textContent =
                         count + ' hoarding' + (count === 1 ? '' : 's') + ' in this shortlist.';
 
+                    const subject = 'Shortlisted hoardings from Brand Adda';
                     const message = 'Here are the hoardings we have shortlisted for you: ' + url;
+
                     document.getElementById('shareWhatsApp').href =
                         'https://wa.me/?text=' + encodeURIComponent(message);
                     document.getElementById('shareEmail').href =
-                        'mailto:?subject=' + encodeURIComponent('Shortlisted hoardings from Brand Adda') +
+                        'mailto:?subject=' + encodeURIComponent(subject) +
                         '&body=' + encodeURIComponent(message);
+                    // ?&body= is the form both iOS and Android accept; either
+                    // one alone is ignored by the other.
+                    document.getElementById('shareSms').href =
+                        'sms:?&body=' + encodeURIComponent(message);
+                    document.getElementById('shareTelegram').href =
+                        'https://t.me/share/url?url=' + encodeURIComponent(url) +
+                        '&text=' + encodeURIComponent('Hoardings shortlisted for you');
+
+                    // Everything else the device can share to. navigator.share
+                    // needs a user gesture and a secure context, so the button
+                    // is only offered where it will actually open something.
+                    const moreBtn = document.getElementById('shareMore');
+                    if (navigator.share && window.isSecureContext) {
+                        moreBtn.hidden = false;
+                        moreBtn.onclick = function () {
+                            navigator.share({ title: subject, text: message, url: url })
+                                .catch(function () { /* dismissed — nothing to report */ });
+                        };
+                    } else {
+                        moreBtn.hidden = true;
+                    }
 
                     modal.classList.add('is-open');
                 }
@@ -417,6 +503,14 @@
                         done();
                     }
                 });
+
+                // Lazy loading appends more cards as the column is scrolled.
+                // Without this the "x of y" hint and the master tick would keep
+                // reporting the count from before those cards arrived.
+                const listEl = document.getElementById('media-container');
+                if (listEl && window.MutationObserver) {
+                    new MutationObserver(() => render()).observe(listEl, { childList: true });
+                }
 
                 render();
             })();
