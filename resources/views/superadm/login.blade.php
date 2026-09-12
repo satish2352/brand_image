@@ -226,7 +226,7 @@
 
                         {{-- reCAPTCHA --}}
                         <div class="mb-3">
-                            <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
                             @error('g-recaptcha-response')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror

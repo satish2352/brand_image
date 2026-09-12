@@ -219,7 +219,7 @@
 
                                     <!-- Google reCAPTCHA -->
                                     <div class="col-md-12 mt-3">
-                                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                                        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
 
                                         @error('g-recaptcha-response')
                                             <span class="text-danger" style="font-size:14px;">
