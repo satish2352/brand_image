@@ -55,6 +55,12 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     /*
+     * Public address of the live site, used for canonical and og:url tags.
+     * Separate from APP_URL, which is whatever the current install runs on.
+     */
+    'site_url' => env('SITE_URL', 'https://brand-adda.co.in'),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------

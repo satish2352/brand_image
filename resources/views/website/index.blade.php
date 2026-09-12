@@ -711,7 +711,7 @@
         <div class="journey-header" data-aos="fade-up">
             <span class="bi-eyebrow">How It Works</span>
             <h2 class="journey-title">Our <span class="accent">Long-Term</span> Journey</h2>
-            <span class="journey-rule" aria-hidden="true"></span>
+            <!-- <span class="journey-rule" aria-hidden="true"></span> -->
             <p class="journey-desc">
                 From discovery to impact &mdash; a seamless journey for your OOH success.
             </p>
