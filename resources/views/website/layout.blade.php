@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {{-- <title>@yield('title', 'Website')</title> --}}
-    <title>Brand Adda Pvt. Ltd. | Nashik</title>
+    <title>Brand Adda Maharashtra's Outdoor Media Platform</title>
 
     {{-- The live site is brand-adda.co.in, but APP_URL is whatever the current
          install runs on (localhost in development), so the public address gets
@@ -16,8 +16,8 @@
         $canonical = $siteUrl . '/' . ltrim(request()->path() === '/' ? '' : request()->path(), '/');
     @endphp
     <link rel="canonical" href="{{ $canonical }}">
-    <meta property="og:site_name" content="Brand Adda Pvt. Ltd. | Nashik">
-    <meta property="og:title" content="Brand Adda Pvt. Ltd. | Nashik">
+    <meta property="og:site_name" content="Brand Adda Maharashtra's Outdoor Media Platform">
+    <meta property="og:title" content="Brand Adda Maharashtra's Outdoor Media Platform">
     <meta property="og:url" content="{{ $canonical }}">
 
     {{-- This page pulls CSS and JS from four third party origins, and the
