@@ -74,8 +74,13 @@
                         <ul>
                             <li class="{{ request()->is('/') ? 'active' : '' }}"><a href="{{ url('/') }}">Home</a>
                             </li>
-                            <li class="{{ request()->routeIs('website.explore') ? 'active' : '' }}"><a
-                                    href="{{ route('website.explore') }}">Map</a></li>
+                            {{-- Hidden while the visitor is on a shared shortlist: the
+                                 Map route sends them back anyway, so offering it would
+                                 just be a link that bounces. --}}
+                            @unless (session()->has('shared_link_token') && !session()->has('user_id'))
+                                <li class="{{ request()->routeIs('website.explore') ? 'active' : '' }}"><a
+                                        href="{{ route('website.explore') }}">Map</a></li>
+                            @endunless
                             <li class="{{ request()->routeIs('website.about') ? 'active' : '' }}"><a
                                     href="{{ route('website.about') }}">About Us</a></li>
                             <li class="{{ request()->is('contact-us') ? 'active' : '' }}"><a

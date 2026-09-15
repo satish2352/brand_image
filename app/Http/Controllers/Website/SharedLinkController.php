@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\SharedLinkVisitor;
 use App\Http\Services\Website\HomeService;
 use App\Models\SharedLink;
 use App\Models\SharedLinkItem;
@@ -100,6 +101,12 @@ class SharedLinkController extends Controller
             // is a client, not a developer.
             return response()->view('website.shared-missing', [], 404);
         }
+
+        // Remember which shortlist this visitor is on. SharedLinkVisitor reads
+        // it to keep them off the Map and the search results; the home page and
+        // the header read it to drop the controls that lead there.
+        session([SharedLinkVisitor::SESSION_KEY => $link->token]);
+
 
         $mediaList = $this->homeService->getMediaByIds($link->mediaIds());
 

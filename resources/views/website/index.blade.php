@@ -158,10 +158,15 @@
 
                  Holding the URL in data-src instead means nothing is requested
                  until the panel is genuinely scrolled to, and then only once. --}}
-            <div class="bi-hero-panel" data-aos="fade-up" data-aos-delay="300">
-                <iframe class="bi-hero-frame" data-src="{{ route('website.explore') }}?embed=1"
-                    title="Explore available outdoor media on the map" loading="lazy"></iframe>
-            </div>
+            {{-- The panel frames the Map page. A visitor on a shared shortlist is
+                 redirected off that route, so the frame would load their own
+                 shortlist inside this small box; it is dropped for them instead. --}}
+            @unless (session()->has('shared_link_token') && !session()->has('user_id'))
+                <div class="bi-hero-panel" data-aos="fade-up" data-aos-delay="300">
+                    <iframe class="bi-hero-frame" data-src="{{ route('website.explore') }}?embed=1"
+                        title="Explore available outdoor media on the map" loading="lazy"></iframe>
+                </div>
+            @endunless
 
         </div>
     </div>
@@ -263,7 +268,31 @@
 {{-- id is the target of the hero's "Search Media" button; it lives here rather
      than in the shared partial, which the /search page also renders. --}}
 <div id="mediaSearch">
-    @include('website.search-form')
+    @php
+        $onSharedShortlist = session()->has('shared_link_token') && !session()->has('user_id');
+    @endphp
+
+    @if ($onSharedShortlist)
+        {{-- A visitor on a shared shortlist gets a way back to it instead of the
+             filters: the search results are closed to them, so a form that only
+             ever bounces would be a dead end. --}}
+        <div class="container shared-cta">
+            <div class="bi-media-empty">
+                <i class="bi bi-collection" aria-hidden="true"></i>
+                <h4>Your shortlist is ready</h4>
+                <p>
+                    Our team has shortlisted hoardings for your requirement. Open your
+                    shortlist to review them and add the ones you want to your cart.
+                </p>
+                <a href="{{ route('shared.link.show', session('shared_link_token')) }}"
+                    class="bi-media-empty-btn">
+                    View my shortlist
+                </a>
+            </div>
+        </div>
+    @else
+        @include('website.search-form')
+    @endif
 </div>
 <!-- end Bar Section -->
 <!-- SERVICES SECTION -->

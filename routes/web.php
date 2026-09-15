@@ -306,8 +306,12 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
-Route::get('/search', [HomeController::class, 'searchView'])->name('website.search.view');
-Route::post('/search', [HomeController::class, 'search'])->name('website.search');
+/* The two browse-everything routes. A visitor holding a shared shortlist is
+   sent back to it; for everyone else the middleware is a no-op. */
+Route::get('/search', [HomeController::class, 'searchView'])
+    ->middleware('shared.link.visitor')->name('website.search.view');
+Route::post('/search', [HomeController::class, 'search'])
+    ->middleware('shared.link.visitor')->name('website.search');
 
 /* ============ SHAREABLE HOARDING SHORTLISTS ============
    The team ticks hoardings on /search and generates a link; the client opens
@@ -318,7 +322,8 @@ Route::post('/shared-links', [SharedLinkController::class, 'store'])->name('shar
 Route::get('/shared/{token}', [SharedLinkController::class, 'show'])->name('shared.link.show');
 
 /* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
-Route::get('/explore', [ExploreController::class, 'index'])->name('website.explore');
+Route::get('/explore', [ExploreController::class, 'index'])
+    ->middleware('shared.link.visitor')->name('website.explore');
 Route::match(['get', 'post'], '/explore/search', [ExploreController::class, 'search'])->name('website.explore.search');
 Route::get('/ajax/get-landmarks', [ExploreController::class, 'landmarks'])->name('ajax.landmarks');
 Route::get('/ajax/get-highways', [ExploreController::class, 'highways'])->name('ajax.highways');

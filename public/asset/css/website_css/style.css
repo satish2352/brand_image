@@ -8322,3 +8322,51 @@ body:has(.bi-contact) .bi-contact {
         gap: 24px;
     }
 }
+
+/* The one place .bi-media-empty carries an action: the home page's stand-in
+   for the search form while a visitor is on a shared shortlist. */
+.bi-media-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    height: 46px;
+    margin-top: 20px;
+    padding: 0 26px;
+    border-radius: 12px;
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(249, 115, 22, .28);
+    transition: filter .2s ease;
+}
+
+.bi-media-empty-btn:hover {
+    color: var(--brand-white);
+    filter: brightness(1.05);
+}
+
+/* The panel stands in for the search card on the home page, so it needs that
+   card's breathing room: without it the box butts straight against the hero
+   image above and the section below. */
+.shared-cta {
+    padding: 64px 0 56px;
+}
+
+@media (max-width: 991.98px) {
+    .shared-cta {
+        padding: 48px 0 44px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .shared-cta {
+        padding: 34px 16px 32px;
+    }
+
+    /* The panel's own max-width already centres it; on a phone the container
+       padding above is what keeps it off the screen edges. */
+    .shared-cta .bi-media-empty {
+        max-width: none;
+    }
+}

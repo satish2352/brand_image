@@ -36,6 +36,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'website.auth' => \App\Http\Middleware\WebsiteAuth::class,
             'auth.both'    => \App\Http\Middleware\AuthBoth::class,
             'check.website.user' => \App\Http\Middleware\CheckWebsiteUserStatus::class,
+            // Applied only to the Map and search routes; see the class note.
+            'shared.link.visitor' => \App\Http\Middleware\SharedLinkVisitor::class,
         ]);
     })
 
