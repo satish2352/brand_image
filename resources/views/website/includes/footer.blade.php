@@ -29,8 +29,13 @@
                 </div>
             </div>
 
+            @php($salesEmail = config('mail.sales_email'))
+            <a class="footer-email" href="mailto:{{ $salesEmail }}">
+                <i class="fas fa-envelope"></i> {{ $salesEmail }}
+            </a>
+
             <p class="footer-copy">
-                &copy; {{ date('Y') }} <a href="https://brand-image.co.in/" target="_blank" rel="noopener">Brand Adda
+                &copy; {{ date('Y') }} <a href="https://brand-adda.co.in/" target="_blank" rel="noopener">Brand Adda
                     Pvt. Ltd.</a> All rights reserved.
             </p>
 

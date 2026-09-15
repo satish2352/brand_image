@@ -111,8 +111,8 @@
                     <span class="about-subtitle">ABOUT US</span>
 
                     <h2 class="about-title">
-                        Business Has Only Two Functions:
-                        <span>Marketing & Innovation</span>
+                        Powering The Future Of
+                        <span>Outdoor Advertising</span>
                     </h2>
                 </div>
                 <!-- LEFT CONTENT -->

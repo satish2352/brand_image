@@ -132,4 +132,10 @@ return [
     ],
     'admin_email' => env('ADMIN_EMAIL'),
 
+    /*
+     * Where website contact-form enquiries go. Falls back to the admin address
+     * so an install without the key set still delivers somewhere.
+     */
+    'sales_email' => env('SALES_EMAIL', env('ADMIN_EMAIL')),
+
 ];
