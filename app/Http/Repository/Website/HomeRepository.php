@@ -35,8 +35,14 @@ class HomeRepository
      *
      * Not paginated: a shortlist is a handful of rows the client is meant to
      * see all of at once, and the page plots the same set on its map.
+     *
+     * $filters is the client's own narrowing — Area, Area Type, Highway,
+     * Landmarks, dates, size, radius, budget — coming off the filter card on
+     * the shared page. It runs through the very same builder /search uses,
+     * with media_ids pinned on top, so no filter can widen the set past the
+     * ids stored on the link.
      */
-    public function getMediaByIds(array $ids)
+    public function getMediaByIds(array $ids, array $filters = [])
     {
         if (empty($ids)) {
             return collect();
@@ -44,8 +50,12 @@ class HomeRepository
 
         $ids = array_values(array_unique(array_map('intval', $ids)));
 
+        // Set last, never merged from the caller's array: the shortlist is the
+        // hard boundary of this page and nothing posted may replace it.
+        $filters['media_ids'] = $ids;
+
         // FIELD() keeps the team's own ordering, which whereIn does not.
-        return $this->buildSearchQuery(['media_ids' => $ids])
+        return $this->buildSearchQuery($filters)
             ->orderByRaw('FIELD(m.id, ' . implode(',', $ids) . ')')
             ->get();
     }

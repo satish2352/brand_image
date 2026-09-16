@@ -201,6 +201,27 @@
                 <span>Contact Us</span>
             </a>
         </li>
+
+        <li class="nav-item {{ request()->is('requirements/*') ? 'active' : '' }}">
+            <a href="{{ route('requirements.list') }}">
+                <i class="mdi mdi-clipboard-text"></i>
+                <span>Client Requirements</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->is('settings/portal-access') ? 'active' : '' }}">
+            <a href="{{ route('settings.portal-access') }}">
+                <i class="mdi mdi-timer-sand"></i>
+                <span>Search Access</span>
+            </a>
+        </li>
+
+        <!-- <li class="nav-item {{ request()->is('search-access/*') ? 'active' : '' }}">
+            <a href="{{ route('search-access.users') }}">
+                <i class="mdi mdi-account-clock"></i>
+                <span>User Search Access</span>
+            </a>
+        </li> -->
         <li
             class="nav-item {{ request()->is('user-payment/list') || request()->is('user-payment/details/*') ? 'active' : '' }}">
             <a href="{{ route('user-payment.list') }}">

@@ -155,7 +155,7 @@
         {{-- Shortlist tick. Only a logged-in team member sees it; a visitor's
              card is exactly as it was. $shareable is set by the search page and
              absent everywhere else this partial is used. --}}
-        @if (!empty($shareable) && session()->has('user_id'))
+        @if (!empty($shareable) && site_admin())
             <label class="share-pick" title="Shortlist this hoarding">
                 <input type="checkbox" class="share-pick-input" value="{{ $media->id }}">
                 <span>Select</span>

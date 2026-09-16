@@ -158,10 +158,15 @@
 
                  Holding the URL in data-src instead means nothing is requested
                  until the panel is genuinely scrolled to, and then only once. --}}
-            {{-- The panel frames the Map page. A visitor on a shared shortlist is
-                 redirected off that route, so the frame would load their own
-                 shortlist inside this small box; it is dropped for them instead. --}}
-            @unless (session()->has('shared_link_token') && !session()->has('user_id'))
+            {{-- The panel frames the Map page, so it is dropped whenever that
+                 page is closed to this visitor: a shared-shortlist client, or
+                 anyone whose access window has run out. Otherwise the frame
+                 just loads the blocked notice inside the hero. --}}
+            @php
+                $mapClosed = (session()->has('shared_link_token') && !site_admin())
+                    || (isset($searchAccess) && $searchAccess['allowed'] === false);
+            @endphp
+            @unless ($mapClosed)
                 <div class="bi-hero-panel" data-aos="fade-up" data-aos-delay="300">
                     <iframe class="bi-hero-frame" data-src="{{ route('website.explore') }}?embed=1"
                         title="Explore available outdoor media on the map" loading="lazy"></iframe>
@@ -269,7 +274,30 @@
      than in the shared partial, which the /search page also renders. --}}
 <div id="mediaSearch">
     @php
-        $onSharedShortlist = session()->has('shared_link_token') && !session()->has('user_id');
+        $onSharedShortlist = session()->has('shared_link_token') && !site_admin();
+
+        // The access window has closed. The form would only ever bounce off the
+        // middleware, so the panel that replaces it carries the message and the
+        // way forward instead. $searchAccess comes from the view composer.
+        $accessClosed = isset($searchAccess) && $searchAccess['allowed'] === false;
+        $previewEnded = $accessClosed && ($searchAccess['reason'] ?? null) === 'preview_expired';
+
+        // Signed in, trial already spent, and nothing ran out just now: they
+        // came back rather than timed out. The session was consumed once and
+        // does not reopen by returning, so they get the account experience
+        // instead of an expiry notice.
+        //
+        // Same test the expiry modal uses, and it has to stay that way: a
+        // window that closed minutes ago puts the modal up on every page, and
+        // this panel greeting them with "Welcome back" underneath it would
+        // have the page saying two different things at once.
+        $returningUser = $accessClosed
+            && !$previewEnded
+            && ($searchAccess['trial_used'] ?? false)
+            && !($searchAccess['just_ended'] ?? false)
+            && !session()->has('search_session_expired');
+
+        $accountName = optional(auth('website')->user())->name;
     @endphp
 
     @if ($onSharedShortlist)
@@ -288,6 +316,62 @@
                     class="bi-media-empty-btn">
                     View my shortlist
                 </a>
+            </div>
+        </div>
+    @elseif ($accessClosed)
+        <div class="container shared-cta">
+            <div class="bi-media-empty">
+
+                @if ($previewEnded)
+                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    <h4>Your free preview has ended.</h4>
+                    <p>Please Login / Register to continue.</p>
+                    <div class="sa-modal-actions">
+                        <button type="button" class="sa-btn sa-btn-primary" data-sa-close
+                            data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
+                        <button type="button" class="sa-btn sa-btn-ghost" data-sa-close
+                            data-bs-toggle="modal" data-bs-target="#authModal"
+                            onclick="if (window.showSignup) showSignup();">Register</button>
+                    </div>
+                @elseif ($returningUser)
+                    {{-- A user coming back after their trial was spent — days
+                         ago, perhaps. "Your session has ended" would be a
+                         puzzle: nothing ended today. They are simply an
+                         account holder without search access. --}}
+                    <i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>
+                    <h4>Welcome back{{ $accountName ? ', ' . $accountName : '' }}!</h4>
+                    <p>
+                        Your search session has already been used. Our team can take it
+                        from here — check on what you have sent us, or tell us about a
+                        new campaign.
+                    </p>
+                    <div class="sa-modal-actions">
+                        <a href="{{ route('website.requirement.mine') }}" class="sa-btn sa-btn-ghost">
+                            <i class="bi bi-clipboard-check" aria-hidden="true"></i> My Requirements
+                        </a>
+                        <a href="{{ route('website.requirement.create') }}" class="sa-btn sa-btn-primary">
+                            <i class="bi bi-plus-lg" aria-hidden="true"></i> Share New Requirement
+                        </a>
+                        <a href="tel:{{ config('portal_access.contact_phone') }}" class="sa-btn sa-btn-ghost">
+                            <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                            Contact Brand Adda Team
+                        </a>
+                    </div>
+                @else
+                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    <h4>Your search session has ended.</h4>
+                    <p>Our team can take it from here — call us, or send us your requirement.</p>
+                    <div class="sa-modal-actions">
+                        <a href="tel:{{ config('portal_access.contact_phone') }}" class="sa-btn sa-btn-ghost">
+                            <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                            {{ config('portal_access.contact_phone') }}
+                        </a>
+                        <a href="{{ route('website.requirement.create', ['from' => 'expired']) }}"
+                            class="sa-btn sa-btn-primary">
+                            <i class="bi bi-pencil-square" aria-hidden="true"></i> Share Your Requirement
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     @else

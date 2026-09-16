@@ -32,6 +32,11 @@ use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
 use App\Http\Controllers\Website\SharedLinkController;
+use App\Http\Controllers\Website\SearchSessionController;
+use App\Http\Controllers\Website\RequirementController;
+use App\Http\Controllers\Superadm\PortalAccessController;
+use App\Http\Controllers\Superadm\MediaRequirementController;
+use App\Http\Controllers\Superadm\SearchAccessController;
 use App\Http\Controllers\Website\PaymentHistoryController;
 use App\Http\Controllers\Website\ProfileController;
 use App\Http\Controllers\Superadm\CampaingController;
@@ -146,6 +151,28 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('toggle-status', [WebsiteUserController::class, 'toggleStatus'])->name('website-user.toggle-status');
         Route::post('view', [WebsiteUserController::class, 'view'])->name('website-user.view');
     });
+    /* Requirements sent in through "Share your requirement". */
+    Route::prefix('requirements')->group(function () {
+        Route::get('list', [MediaRequirementController::class, 'index'])->name('requirements.list');
+        Route::get('view/{id}', [MediaRequirementController::class, 'viewDetails'])->name('requirements.view');
+        Route::post('status', [MediaRequirementController::class, 'updateStatus'])->name('requirements.status');
+        Route::post('delete', [MediaRequirementController::class, 'delete'])->name('requirements.delete');
+    });
+
+    /* How long a visitor and a signed-in user may search for. */
+    /* Who has used their search trial, and granting another. */
+    Route::prefix('search-access')->group(function () {
+        Route::get('users', [SearchAccessController::class, 'index'])->name('search-access.users');
+        Route::get('history/{id}', [SearchAccessController::class, 'history'])->name('search-access.history');
+        Route::post('grant', [SearchAccessController::class, 'grant'])->name('search-access.grant');
+        Route::post('revoke', [SearchAccessController::class, 'revoke'])->name('search-access.revoke');
+    });
+
+    Route::prefix('settings')->group(function () {
+        Route::get('portal-access', [PortalAccessController::class, 'edit'])->name('settings.portal-access');
+        Route::post('portal-access', [PortalAccessController::class, 'update'])->name('settings.portal-access.update');
+    });
+
     Route::prefix('contact-us')->group(function () {
         Route::get('list', [ContactUsController::class, 'index'])->name('contact-us.list');
         Route::post('delete', [ContactUsController::class, 'delete'])->name('contact-us.delete');
@@ -306,12 +333,15 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
-/* The two browse-everything routes. A visitor holding a shared shortlist is
-   sent back to it; for everyone else the middleware is a no-op. */
+/* The browse-everything routes.
+   - shared.link.visitor  keeps a client holding a shared shortlist out of the
+                          full inventory.
+   - search.access        enforces the timed preview / search window. Neither
+                          touches the controllers, which are unchanged. */
 Route::get('/search', [HomeController::class, 'searchView'])
-    ->middleware('shared.link.visitor')->name('website.search.view');
+    ->middleware(['shared.link.visitor', 'search.access'])->name('website.search.view');
 Route::post('/search', [HomeController::class, 'search'])
-    ->middleware('shared.link.visitor')->name('website.search');
+    ->middleware(['shared.link.visitor', 'search.access'])->name('website.search');
 
 /* ============ SHAREABLE HOARDING SHORTLISTS ============
    The team ticks hoardings on /search and generates a link; the client opens
@@ -319,19 +349,63 @@ Route::post('/search', [HomeController::class, 'search'])
    (the admin session is `user_id`, not a guard, so it cannot use auth:*).
    Viewing is deliberately public — the token IS the credential. */
 Route::post('/shared-links', [SharedLinkController::class, 'store'])->name('shared.link.store');
-Route::get('/shared/{token}', [SharedLinkController::class, 'show'])->name('shared.link.show');
+/* GET renders the shortlist; POST is the same page with the client's filters
+   applied. One action either way — the filter card can only narrow the ids on
+   the token, so there is nothing for a second endpoint to guard. */
+Route::match(['get', 'post'], '/shared/{token}', [SharedLinkController::class, 'show'])
+    ->name('shared.link.show');
 
 /* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
 Route::get('/explore', [ExploreController::class, 'index'])
-    ->middleware('shared.link.visitor')->name('website.explore');
-Route::match(['get', 'post'], '/explore/search', [ExploreController::class, 'search'])->name('website.explore.search');
-Route::get('/ajax/get-landmarks', [ExploreController::class, 'landmarks'])->name('ajax.landmarks');
-Route::get('/ajax/get-highways', [ExploreController::class, 'highways'])->name('ajax.highways');
+    ->middleware(['shared.link.visitor', 'search.access'])->name('website.explore');
+Route::match(['get', 'post'], '/explore/search', [ExploreController::class, 'search'])
+    ->middleware('search.access')->name('website.explore.search');
+/* The filter dropdowns feed the same inventory, so they close with it. */
+Route::get('/ajax/get-landmarks', [ExploreController::class, 'landmarks'])
+    ->middleware('search.access')->name('ajax.landmarks');
+Route::get('/ajax/get-highways', [ExploreController::class, 'highways'])
+    ->middleware('search.access')->name('ajax.highways');
+
+/* ============ SEARCH ACCESS WINDOW ============
+   Status is read-only and rate limited: the countdown polls it, and there is
+   deliberately no endpoint that grants time. */
+Route::get('/search-session/status', [SearchSessionController::class, 'status'])
+    ->middleware('throttle:60,1')->name('search.session.status');
+
+/* Share your requirement — the way forward once a window has closed. */
+Route::get('/share-requirement', [RequirementController::class, 'create'])->name('website.requirement.create');
+/* A returning user's own briefs. Behind the site guard, since they are the
+   user's own records. */
+Route::get('/my-requirements', [RequirementController::class, 'mine'])
+    ->middleware('auth:website')->name('website.requirement.mine');
+Route::post('/share-requirement', [RequirementController::class, 'store'])
+    ->middleware('throttle:10,1')->name('website.requirement.store');
+
 Route::view('/about', 'website.about')->name('website.about');
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])->name('website.media-details');
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup')->middleware('throttle:10,1');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login')->middleware('throttle:10,1');
 Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.logout');
+
+/* ============ FRESH CSRF TOKEN ============
+   @csrf stamps the token into the HTML when a page is rendered, so a page
+   left open across a login or a logout elsewhere in the browser posts a token
+   the session no longer recognises and gets a 419. The modal's forms ask here
+   for the current one and retry, rather than making a visitor who has just
+   typed out the registration form do it again. Reading the token is not a
+   capability worth guarding: it is handed to anyone who loads any page. */
+Route::get('/csrf-token', fn() => response()->json(['token' => csrf_token()]))
+    ->name('csrf.token');
+
+/* ============ TEAM LOGIN FROM THE PUBLIC SITE ============
+   The "Login via Admin" pane of the Account Access modal. Same credentials
+   and same session key as /login, so it grants the same rights — see the
+   controller's note. Throttled harder than the customer login beside it
+   because a hit here is worth more. */
+Route::post('/website/admin-login', [LoginController::class, 'websiteAdminLogin'])
+    ->name('website.admin.login')->middleware('throttle:5,1');
+Route::get('/website/admin-logout', [LoginController::class, 'websiteAdminLogout'])
+    ->name('website.admin.logout');
 Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp')->middleware('throttle:5,1');
 Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp')->middleware('throttle:3,1');
 

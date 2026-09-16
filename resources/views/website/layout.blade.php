@@ -120,8 +120,18 @@
 
 </head>
 <style>
-    .header-icons .btn,
-    .header-icons a {
+    /* DIRECT CHILDREN ONLY.
+       These describe the header's own square tiles — cart, account, admin.
+       As descendant rules they also reached every <a> inside the dropdown
+       MENUS that hang in this same container: the 55x46 squashed each row to
+       the size of a tile and clipped its label, and the orange background
+       below turned every row into a solid block with the text lost inside it.
+       The account menu already had to out-specify both with !important; the
+       admin menu hit the same wall. Scoping with ">" is what the white-glyph
+       rule in style.css settled on for exactly this reason — one place to fix
+       rather than an override per menu. */
+    .header-icons>.btn,
+    .header-icons>a {
         width: 55px;
         height: 46px;
         display: flex;
@@ -136,7 +146,7 @@
         gap: 12px;
     }
 
-    .header-icons a {
+    .header-icons>a {
         /* width: 55px;
     height: 46px; */
         background: #F97316;
@@ -265,6 +275,10 @@
             $(".loader").hide();
         }, 3000);
     </script>
+
+    {{-- Search access countdown and expiry messages. Renders nothing at all
+         when the visitor is not on a timer (gate off, admin, paying customer). --}}
+    @include('website.includes.search-session')
 </body>
 
 </html>

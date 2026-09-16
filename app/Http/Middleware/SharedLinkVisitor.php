@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Support\AdminSession;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -34,7 +35,7 @@ class SharedLinkVisitor
 
         // The team browses the real site in the same browser they generate
         // links from, so an admin is never locked out by their own link.
-        if ($request->session()->has('user_id')) {
+        if (AdminSession::onSite()) {
             return $next($request);
         }
 

@@ -22,6 +22,8 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Mobile</th>
+                                    <th>City</th>
+                                    <th>User Type</th>
                                     <th>Organization</th>
                                     <th>GST</th>
                                     <th>Status</th>
@@ -36,6 +38,10 @@
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td>{{ $user->mobile_number }}</td>
+                                        {{-- Both asked for at registration; older accounts
+                                             predate the fields and read NA. --}}
+                                        <td>{{ $user->city ?? 'NA' }}</td>
+                                        <td>{{ $user->user_type ?? 'NA' }}</td>
                                         {{-- <td>{{ $user->organisation }}</td>
                                         <td>{{ $user->gst }}</td> --}}
                                         <td>{{ $user->organisation ?? 'NA' }}</td>
@@ -133,6 +139,25 @@
                     </div>
 
                     <!-- ROW 3 -->
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-3 font-weight-bold">City</div>
+                                <div class="col-1">:</div>
+                                <div class="col-8" id="u_city"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-3 font-weight-bold">User Type</div>
+                                <div class="col-1">:</div>
+                                <div class="col-8" id="u_user_type"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ROW 4 -->
                     <div class="row mb-2">
                         <div class="col-md-6">
                             <div class="row">
@@ -252,6 +277,8 @@
                     $('#u_name').text(res.name);
                     $('#u_email').text(res.email);
                     $('#u_mobile').text(res.mobile_number);
+                    $('#u_city').text(res.city ?? 'NA');
+                    $('#u_user_type').text(res.user_type ?? 'NA');
                     $('#u_org').text(res.organisation ?? 'NA');
                     $('#u_gst').text(res.gst ?? 'NA');
                     $('#u_created').text(res.created_at);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\AdminSession;
 use App\Support\ImageResizer;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -128,4 +129,23 @@ if (!function_exists('calculateMonthlyRangePrice')) {
 
         return round($total, 2);
     }
+}
+
+/**
+ * Admin mode on the public site — the Account Access modal's admin pane.
+ *
+ * Deliberately not the admin panel's session: the two are signed out
+ * separately, so a blade asking "should this visitor see the Share bar"
+ * must ask about this surface and not the other one. See AdminSession.
+ *
+ * site_admin()          → true while admin mode is on
+ * site_admin('name')    → the signed-in admin's name (or 'email', 'id')
+ */
+function site_admin(?string $field = null)
+{
+    if ($field === null) {
+        return AdminSession::onSite();
+    }
+
+    return session('site_admin_' . $field);
 }

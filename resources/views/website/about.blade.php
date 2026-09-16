@@ -133,6 +133,9 @@
                     </p>
 
 
+
+                    
+
                     <p>
                         Our objective is to make outdoor media more accessible, efficiently planned and better 
                         utilized across urban, semi-urban and rural markets.
@@ -179,7 +182,9 @@
                     </p>
 
                      <h3>Media Owners</h3>
-                    <p>Brand Adda helps media owners increase the utilization and booking frequency of their outdoor 
+                    <p>Brand Adda helps media owners increase the utilization
+                        
+                    and booking frequency of their outdoor 
                         media. Through upcoming and real-time availability, media owners can showcase inventory that 
                         will become available in the coming days or weeks, allowing brands and agencies to plan and 
                         book media in advance. Our long-term objective is to help media owners maximize their 365-day 

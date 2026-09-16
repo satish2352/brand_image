@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Support\AdminSession;
+use App\Support\SessionFixation;
 use App\Models\WebsiteUser;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -57,7 +59,16 @@ class AuthController extends Controller
             'signup_name' => 'required',
             'signup_email' => 'required|email',
             'signup_mobile_number' => 'required|digits:10',
+            'signup_city' => 'required|string|max:120',
+            // The list the registration form offers. Validated against it so a
+            // hand-rolled POST cannot store something the admin filters cannot
+            // group by.
+            'signup_user_type' => 'required|in:' . implode(',', WebsiteUser::USER_TYPES),
             'signup_password' => 'required|min:8',
+        ], [
+            'signup_city.required' => 'Please enter your city.',
+            'signup_user_type.required' => 'Please select a user type.',
+            'signup_user_type.in' => 'Please select a valid user type.',
         ]);
 
         // CHECK EXISTING USER
@@ -111,6 +122,8 @@ class AuthController extends Controller
             'email' => $req->signup_email,
             'mobile_number' => $req->signup_mobile_number,
             'organisation' => $req->signup_organisation ?? null,
+            'city' => $req->signup_city,
+            'user_type' => $req->signup_user_type,
             'gst' => $req->signup_gst ?? null,
             'password' => Hash::make($req->signup_password),
             'otp' => $otp,
@@ -276,7 +289,7 @@ class AuthController extends Controller
         // STORE SESSION
         // session(['website_user' => $user]);
         Auth::guard('website')->login($user);
-        $req->session()->regenerate();
+        SessionFixation::protect($req);
         $req->session()->forget('order_id'); // clear stale order from any previous session
         return response()->json([
             'status' => true,
@@ -289,8 +302,12 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::guard('website')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+
+        // Not invalidate() on its own: admin mode is a separate login sharing
+        // this browser session, and wiping the session wholesale would sign a
+        // team member out of the panel as well just for leaving a customer
+        // account. The session is still replaced — only admin mode rides over.
+        AdminSession::invalidateKeepingAdmin($request);
 
         return redirect('/')->with('success', 'Logged out successfully!');
     }

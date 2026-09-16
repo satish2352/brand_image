@@ -24,7 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append(
             \App\Http\Middleware\ComingSoonMiddleware::class
         );
-
         // ✅ Add this
         $middleware->validateCsrfTokens(except: [
             'payment/webhook/razorpay',
@@ -38,6 +37,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.website.user' => \App\Http\Middleware\CheckWebsiteUserStatus::class,
             // Applied only to the Map and search routes; see the class note.
             'shared.link.visitor' => \App\Http\Middleware\SharedLinkVisitor::class,
+            // Timed access to the media search; see the class note.
+            'search.access' => \App\Http\Middleware\EnsureSearchAccess::class,
         ]);
     })
 

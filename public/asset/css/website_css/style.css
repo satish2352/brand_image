@@ -460,8 +460,13 @@ Header .navbar-custom {
 /* Mobile View */
 @media (max-width: 991px) {
 
-    .header-icons .btn,
-    .header-icons a {
+    /* Direct children only — the same trap the white-glyph rule further down
+       fell into. These are the cart and account TILES, which are square-ish
+       blocks at this width; as a descendant rule the 56x40 !important also
+       reached every <a> inside the account and admin dropdown menus, squashing
+       each row to the size of a tile and clipping its label. */
+    .header-icons>.btn,
+    .header-icons>a {
         width: 56px !important;
         height: 40px !important;
         display: flex;
@@ -7451,8 +7456,11 @@ body:has(.bi-contact) .bi-contact {
    Markup is untouched: every field, name, id and handler is as it was.
    ========================================================= */
 
+/* Wider than the 430px this started at: both panes run one field per row, and
+   at the old width the labelled fields felt cramped. Applies to login and
+   registration alike so the dialog does not resize as you switch between them. */
 #authModal .modal-dialog {
-    max-width: 430px;
+    max-width: 520px;
 }
 
 /* Solid navy, not the frosted white panel it was. overflow:hidden is what
@@ -7728,14 +7736,51 @@ body:has(.bi-contact) .bi-contact {
 
 /* ---- recaptcha ----
    The widget is a Google iframe and cannot be themed from here, so it is set
-   in a panel of its own instead of floating as a white slab on the navy. */
-#authModal .g-recaptcha {
+   in a panel of its own instead of floating as a white slab on the navy.
+   #adminCaptchaBox is the same widget rendered explicitly rather than by
+   class, so it is named here too. */
+#authModal .g-recaptcha,
+#authModal #adminCaptchaBox {
     display: flex;
     justify-content: center;
     padding: 10px;
     border: 1px solid rgba(255, 255, 255, .12);
     border-radius: 12px;
     background: rgba(255, 255, 255, .06);
+}
+
+/* ---- staff entry point ----
+   Below the customer footer switch and quieter than it: almost everyone who
+   opens this modal wants the form above, not this. */
+#authModal .auth-staff-switch {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#authModal .auth-staff-switch a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, .55);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color .2s ease, background .2s ease;
+}
+
+#authModal .auth-staff-switch a:hover {
+    color: var(--brand-orange);
+    background: rgba(249, 115, 22, .10);
+}
+
+/* Says what the credentials below actually unlock, before they are typed. */
+#authModal .auth-note {
+    margin: -6px 0 18px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, .55);
 }
 
 /* ---- messages ---- */
@@ -8156,9 +8201,220 @@ body:has(.bi-contact) .bi-contact {
     color: rgba(15, 23, 42, .5);
 }
 
+/* ---- admin mode marker ----
+   Shown in the site header while session('user_id') is set. Deliberately a
+   different colour from every customer control beside it: it is a reminder
+   that this browser is holding admin rights on the public site, not another
+   piece of site furniture. */
+.admin-mode-wrap {
+    display: inline-flex;
+    align-items: center;
+    /* No margin: .header-icons is a flex row with its own gap, and an extra
+       margin here only spent width the phone header does not have. */
+}
+
+/* 46px to stand level with the solid cart and account tiles beside it, but
+   pill-shaped and outlined rather than solid: it marks a state the visitor is
+   in, not another thing to buy or open. */
+.admin-mode-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid rgba(249, 115, 22, .40);
+    border-radius: 999px;
+    background-color: rgba(249, 115, 22, .10);
+    background-image: none;
+    color: var(--brand-navy);
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color .2s ease, border-color .2s ease;
+}
+
+.admin-mode-pill:hover,
+.admin-mode-pill:focus,
+.admin-mode-pill:active {
+    background-color: rgba(249, 115, 22, .18);
+    border-color: rgba(249, 115, 22, .65);
+    color: var(--brand-navy);
+    box-shadow: none;
+}
+
+.admin-mode-pill .bi {
+    color: #F97316;
+    font-size: 14px;
+}
+
+.admin-mode-caret {
+    font-size: 10px;
+    color: rgba(15, 23, 42, .45);
+    transition: transform .2s ease;
+}
+
+.admin-mode-wrap .dropdown-toggle::after {
+    /* The caret is its own element, in the order this button wants it.
+       Bootstrap's generated one would sit outside the pill's own spacing. */
+    display: none;
+}
+
+/* Bootstrap 5 puts .show on the TOGGLE and the menu, not on the surrounding
+   .dropdown the way Bootstrap 4 did — keyed off the wrapper these never
+   matched at all. aria-expanded is belt and braces: it is what the toggle
+   sets first and it is true whichever way the menu was opened. */
+.admin-mode-pill.show .admin-mode-caret,
+.admin-mode-pill[aria-expanded="true"] .admin-mode-caret {
+    transform: rotate(180deg);
+}
+
+.admin-mode-pill.show,
+.admin-mode-pill[aria-expanded="true"] {
+    background-color: rgba(249, 115, 22, .18);
+    border-color: rgba(249, 115, 22, .65);
+}
+
+/* The menu itself rides on .user-menu-v2, which already declares the
+   backgrounds and colours needed to beat the theme's header link rules.
+   Only what should read as staff rather than customer is set here — and it
+   is set with the same weight, or it loses to the very rules it is riding on. */
+.admin-mode-wrap .user-menu-v2.admin-menu-v2 {
+    width: 252px !important;
+}
+
+/* A shield in a tinted disc, where the customer menu has a photo. Matched to
+   .user-dropdown .user-menu-v2 .user-info-avatar or it loses the background,
+   and the glyph is set explicitly because .header-icons i reaches in here. */
+.user-dropdown .user-menu-v2.admin-menu-v2 .user-info-avatar.admin-info-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(249, 115, 22, .14) !important;
+}
+
+.user-dropdown .user-menu-v2.admin-menu-v2 .admin-info-avatar .bi {
+    font-size: 18px;
+    color: #F97316 !important;
+}
+
+/* Exit is the destructive row here, so it carries the warning colour rather
+   than the orange the customer Logout uses — orange is this menu's primary,
+   and two rows in the same orange would read as two equal choices.
+   Carries .user-dropdown .user-menu-v2 too: the customer rule it is replacing
+   is that specific and also !important, so anything shorter silently loses. */
+.user-dropdown .user-menu-v2.admin-menu-v2 .menu-btn.logout,
+.user-dropdown .user-menu-v2.admin-menu-v2 .menu-btn.logout i {
+    color: #DC2626 !important;
+}
+
+.user-dropdown .user-menu-v2.admin-menu-v2 .menu-btn.logout:hover {
+    background-color: rgba(220, 38, 38, .09) !important;
+    color: #DC2626 !important;
+}
+
+@media (max-width: 991.98px) {
+    /* The row is tighter once the nav collapses; the label goes and the
+       shield carries the meaning on its own. */
+    .admin-mode-pill {
+        padding: 0 11px;
+        /* Down to a glyph, a 999px radius on a 46px-tall box reads as a
+           stretched oval beside the square cart and account tiles. Rounded
+           like them instead, so it sits in the row as a sibling control. */
+        border-radius: 12px;
+    }
+
+    .admin-mode-label,
+    .admin-mode-caret {
+        display: none;
+    }
+}
+
+/* ---- phone header, now four controls wide ----
+   Admin, cart, account and the menu button all sit beside a logo that was a
+   fixed 130px and never shrank. Measured clearance between the logo artwork
+   and the first control, before the admin pill existed: +20px at 360, -20px
+   at 320 (already touching). Adding the pill took 360 to -23 and 320 to -63.
+   So the pill has to pay for its own width, and the logo has to be allowed to
+   give some back. Two classes on the icon rules so they outrank the layout's
+   own inline <style>, which loads after this file. */
+@media (max-width: 575.98px) {
+    .header-icons.new-header-icons {
+        gap: 8px;
+    }
+
+    .admin-mode-pill {
+        padding: 0 9px;
+    }
+
+    .admin-mode-pill .bi-shield-lock-fill {
+        font-size: 15px;
+    }
+
+    .site-logo img {
+        max-width: 110px;
+    }
+}
+
+@media (max-width: 360px) {
+    /* The smallest phones still in use. Everything gives a little: the logo
+       again, the gaps, and the square tiles, which have room to spare around
+       an 18px glyph. */
+    .site-logo img {
+        max-width: 88px;
+    }
+
+    .header-icons.new-header-icons {
+        gap: 6px;
+    }
+
+    .header-icons.new-header-icons>.btn,
+    .header-icons.new-header-icons>a {
+        width: 46px !important;
+    }
+
+    .admin-mode-pill {
+        padding: 0 7px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* The menu's right edge is pinned to the pill, and the pill is NOT the
+       rightmost control — cart, account and the hamburger sit to its right. On
+       a phone that leaves under 160px to the left of it, so a 252px card runs
+       off the screen (measured: 22px over at 390, 92px at 320).
+
+       Making the wrapper static hands the absolute positioning up to
+       .main-menu-wrap, so the card aligns to the header instead of to the
+       pill and simply overlays the buttons beside it, which is what a
+       dropdown is for. The !important is not decoration: Popper writes
+       position, inset and transform inline, and nothing else can outrank
+       those. inset comes before top so the longhand wins. */
+    .admin-mode-wrap {
+        position: static;
+    }
+
+    .admin-mode-wrap .user-menu-v2.admin-menu-v2 {
+        position: absolute !important;
+        inset: auto 0 auto auto !important;
+        top: calc(100% + 6px) !important;
+        transform: none !important;
+        width: min(252px, calc(100vw - 24px)) !important;
+    }
+}
+
 /* ---- the client's page ---- */
+
+/* These two pages open straight on their heading. .top-header-area is
+   position:fixed at the top of the viewport and 69px tall (the same figure
+   .bi-hero clears), so the 34px and 44px these used to carry were never
+   clearing it — the hero banner above them was, by being the thing that sat
+   behind the header. With the banner gone the eyebrow and the h1 rendered
+   underneath it. 69px of that is clearance; the rest is the gap the banner
+   used to leave. */
 .shared-head {
-    padding: 34px 0 6px;
+    padding: 110px 0 6px;
 }
 
 .shared-head h1 {
@@ -8177,6 +8433,34 @@ body:has(.bi-contact) .bi-contact {
     color: rgba(15, 23, 42, .62);
 }
 
+/* Why four of the filters above are greyed out. Sits under the intro copy so
+   the visitor reads it before reaching for them, not after. */
+.shared-locked-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px !important;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border-left: 4px solid #F97316;
+    background: rgba(249, 115, 22, .10);
+    font-size: 13.5px !important;
+    line-height: 1.5;
+    color: rgba(15, 23, 42, .72) !important;
+}
+
+.shared-locked-note .bi {
+    color: #F97316;
+    font-size: 14px;
+}
+
+/* A disabled level is not a broken control — say so with the cursor too. */
+.media-search-card .form-select:disabled {
+    cursor: not-allowed;
+    color: rgba(15, 23, 42, .75);
+    opacity: 1;
+}
+
 .shared-list {
     max-height: 78vh;
     overflow-y: auto;
@@ -8189,6 +8473,11 @@ body:has(.bi-contact) .bi-contact {
 }
 
 @media (max-width: 991.98px) {
+    /* See .req-section's note at this breakpoint. */
+    .shared-head {
+        padding-top: 96px;
+    }
+
     .shared-head h1 {
         font-size: 26px;
     }
@@ -8369,4 +8658,494 @@ body:has(.bi-contact) .bi-contact {
     .shared-cta .bi-media-empty {
         max-width: none;
     }
+}
+
+/* =========================================================
+   SEARCH ACCESS — countdown bar and expiry messages
+   Display only; the server decides access. @see
+   resources/views/website/includes/search-session.blade.php
+   ========================================================= */
+
+.sa-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--brand-navy);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .32);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, .85);
+    transform: translateX(-50%);
+    transition: opacity .25s ease, visibility .25s ease;
+}
+
+.sa-bar.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.sa-bar-text strong {
+    color: var(--brand-orange);
+}
+
+/* A slow pulse, so the bar reads as a live timer rather than a static label. */
+.sa-bar-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand-orange);
+    animation: sa-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sa-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: .45;
+        transform: scale(.75);
+    }
+}
+
+/* ---- expiry dialogs ---- */
+.sa-modal {
+    position: fixed;
+    inset: 0;
+    /* Below Bootstrap's modal (1055) on purpose: the Login button opens the
+       auth dialog, which must come out in front of this card rather than
+       behind it. The card closes itself on that click anyway; this is the
+       belt to that braces. */
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, .6);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+}
+
+.sa-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sa-modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    padding: 34px 28px 30px;
+    border-radius: 20px;
+    background: var(--brand-white);
+    box-shadow: 0 30px 80px rgba(15, 23, 42, .4);
+    text-align: center;
+}
+
+.sa-modal-icon {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: rgba(249, 115, 22, .12);
+    color: var(--brand-orange);
+    font-size: 26px;
+    line-height: 1;
+}
+
+.sa-modal-card h4 {
+    margin: 0 0 8px;
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--brand-navy);
+}
+
+.sa-modal-card p {
+    margin: 0 0 24px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(15, 23, 42, .62);
+}
+
+.sa-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.sa-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 22px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.sa-btn-primary {
+    background: var(--brand-orange);
+    color: var(--brand-white);
+    box-shadow: 0 10px 24px rgba(249, 115, 22, .28);
+}
+
+.sa-btn-primary:hover {
+    color: var(--brand-white);
+    filter: brightness(1.05);
+}
+
+.sa-btn-ghost {
+    background: var(--brand-white);
+    border-color: var(--brand-grey);
+    color: var(--brand-navy);
+}
+
+.sa-btn-ghost:hover {
+    background: rgba(249, 115, 22, .08);
+    border-color: var(--brand-orange);
+    color: var(--brand-orange);
+}
+
+/* Controls that would now be refused server-side are greyed rather than
+   removed, so the page does not reflow under the visitor. */
+.sa-disabled {
+    opacity: .55;
+    pointer-events: none;
+    filter: grayscale(.3);
+}
+
+@media (max-width: 575.98px) {
+    .sa-bar {
+        left: 12px;
+        right: 12px;
+        bottom: 14px;
+        justify-content: center;
+        border-radius: 14px;
+        transform: none;
+    }
+
+    .sa-modal-card {
+        padding: 26px 18px 24px;
+    }
+
+    .sa-modal-actions {
+        flex-direction: column;
+    }
+
+    .sa-btn {
+        width: 100%;
+    }
+}
+
+/* ---- share your requirement ---- */
+/* Top padding clears the fixed header — see .shared-head above. */
+.req-section {
+    padding: 110px 0 66px;
+}
+
+.req-head {
+    max-width: 720px;
+    margin-bottom: 26px;
+}
+
+.req-head h1 {
+    margin: 8px 0 10px;
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -.4px;
+    color: var(--brand-navy);
+}
+
+.req-head p {
+    margin: 0;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: rgba(15, 23, 42, .62);
+}
+
+.req-alert {
+    max-width: 720px;
+    border: 0;
+    border-radius: 12px;
+}
+
+.req-card {
+    padding: 28px;
+    border-radius: 20px;
+    background: var(--brand-white);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, .10);
+}
+
+/* A quiet rule between groups, so a long form reads as three short ones. */
+.req-legend {
+    margin: 26px 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--brand-grey);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brand-navy);
+}
+
+.req-legend:first-of-type {
+    margin-top: 0;
+}
+
+.req-optional {
+    margin-left: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(15, 23, 42, .45);
+}
+
+.req-card .form-label {
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brand-navy);
+}
+
+.req-star {
+    color: var(--brand-orange);
+}
+
+.req-card .form-control {
+    min-height: 46px;
+    border: 1px solid var(--brand-grey);
+    border-radius: 10px;
+    font-size: 14.5px;
+}
+
+.req-card textarea.form-control {
+    min-height: auto;
+}
+
+.req-card .form-control:focus {
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 .15rem rgba(249, 115, 22, .18);
+}
+
+.req-error {
+    display: block;
+    margin-top: 5px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #DC2626;
+}
+
+/* A field that failed should look failed before the message is read: the
+   red rim survives our own .req-card border rule, which Bootstrap's
+   .is-invalid ties with on specificity and would otherwise lose to. */
+.req-card .form-control.is-invalid {
+    border-color: #DC2626;
+    background-image: none;
+    padding-right: .75rem;
+}
+
+.req-card .form-control.is-invalid:focus {
+    border-color: #DC2626;
+    box-shadow: 0 0 0 .15rem rgba(220, 38, 38, .16);
+}
+
+/* Reserved gutter under every field: errors appear and clear as the client
+   types, and without this the whole form jumps a line each time. */
+.req-error-space {
+    min-height: 18px;
+}
+
+.req-hint,
+.req-counter {
+    display: block;
+    margin-top: 5px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgba(15, 23, 42, .5);
+}
+
+.req-counter {
+    white-space: nowrap;
+}
+
+.req-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--brand-grey);
+}
+
+@media (max-width: 767.98px) {
+    /* Still clearance, not decoration: below 992px the header is absolute
+       rather than fixed, which is just as far out of the flow — it is only
+       shorter, so the gap is trimmed to match. */
+    .req-section {
+        padding: 96px 0 44px;
+    }
+
+    .req-head h1 {
+        font-size: 26px;
+    }
+
+    .req-card {
+        padding: 18px;
+    }
+
+    .req-actions {
+        flex-direction: column-reverse;
+    }
+
+    .req-actions .sa-btn {
+        width: 100%;
+    }
+}
+
+/* The X on the expiry card. The card can be dismissed: the restriction is
+   enforced server-side regardless, so trapping the visitor behind an
+   uncloseable overlay would only stop them reading the page. */
+.sa-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    font-size: 26px;
+    line-height: 1;
+    color: rgba(15, 23, 42, .4);
+    cursor: pointer;
+    transition: color .2s ease, background-color .2s ease;
+}
+
+.sa-modal-close:hover,
+.sa-modal-close:focus {
+    color: var(--brand-orange);
+    background-color: rgba(249, 115, 22, .10);
+}
+
+/* ---- registration form ----
+   One field per row. The grid is kept rather than plain block flow so the
+   submit and the footer line can still span the track explicitly, and so a
+   second column is one value away if it is ever wanted. */
+.auth-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+/* The submit and the "already have an account" line run the full width. */
+.auth-grid .auth-grid-full {
+    grid-column: 1 / -1;
+}
+
+/* @csrf renders a hidden input, which would otherwise take a grid cell and
+   leave a hole where the first field should be. */
+.auth-grid input[type="hidden"] {
+    display: none;
+}
+
+#authModal .auth-grid .form-select {
+    height: 48px;
+    padding: 0 38px 0 14px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, .06);
+    color: var(--brand-white);
+    font-size: 14.5px;
+}
+
+#authModal .auth-grid .form-select:focus {
+    background-color: rgba(255, 255, 255, .09);
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 .18rem rgba(249, 115, 22, .22);
+    color: var(--brand-white);
+}
+
+/* The dropdown list itself is painted by the OS, which does not inherit the
+   panel's dark theme — dark text on a white list is the readable pairing. */
+#authModal .auth-grid .form-select option {
+    background: var(--brand-white);
+    color: var(--brand-navy);
+}
+
+/* The secondary line under the two actions on the "session ended" card. */
+.sa-modal-note {
+    margin: 18px 0 0 !important;
+    font-size: 12.5px !important;
+    color: rgba(15, 23, 42, .5) !important;
+}
+
+.sa-modal-note a {
+    color: var(--brand-orange);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.sa-modal-note a:hover {
+    text-decoration: underline;
+}
+
+/* ---- my requirements ---- */
+.my-req-table thead th {
+    border-bottom: 1px solid var(--brand-grey);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    color: rgba(15, 23, 42, .55);
+}
+
+.my-req-table td {
+    font-size: 14px;
+    color: var(--brand-navy);
+}
+
+.my-req-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.my-req-status.is-new {
+    background: rgba(249, 115, 22, .12);
+    color: var(--brand-orange);
+}
+
+.my-req-status.is-in_progress {
+    background: rgba(15, 23, 42, .08);
+    color: var(--brand-navy);
+}
+
+.my-req-status.is-closed {
+    background: rgba(15, 23, 42, .06);
+    color: rgba(15, 23, 42, .5);
+}
+
+/* The returning-user panel offers three actions; two fit a row, three need
+   to wrap rather than squeeze. */
+.bi-media-empty .sa-modal-actions {
+    margin-top: 22px;
 }

@@ -11,6 +11,10 @@ use App\Models\CartItem;
 use App\Support\MasterCache;
 use App\Support\RadiusRange;
 use Illuminate\Pagination\Paginator;
+use App\Http\Services\Website\SearchSessionService;
+use App\Listeners\StartSearchSessionOnLogin;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +23,28 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrap();
+
+        /* ========================================
+            SEARCH ACCESS WINDOW
+            Opened on the Login event rather than in the auth controllers:
+            password login, OTP registration and Google all raise it, so one
+            listener covers every way in.
+        ======================================== */
+        Event::listen(Login::class, StartSearchSessionOnLogin::class);
+
+        /* ========================================
+            SEARCH SESSION STATE (WEBSITE VIEWS)
+            The countdown component needs the same numbers the middleware
+            decides on, so it is resolved once here rather than in each
+            controller that renders a page.
+        ======================================== */
+        View::composer('website.*', function ($view) {
+            $view->with(
+                'searchAccess',
+                app(SearchSessionService::class)->state(request())
+            );
+        });
+
 
         /* ========================================
             CART COUNT (AVAILABLE ON ALL VIEWS)

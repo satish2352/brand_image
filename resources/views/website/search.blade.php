@@ -225,7 +225,7 @@
                          cards load as this column is scrolled, so the label
                          says "loaded" rather than implying the whole result
                          set has been shortlisted. --}}
-                    @if (session()->has('user_id'))
+                    @if (site_admin())
                         <div class="share-toolbar">
                             <label class="share-all">
                                 <input type="checkbox" id="shareSelectAll">
@@ -274,7 +274,7 @@
          Appears once a hoarding is ticked. The bar and the dialog are rendered
          only for a logged-in team member; the generate endpoint checks the
          session again rather than trusting that. --}}
-    @if (session()->has('user_id'))
+    @if (site_admin())
         <div class="share-bar" id="shareBar" aria-live="polite">
             <div class="share-bar-count">
                 <strong id="shareCount">0</strong> hoarding<span id="shareCountPlural"></span> shortlisted
@@ -442,8 +442,12 @@
                     document.getElementById('shareModalSub').textContent =
                         count + ' hoarding' + (count === 1 ? '' : 's') + ' in this shortlist.';
 
-                    const subject = 'Shortlisted hoardings from Brand Adda';
-                    const message = 'Here are the hoardings we have shortlisted for you: ' + url;
+                    // One message for every channel, from config/share_link.php
+                    // so marketing can reword it without touching this view.
+                    // split/join rather than replace(): a $-sequence in the URL
+                    // would otherwise be read as a replacement pattern.
+                    const subject = @json(config('share_link.subject'));
+                    const message = @json(config('share_link.message')).split(':link').join(url);
 
                     document.getElementById('shareWhatsApp').href =
                         'https://wa.me/?text=' + encodeURIComponent(message);
@@ -454,9 +458,10 @@
                     // one alone is ignored by the other.
                     document.getElementById('shareSms').href =
                         'sms:?&body=' + encodeURIComponent(message);
+                    // Telegram requires url=, and renders text= above it.
                     document.getElementById('shareTelegram').href =
                         'https://t.me/share/url?url=' + encodeURIComponent(url) +
-                        '&text=' + encodeURIComponent('Hoardings shortlisted for you');
+                        '&text=' + encodeURIComponent(message);
 
                     // Everything else the device can share to. navigator.share
                     // needs a user gesture and a secure context, so the button

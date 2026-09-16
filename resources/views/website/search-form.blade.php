@@ -269,11 +269,56 @@
         pointer-events: none;
     }
 </style>
+@php
+    /* ============ SHARED SHORTLIST MODE ============
+       The /shared/{token} page reuses this whole card. $biScope is set there
+       and nowhere else, and carries two things:
+
+         locked  — Category / State / District / Town, fixed by the link. They
+                   render disabled and the controller recomputes them from the
+                   link's own rows, so the posted values are never read.
+         options — the levels the client CAN still use (Area, Area Type,
+                   Highway, Landmarks), narrowed to values that actually occur
+                   on the shortlisted media. Offering the full masters would
+                   fill them with choices that cannot match anything.
+
+       Absent on /search and the home page, where every branch below falls
+       back to exactly what it rendered before. */
+    $biScope   = $biScope ?? null;
+    $biLocked  = $biScope['locked'] ?? [];
+    $biOptions = $biScope['options'] ?? null;
+
+    $biFormAction = $searchFormAction ?? route('website.search');
+
+    /* Highways and Landmarks are the view composer's masters on every page,
+       a shared shortlist included. They used to be narrowed there to the
+       values the shortlisted rows happened to carry, which left a client
+       looking at a Highway menu holding one entry and a Landmarks menu
+       holding none — no way to tell a filter with nothing to offer from one
+       that is simply broken. The result set is bounded by media_ids either
+       way, so the only thing the narrowing bought was a shorter menu. */
+    $biHighways = $highways;
+    $biLandmarks = $landmarks;
+
+    /* A shortlist can hold a single hoarding, or several of one size — and
+       then min and max coincide, which leaves <input type=range> degenerate
+       and the fill maths dividing by zero. Give it a hair of width. */
+    $biAreaMin = (float) ($areaRange->min_area ?? 0);
+    $biAreaMax = (float) ($areaRange->max_area ?? 0);
+    if ($biAreaMax <= $biAreaMin) {
+        $biAreaMax = $biAreaMin + 1;
+    }
+
+    /* /search paginates, a shortlist does not. */
+    $biResultCount = !isset($mediaList)
+        ? null
+        : (is_object($mediaList) && method_exists($mediaList, 'total') ? $mediaList->total() : count($mediaList));
+@endphp
 {{-- On the results page the same partial renders in a compact form: the
      marketing copy is dropped and the card tightens up, so results sit above
      the fold instead of a screen further down. Same path test the layout uses
-     for the footer. --}}
-@php $biSearchCompact = request()->is('search') || request()->is('brand_image/public/search'); @endphp
+     for the footer — and a shared shortlist, which is a results page too. --}}
+@php $biSearchCompact = $biScope !== null || request()->is('search') || request()->is('brand_image/public/search'); @endphp
 <section class="bi-search-hero{{ $biSearchCompact ? ' is-compact' : '' }}">
 <div class="container-fluid mt-5 mb-5">
     {{-- Hero copy, sitting on the pale left half of the artwork. --}}
@@ -290,65 +335,116 @@
     </div>
     <div class="media-search-card">
 
-        <form method="POST" id="searchForm" action="{{ route('website.search') }}">
+        <form method="POST" id="searchForm" action="{{ $biFormAction }}">
             @csrf
             {{-- <input type="hidden" name="clear" id="clearFlag"> --}}
 
             <div class="row g-3 justify-content-center justify-content-lg-between">
 
+                {{-- ===== The four levels a shared link fixes =====
+                     Inside a shortlist each renders as a disabled select
+                     holding only what the link covers: one value when the
+                     whole shortlist sits at it, otherwise a plain count, since
+                     there is nothing to pick between. They are labels there,
+                     not filters — the controller derives them from the link's
+                     own rows and never reads them off the request. --}}
+
                 <!-- Category -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Category</label>
-                    <select name="category_id" class="form-select">
-                        <option value="">Select Category</option>
-                        @foreach ($categories as $cat)
-                            <option value="{{ $cat->id }}"
-                                {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->category_name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @isset($biLocked['category_id'])
+                        @include('website.partials.locked-filter', [
+                            'name'    => 'category_id',
+                            'id'      => null,
+                            'options' => $biLocked['category_id'],
+                            'plural'  => 'categories',
+                        ])
+                    @else
+                        <select name="category_id" class="form-select">
+                            <option value="">Select Category</option>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}"
+                                    {{ ($filters['category_id'] ?? '') == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->category_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endisset
                 </div>
 
                 <!-- State -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">State</label>
-                    <select name="state_id" id="state_id" class="form-select">
-                        <option value="">Select State</option>
-                        @foreach ($states as $state)
-                            {{-- <option value="{{ $state->location_id }}"
-                        {{ ($filters['state_id'] ?? '') == $state->location_id ? 'selected' : '' }}>
-                        {{ $state->name }} --}}
-                            <option value="{{ $state->id }}"
-                                {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
-                                {{ $state->state_name }}
-
-                            </option>
-                        @endforeach
-                    </select>
+                    @isset($biLocked['state_id'])
+                        @include('website.partials.locked-filter', [
+                            'name'    => 'state_id',
+                            'id'      => 'state_id',
+                            'options' => $biLocked['state_id'],
+                            'plural'  => 'states',
+                        ])
+                    @else
+                        <select name="state_id" id="state_id" class="form-select">
+                            <option value="">Select State</option>
+                            @foreach ($states as $state)
+                                <option value="{{ $state->id }}"
+                                    {{ ($filters['state_id'] ?? '') == $state->id ? 'selected' : '' }}>
+                                    {{ $state->state_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endisset
                 </div>
 
                 <!-- District -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">District</label>
-                    <select name="district_id" id="district_id" class="form-select">
-                        <option value="">Select District</option>
-                    </select>
+                    @isset($biLocked['district_id'])
+                        @include('website.partials.locked-filter', [
+                            'name'    => 'district_id',
+                            'id'      => 'district_id',
+                            'options' => $biLocked['district_id'],
+                            'plural'  => 'districts',
+                        ])
+                    @else
+                        <select name="district_id" id="district_id" class="form-select">
+                            <option value="">Select District</option>
+                        </select>
+                    @endisset
                 </div>
 
                 <!-- City -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Town</label>
-                    <select name="city_id" id="city_id" class="form-select">
-                        <option value="">Select Town</option>
-                    </select>
+                    @isset($biLocked['city_id'])
+                        @include('website.partials.locked-filter', [
+                            'name'    => 'city_id',
+                            'id'      => 'city_id',
+                            'options' => $biLocked['city_id'],
+                            'plural'  => 'towns',
+                        ])
+                    @else
+                        <select name="city_id" id="city_id" class="form-select">
+                            <option value="">Select Town</option>
+                        </select>
+                    @endisset
                 </div>
 
                 <!-- Area -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Area</label>
+                    {{-- Free to use inside a shortlist, but filled server-side
+                         there: the cascade that normally loads it hangs off the
+                         Town dropdown, and that one is disabled. --}}
                     <select name="area_id" id="area_id" class="form-select">
                         <option value="">Select Area</option>
+                        @if ($biOptions)
+                            @foreach ($biOptions['area_id'] as $areaId => $areaName)
+                                <option value="{{ $areaId }}"
+                                    {{ ($filters['area_id'] ?? '') == $areaId ? 'selected' : '' }}>
+                                    {{ $areaName }}
+                                </option>
+                            @endforeach
+                        @endif
                     </select>
                 </div>
 
@@ -387,7 +483,7 @@
                     <label class="form-label">Highway</label>
                     <select name="highway_id" id="highway_id" class="form-select">
                         <option value="">Select Highway</option>
-                        @foreach ($highways as $hw)
+                        @foreach ($biHighways as $hw)
                             <option value="{{ $hw->id }}"
                                 {{ ($filters['highway_id'] ?? '') == $hw->id ? 'selected' : '' }}>
                                 {{ $hw->highway_name }}
@@ -405,7 +501,7 @@
                             <span class="landmark-toggle-text">Select Landmarks</span>
                         </button>
                         <div class="landmark-menu" id="landmarkMenu">
-                            @forelse ($landmarks as $lm)
+                            @forelse ($biLandmarks as $lm)
                                 <label class="landmark-option">
                                     <input type="checkbox" name="landmark_ids[]" value="{{ $lm->id }}"
                                         {{ in_array($lm->id, $selectedLandmarks) ? 'checked' : '' }}>
@@ -469,11 +565,11 @@
 
                     <div class="d-flex justify-content-between">
                         <span id="minAreaLabel">
-                            {{ number_format($filters['min_area'] ?? $areaRange->min_area) }} sqft
+                            {{ number_format($filters['min_area'] ?? $biAreaMin) }} sqft
                         </span>
 
                         <span id="maxAreaLabel">
-                            {{ number_format($filters['max_area'] ?? $areaRange->max_area) }} sqft
+                            {{ number_format($filters['max_area'] ?? $biAreaMax) }} sqft
                         </span>
                     </div>
 
@@ -485,13 +581,13 @@
 
                         <div class="range-slider-fill" id="areaRangeFill"></div>
 
-                        <input type="range" id="minAreaRange" min="{{ $areaRange->min_area }}"
-                            max="{{ $areaRange->max_area }}" step="1"
-                            value="{{ $filters['min_area'] ?? $areaRange->min_area }}">
+                        <input type="range" id="minAreaRange" min="{{ $biAreaMin }}"
+                            max="{{ $biAreaMax }}" step="1"
+                            value="{{ $filters['min_area'] ?? $biAreaMin }}">
 
-                        <input type="range" id="maxAreaRange" min="{{ $areaRange->min_area }}"
-                            max="{{ $areaRange->max_area }}" step="1"
-                            value="{{ $filters['max_area'] ?? $areaRange->max_area }}">
+                        <input type="range" id="maxAreaRange" min="{{ $biAreaMin }}"
+                            max="{{ $biAreaMax }}" step="1"
+                            value="{{ $filters['max_area'] ?? $biAreaMax }}">
 
                     </div>
 
@@ -595,20 +691,23 @@
                             Clear Filters
                         </button>
                     </div>
-                    @if (($filters['category_id'] ?? '') != '')
-                        @php $catName = $mediaList->first()->category_name ?? ''; @endphp
-
+                    {{-- A shortlist always shows its count: its Category can be
+                         blank (a link spanning two of them) and the visitor
+                         still needs to see how many of the hoardings picked for
+                         them survived the filters. --}}
+                    @if ($biResultCount !== null && ($biScope !== null || ($filters['category_id'] ?? '') != ''))
                         <div class="{{ $biSearchCompact ? 'col-lg-4' : 'col-lg-2' }} col-md-8 col-sm-12 d-flex align-items-center mt-3 ">
-                            @if ($mediaList->total() > 0)
+                            @if ($biResultCount > 0)
                                 <div class="result-badge">
                                     <span class="icon">📍</span>
-                                    <span class="count">{{ $mediaList->total() }} Results</span>
+                                    <span class="count">
+                                        {{ $biResultCount }}@isset($totalCount) of {{ $totalCount }} @endisset Results
+                                    </span>
                                 </div>
                             @else
                                 <div class="result-badge no-result">
                                     <span class="icon">❌</span>
                                     <span class="count">No Results</span>
-                                    {{-- <span class="label">for {{ $catName }}</span> --}}
                                 </div>
                             @endif
                         </div>
@@ -833,15 +932,23 @@
             });
         }
 
-        searchableSelect('#district_id', "{{ route('ajax.districts') }}", 'state_id',
-            function() {
-                return $('#state_id').val();
-            }, 'district_name', 'Select District');
+        // On a shared shortlist these two are fixed by the link and render as
+        // plain disabled selects already holding their label. Upgrading them
+        // would replace that label with an empty Select2 box whose search
+        // queries the full inventory — the one thing the page must not offer.
+        const biLockedChain = $('#district_id').prop('disabled') || $('#city_id').prop('disabled');
 
-        searchableSelect('#city_id', "{{ route('ajax.cities') }}", 'district_id',
-            function() {
-                return $('#district_id').val();
-            }, 'city_name', 'Select Town');
+        if (!biLockedChain) {
+            searchableSelect('#district_id', "{{ route('ajax.districts') }}", 'state_id',
+                function() {
+                    return $('#state_id').val();
+                }, 'district_name', 'Select District');
+
+            searchableSelect('#city_id', "{{ route('ajax.cities') }}", 'district_id',
+                function() {
+                    return $('#district_id').val();
+                }, 'city_name', 'Select Town');
+        }
 
         // Clears a searchable select back to its placeholder. `change.select2` is
         // Select2's own namespace: it repaints the widget without firing the
@@ -932,7 +1039,11 @@
 
         // INITIAL LOAD — restore the saved district → town → area chain in order,
         // each step waiting for the one it depends on.
-        if (selectedDistrict) {
+        if (biLockedChain) {
+            // Nothing to restore: a shared shortlist renders District, Town and
+            // Area server-side from its own rows, already selected.
+            toggleRadius();
+        } else if (selectedDistrict) {
             preselect('#district_id', "{{ route('ajax.districts') }}", {
                     state_id: selectedState
                 }, 'district_name', selectedDistrict)
@@ -962,10 +1073,17 @@
         // the value has to be cleared too — swapping the <option>s alone would
         // leave the old label painted — and the repaint must go through the
         // PINNED jQuery, since that is the instance Select2's handlers live on.
+        // Skipped for the levels a shared link fixes: they are not filters the
+        // visitor set, so clearing is not theirs to do — and blanking them here
+        // would wipe the label the reloaded page is about to paint back.
         const $s2 = window.jQuerySelect2 || window.jQuery;
-        $s2('#district_id').html('<option value="">Select District</option>').val(null).trigger('change.select2');
-        $s2('#city_id').html('<option value="">Select Town</option>').val(null).trigger('change.select2');
-        $('#area_id').html('<option value="">Select Area</option>');
+        if (!$s2('#district_id').prop('disabled')) {
+            $s2('#district_id').html('<option value="">Select District</option>').val(null).trigger('change.select2');
+        }
+        if (!$s2('#city_id').prop('disabled')) {
+            $s2('#city_id').html('<option value="">Select Town</option>').val(null).trigger('change.select2');
+            $('#area_id').html('<option value="">Select Area</option>');
+        }
 
         // Reset slider
         $("#minRange").val(0);
