@@ -145,6 +145,8 @@ class SharedLinkController extends Controller
                     'min_price',
                     'max_price',
                     'radius_id',
+                    'min_radius',
+                    'max_radius',
                 ]),
                 fn($v) => $v !== null && $v !== '' && $v !== []
             );

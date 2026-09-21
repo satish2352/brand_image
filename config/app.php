@@ -66,12 +66,16 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | will be used by the PHP date and date-time functions.
+    |
+    | Read from APP_TIMEZONE. This was hardcoded to "UTC" while the .env set
+    | Asia/Kolkata, so the setting did nothing and every stored timestamp ran
+    | 5h30m behind the clock the team works to — a requirement sent at 12:14 PM
+    | was listed as 06:44 AM.
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
     |--------------------------------------------------------------------------

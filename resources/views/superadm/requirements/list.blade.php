@@ -11,7 +11,6 @@
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show">
                             {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
@@ -45,7 +44,9 @@
                                             {{ $row->campaign_end_date?->format('d-m-Y') }}
                                         </td>
                                         <td>
-                                            <span class="badge bg-{{ $row->status === 'closed' ? 'secondary' : ($row->status === 'in_progress' ? 'warning' : 'success') }}">
+                                            {{-- str_replace turns in_progress into the modifier name;
+                                                 the three classes live in satish.css. --}}
+                                            <span class="req-status req-status--{{ str_replace('_', '-', $row->status) }}">
                                                 {{ $row->statusLabel() }}
                                             </span>
                                         </td>

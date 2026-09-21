@@ -4,7 +4,12 @@
         $isBooked = (int) ($media->is_booked ?? 0);
         $width = (float) ($media->width ?? 0);
         $height = (float) ($media->height ?? 0);
-        $sqft = $width * $height;
+
+        // A Bus Shelter is measured panel by panel, so it has no one width x
+        // height — both columns are null and printing them read "0.00 x 0.00
+        // ft". Its size lives in area_auto, the total of its panels.
+        $hasFaceSize = $width > 0 && $height > 0;
+        $sqft = $hasFaceSize ? $width * $height : (float) ($media->area_auto ?? 0);
     @endphp
     <style>
         .open-panorama {
@@ -186,9 +191,12 @@
                     </h3>
 
                     <div class="col-12 mb-1 d-flex">
-                        <strong>Size : </strong>
-                        {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
-                        &nbsp;&nbsp;&nbsp;<strong>Area : </strong>
+                        @if ($hasFaceSize)
+                            <strong>Size : </strong>
+                            {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
+                            &nbsp;&nbsp;&nbsp;
+                        @endif
+                        <strong>Area : </strong>
                         {{ number_format($sqft, 2) }} SQFT
                     </div>
                     {{-- <div class="col-6 mb-2 d-flex">

@@ -597,23 +597,34 @@
                 <div class="col-lg-2 col-md-4 col-sm-6" id="radius_wrapper">
                     <label class="form-label">Radius</label>
 
+                    {{-- Two handles, like Budget and Media Size: a band of
+                         distance from the town centre rather than a single
+                         ceiling, so "between 5 and 20 km out" is sayable. --}}
                     <div class="d-flex justify-content-between">
-                        {{-- Left = what is currently selected, right = the ceiling,
-                             mirroring the Media Size slider's two-label row. --}}
-                        <span id="radiusValueLabel"></span>
-                        <span>{{ $radiusMax }} KM</span>
+                        <span id="radiusMinLabel" style="font-weight:600"></span>
+                        <span id="radiusMaxLabel" style="font-weight:600"></span>
                     </div>
 
-                    <div class="range-slider-container single" id="radiusSlider">
+                    <div class="range-slider-container" id="radiusSlider">
+
+                        {{-- What actually posts. The two <input type="range">
+                             below are the handles; these carry the values, the
+                             same split Budget uses. A max of 0 is the off
+                             position: the backend skips the distance filter
+                             and falls back to the plain town match. --}}
+                        <input type="hidden" name="min_radius" id="min_radius"
+                            value="{{ (int) ($filters['min_radius'] ?? $radiusMin) }}">
+                        <input type="hidden" name="max_radius" id="max_radius"
+                            value="{{ (int) ($filters['max_radius'] ?? $filters['radius_id'] ?? $radiusMin) }}">
 
                         <div class="range-slider-fill" id="radiusRangeFill"></div>
 
-                        {{-- Posts as radius_id, the same km value the old <select>
-                             sent. 0 is the off position: the backend skips the
-                             distance filter and falls back to the plain city match. --}}
-                        <input type="range" name="radius_id" id="radius_id" min="{{ $radiusMin }}"
+                        <input type="range" id="radiusMinRange" min="{{ $radiusMin }}"
                             max="{{ $radiusMax }}" step="1"
-                            value="{{ (int) ($filters['radius_id'] ?? $radiusMin) }}">
+                            value="{{ (int) ($filters['min_radius'] ?? $radiusMin) }}">
+                        <input type="range" id="radiusMaxRange" min="{{ $radiusMin }}"
+                            max="{{ $radiusMax }}" step="1"
+                            value="{{ (int) ($filters['max_radius'] ?? $filters['radius_id'] ?? $radiusMin) }}">
 
                     </div>
                 </div>
@@ -788,40 +799,62 @@
 </script>
 <script>
     // ===== Radius slider =====================================================
-    // Replaces the old Radius <select>: one handle from 0 km up to the largest
-    // radius in the admin's radius master. It posts the same `radius_id` km
-    // value the <select> used to, and the backend clamps to the same ceiling.
+    // Two handles, the same shape as Budget: a band of distance from the town
+    // centre, posted as min_radius / max_radius. A max of 0 is the off
+    // position — the backend then skips the distance filter entirely and falls
+    // back to the plain Town match, which is what the form shows untouched.
     $(document).ready(function() {
 
-        const slider = $("#radius_id");
-        if (!slider.length) return;
+        const minSlider = $("#radiusMinRange");
+        const maxSlider = $("#radiusMaxRange");
+        if (!minSlider.length || !maxSlider.length) return;
 
         const fill = $("#radiusRangeFill");
-        const label = $("#radiusValueLabel");
+        const minLabel = $("#radiusMinLabel");
+        const maxLabel = $("#radiusMaxLabel");
 
-        const minLimit = Number(slider.attr("min"));
-        const maxLimit = Number(slider.attr("max"));
+        const minLimit = Number(maxSlider.attr("min"));
+        const maxLimit = Number(maxSlider.attr("max"));
+        const span = maxLimit > minLimit ? maxLimit - minLimit : 1;
 
         function updateRadiusSlider() {
 
-            const val = Number(slider.val());
-            const percent = maxLimit > minLimit ?
-                ((val - minLimit) / (maxLimit - minLimit)) * 100 : 0;
+            let minVal = Number(minSlider.val());
+            let maxVal = Number(maxSlider.val());
 
-            // One handle, so the fill always runs from the left edge.
+            // The handles may meet but never cross: whichever one was moved
+            // pushes the other, so the band is always min <= max.
+            if (minVal > maxVal) {
+                if (document.activeElement === minSlider[0]) {
+                    maxVal = minVal;
+                    maxSlider.val(maxVal);
+                } else {
+                    minVal = maxVal;
+                    minSlider.val(minVal);
+                }
+            }
+
+            const minPercent = ((minVal - minLimit) / span) * 100;
+            const maxPercent = ((maxVal - minLimit) / span) * 100;
+
             fill.css({
-                left: "0%",
-                width: percent + "%"
+                left: minPercent + "%",
+                width: (maxPercent - minPercent) + "%"
             });
 
-            // 0 is the off position — the backend skips the distance filter and
-            // falls back to the plain Town match, so say that rather than "0 KM".
-            label.text(val > minLimit ? val + " KM" : "Any");
+            // Nothing selected reads "Any" rather than "0 KM", because 0 is not
+            // a radius of zero — it is the filter switched off.
+            minLabel.text(maxVal > minLimit ? minVal + " KM" : "Any");
+            maxLabel.text(maxVal > minLimit ? maxVal + " KM" : maxLimit + " KM");
+
+            $("#min_radius").val(minVal);
+            $("#max_radius").val(maxVal);
         }
 
-        slider.on("input change", updateRadiusSlider);
+        minSlider.on("input change", updateRadiusSlider);
+        maxSlider.on("input change", updateRadiusSlider);
 
-        // Clear Filters resets the input directly and needs the track repainted.
+        // Clear Filters resets the inputs directly and needs the track repainted.
         window.updateRadiusSlider = updateRadiusSlider;
 
         updateRadiusSlider();
@@ -862,9 +895,11 @@
         );
 
         // Radius is a slider now, so "unavailable" has to grey out the whole
-        // track — .bg-light only ever tinted the old <select>'s box. A disabled
-        // input is not submitted, so the value is kept rather than cleared.
-        $('#radius_id').prop('disabled', off);
+        // track — .bg-light only ever tinted the old <select>'s box. Both
+        // handles AND both hidden fields: a disabled input is not submitted,
+        // which is what keeps a greyed-out radius out of the query while
+        // leaving the numbers on screen for when it comes back.
+        $('#radiusMinRange, #radiusMaxRange, #min_radius, #max_radius').prop('disabled', off);
         $('#radiusSlider').toggleClass('is-disabled', off);
     }
 </script>
@@ -1099,8 +1134,9 @@
             width: "100%"
         });
 
-        // Radius back to 0 ("Any"), track repainted to match
-        $("#radius_id").val($("#radius_id").attr("min"));
+        // Radius back to 0 ("Any") at both ends, track repainted to match
+        $("#radiusMinRange").val($("#radiusMinRange").attr("min"));
+        $("#radiusMaxRange").val($("#radiusMaxRange").attr("min"));
         if (window.updateRadiusSlider) window.updateRadiusSlider();
 
         // Optional: reload default media via form submit

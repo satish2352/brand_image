@@ -149,3 +149,36 @@ function site_admin(?string $field = null)
 
     return session('site_admin_' . $field);
 }
+
+/**
+ * A rupee amount grouped the Indian way: 20,000 / 2,00,000 / 1,25,50,000.
+ *
+ * number_format() groups in threes throughout, which turns 200000 into
+ * "200,000" — correct arithmetic, wrong reading for the audience this panel
+ * is for. The site already writes ₹10,00,000 on the search form's budget
+ * slider (JS toLocaleString('en-IN')); this is the same grouping server-side,
+ * where the intl extension is not installed to do it for us.
+ *
+ * Returns null for a blank value, so a caller can fall back to its own dash.
+ */
+function inr(?string $amount): ?string
+{
+    if ($amount === null || $amount === '' || !is_numeric($amount)) {
+        return null;
+    }
+
+    $number = (float) $amount;
+    $sign   = $number < 0 ? '-' : '';
+    $whole  = (string) (int) abs($number);
+
+    // The last three digits group alone; everything before them goes in twos,
+    // which is the whole of the difference from number_format().
+    if (strlen($whole) <= 3) {
+        return $sign . $whole;
+    }
+
+    $last3 = substr($whole, -3);
+    $rest  = substr($whole, 0, -3);
+
+    return $sign . preg_replace('/\B(?=(\d{2})+(?!\d))/', ',', $rest) . ',' . $last3;
+}

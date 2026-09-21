@@ -140,9 +140,9 @@
                                 </div>
 
                                 <div class="col-md-3 mt-3">
-                                    <label><b>Hoarding Code</b></label>
+                                    <label><b>Sector Code</b></label>
                                     <input type="text" name="hoarding_code" class="form-control"
-                                        placeholder="e.g. HD000007" value="{{ request('hoarding_code') }}">
+                                        placeholder="e.g. HD000007 or BS000012" value="{{ request('hoarding_code') }}">
                                 </div>
 
                                 <div class="col-md-6 d-flex align-items-end mt-3">
@@ -175,7 +175,12 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Sr.No</th>
-                                        <th>Hoarding Code</th>
+                                        {{-- Not "Hoarding Code": the column carries every
+                                             scheme, HD for hoardings and BS for bus
+                                             shelters. Named apart from the Media Code
+                                             column further right, which is a different
+                                             field (media_management.media_code). --}}
+                                        <th>Sector Code</th>
                                         <th>Media Title</th>
                                         <th>Category</th>
                                         <th>State</th>

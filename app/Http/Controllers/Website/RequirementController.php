@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Website;
 use App\Http\Controllers\Controller;
 use App\Models\MediaRequirement;
 use Illuminate\Http\Request;
+use App\Support\Recaptcha;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 /**
  * "Share your requirement" — the way out when a search window has closed.
@@ -96,6 +98,19 @@ class RequirementController extends Controller
 
     public function store(Request $request)
     {
+        // Before anything else: this form is public, unauthenticated, and drops
+        // straight into a queue the team works through by hand, so it is worth
+        // a bot's while. Checked server-side — the widget on the page proves
+        // nothing on its own.
+        if ($captchaError = Recaptcha::error($request)) {
+            // Reported as a field error so it lands in the same summary and
+            // the same @error slot as every other problem on the form, and so
+            // everything the person typed comes back with it.
+            throw ValidationException::withMessages([
+                Recaptcha::FIELD => $captchaError,
+            ]);
+        }
+
         $this->normalise($request);
 
         $today = now()->startOfDay()->toDateString();

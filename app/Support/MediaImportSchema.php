@@ -141,6 +141,11 @@ class MediaImportSchema
             'aliases' => ['width', 'w'],
             'help' => 'Numeric, greater than 0.',
             'samples' => ['40', '20'],
+            // A Bus Shelter has no single face to measure — its size is the
+            // Front / Back / Side panels below. The Add form hides these two
+            // for it and stores null, so the sheet must not ask for them
+            // either, or an imported shelter would not match a hand-added one.
+            'except' => ['bus-shelter'],
         ],
         [
             'key' => 'height',
@@ -150,6 +155,102 @@ class MediaImportSchema
             'aliases' => ['height', 'h'],
             'help' => 'Numeric, greater than 0.',
             'samples' => ['20', '10'],
+            'except' => ['bus-shelter'],
+        ],
+        [
+            // The panels a Bus Shelter carries. Blank means the shelter has
+            // no panel in that position, exactly as leaving the pair empty on
+            // the Add form does. Their areas add up to the record's total.
+            'key' => 'panel_front_width',
+            'label' => 'Front Width (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['frontwidth', 'frontpanelwidth'],
+            'help' => 'Width of the Front panel in feet. Leave blank if this shelter has none.',
+            'samples' => ['40', '30'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_front_height',
+            'label' => 'Front Height (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['frontheight', 'frontpanelheight'],
+            'help' => 'Height of the Front panel in feet. Give both width and height, or neither.',
+            'samples' => ['20', '15'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            // Boards of this size at this position. Blank means one, which
+            // is what a panel meant before the column existed.
+            'key' => 'panel_front_quantity',
+            'label' => 'Front Quantity',
+            'required' => false,
+            'type' => 'int',
+            'aliases' => ['frontqty', 'frontquantity', 'frontpanelquantity'],
+            'help' => 'How many Front boards of that size. Blank counts as 1.',
+            'samples' => ['1', '2'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_back_width',
+            'label' => 'Back Width (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['backwidth', 'backpanelwidth'],
+            'help' => 'Width of the Back panel in feet. Leave blank if this shelter has none.',
+            'samples' => ['40', '30'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_back_height',
+            'label' => 'Back Height (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['backheight', 'backpanelheight'],
+            'help' => 'Height of the Back panel in feet. Give both width and height, or neither.',
+            'samples' => ['20', '15'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_back_quantity',
+            'label' => 'Back Quantity',
+            'required' => false,
+            'type' => 'int',
+            'aliases' => ['backqty', 'backquantity', 'backpanelquantity'],
+            'help' => 'How many Back boards of that size. Blank counts as 1.',
+            'samples' => ['1', '1'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_side_width',
+            'label' => 'Side Width (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['sidewidth', 'sidepanelwidth'],
+            'help' => 'Width of the Side panel in feet. Leave blank if this shelter has none.',
+            'samples' => ['12', '10'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_side_height',
+            'label' => 'Side Height (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['sideheight', 'sidepanelheight'],
+            'help' => 'Height of the Side panel in feet. Give both width and height, or neither.',
+            'samples' => ['8', '6'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_side_quantity',
+            'label' => 'Side Quantity',
+            'required' => false,
+            'type' => 'int',
+            'aliases' => ['sideqty', 'sidequantity', 'sidepanelquantity'],
+            'help' => 'How many Side boards of that size. Blank counts as 1.',
+            'samples' => ['2', '1'],
+            'categories' => ['bus-shelter'],
         ],
         [
             'key' => 'latitude',
@@ -186,7 +287,9 @@ class MediaImportSchema
             'aliases' => ['illuminationname', 'lighting'],
             'help' => 'Must match an Illumination master name, e.g. "Front Lit".',
             'samples' => ['Front Lit', 'Non Lit'],
-            'categories' => ['hoardings'],
+            // Required on the Add form for a Bus Shelter too, so its sheet
+            // needs the column — see categoryRules().
+            'categories' => ['hoardings', 'bus-shelter'],
         ],
         [
             'key' => 'facing',
@@ -409,6 +512,16 @@ class MediaImportSchema
         return array_values(array_filter(self::COLUMNS, function ($column) use ($slug) {
             if (($column['scope'] ?? null) === 'full') {
                 return false;
+            }
+
+            // 'except' is the inverse of 'categories': a column every category
+            // carries BUT one. Width / Height use it, because a Bus Shelter is
+            // measured panel by panel and asking for a face size would invite
+            // a value the Add form would never store.
+            foreach ($column['except'] ?? [] as $keyword) {
+                if (str_contains($slug, $keyword)) {
+                    return false;
+                }
             }
 
             if (empty($column['categories'])) {

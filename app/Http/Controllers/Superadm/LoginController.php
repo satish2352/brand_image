@@ -5,14 +5,13 @@ namespace App\Http\Controllers\Superadm;
 use Validator;
 use Illuminate\Http\Request;
 use App\Support\AdminSession;
+use App\Support\Recaptcha;
 use App\Support\SessionFixation;
 use App\Http\Middleware\SharedLinkVisitor;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\ConnectionException;
 
 class LoginController extends Controller
 {
@@ -183,35 +182,13 @@ class LoginController extends Controller
     /**
      * Verifies the reCAPTCHA response on the request.
      *
-     * Returns null when it passes — or when the feature is switched off —
-     * and the message to show otherwise. Shared by both logins so there is
-     * one implementation of "did the captcha pass", and so the website entry
-     * point cannot quietly drift into skipping it.
+     * The check itself moved to App\Support\Recaptcha when the requirement
+     * form needed the same thing — one implementation of "did the captcha
+     * pass", so no entry point can quietly drift into skipping it. Kept as a
+     * method here because both logins in this class read better calling it.
      */
     private function captchaError(Request $req): ?string
     {
-        if (!config('services.recaptcha.enabled')) {
-            return null;
-        }
-
-        if (!$req->filled('g-recaptcha-response')) {
-            return 'Please verify that you are not a robot';
-        }
-
-        try {
-            $result = Http::asForm()->post(
-                'https://www.google.com/recaptcha/api/siteverify',
-                [
-                    'secret'   => config('services.recaptcha.secret'),
-                    'response' => $req->input('g-recaptcha-response'),
-                    'remoteip' => $req->ip(),
-                ]
-            )->json();
-        } catch (ConnectionException $e) {
-            // 🔥 Prevent cURL error crash
-            return 'Captcha service unavailable. Try again later.';
-        }
-
-        return ($result['success'] ?? false) ? null : 'Captcha verification failed';
+        return Recaptcha::error($req);
     }
 }

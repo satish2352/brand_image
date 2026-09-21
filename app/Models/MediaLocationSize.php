@@ -23,16 +23,21 @@ class MediaLocationSize extends Model
 
     protected $table = 'media_location_sizes';
 
+    /** Panels of one size, when a position carries more than a single board. */
+    public const DEFAULT_QUANTITY = 1;
+
     protected $fillable = [
         'media_id',
         'position',
         'width',
         'height',
+        'quantity',
     ];
 
     protected $casts = [
-        'width'  => 'decimal:2',
-        'height' => 'decimal:2',
+        'width'    => 'decimal:2',
+        'height'   => 'decimal:2',
+        'quantity' => 'integer',
     ];
 
     public function getLabelAttribute(): string
@@ -41,7 +46,7 @@ class MediaLocationSize extends Model
     }
 
     /**
-     * Square feet for this panel, or null when it was left blank.
+     * Square feet for ONE board of this panel, or null when it was left blank.
      */
     public function getAreaAttribute(): ?float
     {
@@ -50,5 +55,27 @@ class MediaLocationSize extends Model
         }
 
         return round((float) $this->width * (float) $this->height, 2);
+    }
+
+    /**
+     * Square feet for every board at this position — what the record's total
+     * area is actually built from.
+     */
+    public function getTotalAreaAttribute(): ?float
+    {
+        $area = $this->area;
+
+        return $area === null ? null : round($area * $this->quantityOrDefault(), 2);
+    }
+
+    /**
+     * The stored quantity, or 1 — rows written before the column existed have
+     * no value of their own and each stand for a single board.
+     */
+    public function quantityOrDefault(): int
+    {
+        $quantity = (int) ($this->quantity ?? self::DEFAULT_QUANTITY);
+
+        return $quantity > 0 ? $quantity : self::DEFAULT_QUANTITY;
     }
 }

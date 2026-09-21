@@ -4,6 +4,7 @@ namespace App\Http\Services\Superadm;
 
 use App\Http\Repository\Superadm\MediaManagementRepository;
 use Illuminate\Support\Facades\DB;
+use App\Support\MediaCode;
 use Illuminate\Http\Request;
 use App\Models\MediaImage;
 use App\Models\MediaLocationSize;
@@ -94,14 +95,13 @@ class MediaManagementService
             $panels = $this->panelsFromRequest($request);
             $mediaData = $this->applyLocationSizeDimensions($mediaData, $slug, $panels);
 
-            // AUTO-GENERATE UNIQUE HOARDING CODE (HD000001, HD000002, ...)
-            // Only for Hoardings/Billboards — HD###### names a hoarding site, so
-            // a mall, airport, transit, bus shelter or wall record is saved
-            // without one rather than being handed a number nothing ever shows.
-            // Matches the bulk import, which issues codes on the same rule.
-            $mediaData['hoarding_code'] = $this->takesHoardingCode($slug)
-                ? $this->generateHoardingCode()
-                : null;
+            // AUTO-GENERATE THE SITE CODE (HD000001 for a hoarding, BS000001
+            // for a bus shelter). Which categories get one, and under which
+            // prefix, is MediaCode's call — the bulk import asks it the same
+            // question. A category with no scheme is saved without a code
+            // rather than handed a number nothing ever shows.
+            $prefix = MediaCode::prefixFor($slug);
+            $mediaData['hoarding_code'] = $prefix ? MediaCode::next($prefix) : null;
             // foreach ($optionalFields as $field) {
             //     if ($request->has($field)) {
             //         $mediaData[$field] = $request->$field;
@@ -192,20 +192,25 @@ class MediaManagementService
                 'highway_id'
             ]);
 
-            // MEDIA CODE + HOARDING CODE
-            if ($this->takesHoardingCode($slug)) {
-                $updateData['media_code'] = $request->media_code;
+            $prefix = MediaCode::prefixFor($slug);
 
-                // Hoarding code is now editable: use the entered value, or
-                // auto-generate one when blank (covers existing hoardings that
-                // were added before auto-codes and still have no code).
+            // MEDIA CODE is a hoardings-only field and stays one: it is a
+            // different thing from the site code beside it, and adding a
+            // second code scheme is no reason to start writing it elsewhere.
+            $updateData['media_code'] = $prefix === 'HD' ? $request->media_code : null;
+
+            // SITE CODE is editable: take the entered value, or mint one when
+            // blank — which covers records added before their category had
+            // codes and still carry none. Minted under this category's own
+            // prefix, so editing a bus shelter cannot hand it an HD.
+            if ($prefix !== null) {
                 $hoardingCode = trim((string) $request->input('hoarding_code'));
+
                 if ($hoardingCode === '') {
-                    $hoardingCode = $media->hoarding_code ?: $this->generateHoardingCode();
+                    $hoardingCode = $media->hoarding_code ?: MediaCode::next($prefix);
                 }
+
                 $updateData['hoarding_code'] = $hoardingCode;
-            } else {
-                $updateData['media_code'] = null;
             }
 
             // Panel-sized categories overwrite the posted Width/Height/Area.
@@ -315,18 +320,6 @@ class MediaManagementService
     }
 
     /**
-     * Does this category's media carry a Hoarding Code at all?
-     *
-     * Only Hoardings/Billboards do. Matched on the slug, the same test the rest
-     * of the form already uses for the Media Code, so a renamed or additional
-     * hoarding-like category still resolves.
-     */
-    private function takesHoardingCode(string $slug): bool
-    {
-        return str_contains($slug, 'hoarding') || str_contains($slug, 'billboard');
-    }
-
-    /**
      * Categories that are sized panel by panel instead of by one face.
      *
      * A Bus Shelter carries a Front, a Back and a Side, each with its own
@@ -355,7 +348,13 @@ class MediaManagementService
             $height = $this->numericOrNull($posted[$position]['height'] ?? null);
 
             if ($width !== null && $height !== null) {
-                $panels[$position] = ['width' => $width, 'height' => $height];
+                $panels[$position] = [
+                    'width'  => $width,
+                    'height' => $height,
+                    // Blank means one board, which is what the column defaults
+                    // to and what every panel stored before it existed means.
+                    'quantity' => $this->quantityOrDefault($posted[$position]['quantity'] ?? null),
+                ];
             }
         }
 
@@ -365,6 +364,20 @@ class MediaManagementService
     private function numericOrNull($value): ?float
     {
         return is_numeric($value) ? (float) $value : null;
+    }
+
+    /**
+     * A posted panel quantity as a whole number of boards, at least one.
+     *
+     * Blank, zero or nonsense all mean a single board rather than none: the
+     * panel only exists in the first place because a width and a height were
+     * given for it.
+     */
+    private function quantityOrDefault($value): int
+    {
+        $quantity = is_numeric($value) ? (int) $value : 0;
+
+        return $quantity > 0 ? min($quantity, 99) : MediaLocationSize::DEFAULT_QUANTITY;
     }
 
     /**
@@ -390,9 +403,12 @@ class MediaManagementService
         $data['width']  = null;
         $data['height'] = null;
 
+        // Every board counts, not every position: a Front of 40x20 with a
+        // quantity of 3 is 2,400 sq ft of advertising face, not 800.
         $area = 0.0;
         foreach ($panels as $panel) {
-            $area += $panel['width'] * $panel['height'];
+            $area += $panel['width'] * $panel['height']
+                * ($panel['quantity'] ?? MediaLocationSize::DEFAULT_QUANTITY);
         }
 
         $data['area_auto'] = $panels ? number_format($area, 2, '.', '') : null;
@@ -416,24 +432,6 @@ class MediaManagementService
         foreach ($panels as $position => $dimensions) {
             $media->locationSizes()->updateOrCreate(['position' => $position], $dimensions);
         }
-    }
-
-    /**
-     * Generate the next globally-unique hoarding code: HD000001, HD000002, ...
-     * Runs inside the caller's DB transaction; the UNIQUE constraint on the
-     * column is the final guard against concurrent collisions.
-     */
-    private function generateHoardingCode(): string
-    {
-        $maxCode = DB::table('media_management')
-            ->whereNotNull('hoarding_code')
-            ->where('hoarding_code', 'like', 'HD%')
-            ->orderByRaw('CAST(SUBSTRING(hoarding_code, 3) AS UNSIGNED) DESC')
-            ->value('hoarding_code');
-
-        $next = $maxCode ? ((int) substr($maxCode, 2)) + 1 : 1;
-
-        return 'HD' . str_pad($next, 6, '0', STR_PAD_LEFT);
     }
 
     public function viewDetails($id)

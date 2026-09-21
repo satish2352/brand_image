@@ -90,6 +90,12 @@ class HomeRepository
                 'm.longitude',
                 'm.width',
                 'm.height',
+                // Panel-sized media (a Bus Shelter's Front / Back / Side) have no
+                // single width x height — area_auto is the total the panels add
+                // up to, and the only size figure those records have. Already
+                // filtered on by the size slider; selected so the card can
+                // print it instead of "0.00 x 0.00 ft".
+                'm.area_auto',
                 'm.facing',
                 // 'm.video_link',
                 'ct.category_name',
@@ -145,11 +151,22 @@ class HomeRepository
         }
 
 
-        // The Radius slider posts free-form km, so pin it to the range the slider
-        // actually offers — otherwise a hand-crafted request could ask for a
-        // 10,000 km radius and, via the city rule below, search everything.
-        // 0 km is the off position and means "no radius filter".
-        $radiusKm = RadiusRange::clamp($filters['radius_id'] ?? null);
+        // The Radius slider posts free-form km, so pin both ends to the range
+        // the slider actually offers — otherwise a hand-crafted request could
+        // ask for a 10,000 km radius and, via the city rule below, search
+        // everything. A max of 0 is the off position: no radius filter.
+        //
+        // radius_id is the single value the slider posted before it grew a
+        // second handle; still read as the max so an old link or a saved
+        // session filter keeps working.
+        $radiusKm = RadiusRange::clamp($filters['max_radius'] ?? $filters['radius_id'] ?? null);
+        $radiusFromKm = RadiusRange::clamp($filters['min_radius'] ?? null);
+
+        // A min above the max is a nonsense band that would return nothing at
+        // all; treat it as "from there outwards" rather than silently empty.
+        if ($radiusFromKm > $radiusKm) {
+            $radiusFromKm = 0.0;
+        }
 
         // Tracks whether the distance filter really made it into the query. A
         // radius asked for on a city with no lat/lng silently does nothing, and
@@ -174,11 +191,19 @@ class HomeRepository
                 ->having('distance', '<=', $radiusKm)
                 ->orderBy('distance', 'asc');
 
+            // The inner edge of the band. Only when asked for: a min of 0 is
+            // the whole circle, and adding the clause anyway would drop media
+            // sitting exactly on the centre point.
+            if ($radiusFromKm > 0) {
+                $query->having('distance', '>=', $radiusFromKm);
+            }
+
             $radiusApplied = true;
 
             Log::info(' Radius Filter Applied', [
                 'center_lat' => $centerLat,
                 'center_lng' => $centerLng,
+                'radius_from_km' => $radiusFromKm,
                 'radius_km'  => $radiusKm
             ]);
         }
@@ -425,6 +450,17 @@ END AS is_available_days
                 ->where('is_deleted', 0)
                 ->where('is_active', 1)
                 ->get();
+
+            // The panels a Bus Shelter carries — Front, Back, Side — each with
+            // its own width and height. Empty for every other category, which
+            // is measured by one face. FIELD() keeps the display order the Add
+            // form uses rather than insertion order.
+            $media->panels = DB::table('media_location_sizes')
+                ->where('media_id', $mediaId)
+                ->whereNotNull('width')
+                ->whereNotNull('height')
+                ->orderByRaw("FIELD(position, 'front', 'back', 'side')")
+                ->get(['position', 'width', 'height', 'quantity']);
         }
 
         return $media;

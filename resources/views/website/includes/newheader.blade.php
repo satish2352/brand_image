@@ -393,23 +393,23 @@
                                     @csrf
 
                                     <div class="mb-3">
-                                        <label>Full Name <span class="text-danger">*</span></label>
+                                        <label>Full Name <span class="text-danger req-star">*</span></label>
                                         <input type="text" name="signup_name" class="form-control" placeholder="Enter your full name">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Email Id <span class="text-danger">*</span></label>
+                                        <label>Email Id <span class="text-danger req-star">*</span></label>
                                         <input type="email" name="signup_email" id="signupEmail" class="form-control" placeholder="Enter your email address">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Mobile Number <span class="text-danger">*</span></label>
+                                        <label>Mobile Number <span class="text-danger req-star">*</span></label>
                                         <input type="text" name="signup_mobile_number" class="form-control"
                                             maxlength="10" inputmode="numeric" autocomplete="off" placeholder="10-digit mobile number">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>City <span class="text-danger">*</span></label>
+                                        <label>City <span class="text-danger req-star">*</span></label>
                                         <input type="text" name="signup_city" class="form-control" maxlength="120"
                                             placeholder="e.g. Nashik">
                                     </div>
@@ -420,7 +420,7 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>User Type <span class="text-danger">*</span></label>
+                                        <label>User Type <span class="text-danger req-star">*</span></label>
                                         <select name="signup_user_type" class="form-select">
                                             <option value="">Select user type</option>
                                             @foreach (\App\Models\WebsiteUser::USER_TYPES as $type)
@@ -435,7 +435,7 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Password <span class="text-danger">*</span></label>
+                                        <label>Password <span class="text-danger req-star">*</span></label>
                                         <div class="password-wrapper">
                                             <input type="password" name="signup_password"
                                                 class="form-control password-field" placeholder="Create a password">
@@ -472,7 +472,7 @@
                                 </div> --}}
 
                                 <div class="mb-2">
-                                    <label>Enter OTP <span class="text-danger">*</span></label>
+                                    <label>Enter OTP <span class="text-danger req-star">*</span></label>
 
                                     <div class="otp-box-wrapper">
                                         <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
@@ -621,7 +621,12 @@
                 e.preventDefault();
 
                 let valid = true;
-                $("#loginForm .text-danger").remove();
+                // :not(.req-star) is load-bearing. The required-field asterisks
+                // are .text-danger spans living inside these same forms, so a
+                // blanket remove() deleted every one of them the first time a
+                // field was validated — the form lost its asterisks and never
+                // got them back until the page was reloaded.
+                $("#loginForm .text-danger:not(.req-star)").remove();
 
                 function error(el, msg) {
                     el.after(`<span class="text-danger">${msg}</span>`);
@@ -716,7 +721,8 @@
                 e.preventDefault();
 
                 let valid = true;
-                $("#adminLoginForm .text-danger").remove();
+                // Messages only; the asterisks stay. @see the note on #loginForm.
+                $("#adminLoginForm .text-danger:not(.req-star)").remove();
 
                 function error(el, msg) {
                     el.after(`<span class="text-danger">${msg}</span>`);
@@ -891,7 +897,8 @@
                 e.preventDefault();
 
                 let valid = true;
-                $("#signupForm .text-danger").remove();
+                // Messages only; the asterisks stay. @see the note on #loginForm.
+                $("#signupForm .text-danger:not(.req-star)").remove();
 
                 function error(el, msg) {
                     el.after(`<span class="text-danger">${msg}</span>`);

@@ -124,7 +124,9 @@
 
                         <div class="info-row">
                             <div class="info-col">
-                                <div class="info-label">Hoarding Code</div>
+                                {{-- Read off the code itself: HD000034 is a Hoarding
+                                     Code, BS004944 a Bus Shelter Code. @see MediaCode. --}}
+                                <div class="info-label">{{ \App\Support\MediaCode::labelForCode($media->hoarding_code) }}</div>
                                 <div class="info-value">{{ $media->hoarding_code ?? '-' }}</div>
                             </div>
                             <div class="info-col">
@@ -208,6 +210,12 @@
 
                         @if (($media->location_sizes ?? collect())->isNotEmpty())
                             @foreach ($media->location_sizes as $panel)
+                                @php
+                                    // Rows written before the quantity column existed carry
+                                    // no value and each stand for a single board.
+                                    $qty  = max(1, (int) ($panel->quantity ?? 1));
+                                    $face = (float) $panel->width * (float) $panel->height;
+                                @endphp
                                 <div class="info-row">
                                     <div class="info-col">
                                         <div class="info-label">{{ $panel->label }} — Width (ft)</div>
@@ -216,6 +224,23 @@
                                     <div class="info-col">
                                         <div class="info-label">{{ $panel->label }} — Height (ft)</div>
                                         <div class="info-value">{{ $panel->height ?? '-' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-col">
+                                        <div class="info-label">{{ $panel->label }} — Quantity</div>
+                                        <div class="info-value">{{ $qty }}</div>
+                                    </div>
+                                    <div class="info-col">
+                                        {{-- What this position contributes to Total Area
+                                             below, so the sum can be followed. --}}
+                                        <div class="info-label">{{ $panel->label }} — Area (sq.ft)</div>
+                                        <div class="info-value">
+                                            {{ number_format($face * $qty, 2) }}
+                                            @if ($qty > 1)
+                                                <span class="text-muted">({{ number_format($face, 2) }} × {{ $qty }})</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach

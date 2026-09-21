@@ -183,6 +183,10 @@ class HomeController extends Controller
             'city_id',
             'area_id',
             'radius_id',
+            // The Radius slider's two handles. radius_id is kept alongside them
+            // for links and saved sessions from before it had two.
+            'min_radius',
+            'max_radius',
             'from_date',
             'to_date',
             'areatype_id',

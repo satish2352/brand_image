@@ -126,12 +126,16 @@
             <p>Our team can take it from here — call us, or send us your requirement and we will come back to you.</p>
 
             <div class="sa-modal-actions">
-                {{-- The number itself, not just a link to the contact page: the
-                     brief asks for a contact number here. tel: so a phone
-                     dials it and a desktop hands it to whatever is installed. --}}
-                <a href="tel:{{ config('portal_access.contact_phone') }}" class="sa-btn sa-btn-ghost">
+                {{-- Still a tel: link — a phone dials it, a desktop hands it to
+                     whatever is installed — but labelled rather than printing the
+                     number, which read as raw data next to the action beside it.
+                     The number rides along on the title and the aria-label, so
+                     it is still there to read, copy or hear. --}}
+                <a href="tel:{{ config('portal_access.contact_phone') }}" class="sa-btn sa-btn-ghost"
+                    title="{{ config('portal_access.contact_phone') }}"
+                    aria-label="Contact our team on {{ config('portal_access.contact_phone') }}">
                     <i class="bi bi-telephone-fill" aria-hidden="true"></i>
-                    {{ config('portal_access.contact_phone') }}
+                    Contact Our Team
                 </a>
                 <a href="{{ route('website.requirement.create', ['from' => 'expired']) }}"
                     class="sa-btn sa-btn-primary" data-sa-close>

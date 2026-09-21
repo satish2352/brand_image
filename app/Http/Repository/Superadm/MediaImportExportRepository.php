@@ -268,17 +268,6 @@ class MediaImportExportRepository
     /**
      * Highest HD###### currently issued — the publisher increments from here.
      */
-    public function maxHoardingSequence(): int
-    {
-        $maxCode = DB::table('media_management')
-            ->whereNotNull('hoarding_code')
-            ->where('hoarding_code', 'like', 'HD%')
-            ->orderByRaw('CAST(SUBSTRING(hoarding_code, 3) AS UNSIGNED) DESC')
-            ->value('hoarding_code');
-
-        return $maxCode ? (int) substr($maxCode, 2) : 0;
-    }
-
     public function insert(array $payload): MediaManagement
     {
         return MediaManagement::create($payload);

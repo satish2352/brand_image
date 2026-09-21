@@ -261,20 +261,26 @@
     @php
         $width = (float) $media->width;
         $height = (float) $media->height;
-        $sqft = $width * $height;
         $isBillboard = (int) $media->category_id === 1;
 
-        // category table
-        $CATEGORY = [
-            'HOARDING' => 1,
-            'WALL' => 2, // Digital Wall Painting / Wall Painting
-            'AIRPORT' => 3,
-            'TRANSIT' => 4,
-            'OFFICE' => 5,
-            'WRAP' => 6,
-            'MALL' => 7,
-            'OTHER' => 8,
-        ];
+        $panels = collect($media->panels ?? []);
+
+        // A Bus Shelter is measured panel by panel, so width and height are
+        // null on the record and printing them read "0.00 x 0.00 ft". Its size
+        // is area_auto, the total its panels add up to.
+        $hasFaceSize = $width > 0 && $height > 0;
+        $sqft = $hasFaceSize ? $width * $height : (float) ($media->area_auto ?? 0);
+
+        /* Which category this is, read off its NAME rather than its id.
+
+           There was a $CATEGORY map of hardcoded ids here and it had drifted
+           from the table: it called id 5 'OFFICE' when id 5 is Bus Shelter, so
+           every bus shelter rendered the office branding fields — "Building
+           Name: -" and "Branding Type: -" — and none of its own. Ids are the
+           admin's to change; the name is what the rest of the app matches on
+           (@see MediaCode, MediaManagementController), so match it here too. */
+        $catSlug = \Illuminate\Support\Str::slug($media->category_name ?? '');
+        $isCat = fn(string $fragment) => str_contains($catSlug, $fragment);
     @endphp
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
@@ -367,20 +373,82 @@
                                     </div>
                                 @endif
 
-                                <div class="col-6 mb-2">
-                                    <strong>Size:</strong>
-                                    {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
-                                </div>
+                                @if ($hasFaceSize)
+                                    <div class="col-6 mb-2">
+                                        <strong>Size:</strong>
+                                        {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
+                                    </div>
+                                @endif
 
-                                <div class="col-6 mb-2">
-                                    <strong>Total Area:</strong>
-                                    {{ number_format($sqft, 2) }} SQFT
-                                </div>
+                                {{-- Panelled media carry their total in the table
+                                     below, so it is not also stated here. --}}
+                                @if ($panels->isEmpty())
+                                    <div class="col-6 mb-2">
+                                        <strong>Total Area:</strong>
+                                        {{ number_format($sqft, 2) }} SQFT
+                                    </div>
+                                @endif
+
+                                {{-- BUS SHELTER — a table rather than a run-on line.
+                                     Three panels, each with a size, a count and the
+                                     area it contributes, is a small grid of numbers;
+                                     strung inline it wrapped mid-panel and the total
+                                     above could not be followed back to its parts. --}}
+                                @if ($panels->isNotEmpty())
+                                    <div class="col-12 mb-2">
+                                        <strong class="d-block mb-2">Panel Sizes</strong>
+
+                                        <div class="table-responsive">
+                                            <table class="panel-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Panel</th>
+                                                        <th>Size (ft)</th>
+                                                        <th class="text-center">Qty</th>
+                                                        <th class="text-end">Area (sq ft)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php $panelTotalQty = 0; @endphp
+                                                    @foreach ($panels as $panel)
+                                                        @php
+                                                            // Rows written before the quantity column
+                                                            // existed carry none and each stand for a
+                                                            // single board.
+                                                            $qty  = max(1, (int) ($panel->quantity ?? 1));
+                                                            $face = (float) $panel->width * (float) $panel->height;
+                                                            $panelTotalQty += $qty;
+                                                        @endphp
+                                                        <tr>
+                                                            <td>{{ \App\Models\MediaLocationSize::POSITIONS[$panel->position] ?? ucfirst($panel->position) }}</td>
+                                                            <td>{{ number_format((float) $panel->width, 2) }} × {{ number_format((float) $panel->height, 2) }}</td>
+                                                            <td class="text-center">{{ $qty }}</td>
+                                                            <td class="text-end">{{ number_format($face * $qty, 2) }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2">Total</td>
+                                                        <td class="text-center">{{ $panelTotalQty }}</td>
+                                                        <td class="text-end">{{ number_format($sqft, 2) }}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if ($isCat('bus-shelter') && !empty($media->illumination_name))
+                                    <div class="col-6 mb-2">
+                                        <strong>Illumination:</strong> {{ $media->illumination_name }}
+                                    </div>
+                                @endif
 
                                 {{-- ================= CATEGORY SPECIFIC FIELDS ================= --}}
 
                                 {{-- WALL PAINTING --}}
-                                @if ($media->category_id === $CATEGORY['WALL'])
+                                @if ($isCat('wall-painting'))
                                     @if (!empty($media->address))
                                         <div class="col-12 mb-2">
                                             <strong>Address:</strong> {{ $media->address }}
@@ -389,7 +457,7 @@
                                 @endif
 
                                 {{-- AIRPORT BRANDING --}}
-                                @if ($media->category_id === $CATEGORY['AIRPORT'])
+                                @if ($isCat('airport'))
                                     <div class="col-6 mb-2">
                                         <strong>Airport:</strong> {{ $media->airport_name ?? '-' }}
                                     </div>
@@ -402,7 +470,7 @@
                                 @endif
 
                                 {{-- TRANSIT MEDIA --}}
-                                @if ($media->category_id === $CATEGORY['TRANSIT'])
+                                @if ($isCat('transit') || $isCat('transmit'))
                                     <div class="col-6 mb-2">
                                         <strong>Transit Type:</strong> {{ $media->transit_type ?? '-' }}
                                     </div>
@@ -414,8 +482,11 @@
                                     </div>
                                 @endif
 
-                                {{-- OFFICE BRANDING --}}
-                                @if ($media->category_id === $CATEGORY['OFFICE'])
+                                {{-- OFFICE BRANDING — matched on the name like the rest.
+                                     This used to test id 5, which is Bus Shelter, so it was
+                                     the block putting "Building Name: -" and
+                                     "Branding Type: -" on every shelter. --}}
+                                @if ($isCat('office'))
                                     <div class="col-6 mb-2">
                                         <strong>Building Name:</strong> {{ $media->building_name ?? '-' }}
                                     </div>
@@ -425,7 +496,7 @@
                                 @endif
 
                                 {{-- WALL WRAP --}}
-                                @if ($media->category_id === $CATEGORY['WRAP'])
+                                @if ($isCat('wall-wrap'))
                                     @if (!empty($media->address))
                                         <div class="col-12 mb-2">
                                             <strong>Location:</strong> {{ $media->address }}
@@ -434,7 +505,7 @@
                                 @endif
 
                                 {{-- WALL WRAP --}}
-                                @if ($media->category_id === $CATEGORY['MALL'])
+                                @if ($isCat('mall'))
                                     <div class="d-flex row">
                                         <div class="col-6 mb-2">
                                             <strong>Mall Name:</strong> {{ $media->mall_name }}

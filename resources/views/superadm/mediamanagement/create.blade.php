@@ -288,7 +288,8 @@
                     <div class="col-12 mb-2">
                         <label class="fw-bold mb-0">Location Size (ft)</label>
                         <div class="text-muted small">
-                            Enter the panels this shelter carries — leave a panel blank if it has none.
+                            Enter the panels this shelter carries — width × height, then how many
+                            boards of that size. Leave a panel blank if it has none.
                         </div>
                     </div>
 
@@ -307,6 +308,14 @@
                                     value="{{ old('location_sizes.' . $position . '.height') }}"
                                     placeholder="Height"
                                     class="form-control location-size-input @error('location_sizes.' . $position . '.height') is-invalid @enderror">
+                                <span class="mx-2 text-muted">—</span>
+                                {{-- How many boards of this size sit at this
+                                     position. Blank means one. --}}
+                                <input type="number" step="1" min="1" max="99"
+                                    name="location_sizes[{{ $position }}][quantity]"
+                                    value="{{ old('location_sizes.' . $position . '.quantity') }}"
+                                    placeholder="Qty" style="max-width:78px"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.quantity') is-invalid @enderror">
                             </div>
                             @error('location_sizes.' . $position . '.width')
                                 <div class="text-danger small mt-1">{{ $message }}</div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Superadm;
 
+use App\Support\MediaCode;
 use App\Http\Repository\Superadm\MediaImportExportRepository;
 use App\Imports\MediaSheetImport;
 use App\Support\MediaImageFetcher;
@@ -631,7 +632,11 @@ class MediaImportExportService
         $pendingImages = [];
 
         DB::transaction(function () use ($batch, &$inserted, &$updated, &$skipped, &$pendingImages) {
-            $sequence = $this->repo->maxHoardingSequence();
+            // One running counter per prefix: a file holding hoardings and bus
+            // shelters mints HD###### and BS###### side by side, and neither
+            // sequence may borrow from the other. Seeded from the table once,
+            // then advanced in memory for the rest of the batch.
+            $sequences = [];
 
             foreach ($batch['rows'] as $record) {
                 $payload = $record['payload'];
@@ -662,21 +667,28 @@ class MediaImportExportService
                     continue;
                 }
 
-                // HD###### is a HOARDING code — only Hoardings/Billboards rows
-                // get one. Every other category (wall painting, airport, transit,
-                // office, wall wrap) previously had one minted too, which burned
-                // sequence numbers on media that can never be a hoarding and made
-                // the code meaningless as an identifier.
+                // Only categories with a scheme are issued a code — see
+                // MediaCode. Everything else is saved without one rather than
+                // burning sequence positions on media nobody identifies by a
+                // code, which is what made it meaningless as an identifier.
                 //
                 // A code supplied in the sheet is still honoured as-is, whatever
-                // the category — the importer does not invent codes here, it only
-                // fills in the blanks for hoardings.
-                if (empty($payload['hoarding_code']) && $this->isHoardingCategory($payload['category_id'] ?? null)) {
-                    $sequence++;
-                    $payload['hoarding_code'] = 'HD' . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
+                // the category: the importer does not invent codes here, it only
+                // fills in the blanks.
+                $prefix = $this->codePrefixFor($payload['category_id'] ?? null);
+
+                if (empty($payload['hoarding_code']) && $prefix !== null) {
+                    $sequences[$prefix] = ($sequences[$prefix] ?? MediaCode::sequence($prefix)) + 1;
+                    $payload['hoarding_code'] = MediaCode::format($prefix, $sequences[$prefix]);
                 }
 
                 $media = $this->repo->insert($payload);
+
+                // Bus Shelter panels. Same table and shape the Add form writes
+                // through MediaManagementService::syncLocationSizes().
+                foreach ($record['panels'] ?? [] as $position => $dimensions) {
+                    $media->locationSizes()->updateOrCreate(['position' => $position], $dimensions);
+                }
 
                 if (!empty($landmarkIds)) {
                     $media->landmarks()->sync($landmarkIds);
@@ -1027,6 +1039,14 @@ class MediaImportExportService
         foreach (MediaImportSchema::requiredColumns() as $column) {
             $key = $column['key'];
 
+            // A column some category is exempt from cannot be demanded here,
+            // where the category is not yet resolved. Width / Height are the
+            // case: a Bus Shelter sheet has no such columns. Enforced in
+            // categoryRules() instead, which knows what the row is.
+            if (!empty($column['except'])) {
+                continue;
+            }
+
             // Vendor may arrive as either a code or a name.
             if ($key === 'vendor_code') {
                 if ($this->blank($row['vendor_code'] ?? '') && $this->blank($row['vendor_name'] ?? '')) {
@@ -1146,8 +1166,72 @@ class MediaImportExportService
             }
         }
 
+        // The Front / Back / Side panels of a Bus Shelter. A panel counts only
+        // when BOTH of its dimensions are given — half a pair means someone
+        // started typing and stopped, not a panel of unknown height, which is
+        // the same rule the Add form applies.
+        $panels = [];
+        foreach (array_keys(\App\Models\MediaLocationSize::POSITIONS) as $position) {
+            $pw = $row['panel_' . $position . '_width'] ?? '';
+            $ph = $row['panel_' . $position . '_height'] ?? '';
+
+            // A quantity on its own describes nothing — the panel exists only
+            // once it has a size, so an otherwise empty position stays empty.
+            if ($this->blank($pw) && $this->blank($ph)) {
+                continue;
+            }
+
+            $label = ucfirst($position);
+
+            if ($this->blank($pw) || $this->blank($ph)) {
+                $errors[] = $label . ' panel needs both a width and a height';
+                continue;
+            }
+
+            if (!is_numeric($pw) || !is_numeric($ph) || (float) $pw <= 0 || (float) $ph <= 0) {
+                $errors[] = $label . ' panel width and height must be numbers greater than 0';
+                continue;
+            }
+
+            // Blank counts as one board, the same as leaving the Add form's
+            // Qty box empty. Anything unusable is rejected rather than
+            // quietly rounded into something else.
+            $pq = $row['panel_' . $position . '_quantity'] ?? '';
+            $quantity = \App\Models\MediaLocationSize::DEFAULT_QUANTITY;
+
+            if (!$this->blank($pq)) {
+                if (!is_numeric($pq) || (int) $pq < 1 || (int) $pq > 99) {
+                    $errors[] = $label . ' panel quantity must be a whole number between 1 and 99';
+                    continue;
+                }
+
+                $quantity = (int) $pq;
+            }
+
+            $panels[$position] = [
+                'width'    => (float) $pw,
+                'height'   => (float) $ph,
+                'quantity' => $quantity,
+            ];
+        }
+
+        // A panelled record has no single face: the Add form stores null for
+        // both and totals the panels into area_auto. Same here, so an imported
+        // shelter is the same shape of record as a hand-added one.
+        if ($panels) {
+            $width = null;
+            $height = null;
+        }
+
         $areaAuto = null;
-        if (!$this->blank($row['area_auto'] ?? '')) {
+        if ($panels) {
+            // Boards, not positions: a Front of 40x20 with a quantity of 3 is
+            // 2,400 sq ft of face. Matches MediaManagementService.
+            $areaAuto = round(array_sum(array_map(
+                fn($panel) => $panel['width'] * $panel['height'] * $panel['quantity'],
+                $panels
+            )), 2);
+        } elseif (!$this->blank($row['area_auto'] ?? '')) {
             if (!is_numeric($row['area_auto'])) {
                 $errors[] = 'Total Area (Sq Ft) must be a number';
             } else {
@@ -1423,6 +1507,9 @@ class MediaImportExportService
                 'geo_key' => $geoKey,
                 // Things worth a second look that do not stop the row importing.
                 'notices' => $notices,
+                // The Bus Shelter panels, written to media_location_sizes once
+                // the record has an id. Empty for every other category.
+                'panels' => $panels,
                 'landmark_ids' => $landmarkIds,
                 // Replacing a record's landmarks is only right when the file
                 // actually has a Landmarks column to replace them from.
@@ -1503,7 +1590,24 @@ class MediaImportExportService
      */
     private function slugTakesCode(string $slug): bool
     {
-        return $slug !== '' && (str_contains($slug, 'hoarding') || str_contains($slug, 'billboard'));
+        return MediaCode::issuedFor($slug);
+    }
+
+    /**
+     * The prefix this row's category codes under, or null when it has none.
+     * Reads the same cached slug lookup isHoardingCategory() uses.
+     */
+    private function codePrefixFor($categoryId): ?string
+    {
+        if (empty($categoryId)) {
+            return null;
+        }
+
+        if ($this->hoardingSlugCache === null) {
+            $this->hoardingSlugCache = $this->repo->categorySlugs();
+        }
+
+        return MediaCode::prefixFor($this->hoardingSlugCache[(int) $categoryId] ?? '');
     }
 
     /**
@@ -1519,7 +1623,42 @@ class MediaImportExportService
             }
         };
 
+        // Width / Height are skipped by the mandatory-presence loop, because a
+        // category can be exempt from them and that loop runs before the
+        // category is known. Demanded here, where it is — except of course from
+        // the categories the schema exempts.
+        foreach (MediaImportSchema::requiredColumns() as $column) {
+            if (empty($column['except'])) {
+                continue;
+            }
+
+            foreach ($column['except'] as $keyword) {
+                if (str_contains($slug, $keyword)) {
+                    continue 2;
+                }
+            }
+
+            $require($column['key'], $column['label']);
+        }
+
         switch (true) {
+            case str_contains($slug, 'bus-shelter'):
+                // Both required on the Add form, so both required here.
+                $require('illumination', 'Illumination');
+
+                $hasPanel = false;
+                foreach (array_keys(\App\Models\MediaLocationSize::POSITIONS) as $position) {
+                    if (!$this->blank($row['panel_' . $position . '_width'] ?? '')) {
+                        $hasPanel = true;
+                        break;
+                    }
+                }
+
+                if (!$hasPanel) {
+                    $errors[] = 'At least one panel (Front, Back or Side) is required for this category';
+                }
+                break;
+
             case str_contains($slug, 'hoardings'):
                 $require('media_title', 'Media Title');
                 $require('facing', 'Facing');
@@ -1711,6 +1850,15 @@ class MediaImportExportService
         $missing = [];
 
         foreach (MediaImportSchema::requiredColumns() as $column) {
+            // A column some category is exempt from cannot be demanded of the
+            // whole file: a Bus Shelter sheet has no Width / Height at all, and
+            // rejecting it here would stop the upload before a single row was
+            // read. Demanded per row instead, in categoryRules(), where the
+            // category is known.
+            if (!empty($column['except'])) {
+                continue;
+            }
+
             if ($column['key'] === 'vendor_code') {
                 if (!in_array('vendor_code', $present, true) && !in_array('vendor_name', $present, true)) {
                     $missing[] = 'Vendor Code';

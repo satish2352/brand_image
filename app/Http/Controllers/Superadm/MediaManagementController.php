@@ -461,6 +461,9 @@ class MediaManagementController extends Controller
 
             'location_sizes.*.width'  => 'nullable|numeric|min:0|required_with:location_sizes.*.height',
             'location_sizes.*.height' => 'nullable|numeric|min:0|required_with:location_sizes.*.width',
+            // Boards at this position. Optional — blank is one — but when given
+            // it has to be a whole number the form can actually show.
+            'location_sizes.*.quantity' => 'nullable|integer|min:1|max:99',
         ];
     }
 
@@ -476,6 +479,9 @@ class MediaManagementController extends Controller
             'location_sizes.required'  => 'Enter the size of at least one panel.',
             'location_sizes.*.width.required_with'  => 'Give a panel both a width and a height, or leave it empty.',
             'location_sizes.*.height.required_with' => 'Give a panel both a width and a height, or leave it empty.',
+            'location_sizes.*.quantity.integer' => 'Panel quantity must be a whole number of boards.',
+            'location_sizes.*.quantity.min'     => 'Panel quantity must be at least 1.',
+            'location_sizes.*.quantity.max'     => 'Panel quantity cannot be more than 99.',
             'location_sizes.*.width.numeric'  => 'Panel width must be a number.',
             'location_sizes.*.height.numeric' => 'Panel height must be a number.',
         ];

@@ -207,6 +207,30 @@
                     </div>
 
                     <div class="req-actions">
+                        {{-- Always rendered, exactly like the login dialog's own
+                             box in the header — that one carries no config gate
+                             either. Whether the answer is VERIFIED is still
+                             services.recaptcha.enabled's call, server-side in
+                             RequirementController via App\Support\Recaptcha.
+
+                             It sits first in the actions row, filling the space
+                             the two buttons leave on the left. --}}
+                        <div class="req-captcha">
+                            {{-- Not .g-recaptcha, for the reason the admin login
+                                 box gives: that class is auto-rendered by the API
+                                 on load and hands back no widget id, so with the
+                                 header's own login widget also on this page
+                                 grecaptcha.getResponse() would keep answering for
+                                 whichever rendered first. Rendered explicitly in
+                                 the script below so this form reads its own. --}}
+                            <div id="reqCaptcha"></div>
+                            <div class="req-error-space">
+                                @error('g-recaptcha-response')
+                                    <span class="req-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
                         <a href="{{ url('/contact-us') }}" class="sa-btn sa-btn-ghost">
                             <i class="bi bi-headset" aria-hidden="true"></i> Contact Brand Adda Team
                         </a>
@@ -388,8 +412,49 @@
                 return $first;
             }
 
+            /* The captcha, rendered the way the admin login renders its own:
+               explicitly, keeping the widget id, so this form reads its own
+               answer rather than the first widget on the page. api.js is
+               loaded async by the header, so it may not be here yet. */
+            var reqCaptchaId = null;
+
+            (function renderWhenReady(attempt) {
+                if (!document.getElementById('reqCaptcha')) return;
+
+                if (window.grecaptcha && typeof grecaptcha.render === 'function') {
+                    reqCaptchaId = grecaptcha.render('reqCaptcha', {
+                        sitekey: "{{ config('services.recaptcha.site') }}"
+                    });
+                } else if (attempt < 40) {
+                    setTimeout(function () { renderWhenReady(attempt + 1); }, 150);
+                }
+            })(0);
+
             $form.on('submit', function (e) {
                 var $first = validate();
+
+                // The captcha is checked again on the server — this only saves
+                // the round trip, and says what the server would have said.
+                // getResponse takes the widget id, so it answers for THIS form
+                // and not for the header's login box. A null id means the
+                // widget has not rendered yet, so there is nothing to check
+                // and the server decides.
+                //
+                // localhost is exempt, the same exemption the login dialog
+                // makes: the keys are domain-bound, so a widget on a dev box
+                // can never be satisfied and would block every local submit.
+                var captchaRequired = window.location.hostname !== 'localhost'
+                    && window.location.hostname !== '127.0.0.1';
+
+                if (captchaRequired && reqCaptchaId !== null
+                    && grecaptcha.getResponse(reqCaptchaId).length === 0) {
+                    var $captcha = $('#reqCaptcha');
+                    var $slot = $captcha.closest('.req-captcha').find('.req-error-space');
+                    $slot.find('.req-error').remove();
+                    $slot.append('<span class="req-error">Please verify that you are not a robot</span>');
+                    if (!$first) $first = $captcha;
+                }
+
                 if (!$first) return;
 
                 e.preventDefault();

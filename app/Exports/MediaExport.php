@@ -40,7 +40,40 @@ class MediaExport implements FromQuery, WithHeadings, WithMapping, WithStyles, W
 
     public function query()
     {
-        return $this->query;
+        // Eager loaded, or every exported row would fetch its own panels and a
+        // 4,000-row export would run 4,000 extra queries.
+        return $this->query->with('locationSizes');
+    }
+
+    /**
+     * A record's panels as one readable cell: "Front 40×20×2; Side 12×8".
+     *
+     * One cell rather than six columns because the positions are data — a
+     * fourth one is a row in media_location_sizes, not another migration and
+     * another pair of headings here. Quantity is shown only when it is more
+     * than a single board, so the common case stays short.
+     */
+    private function panels($row): string
+    {
+        $panels = $row->locationSizes ?? collect();
+
+        if ($panels->isEmpty()) {
+            return '-';
+        }
+
+        $order = array_keys(\App\Models\MediaLocationSize::POSITIONS);
+
+        return $panels
+            ->sortBy(fn($panel) => array_search($panel->position, $order, true))
+            ->map(function ($panel) {
+                $size = rtrim(rtrim(number_format((float) $panel->width, 2, '.', ''), '0'), '.')
+                    . '×' . rtrim(rtrim(number_format((float) $panel->height, 2, '.', ''), '0'), '.');
+
+                $quantity = $panel->quantityOrDefault();
+
+                return $panel->label . ' ' . $size . ($quantity > 1 ? '×' . $quantity : '');
+            })
+            ->implode('; ');
     }
 
     public function title(): string
@@ -66,6 +99,10 @@ class MediaExport implements FromQuery, WithHeadings, WithMapping, WithStyles, W
             'Vendor Code',
             'Width (ft)',
             'Height (ft)',
+            // Panel-sized media (a Bus Shelter) have no single Width x Height;
+            // this is what they have instead, and what Total Area is built
+            // from. Blank for every other category.
+            'Panels (W x H x Qty)',
             'Total Area (Sq Ft)',
             'Illumination',
             'Facing',
@@ -118,6 +155,7 @@ class MediaExport implements FromQuery, WithHeadings, WithMapping, WithStyles, W
             $row->vendor_code ?: '-',
             $width,
             $height,
+            $this->panels($row),
             $totalArea,
             $row->illumination_name ?: '-',
             $row->facing ?: '-',

@@ -14,9 +14,12 @@
                     </p>
 
                     @if (session('success'))
+                        {{-- No close button: the admin theme does not style
+                             Bootstrap 5's .btn-close, so it rendered as a stray
+                             mark after the text. Every other alert in the panel
+                             is written this way. --}}
                         <div class="alert alert-success alert-dismissible fade show">
                             {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 

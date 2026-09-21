@@ -18,7 +18,9 @@
             'Campaign End'           => $requirement->campaign_end_date?->format('d-m-Y'),
             'Campaign Duration'      => $requirement->campaign_duration,
             'Required No. of Media'  => $requirement->required_media_count,
-            'Approximate Budget'     => $requirement->approx_budget,
+            // Grouped the Indian way and carrying its symbol — a bare "20000"
+            // in a column of plain text reads as a quantity, not money.
+            'Approximate Budget'     => ($budget = inr($requirement->approx_budget)) ? '₹ ' . $budget : null,
             'Target Audience'        => $requirement->target_audience,
             'Preferred Location'     => $requirement->preferred_location,
             'Preferred Media Size'   => $requirement->preferred_media_size,
@@ -32,14 +34,25 @@
                 <div class="card-body">
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0">Requirement #{{ $requirement->id }}</h4>
+                        <div class="d-flex align-items-center">
+                            <h4 class="mb-0">Requirement #{{ $requirement->id }}</h4>
+                            {{-- The same badge the list column carries, so where a
+                                 requirement has got to reads the same in both
+                                 places. The select on the right is for changing
+                                 it; this is for seeing it.
+
+                                 ml-2, not gap-2: this panel is on Bootstrap 4,
+                                 whose stylesheet has no .gap-* at all. --}}
+                            <span class="req-status ml-2 req-status--{{ str_replace('_', '-', $requirement->status) }}">
+                                {{ $requirement->statusLabel() }}
+                            </span>
+                        </div>
                         <a href="{{ route('requirements.list') }}" class="btn btn-sm btn-secondary">Back</a>
                     </div>
 
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show">
                             {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 

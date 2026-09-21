@@ -422,3 +422,42 @@ input:checked+.slider:before {
 .dropdown-menu.show {
     left: -95px !important;
 }
+/* ===== Client Requirements — status badges =====
+   Bootstrap's bg-success / bg-warning / bg-secondary put a teal and a grey
+   pill in a panel that is otherwise entirely Brand Adda's two colours. These
+   use the brand palette instead, and carry the meaning in the hue: orange is
+   work still on the team's plate, navy is work that is finished.
+
+   The admin stylesheet has no brand custom properties of its own, so the two
+   values are written out — they are --brand-orange and --brand-navy from the
+   website's style.css. */
+.req-status {
+    display: inline-block;
+    min-width: 76px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Just arrived — the one the team has not looked at yet. */
+.req-status--new {
+    background-color: #F97316;
+    color: #FFFFFF;
+}
+
+/* Picked up and being worked: same family as New, dialled down, so a glance
+   down the column separates "untouched" from "in hand" without a second hue. */
+.req-status--in-progress {
+    background-color: rgba(249, 115, 22, .14);
+    color: #C2410C;
+}
+
+/* Done with. Navy recedes next to the orange, which is the point. */
+.req-status--closed {
+    background-color: #0F172A;
+    color: #FFFFFF;
+}
