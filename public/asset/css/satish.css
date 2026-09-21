@@ -461,3 +461,49 @@ input:checked+.slider:before {
     background-color: #0F172A;
     color: #FFFFFF;
 }
+
+/* =========================================================
+   Searchable single selects (Add / Edit Media)
+   Area lists every area in the state and Vendor every vendor, so both are
+   long enough that scrolling to a name is the slow way round. Select2 gives
+   them a type-ahead; these rules make its box look like the .form-control
+   next to it instead of like a Select2 widget.
+   ========================================================= */
+.select2-container--default .select2-selection--single {
+    height: calc(1.5em + 0.75rem + 2px);
+    border: 1px solid #d9d9d9;
+    border-radius: 0.25rem;
+    background-color: #fff;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding: 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: calc(1.5em + 0.75rem);
+    color: #67757c;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #a1a8b5;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(1.5em + 0.75rem);
+    right: 6px;
+}
+
+/* Focus ring in the panel's own colour rather than Select2's blue. */
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: #008f97;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #008f97;
+}
+
+/* An invalid select is hidden by Select2, so carry the red onto the widget. */
+.is-invalid + .select2-container--default .select2-selection--single {
+    border-color: #dc3545;
+}

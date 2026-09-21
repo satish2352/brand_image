@@ -18,7 +18,10 @@ class MediaLocationSize extends Model
     public const POSITIONS = [
         'front' => 'Front',
         'back'  => 'Back',
-        'side'  => 'Side',
+        // Stored as 'side'; shown as this. A shelter's third face is the
+        // left / right end panel, and "Side" alone read as a single one.
+        // The key is untouched, so no stored row has to change.
+        'side'  => 'Left-Right Side',
     ];
 
     protected $table = 'media_location_sizes';

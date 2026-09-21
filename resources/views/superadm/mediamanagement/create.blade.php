@@ -736,6 +736,23 @@
                 allowClear: false,
                 width: '100%'
             });
+
+            /* Area and Vendor are long lists — every area in the state,
+               every vendor on the platform — so both get a type-ahead.
+               Select2 fires a native change, so the handlers that read
+               :selected to fill the hidden state / district / city
+               inputs keep working untouched. */
+            $('#area, #vendor_id').select2({
+                width: '100%',
+                placeholder: function () { return $(this).find('option:first').text(); },
+                // Always show the search box, however short the list is.
+                // Select2 hides it below a threshold by default, which meant
+                // Vendor — three active ones today — had no way to type into
+                // it while Area did. Same control, same behaviour, and the
+                // vendor list only grows.
+                minimumResultsForSearch: 0
+            });
+
         });
     </script>
 
