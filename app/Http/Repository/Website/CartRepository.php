@@ -4,7 +4,6 @@ namespace App\Http\Repository\Website;
 
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class CartRepository
@@ -79,14 +78,6 @@ class CartRepository
     }
 
 
-    private function clearCartCountCache(): void
-    {
-        $userId = Auth::guard('website')->id();
-        if ($userId) {
-            Cache::forget("cart_count_user_{$userId}");
-        }
-    }
-
     public function addItem($mediaId, $price)
     {
         CartItem::create([
@@ -108,7 +99,6 @@ class CartRepository
             'is_deleted' => 0,
         ]);
 
-        $this->clearCartCountCache();
     }
 
     public function getBookedDatesByMedia($mediaId)
@@ -196,7 +186,6 @@ class CartRepository
             'is_deleted'    => 0,
         ]);
 
-        $this->clearCartCountCache();
     }
 
 
@@ -211,7 +200,6 @@ class CartRepository
         $query = CartItem::where('id', $itemId);
         $this->ownerCondition($query);
         $query->delete();
-        $this->clearCartCountCache();
     }
     public function clearCart()
     {

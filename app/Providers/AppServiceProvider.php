@@ -53,17 +53,22 @@ class AppServiceProvider extends ServiceProvider
             $cartCount = 0;
 
             if (Auth::guard('website')->check()) {
-                $userId    = Auth::guard('website')->id();
-                $cacheKey  = "cart_count_user_{$userId}";
-
-                $cartCount = Cache::remember($cacheKey, 120, function () use ($userId) {
-                    return CartItem::where('user_id', $userId)
-                        ->where('is_deleted', 0)
-                        ->where('is_active', 1)
-                        ->where('cart_type', 'NORMAL')
-                        ->where('status', 'ACTIVE')
-                        ->count();
-                });
+                // Counted live, not cached for 120s as it once was.
+                //
+                // The cache had to be forgotten by every write, and two of them
+                // never did: placing an order (CheckoutController) and turning
+                // the cart into a campaign (CampaignRepository) both empty the
+                // NORMAL cart with a mass update, which fires no model events
+                // and cleared nothing — so the badge kept claiming an item the
+                // cart page could not show. cart_items is indexed on user_id
+                // and holds one row per item a person is considering, so the
+                // count the cache was avoiding is cheaper than being wrong.
+                $cartCount = CartItem::where('user_id', Auth::guard('website')->id())
+                    ->where('is_deleted', 0)
+                    ->where('is_active', 1)
+                    ->where('cart_type', 'NORMAL')
+                    ->where('status', 'ACTIVE')
+                    ->count();
             }
 
             $view->with('cartCount', $cartCount);
