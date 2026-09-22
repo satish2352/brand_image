@@ -9300,3 +9300,31 @@ body:has(.bi-contact) .bi-contact {
 .panel-table .text-center {
     text-align: center;
 }
+
+/* =========================================================
+   Map popup — View Details
+   The popup gained a "Select for shortlist" tick above this, and a 12px dark
+   link underneath it read as a caption rather than the action it is. Given
+   the popup's own width so it is unmissable, and the brand orange so it
+   matches every other primary action on the site.
+   ========================================================= */
+.exp-popup-link {
+    display: block;
+    margin-top: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: var(--brand-orange);
+    color: var(--brand-white) !important;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: background .18s ease;
+}
+
+.exp-popup-link:hover,
+.exp-popup-link:focus {
+    background: #EA6A0C;
+    color: var(--brand-white) !important;
+    text-decoration: none;
+}

@@ -319,6 +319,10 @@
      the fold instead of a screen further down. Same path test the layout uses
      for the footer — and a shared shortlist, which is a results page too. --}}
 @php $biSearchCompact = $biScope !== null || request()->is('search') || request()->is('brand_image/public/search'); @endphp
+
+{{-- Read by the two category-visibility handlers further down. On a shared
+     shortlist they stand aside and leave every filter on screen. --}}
+<script>window.BI_SHORTLIST = @json($biScope !== null);</script>
 <section class="bi-search-hero{{ $biSearchCompact ? ' is-compact' : '' }}">
 <div class="container-fluid mt-5 mb-5">
     {{-- Hero copy, sitting on the pale left half of the artwork. --}}
@@ -548,11 +552,19 @@
                     </select>
                 </div>
 
-                {{-- Pads the dropdown row above to a full 12 columns. It only has
-                     five fields, and justify-content-lg-between would otherwise
-                     share the spare column out as gaps between them — which left
-                     this row sitting on different columns than the row above it. --}}
-                <div class="col-lg-2 d-none d-lg-block" aria-hidden="true"></div>
+                {{-- Sector Code. Sits in the column that used to be blank padding,
+                     so the row still measures a full 12 and nothing below it moves.
+
+                     A text box rather than a dropdown: the codes run to thousands
+                     and someone searching one already has it written down. Matched
+                     as "contains", so BS lists every bus shelter and 000034 finds
+                     HD000034 — see HomeRepository::buildSearchQuery. --}}
+                <div class="col-lg-2 col-md-4 col-sm-6">
+                    <label class="form-label">Sector Code</label>
+                    <input type="text" name="hoarding_code" id="hoarding_code" class="form-control"
+                        maxlength="30" placeholder="e.g. HD000034"
+                        value="{{ $filters['hoarding_code'] ?? '' }}">
+                </div>
 
                 {{-- Row break so the Media Size slider starts the slider row
                      instead of riding up into the padding above. Desktop only —
@@ -1188,6 +1200,13 @@
     $(document).ready(function() {
 
         function toggleCategoryFilters() {
+            // A shared shortlist keeps every filter. Category is locked there and
+            // frequently reads "All N categories", so it has no single value to
+            // key off — and hiding on that basis left the client with Area and a
+            // size slider. The link already bounds the result set, so there is
+            // nothing for these to widen into: they can only narrow it further.
+            if (window.BI_SHORTLIST) return;
+
             let categoryId = $('select[name="category_id"]').val();
 
             // ❌ Hide everything by default
@@ -1400,6 +1419,9 @@
     // authoritative toggle; the earlier inline one is now redundant but harmless.
     jQuery(function ($) {
         function applyCategoryFilters() {
+            // See toggleCategoryFilters: on a shared shortlist every filter stays.
+            if (window.BI_SHORTLIST) { toggleRadius(); return; }
+
             var cat = String($('select[name="category_id"]').val() || '').trim();
             var $deps = $('#radius_wrapper, #date_wrapper, #to_date_wrapper, #days_wrapper, #highway_wrapper, #landmark_wrapper');
 

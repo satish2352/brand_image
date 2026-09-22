@@ -197,7 +197,8 @@ class HomeController extends Controller
             'min_area',   //  add
             'max_area',    //  add
             'highway_id',     // Highway filter (single)
-            'landmark_ids'    // Landmark filter (multiple, OR logic)
+            'landmark_ids',   // Landmark filter (multiple, OR logic)
+            'hoarding_code'   // Sector Code, partial match
         ]);
         //  SAVE FILTERS IN SESSION
         session(['search_filters' => $filters]);

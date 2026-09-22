@@ -519,6 +519,28 @@
             color: #FFFFFF;
         }
 
+        /* Same pill as CLEAR ALL beside it, in navy: one adds to the shortlist,
+           the other throws filters away, and they should not look alike. */
+        .explore-chips-selectall {
+            background: none;
+            border: 1px solid #0F172A;
+            border-radius: 16px;
+            padding: 5px 14px;
+            margin-right: 8px;
+            color: #0F172A;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .explore-chips-selectall:hover {
+            background: #0F172A;
+            color: #FFFFFF;
+        }
+
         .explore-spinner {
             font-size: 11px;
             color: #F97316;
@@ -858,6 +880,12 @@
     <div class="explore-topbar" id="exploreChips" style="display:none;">
         <span class="explore-topbar-label">Filtering</span>
         <div class="explore-chips-list" id="exploreChipsList"></div>
+        @if (site_admin())
+            {{-- Shortlists every hoarding the current filters match, so a whole
+                 result set can be sent without opening each pin. Team only, and
+                 the endpoint behind Share checks the session again. --}}
+            <button type="button" class="explore-chips-selectall" id="exploreSelectAll">Select all</button>
+        @endif
         <button type="button" class="explore-chips-clear" id="exploreChipsClear">Clear all</button>
     </div>
 
@@ -1001,6 +1029,10 @@
             <div id="exploreMap"></div>
         </div>
     </div>
+
+    {{-- Team only, and the only thing this page gains: tick hoardings in their
+         map popups and send the set as a link. Everything above is untouched. --}}
+    @include('website.includes.share-link')
 @endsection
 
 @section('scripts')
@@ -1091,16 +1123,76 @@
                 let hw = m.highway_name ? '<div style="font-size:11px;color:#0F172A;">🛣 ' + m.highway_name +
                     '</div>' : '';
                 let lm = m.landmarks ? '<div style="font-size:11px;color:#0F172A;">📍 ' + m.landmarks + '</div>' : '';
+                // Team only. A plain checkbox rather than the card tick used on
+                // /search: a Leaflet popup is rebuilt from this string every time
+                // it opens, so the box has to say for itself whether it is on.
+                let pick = '';
+                @if (site_admin())
+                    pick = '<label style="display:flex;align-items:center;gap:6px;margin:6px 0 4px;' +
+                        'font-size:12px;font-weight:600;color:#0F172A;cursor:pointer;">' +
+                        '<input type="checkbox" class="exp-share-pick" value="' + m.id + '"' +
+                        (window.BrandAddaShare && window.BrandAddaShare.has(m.id) ? ' checked' : '') +
+                        '> Select for shortlist</label>';
+                @endif
+
                 return '<div style="width:190px;">' + img + code +
                     '<div style="font-weight:600;">' + (m.title || '') + '</div>' +
                     '<div style="font-size:12px;">' + (m.width || '') + ' × ' + (m.height || '') + ' ft</div>' +
                     hw + lm +
                     '<div style="color:#F97316;font-weight:700;margin-top:2px;">₹ ' + Number(m.price)
                     .toLocaleString() + '</div>' +
-                    '<a href="' + EXPLORE.mediaDetailsBase + '/' + m.eid +
-                    '" style="color:#0F172A;font-size:12px;">View Details →</a>' +
+                    pick +
+                    // A button rather than the small dark link it was: with the
+                    // shortlist tick above it, a 12px line of text was the
+                    // least visible thing in the popup and read as a caption.
+                    '<a class="exp-popup-link" href="' + EXPLORE.mediaDetailsBase + '/' + m.eid +
+                    '">View Details →</a>' +
                     '</div>';
             }
+
+            @if (site_admin())
+                /* Popup ticks -> the shared shortlist. Delegated because Leaflet
+                   builds a popup's DOM when it opens and throws it away when it
+                   closes, so there is nothing to bind to up front.
+
+                   Nothing else on this page changes: the marker itself, the
+                   clustering, the filters and the fly-to all behave as before. */
+                document.addEventListener('change', function (e) {
+                    const box = e.target.closest('.exp-share-pick');
+                    if (box && window.BrandAddaShare) {
+                        window.BrandAddaShare.toggle(box.value, box.checked);
+                    }
+                });
+
+                /* Clear empties the set, so any popup standing open has to stop
+                   showing a tick it no longer has. */
+                if (window.BrandAddaShare) {
+                    window.BrandAddaShare.onClear(function () {
+                        document.querySelectorAll('.exp-share-pick:checked')
+                            .forEach(function (box) { box.checked = false; });
+                    });
+                }
+
+                /* Select all: every hoarding the current filters match.
+                   markersById is rebuilt on each search and holds exactly the
+                   result set, so this shortlists what the count claims — no
+                   page of it, and nothing that has been filtered away. */
+                const selectAllBtn = document.getElementById('exploreSelectAll');
+                if (selectAllBtn) {
+                    selectAllBtn.addEventListener('click', function () {
+                        if (!window.BrandAddaShare) return;
+
+                        Object.keys(markersById).forEach(function (id) {
+                            window.BrandAddaShare.toggle(id, true);
+                        });
+
+                        // A popup left open has to agree with the set behind it.
+                        document.querySelectorAll('.exp-share-pick').forEach(function (box) {
+                            box.checked = window.BrandAddaShare.has(box.value);
+                        });
+                    });
+                }
+            @endif
 
             function highlightMarker(id) {
                 if (selectedId && markersById[selectedId]) {

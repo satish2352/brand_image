@@ -35,8 +35,8 @@
             </a>
 
             <p class="footer-copy">
-                &copy; {{ date('Y') }} <a href="https://brand-adda.co.in/" target="_blank" rel="noopener">Brand Adda
-                    Pvt. Ltd.</a> All rights reserved.
+                &copy; {{ date('Y') }} <a href="https://brand-adda.co.in/" target="_blank" rel="noopener">Brand
+                    Adda</a>. All rights reserved.
             </p>
 
         </div>

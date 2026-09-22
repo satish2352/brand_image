@@ -67,7 +67,7 @@
 </div>
 </div>
 <footer class="footer" style="display:flex; justify-content:space-between; align-items:center;">
-    <span>© {{ date('Y') }} Brand Adda Pvt. Ltd., All rights reserved.</span>
+    <span>© {{ date('Y') }} Brand Adda, All rights reserved.</span>
 
 </footer>
 </div>

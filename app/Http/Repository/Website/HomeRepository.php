@@ -209,6 +209,18 @@ class HomeRepository
         }
 
 
+        // Sector Code, matched as "contains" and case-insensitively: the code
+        // is the one thing a buyer is handed on a proposal, and a substring is
+        // what makes it useful — "BS" lists every bus shelter, "000034" finds
+        // HD000034 whichever prefix it carries.
+        //
+        // addcslashes so the LIKE wildcards are literal: a pasted % would
+        // otherwise match the entire inventory rather than nothing.
+        if (!empty($filters['hoarding_code'])) {
+            $code = addcslashes(trim((string) $filters['hoarding_code']), '%_\\');
+            $query->where('m.hoarding_code', 'like', '%' . $code . '%');
+        }
+
         if (!empty($filters['areatype_id'])) {
             $query->where('m.areatype_id', $filters['areatype_id']);
         }

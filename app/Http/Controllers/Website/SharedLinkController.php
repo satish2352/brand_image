@@ -137,6 +137,7 @@ class SharedLinkController extends Controller
                     'areatype_id',
                     'highway_id',
                     'landmark_ids',
+                    'hoarding_code',
                     'from_date',
                     'to_date',
                     'available_days',
