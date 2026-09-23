@@ -1126,6 +1126,15 @@
                 // Team only. A plain checkbox rather than the card tick used on
                 // /search: a Leaflet popup is rebuilt from this string every time
                 // it opens, so the box has to say for itself whether it is on.
+                // The same Google Maps jump the result cards offer, so a pin and
+                // a card lead to the same place. Only when the record actually
+                // has coordinates — every marker does, but the popup builder is
+                // the one place that would silently produce "?q=,".
+                let mapLink = (m.lat && m.lng)
+                    ? '<a class="popup-map-link" href="https://www.google.com/maps?q=' + m.lat + ',' + m.lng +
+                      '" target="_blank" rel="noopener">📍 View on Map</a>'
+                    : '';
+
                 let pick = '';
                 @if (site_admin())
                     pick = '<label style="display:flex;align-items:center;gap:6px;margin:6px 0 4px;' +
@@ -1141,6 +1150,7 @@
                     hw + lm +
                     '<div style="color:#F97316;font-weight:700;margin-top:2px;">₹ ' + Number(m.price)
                     .toLocaleString() + '</div>' +
+                    mapLink +
                     pick +
                     // A button rather than the small dark link it was: with the
                     // shortlist tick above it, a 12px line of text was the

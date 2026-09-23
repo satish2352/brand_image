@@ -9328,3 +9328,27 @@ body:has(.bi-contact) .bi-contact {
     color: var(--brand-white) !important;
     text-decoration: none;
 }
+
+/* =========================================================
+   Map popup — "View on Map"
+   The result cards have carried a Google Maps jump since before the popups
+   existed; the popups had only the coordinates as plain text (/search) or
+   nothing at all (the Map page). One class, used by both, so a pin and a
+   card offer the same action and look the same doing it.
+   ========================================================= */
+.popup-map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    color: var(--brand-navy);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.popup-map-link:hover,
+.popup-map-link:focus {
+    color: var(--brand-orange);
+    text-decoration: underline;
+}

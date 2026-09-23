@@ -626,6 +626,8 @@
                                     📍 ${parseFloat(m.latitude).toFixed(6)}, ${parseFloat(m.longitude).toFixed(6)}
                                 </div>
                                 <div style="font-size:13px;font-weight:700;color:#F97316;">${price}</div>
+                                <a class="popup-map-link" href="https://www.google.com/maps?q=${m.latitude},${m.longitude}"
+                                    target="_blank" rel="noopener">📍 View on Map</a>
                                 <a href="${url}" style="
                                     display:block;
                                     margin-top:auto;
