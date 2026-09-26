@@ -535,12 +535,12 @@
 
                                     <div class="news-text-box">
 
-                                        {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
+                                        {{-- <h3>{{ $media->media_title ?: $media->category_name }}</h3> --}}
                                         <h3 style="font-size: 21px;">
                                             <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
                                                 {{-- Same pairing the search result cards use: the media's own
                                                      title, falling back to its category, then the area. --}}
-                                                {{ \Illuminate\Support\Str::limit(ucfirst($media->media_title ?? $media->category_name) . ' ' . $media->area_name, 25, '...') }}
+                                                {{ \Illuminate\Support\Str::limit(ucfirst($media->media_title ?: $media->category_name) . ' ' . $media->area_name, 25, '...') }}
                                             </a>
                                         </h3>
 

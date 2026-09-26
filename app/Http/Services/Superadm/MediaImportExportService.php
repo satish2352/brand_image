@@ -1660,7 +1660,8 @@ class MediaImportExportService
                 break;
 
             case str_contains($slug, 'hoardings'):
-                $require('media_title', 'Media Title');
+                // Media Title is demanded by the mandatory-presence loop now,
+                // for every category — not repeated here.
                 $require('facing', 'Facing');
                 $require('area_type', 'Area Type');
                 $require('illumination', 'Illumination');

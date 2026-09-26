@@ -119,6 +119,43 @@
                     </div>
                 </div>
 
+                {{-- ============ MEDIA TITLE (every category) ============ --}}
+                {{-- Outside #billboardsId on purpose: the website shows
+                     "Media Title + Area" as a site's name, so every category
+                     needs one, not just Hoardings. --}}
+                {{-- Latitude / Longitude sit here rather than down with Width and
+                     Height: they follow on from State → District → City → Area,
+                     and they fill this line for every category so Media Title is
+                     never left on a line of its own. --}}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Media Title <span class="text-danger">*</span></label>
+                        <input type="text" name="media_title" value="{{ old('media_title', $media->media_title) }}"
+                            class="form-control @error('media_title') is-invalid @enderror">
+                        @error('media_title')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Latitude <span class="text-danger">*</span></label>
+                        <input type="text" name="latitude" value="{{ old('latitude', $media->latitude) }}"
+                            class="form-control @error('latitude') is-invalid @enderror">
+                        @error('latitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Longitude <span class="text-danger">*</span></label>
+                        <input type="text" name="longitude" value="{{ old('longitude', $media->longitude) }}"
+                            class="form-control @error('longitude') is-invalid @enderror">
+                        @error('longitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 {{-- ================= BILLBOARD ================= --}}
                 <div class="row" id="billboardsId">
                     <div class="col-md-4 mb-3">
@@ -140,14 +177,6 @@
                             value="{{ old('media_code', $media->media_code) }}">
                     </div>
 
-                    <div class="col-md-4 mb-3">
-                        <label>Media Title <span class="text-danger">*</span></label>
-                        <input type="text" name="media_title" value="{{ old('media_title', $media->media_title) }}"
-                            class="form-control @error('media_title') is-invalid @enderror">
-                        @error('media_title')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-4 mb-3">
                         <label>Facing <span class="text-danger">*</span></label>
                         <input type="text" name="facing" class="form-control @error('facing') is-invalid @enderror"
@@ -179,33 +208,10 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-8 mb-3">
                         <label>Address <span class="text-danger">*</span></label>
                         <textarea name="address" class="form-control @error('address') is-invalid @enderror">{{ old('address', $media->address) }}</textarea>
                         @error('address')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                {{-- Illumination is shared by more than one category (Hoardings and
-                     Bus Shelter), so it lives in its own toggleable column rather
-                     than inside a single category's section — two selects with the
-                     same name would both post and fight over the value. --}}
-                <div class="row">
-                    <div class="col-md-4 mb-3" id="illuminationField">
-                        <label>Illumination <span class="text-danger">*</span></label>
-                        <select name="illumination_id" id="illumination_id"
-                            class="form-control @error('illumination_id') is-invalid @enderror">
-                            <option value="">Select</option>
-                            @foreach ($illuminations as $ill)
-                                <option value="{{ $ill->id }}"
-                                    {{ old('illumination_id', $media->illumination_id) == $ill->id ? 'selected' : '' }}>
-                                    {{ $ill->illumination_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('illumination_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -393,7 +399,7 @@
                 <div class="row">
                     {{-- Hidden for Bus Shelter, which sizes each panel separately
                          in #busShelterSection instead of having one face. --}}
-                    <div class="col-md-3 mb-3 dimension-field">
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Width <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="width" name="width"
                             value="{{ old('width', $media->width) }}"
@@ -403,7 +409,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3 mb-3 dimension-field">
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Height <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="height" name="height"
                             value="{{ old('height', $media->height) }}"
@@ -413,20 +419,24 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <label>Latitude <span class="text-danger">*</span></label>
-                        <input type="text" name="latitude" value="{{ old('latitude', $media->latitude) }}"
-                            class="form-control @error('latitude') is-invalid @enderror">
-                        @error('latitude')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-3 mb-3">
-                        <label>Longitude <span class="text-danger">*</span></label>
-                        <input type="text" name="longitude" value="{{ old('longitude', $media->longitude) }}"
-                            class="form-control @error('longitude') is-invalid @enderror">
-                        @error('longitude')
+                    {{-- Illumination is shared by more than one category (Hoardings
+                         and Bus Shelter), so it is its own toggleable column rather
+                         than part of a single category's section — two selects with
+                         the same name would both post and fight over the value.
+                         It sits in this line so it is never left on one of its own. --}}
+                    <div class="col-md-4 mb-3" id="illuminationField">
+                        <label>Illumination <span class="text-danger">*</span></label>
+                        <select name="illumination_id" id="illumination_id"
+                            class="form-control @error('illumination_id') is-invalid @enderror">
+                            <option value="">Select</option>
+                            @foreach ($illuminations as $ill)
+                                <option value="{{ $ill->id }}"
+                                    {{ old('illumination_id', $media->illumination_id) == $ill->id ? 'selected' : '' }}>
+                                    {{ $ill->illumination_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('illumination_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -459,7 +469,7 @@
                 </div>
                 {{-- ================= WALL WRAP ================= --}}
                 <div class="row" id="wallWrap">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area (sq.ft) <span class="text-danger">*</span></label>
                         {{-- <input type="text" id="area_auto" name="area_auto"
                             value="{{ old('area_auto', $media->area_auto) }}" class="form-control" readonly> --}}
