@@ -109,10 +109,6 @@
             <h4 class="mb-4">Add Media</h4>
             <form id="mediaForm" method="POST" action="{{ route('media.store') }}" enctype="multipart/form-data">
                 @csrf
-                {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
-                <input type="hidden" name="state_id" id="state_id">
-                <input type="hidden" name="district_id" id="district_id">
-                <input type="hidden" name="city_id" id="city_id">
                 <div class="row">
                     {{-- ================= BASIC INFO ================= --}}
                     <div class="col-md-4 mb-3">
@@ -135,16 +131,6 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- ================= AREA (ONLY ONE DROPDOWN) ================= --}}
-                    <div class="col-md-4 mb-3">
-                        <label>Area <span class="">*</span></label>
-                        <select id="area" name="area_id" class="form-control @error('area_id') is-invalid @enderror">
-                            <option value="">Select Area</option>
-                        </select>
-                        @error('area_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-4 mb-3">
                         <label>Vendor <span class="text-danger">*</span></label>
                         <select name="vendor_id" id="vendor_id"
@@ -164,7 +150,13 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- ================= DIMENSIONS ================= --}}
+                    @include('superadm.mediamanagement.partials.location-fields', ['fields' => ['state_id']])
+                </div>
+
+                <div class="row">
+                    @include('superadm.mediamanagement.partials.location-fields', [
+                        'fields' => ['district_id', 'city_id', 'area_id'],
+                    ])
                 </div>
 
                 {{-- ============ HIGHWAY & LANDMARKS (Hoardings only) ============ --}}
@@ -737,12 +729,11 @@
                 width: '100%'
             });
 
-            /* Area and Vendor are long lists — every area in the state,
-               every vendor on the platform — so both get a type-ahead.
-               Select2 fires a native change, so the handlers that read
-               :selected to fill the hidden state / district / city
-               inputs keep working untouched. */
-            $('#area, #vendor_id').select2({
+            /* Location and Vendor are long lists — every area in a city,
+               every vendor on the platform — so all get a type-ahead.
+               Select2 fires a native change, so the cascade handlers in
+               partials/location-script keep working untouched. */
+            $('.location-select, #vendor_id').select2({
                 width: '100%',
                 placeholder: function () { return $(this).find('option:first').text(); },
                 // Always show the search box, however short the list is.
@@ -756,50 +747,14 @@
         });
     </script>
 
-    <script>
-        $(function() {
-
-            console.log('Loading areas...');
-
-            $.get("{{ url('get-all-areas') }}", function(areas) {
-
-                console.log('Areas response:', areas);
-
-                areas.forEach(area => {
-                    $('#area').append(`
-                <option 
-                    value="${area.id}"
-                    data-state="${area.state_id}"
-                    data-district="${area.district_id}"
-                    data-city="${area.city_id}">
-                    ${area.common_stdiciar_name}
-                </option>
-            `);
-                });
-                // 🔥 AUTO GENERATE if old values exist
-                setTimeout(function() {
-                    generateMediaCode();
-                }, 200);
-            });
-
-            $('#area').on('change', function() {
-
-                let selected = $(this).find(':selected');
-
-                $('#state_id').val(selected.data('state'));
-                $('#district_id').val(selected.data('district'));
-                $('#city_id').val(selected.data('city'));
-
-                console.log({
-                    area_id: $(this).val(),
-                    state_id: selected.data('state'),
-                    district_id: selected.data('district'),
-                    city_id: selected.data('city')
-                });
-            });
-
-        });
-    </script>
+    @include('superadm.mediamanagement.partials.location-script', [
+        'selected' => [
+            'state'    => old('state_id'),
+            'district' => old('district_id'),
+            'city'     => old('city_id'),
+            'area'     => old('area_id'),
+        ],
+    ])
     <script>
         $(document).ready(function() {
 
@@ -976,17 +931,8 @@
             // when vendor changes
             $('#vendor_id').on('change', generateMediaCode);
 
-            // when area changes (state/city update)
-            $('#area').on('change', function() {
-
-                let selected = $(this).find(':selected');
-
-                $('#state_id').val(selected.data('state'));
-                $('#district_id').val(selected.data('district'));
-                $('#city_id').val(selected.data('city'));
-
-                generateMediaCode(); // ⭐ CALL HERE
-            });
+            // when state / city changes (fired by partials/location-script)
+            $(document).on('media:location-changed', generateMediaCode);
 
         });
     </script>
@@ -1012,6 +958,15 @@
                     $(element).removeClass("error is-invalid");
                 },
                 rules: {
+                    state_id: {
+                        required: true
+                    },
+                    district_id: {
+                        required: true
+                    },
+                    city_id: {
+                        required: true
+                    },
                     area_id: {
                         required: true
                     },
@@ -1148,6 +1103,9 @@
                     }
                 },
                 messages: {
+                    state_id: "Please select a state",
+                    district_id: "Please select a district",
+                    city_id: "Please select a city",
                     area_id: "Please select an area",
                     category_id: "Please select a category",
                     vendor_id: "Please select a vendor",

@@ -37,11 +37,6 @@
 
                 <input type="hidden" id="category_slug" value="{{ $slug }}">
 
-                {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
-                <input type="hidden" name="state_id" id="state_id" value="{{ $media->state_id }}">
-                <input type="hidden" name="city_id" id="city_id" value="{{ $media->city_id }}">
-                {{-- <input type="hidden" name="city_id" value="{{ $media->city_id }}"> --}}
-
                 {{-- category disabled → keep value --}}
                 <input type="hidden" name="category_id" value="{{ $media->category_id }}">
 
@@ -58,23 +53,6 @@
                                 </option>
                             @endforeach
                         </select>
-                    </div>
-                    {{-- AREA --}}
-                    <div class="col-md-4 mb-3">
-                        <label>Area <span class="text-danger">*</span></label>
-                        {{-- <select name="area_id" class="form-control @error('area_id') is-invalid @enderror"> --}}
-
-                        <select name="area_id" id="area_id" class="form-control @error('area_id') is-invalid @enderror">
-                            @foreach ($areas as $area)
-                                <option value="{{ $area->id }}"
-                                    {{ old('area_id', $media->area_id) == $area->id ? 'selected' : '' }}>
-                                    {{ $area->common_stdiciar_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('area_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
                     <div class="col-md-4 mb-3">
                         <label>Vendor <span class="text-danger">*</span></label>
@@ -95,6 +73,13 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    @include('superadm.mediamanagement.partials.location-fields', ['fields' => ['state_id']])
+                </div>
+
+                <div class="row">
+                    @include('superadm.mediamanagement.partials.location-fields', [
+                        'fields' => ['district_id', 'city_id', 'area_id'],
+                    ])
                 </div>
 
                 {{-- ========== HOARDING CODE / HIGHWAY / LANDMARKS (Hoardings only) ========== --}}
@@ -641,12 +626,12 @@
                 width: '100%'
             });
 
-            /* Area and Vendor are long lists — every area in the state,
-               every vendor on the platform — so both get a type-ahead.
-               Select2 fires a native change, so the handlers that read
-               :selected keep working untouched. The Add form does the
-               same; the shared look lives in satish.css. */
-            $('#area_id, #vendor_id').select2({
+            /* Location and Vendor are long lists — every area in a city,
+               every vendor on the platform — so all get a type-ahead.
+               Select2 fires a native change, so the cascade handlers in
+               partials/location-script keep working untouched. The Add
+               form does the same; the shared look lives in satish.css. */
+            $('.location-select, #vendor_id').select2({
                 width: '100%',
                 placeholder: function () { return $(this).find('option:first').text(); },
                 // Always show the search box, however short the list is.
@@ -658,6 +643,15 @@
             });
         });
     </script>
+
+    @include('superadm.mediamanagement.partials.location-script', [
+        'selected' => [
+            'state'    => old('state_id', $media->state_id),
+            'district' => old('district_id', $media->district_id),
+            'city'     => old('city_id', $media->city_id),
+            'area'     => old('area_id', $media->area_id),
+        ],
+    ])
 
     <script>
         $(document).ready(function() {
@@ -854,7 +848,9 @@
                 return;
             }
 
-            // DIFFERENT vendor → generate NEW code
+            // DIFFERENT vendor → generate NEW code (needs a state + city)
+            if (!$('#state_id').val() || !$('#city_id').val()) return;
+
             $.get("{{ route('media.next.code') }}", {
                 vendor_id: selectedVendorId,
                 state_id: $('#state_id').val(),
@@ -869,28 +865,9 @@
 
 
 
-        $('#area_id').on('change', function() {
-
-            let areaId = $(this).val();
-
-            if (!areaId) return;
-
-            // get parent location (state/city)
-            $.get("{{ url('get-area-parents') }}/" + areaId, function(res) {
-
-                // update hidden fields
-                $('#state_id').val(res.state_id);
-                $('#city_id').val(res.city_id);
-
-                // regenerate media code
-                generateEditMediaCode();
-
-            });
-
-        });
-
-        // RUN ON PAGE LOAD (VERY IMPORTANT)
-        generateEditMediaCode();
+        // state / city change - also fired once the saved location has loaded,
+        // which covers the page-load run (see partials/location-script)
+        $(document).on('media:location-changed', generateEditMediaCode);
 
         // vendor change
         $('#vendor_id').on('change', generateEditMediaCode);

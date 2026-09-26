@@ -9,6 +9,7 @@ use App\Http\Services\Superadm\MediaManagementService;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use App\Models\{
     Category,
     FacingDirection,
@@ -119,8 +120,7 @@ class MediaManagementController extends Controller
 
         $panelSized = $this->isPanelSized($slug);
 
-        $rules = [
-            'area_id'     => 'required|integer',
+        $rules = self::locationRules($request) + [
             'category_id' => 'required|integer',
 
             // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
@@ -229,7 +229,7 @@ class MediaManagementController extends Controller
             'panorama_image.max'   => 'Image must not exceed 5MB.',
             'panorama_image.image' => 'File must be an image.',
         ];
-        $request->validate($rules, $messages + self::busShelterMessages());
+        $request->validate($rules, $messages + self::locationMessages() + self::busShelterMessages());
 
         try {
             $this->mediaService->store($request, $slug);
@@ -259,11 +259,6 @@ class MediaManagementController extends Controller
             // $radius = RadiusMaster::where('is_active', 1)
             //     ->where('is_deleted', 0)
             //     ->get();
-            $areas = DB::table('areas')
-                ->where('is_active', 1)
-                ->where('is_deleted', 0)
-                ->get();
-
             $vendors = Vendor::where('is_active', 1)
                 ->where('is_deleted', 0)
                 ->orderBy('vendor_name')
@@ -302,7 +297,6 @@ class MediaManagementController extends Controller
                 'facings',
                 'illuminations',
                 'encodedId',
-                'areas',
                 // 'radius',
                 'vendors',
                 'areatype',
@@ -323,8 +317,7 @@ class MediaManagementController extends Controller
 
         $panelSized = $this->isPanelSized($slug);
 
-        $rules = [
-            'area_id'     => 'required|integer',
+        $rules = self::locationRules($request) + [
             'category_id' => 'required|integer',
 
             // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
@@ -406,7 +399,7 @@ class MediaManagementController extends Controller
                 ];
                 break;
         }
-        $request->validate($rules, $messages + self::busShelterMessages());
+        $request->validate($rules, $messages + self::locationMessages() + self::busShelterMessages());
         try {
             $this->mediaService->update($id, $request, $slug);
 
@@ -429,6 +422,36 @@ class MediaManagementController extends Controller
     private function isPanelSized(string $slug): bool
     {
         return str_contains($slug, 'bus-shelter');
+    }
+
+    /**
+     * State -> District -> City -> Area, each checked against its parent so a
+     * tampered or stale post cannot save an area under the wrong city.
+     */
+    private static function locationRules(Request $request): array
+    {
+        return [
+            'state_id'    => 'required|integer|exists:states,id',
+            'district_id' => ['required', 'integer',
+                Rule::exists('districts', 'id')->where('state_id', (int) $request->state_id)],
+            'city_id'     => ['required', 'integer',
+                Rule::exists('cities', 'id')->where('district_id', (int) $request->district_id)],
+            'area_id'     => ['required', 'integer',
+                Rule::exists('areas', 'id')->where('city_id', (int) $request->city_id)],
+        ];
+    }
+
+    private static function locationMessages(): array
+    {
+        return [
+            'state_id.required'    => 'Please select a state.',
+            'district_id.required' => 'Please select a district.',
+            'district_id.exists'   => 'Selected district does not belong to the selected state.',
+            'city_id.required'     => 'Please select a city.',
+            'city_id.exists'       => 'Selected city does not belong to the selected district.',
+            'area_id.required'     => 'Please select an area.',
+            'area_id.exists'       => 'Selected area does not belong to the selected city.',
+        ];
     }
 
     /**
