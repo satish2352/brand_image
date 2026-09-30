@@ -124,6 +124,10 @@ class MediaManagementController extends Controller
         $rules = self::locationRules($request) + [
             'category_id' => 'required|integer',
 
+            // Every category carries a title — the website names a site
+            // "Media Title + Area", so it is no longer Hoardings-only.
+            'media_title' => 'required|string|max:255',
+
             // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
             // has no single Width x Height to demand - location_sizes carries it.
             'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
@@ -157,7 +161,6 @@ class MediaManagementController extends Controller
             case str_contains($slug, 'hoardings'):
                 $rules += [
                     // 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
-                    'media_title' => 'required|string|max:255',
                     // 'facing_id' => 'required',
                     'facing' => 'required',
                     'illumination_id' => 'required',
@@ -321,6 +324,10 @@ class MediaManagementController extends Controller
         $rules = self::locationRules($request) + [
             'category_id' => 'required|integer',
 
+            // Every category carries a title — the website names a site
+            // "Media Title + Area", so it is no longer Hoardings-only.
+            'media_title' => 'required|string|max:255',
+
             // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
             // has no single Width x Height to demand - location_sizes carries it.
             'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
@@ -355,7 +362,6 @@ class MediaManagementController extends Controller
             case str_contains($slug, 'hoardings'):
                 $rules += [
                     // 'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
-                    'media_title' => 'required|string|max:255',
                     // 'facing_id' => 'required',
                     'facing' => 'required',
                     'illumination_id' => 'required',

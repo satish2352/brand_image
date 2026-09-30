@@ -194,6 +194,43 @@
                     </div>
                 </div>
 
+                {{-- ============ MEDIA TITLE (every category) ============ --}}
+                {{-- Outside #billboardsId on purpose: the website shows
+                     "Media Title + Area" as a site's name, so every category
+                     needs one, not just Hoardings. --}}
+                {{-- Latitude / Longitude sit here rather than down with Width and
+                     Height: they follow on from State → District → City → Area,
+                     and they fill this line for every category so Media Title is
+                     never left on a line of its own. --}}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Media Title <span class="text-danger">*</span></label>
+                        <input type="text" name="media_title" value="{{ old('media_title') }}"
+                            class="form-control @error('media_title') is-invalid @enderror">
+                        @error('media_title')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Latitude <span class="text-danger">*</span></label>
+                        <input type="text" name="latitude" value="{{ old('latitude') }}"
+                            class="form-control @error('latitude') is-invalid @enderror">
+                        @error('latitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Longitude <span class="text-danger">*</span></label>
+                        <input type="text" name="longitude" value="{{ old('longitude') }}"
+                            class="form-control @error('longitude') is-invalid @enderror">
+                        @error('longitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="row" id="billboardsId">
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
@@ -204,14 +241,6 @@
                         <input type="hidden" name="media_code" id="media_code_hidden">
                     </div>
 
-                    <div class="col-md-4 mb-3">
-                        <label>Media Title <span class="text-danger">*</span></label>
-                        <input type="text" name="media_title" value="{{ old('media_title') }}"
-                            class="form-control @error('media_title') is-invalid @enderror">
-                        @error('media_title')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-4 mb-3">
                         <label>Facing <span class="text-danger">*</span></label>
                         <input type="text" name="facing" class="form-control @error('facing') is-invalid @enderror"
@@ -225,7 +254,7 @@
 
 
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area Type <span class="text-danger">*</span></label>
                         <select name="areatype_id" class="form-control @error('areatype_id') is-invalid @enderror">
                             <option value="">Select</option>
@@ -241,33 +270,10 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-12 mb-3">
                         <label>Address <span class="text-danger">*</span></label>
                         <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="2">{{ old('address') }}</textarea>
                         @error('address')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                {{-- Illumination is shared by more than one category (Hoardings and
-                     Bus Shelter), so it lives in its own toggleable column rather
-                     than inside a single category's section — two selects with the
-                     same name would both post and fight over the value. --}}
-                <div class="row">
-                    <div class="col-md-3 mb-3" id="illuminationField">
-                        <label>Illumination <span class="text-danger">*</span></label>
-                        <select name="illumination_id" id="illumination_id"
-                            class="form-control @error('illumination_id') is-invalid @enderror">
-                            <option value="">Select</option>
-                            @foreach ($illuminations as $ill)
-                                <option value="{{ $ill->id }}"
-                                    {{ old('illumination_id') == $ill->id ? 'selected' : '' }}>
-                                    {{ $ill->illumination_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('illumination_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -350,7 +356,7 @@
                 </div>
                 <div class="row" id="airportBranding">
                     {{-- Airport Name --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Airport Name <span class="text-danger">*</span></label>
                         <input type="text" name="airport_name" value="{{ old('airport_name') }}"
                             class="form-control @error('airport_name') is-invalid @enderror">
@@ -360,7 +366,7 @@
                     </div>
 
                     {{-- Zone Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Zone <span class="text-danger">*</span></label>
                         <select name="zone_type" class="form-control @error('zone_type') is-invalid @enderror">
                             <option value="">Select Zone</option>
@@ -374,7 +380,7 @@
                     </div>
 
                     {{-- Media Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Media Type <span class="text-danger">*</span></label>
                         <select name="media_type" class="form-control @error('media_type') is-invalid @enderror">
                             <option value="">Select Media Type</option>
@@ -391,7 +397,7 @@
                 </div>
                 <div class="row" id="transmitMedia">
                     {{-- Transit Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Transit Type <span class="text-danger">*</span></label>
                         <select name="transit_type" class="form-control @error('transit_type') is-invalid @enderror">
                             <option value="">Select Transit Type</option>
@@ -406,7 +412,7 @@
                     </div>
 
                     {{-- Branding Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Branding Type <span class="text-danger">*</span></label>
                         <select name="branding_type" class="form-control @error('branding_type') is-invalid @enderror">
                             <option value="">Select Branding Type</option>
@@ -423,7 +429,7 @@
                     </div>
 
                     {{-- Vehicle Count --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Vehicle Count <span class="text-danger">*</span></label>
                         <input type="number" name="vehicle_count" min="1" value="{{ old('vehicle_count') }}"
                             class="form-control @error('vehicle_count') is-invalid @enderror">
@@ -434,7 +440,7 @@
                 </div>
                 <div class="row" id="officeBranding">
                     {{-- Building Name --}}
-                    <div class="col-md-6 mb-6">
+                    <div class="col-md-6 mb-3">
                         <label>Building Name <span class="text-danger">*</span></label>
                         <input type="text" name="building_name" value="{{ old('building_name') }}"
                             class="form-control @error('building_name') is-invalid @enderror">
@@ -444,7 +450,7 @@
                     </div>
 
                     {{-- Branding Type --}}
-                    <div class="col-md-6 mb-6">
+                    <div class="col-md-6 mb-3">
                         <label>Branding Type <span class="text-danger">*</span></label>
                         <select name="wall_length" class="form-control @error('wall_length') is-invalid @enderror">
                             <option value="">Select Branding Type</option>
@@ -463,7 +469,7 @@
                 <div class="row">
                     {{-- Hidden for Bus Shelter, which sizes each panel separately
                          in #busShelterSection instead of having one face. --}}
-                    <div class="col-md-3 mb-3 dimension-field">
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Width (ft) <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="width" id="width" value="{{ old('width') }}"
                             class="form-control @error('width') is-invalid @enderror">
@@ -471,7 +477,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-3 mb-3 dimension-field">
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Height (ft) <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="height" id="height" value="{{ old('height') }}"
                             class="form-control @error('height') is-invalid @enderror">
@@ -479,23 +485,28 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- ================= GEO ================= --}}
-                    <div class="col-md-3 mb-3">
-                        <label>Latitude <span class="text-danger">*</span></label>
-                        <input type="text" name="latitude" value="{{ old('latitude') }}"
-                            class="form-control @error('latitude') is-invalid @enderror">
-                        @error('latitude')
+                    {{-- Illumination is shared by more than one category (Hoardings
+                         and Bus Shelter), so it is its own toggleable column rather
+                         than part of a single category's section — two selects with
+                         the same name would both post and fight over the value.
+                         It sits in this line so it is never left on one of its own. --}}
+                    <div class="col-md-4 mb-3" id="illuminationField">
+                        <label>Illumination <span class="text-danger">*</span></label>
+                        <select name="illumination_id" id="illumination_id"
+                            class="form-control @error('illumination_id') is-invalid @enderror">
+                            <option value="">Select</option>
+                            @foreach ($illuminations as $ill)
+                                <option value="{{ $ill->id }}"
+                                    {{ old('illumination_id') == $ill->id ? 'selected' : '' }}>
+                                    {{ $ill->illumination_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('illumination_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label>Longitude <span class="text-danger">*</span></label>
-                        <input type="text" name="longitude" value="{{ old('longitude') }}"
-                            class="form-control @error('longitude') is-invalid @enderror">
-                        @error('longitude')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+
                     <div class="col-md-4 mb-3">
                         <label>Monthly Price <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="price" value="{{ old('price') }}"
@@ -504,7 +515,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Images <small>(image size must be less then 600kb)</small><span
                                 class="text-danger">*</span></label>
 
@@ -558,7 +569,7 @@
 
                 </div>
                 <div class="row" id="wallWrapSection">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area (sq.ft)</label>
                         <input type="text" name="area_auto" id="area_auto" value="{{ old('area_auto') }}"
                             class="form-control @error('area_auto') is-invalid @enderror" readonly>
@@ -1015,12 +1026,12 @@
                         filesize: 5 * 1024 * 1024, // 5MB
                         minfilesize: 1024 // 1KB
                     },
-                    // HOARDINGS
+                    // Every category carries a title — it is the site's name on
+                    // the website, so it is not tied to the Hoardings section.
                     media_title: {
-                        required: function() {
-                            return $('#billboardsId').is(':visible');
-                        }
+                        required: true
                     },
+                    // HOARDINGS
                     facing: {
                         required: function() {
                             return $('#billboardsId').is(':visible');

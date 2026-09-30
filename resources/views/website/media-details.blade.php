@@ -1,6 +1,8 @@
 @extends('website.layout')
 
-@section('title', $media->media_title ?: $media->category_name)
+{{-- Same pairing the heading and the result cards use: the media's own title,
+     then the area — never the bare category name. --}}
+@section('title', trim(($media->media_title ?: $media->category_name) . ' ' . ($media->area_name ?? '')))
 
 @section('content')
 

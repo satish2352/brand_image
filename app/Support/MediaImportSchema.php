@@ -24,14 +24,14 @@ class MediaImportSchema
         [
             'key' => 'media_title',
             'label' => 'Media Title',
-            // Only the Hoardings form collects a title; other categories leave it
-            // blank, so it is required per-category (see categoryRules) not globally.
-            'required' => false,
+            // Every category collects a title now — the website names a site
+            // "Media Title + Area" rather than falling back to the category
+            // name — so it is on every template and required everywhere.
+            'required' => true,
             'type' => 'text',
             'aliases' => ['title', 'sitename', 'sitetitle', 'mediename'],
             'help' => 'Display name of the site, e.g. "Mumbai Naka Unipole".',
             'samples' => ['Mumbai Naka Unipole', 'Airport Road Billboard'],
-            'categories' => ['hoardings'],
         ],
         [
             'key' => 'category',
