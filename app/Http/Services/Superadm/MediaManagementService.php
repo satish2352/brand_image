@@ -261,6 +261,10 @@ class MediaManagementService
     {
         $this->repo->toggleStatus($id);
     }
+    public function setAvailability(array $ids, bool $isAvailable)
+    {
+        return $this->repo->setAvailability($ids, $isAvailable ? 1 : 0);
+    }
     public function delete($id)
     {
         DB::beginTransaction();

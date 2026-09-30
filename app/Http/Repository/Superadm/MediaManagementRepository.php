@@ -26,6 +26,7 @@ class MediaManagementRepository
                 'm.media_title',
                 'm.price',
                 'm.is_active',
+                'm.is_available',
                 'v.vendor_name',
                 'c.category_name',
                 's.state_name',
@@ -90,6 +91,15 @@ class MediaManagementRepository
     {
         $media = $this->find($id);
         $media->update(['is_active' => !$media->is_active]);
+    }
+    /**
+     * Flags a set of hoardings as bookable (1) or Not Available (0).
+     */
+    public function setAvailability(array $ids, int $isAvailable)
+    {
+        return MediaManagement::whereIn('id', $ids)
+            ->where('is_deleted', 0)
+            ->update(['is_available' => $isAvailable]);
     }
     public function softDelete($id)
     {

@@ -1,6 +1,23 @@
 @extends('superadm.layout.master')
 
 @section('content')
+    <style>
+        /* The admin theme (asset/css/style.css) pushes every checkbox off-screen
+           and draws a fake one on the label after it. These bulk-select boxes
+           have no label, so bring the native checkbox back. */
+        input.media-check[type="checkbox"],
+        input.media-check[type="checkbox"]:checked,
+        input.media-check[type="checkbox"]:not(:checked) {
+            position: static;
+            left: auto;
+            opacity: 1;
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+            accent-color: #008a93;
+            vertical-align: middle;
+        }
+    </style>
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -168,12 +185,26 @@
                                 </a>
                             </div>
                         </div>
+                        {{-- BULK AVAILABILITY: tick rows, then flag them. A Not Available
+                             hoarding stays on the website but cannot be booked. --}}
+                        <div class="d-flex align-items-center mb-2">
+                            <button type="button" class="btn btn-danger btn-sm m-1 bulk-availability"
+                                data-available="0" disabled>
+                                <i class="fa fa-ban"></i> Not Available
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm m-1 bulk-availability"
+                                data-available="1" disabled>
+                                <i class="fa fa-check"></i> Available
+                            </button>
+                            <small class="text-muted ms-2" id="selectedCount"></small>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped">
 
                                 {{-- <table class="table table-bordered table-striped datatables"> --}}
                                 <thead class="table-light">
                                     <tr>
+                                        <th><input type="checkbox" class="media-check" id="selectAllMedia" title="Select all"></th>
                                         <th>Sr.No</th>
                                         {{-- Not "Hoarding Code": the column carries every
                                              scheme, HD for hoardings and BS for bus
@@ -198,10 +229,19 @@
                                 <tbody>
                                     @forelse ($mediaList as $key => $media)
                                         <tr>
+                                            <td>
+                                                <input type="checkbox" class="media-check media-select"
+                                                    value="{{ base64_encode($media->id) }}">
+                                            </td>
                                             {{-- <td>{{ $key + 1 }}</td> --}}
                                             <td>{{ $mediaList->firstItem() + $key }}</td>
                                             <td><span class="badge bg-success text-white">{{ $media->hoarding_code ?? '-' }}</span></td>
-                                            <td>{{ $media->media_title ?? '-' }}</td>
+                                            <td>
+                                                {{ $media->media_title ?? '-' }}
+                                                @if (isset($media->is_available) && !$media->is_available)
+                                                    <br><span class="badge bg-danger text-white">Not Available</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $media->category_name ?? '-' }}</td>
                                             <td>{{ $media->state_name ?? '-' }}</td>
                                             <td>{{ $media->district_name ?? '-' }}</td>
@@ -252,7 +292,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="13" class="text-center">
+                                            <td colspan="14" class="text-center">
                                                 No media found
                                             </td>
                                         </tr>
@@ -350,6 +390,63 @@
                         toastr.success(response.message);
                     }).fail(function() {
                         toastr.error('Failed to update status');
+                    });
+
+                });
+
+
+                // ================= BULK AVAILABILITY =================
+                function refreshSelection() {
+                    let count = $('.media-select:checked').length;
+                    $('.bulk-availability').prop('disabled', count === 0);
+                    $('#selectedCount').text(count ? count + ' selected' : '');
+                    $('#selectAllMedia').prop('checked', count > 0 && count === $('.media-select').length);
+                }
+
+                $(document).on('change', '#selectAllMedia', function() {
+                    $('.media-select').prop('checked', this.checked);
+                    refreshSelection();
+                });
+
+                $(document).on('change', '.media-select', refreshSelection);
+
+                $(document).on('click', '.bulk-availability', function() {
+
+                    let ids = $('.media-select:checked').map(function() {
+                        return this.value;
+                    }).get();
+                    if (!ids.length) return;
+
+                    let available = $(this).data('available');
+                    let label = available == 1 ? 'Available' : 'Not Available';
+
+                    Swal.fire({
+                        title: 'Mark as ' + label + '?',
+                        text: available == 1 ?
+                            ids.length + ' media will be bookable on the website again.' :
+                            ids.length + ' media will show as Not Available on the website and cannot be booked.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: available == 1 ? '#198754' : '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, mark ' + label
+                    }).then((result) => {
+
+                        if (!result.isConfirmed) return;
+
+                        $.post("{{ route('media.availability') }}", {
+                            _token: "{{ csrf_token() }}",
+                            ids: ids,
+                            is_available: available
+                        }, function(response) {
+                            toastr.success(response.message);
+                            setTimeout(function() {
+                                location.reload();
+                            }, 700);
+                        }).fail(function(xhr) {
+                            toastr.error(xhr.responseJSON?.message || 'Failed to update availability');
+                        });
+
                     });
 
                 });

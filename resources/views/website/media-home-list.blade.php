@@ -2,6 +2,8 @@
     @php
         $isBillboard = (int) $media->category_id === 1;
         $isBooked = (int) ($media->is_booked ?? 0);
+        // Flagged "Not Available" by the admin: shown, but never bookable.
+        $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
         $width = (float) ($media->width ?? 0);
         $height = (float) ($media->height ?? 0);
 
@@ -172,7 +174,9 @@
                 <div class="latest-news-bg">
                     <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" class="media-img">
 
-                    @if ($isBillboard)
+                    @if ($isNotAvailable)
+                        <span class="media-badge not-available">Not Available</span>
+                    @elseif ($isBillboard)
                         @if ($isBooked === 1)
                             <span class="media-badge booked">Booked</span>
                         @else
@@ -229,7 +233,7 @@
                     @endphp
                     <div class="card-actions">
                         @if ($isBillboard)
-                            @if ($isBooked === 0)
+                            @if ($isBooked === 0 && !$isNotAvailable)
                                 <a href="{{ route('website.media-details', base64_encode($media->id)) }}#media-details"
                                     class="card-btn read">
                                     Read More →

@@ -124,6 +124,7 @@ class HomeController extends Controller
                 'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
                 'm.panorama_image',
+                'm.is_available',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
                 DB::raw("CASE
                     WHEN EXISTS (

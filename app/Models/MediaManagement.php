@@ -49,6 +49,7 @@ class MediaManagement extends Model
         // 'video_link',
         'panorama_image',
         'is_active',
+        'is_available',
         'is_deleted',
     ];
 

@@ -621,6 +621,16 @@
                                     align-self:flex-start;
                                     letter-spacing:.3px;
                                 ">${m.hoarding_code}</div>` : ''}
+                                ${m.is_available == 0 ? `<div style="
+                                    font-size:10px;
+                                    font-weight:700;
+                                    color:#FFFFFF;
+                                    background:#DC2626;
+                                    border-radius:4px;
+                                    padding:1px 6px;
+                                    align-self:flex-start;
+                                    text-transform:uppercase;
+                                ">Not Available</div>` : ''}
                                 <div style="font-size:11px;color:#0F172A;">${sqft} sqft</div>
                                 <div style="font-size:10px;color:#0F172A;display:flex;align-items:center;gap:3px;">
                                     📍 ${parseFloat(m.latitude).toFixed(6)}, ${parseFloat(m.longitude).toFixed(6)}

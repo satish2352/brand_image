@@ -3319,6 +3319,13 @@ table.order-details tbody td {
   /* green */
 }
 
+/* NOT AVAILABLE — flagged from the admin Media List; longer text, so smaller */
+.media-badge.not-available {
+  background: #DC2626;
+  font-size: 9.5px;
+  letter-spacing: 0;
+}
+
 
 /* Hording billboard next pre btn css */
 

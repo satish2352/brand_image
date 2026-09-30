@@ -514,6 +514,8 @@
                                     @php
                                         $isBillboard = (int) $media->category_id === 1;
                                         $isBooked = (int) ($media->is_booked ?? 0);
+                                        // Flagged "Not Available" by the admin: shown, but never bookable.
+                                        $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
                                         $width = (float) ($media->width ?? 0);
                                         $height = (float) ($media->height ?? 0);
                                         $sqft = $width * $height;
@@ -525,7 +527,11 @@
                                             alt="{{ $media->area_name ?? $media->category_name }}"
                                             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
 
-                                        @if ($isBooked === 1)
+                                        @if ($isNotAvailable)
+
+                                            <span class="media-badge not-available">Not Available</span>
+
+                                        @elseif ($isBooked === 1)
                                             <span class="media-badge booked">Booked</span>
                                         @else
                                             <span class="media-badge available">Available</span>
@@ -592,13 +598,15 @@
                                         @php
                                             $isBillboard = (int) $media->category_id === 1;
                                             $isBooked = (int) ($media->is_booked ?? 0);
+                                            // Flagged "Not Available" by the admin: shown, but never bookable.
+                                            $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
                                         @endphp
 
                                         <div class="card-actions">
 
                                             {{-- ================= BILLBOARDS ================= --}}
                                             @if ($isBillboard)
-                                                @if ($isBooked === 0)
+                                                @if ($isBooked === 0 && !$isNotAvailable)
                                                     {{-- READ MORE --}}
                                                     <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
                                                         class="card-btn read">
@@ -741,13 +749,15 @@
                                 @php
                                     $isBillboard = (int) $media->category_id === 1;
                                     $isBooked = (int) ($media->is_booked ?? 0);
+                                    // Flagged "Not Available" by the admin: shown, but never bookable.
+                                    $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
                                 @endphp
 
                                 <div class="card-actions">
 
                                     {{-- ================= BILLBOARDS ================= --}}
                                     @if ($isBillboard)
-                                        @if ($isBooked === 0)
+                                        @if ($isBooked === 0 && !$isNotAvailable)
                                             {{-- READ MORE --}}
                                             <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
                                                 class="card-btn read">

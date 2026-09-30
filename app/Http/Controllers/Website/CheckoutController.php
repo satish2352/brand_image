@@ -91,6 +91,16 @@ class CheckoutController extends Controller
             }
         }
 
+        // Media flagged Not Available after it went into the cart.
+        $notAvailable = DB::table('media_management')
+            ->whereIn('id', $items->pluck('media_id'))
+            ->where('is_available', 0)
+            ->exists();
+
+        if ($notAvailable) {
+            return back()->with('error', 'Some media in your cart is not available for booking. Please remove it.');
+        }
+
         foreach ($items as $item) {
 
             // 1) Check campaign bookings

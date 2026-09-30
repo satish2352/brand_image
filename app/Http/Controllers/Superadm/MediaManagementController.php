@@ -528,6 +528,42 @@ class MediaManagementController extends Controller
             ], 500);
         }
     }
+    /**
+     * Bulk "Not Available" / "Available" from the Media List checkboxes.
+     * ids arrive base64 encoded, the same as every other action on that page.
+     */
+    public function updateAvailability(Request $request)
+    {
+        $request->validate([
+            'ids'          => 'required|array|min:1',
+            'is_available' => 'required|in:0,1',
+        ]);
+
+        try {
+            $ids = collect($request->ids)
+                ->map(fn ($id) => base64_decode($id))
+                ->filter(fn ($id) => is_numeric($id))
+                ->map(fn ($id) => (int) $id)
+                ->values()
+                ->all();
+
+            if (empty($ids)) {
+                return response()->json(['status' => false, 'message' => 'Please select media'], 422);
+            }
+
+            $count = $this->mediaService->setAvailability($ids, (bool) $request->is_available);
+
+            return response()->json([
+                'status'  => true,
+                'message' => $count . ' media marked as ' . ($request->is_available ? 'Available' : 'Not Available'),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Availability update failed'
+            ], 500);
+        }
+    }
     public function delete(Request $request)
     {
         try {

@@ -119,6 +119,7 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('update/{encodedId}', [MediaManagementController::class, 'update'])->name('media.update');
         Route::post('delete', [MediaManagementController::class, 'delete'])->name('media.delete');
         Route::post('status', [MediaManagementController::class, 'updateStatus'])->name('media.status');
+        Route::post('availability', [MediaManagementController::class, 'updateAvailability'])->name('media.availability');
         Route::get('view/{encodedId}', [MediaManagementController::class, 'view'])->name('media.view');
         Route::post('image/delete', [MediaManagementController::class, 'deleteImage'])->name('media.image.delete');
         Route::post('image/upload', [MediaManagementController::class, 'uploadImage'])->name('media.image.upload');

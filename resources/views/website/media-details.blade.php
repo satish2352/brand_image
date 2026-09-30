@@ -534,7 +534,13 @@
 
 
 
-                            @if ((int) $media->category_id === 1)
+                            @if (isset($media->is_available) && (int) $media->is_available === 0)
+                                {{-- Flagged Not Available from the admin Media List: no calendar, no booking. --}}
+                                <div class="alert alert-danger mb-0 mt-2">
+                                    <i class="fas fa-ban"></i>
+                                    <strong>Not Available</strong> — this media cannot be booked at the moment.
+                                </div>
+                            @elseif ((int) $media->category_id === 1)
                                 {{-- CALENDAR --}}
                                 <h6 class="fw-bold mt-1">Select Booking Dates</h6>
 
@@ -620,6 +626,9 @@
                 let bookedRanges = @json($bookedRanges ?? []);
 
                 const form = document.getElementById('addToCartForm');
+
+                // No booking form: non-billboard media, or flagged Not Available.
+                if (!form) return;
 
                 const fromInput = document.getElementById('from_date');
                 const toInput = document.getElementById('to_date');
