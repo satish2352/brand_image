@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Services\Insights\GeoapifyPlacesService;
 use App\Http\Services\Insights\MediaInsightsService;
 use App\Http\Services\Insights\SerpApiService;
+use App\Http\Services\Insights\TomTomPlacesService;
 use App\Models\ApiUsageLog;
 use Illuminate\Support\Facades\DB;
 
@@ -18,12 +19,13 @@ class InsightsUsageController extends Controller
 {
     public function __construct(private MediaInsightsService $insights) {}
 
-    public function index(GeoapifyPlacesService $geoapify, SerpApiService $serpApi)
+    public function index(GeoapifyPlacesService $geoapify, SerpApiService $serpApi, TomTomPlacesService $tomTom)
     {
         $active = $this->insights->provider()->name();
 
         $providers = [
             'geoapify' => $this->insights->quota($geoapify),
+            'tomtom'   => $this->insights->quota($tomTom),
             'serpapi'  => $this->insights->quota($serpApi) + ['account' => $serpApi->accountUsage()],
         ];
 

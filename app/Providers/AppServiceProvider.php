@@ -29,8 +29,12 @@ class AppServiceProvider extends ServiceProvider
         // Media Location Insights: queued jobs (EnrichMediaInsightsJob) share one
         // request rate to the places provider. Geoapify's free plan allows 5
         // requests/second; the default of 4 leaves room for admin refreshes.
+        // Held to the request rate of whichever provider is active.
         RateLimiter::for('places-api', fn() => Limit::perSecond(
-            max(1, (int) config('services.geoapify.requests_per_second', 4))
+            max(1, (int) config(
+                'services.' . (config('services.insights.places_provider') === 'tomtom' ? 'tomtom' : 'geoapify') . '.requests_per_second',
+                4
+            ))
         ));
 
         /* ========================================

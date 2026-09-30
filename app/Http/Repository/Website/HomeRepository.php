@@ -10,6 +10,9 @@ use App\Support\RadiusRange;
 
 class HomeRepository
 {
+    /* Distances (metres) the Nearby Landmark filter offers. */
+    public const NEARBY_DISTANCES = [500, 1000, 2000, 3000, 5000];
+
     public function searchMedia(array $filters)
     {
         return $this->buildSearchQuery($filters)
@@ -260,6 +263,28 @@ class HomeRepository
                         ->whereIn('ml.landmark_id', $landmarkIds);
                 });
             }
+        }
+
+        /* NEARBY LANDMARK FILTER
+           Hoardings within nearby_distance metres of a place picked from the
+           nearby-places data. Straight-line distance on our own coordinates,
+           so any distance works without another API request. The town filter
+           above still applies. */
+        if (!empty($filters['nearby_place'])
+            && preg_match('/^(-?\d{1,3}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)$/', trim($filters['nearby_place']), $pt)) {
+
+            $placeLat = (float) $pt[1];
+            $placeLng = (float) $pt[2];
+            $meters   = in_array((int) ($filters['nearby_distance'] ?? 0), self::NEARBY_DISTANCES, true)
+                ? (int) $filters['nearby_distance']
+                : 1000;
+
+            $query->whereNotNull('m.latitude')
+                ->whereNotNull('m.longitude')
+                ->whereRaw('(6371000 * ACOS(LEAST(1,
+                    COS(RADIANS(?)) * COS(RADIANS(m.latitude)) * COS(RADIANS(m.longitude) - RADIANS(?))
+                    + SIN(RADIANS(?)) * SIN(RADIANS(m.latitude))
+                ))) <= ?', [$placeLat, $placeLng, $placeLat, $meters]);
         }
 
         /* SIZE FILTER */

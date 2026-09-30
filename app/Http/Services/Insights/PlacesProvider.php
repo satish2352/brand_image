@@ -5,7 +5,7 @@ namespace App\Http\Services\Insights;
 /**
  * A source of nearby places for Media Location Insights.
  *
- * Implementations: GeoapifyPlacesService (default), SerpApiService.
+ * Implementations: GeoapifyPlacesService (default), TomTomPlacesService, SerpApiService.
  * Chosen by config('services.insights.places_provider').
  *
  * Every provider returns places in one normalised shape, containing only
@@ -21,7 +21,7 @@ namespace App\Http\Services\Insights;
  */
 interface PlacesProvider
 {
-    /** geoapify | serpapi — stored on every result and usage log. */
+    /** geoapify | tomtom | serpapi — stored on every result and usage log. */
     public function name(): string;
 
     public function isConfigured(): bool;

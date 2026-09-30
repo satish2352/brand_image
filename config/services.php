@@ -53,7 +53,7 @@ return [
     ],
 
     /* ---------------- Media Location Insights ----------------
-       Which API supplies nearby places: geoapify (default) or serpapi. */
+       Which API supplies nearby places: geoapify (default), tomtom or serpapi. */
     'insights' => [
         'places_provider' => env('INSIGHTS_PLACES_PROVIDER', 'geoapify'),
         // Fetch nearby places the first time a hoarding's insights are viewed
@@ -93,6 +93,35 @@ return [
         // queued jobs are held to (free plan allows 5 requests/second).
         'batch_size'        => (int) env('GEOAPIFY_BATCH_SIZE', 500),
         'requests_per_second' => (int) env('GEOAPIFY_REQUESTS_PER_SECOND', 4),
+    ],
+
+    /* ---------------- TomTom Search (Media Location Insights) ----------------
+       https://developer.tomtom.com/search-api/documentation/search-service/nearby-search
+       Server-side only: the key is read here and by
+       App\Http\Services\Insights\TomTomPlacesService, never sent to a view. */
+    'tomtom' => [
+        'key'               => env('TOMTOM_API_KEY'),
+        'base_url'          => env('TOMTOM_BASE_URL', 'https://api.tomtom.com'),
+        'timeout'           => (int) env('TOMTOM_TIMEOUT', 15),
+        // Search radius around the hoarding, in metres.
+        'radius'            => (int) env('TOMTOM_RADIUS', 1000),
+        // Places per request (API allows 1–100). Billed per request, not per place.
+        'limit'             => (int) env('TOMTOM_LIMIT', 60),
+        // TomTom POI category ids. List them all with:
+        //   GET https://api.tomtom.com/search/2/poiCategories.json?key=YOUR_KEY
+        // 7372 School, 7377 College/University, 7321 Hospital/Polyclinic,
+        // 7373 Shopping Center, 7332 Market, 9362 Park & Recreation Area,
+        // 7376 Important Tourist Attraction, 7367 Government Office, 9352 Company.
+        'category_set'      => env('TOMTOM_CATEGORY_SET', '7372,7377,7321,7373,7332,9362,7376,7367,9352'),
+        'language'          => env('TOMTOM_LANGUAGE', 'en-GB'),
+        // Our own ceiling per calendar day (free plan: 2,500 requests/day).
+        'daily_request_limit' => (int) env('TOMTOM_DAILY_REQUEST_LIMIT', 2000),
+        // Days a location's places are reused before a refresh may spend a request.
+        'cache_days'        => (int) env('TOMTOM_CACHE_DAYS', 90),
+        // Rounding for the shared location cache (3 dp ≈ 110 m).
+        'coord_precision'   => (int) env('TOMTOM_COORD_PRECISION', 3),
+        // Request rate the queued jobs are held to.
+        'requests_per_second' => (int) env('TOMTOM_REQUESTS_PER_SECOND', 4),
     ],
 
     /* ---------------- SerpApi (Media Location Insights) ----------------

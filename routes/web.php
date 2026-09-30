@@ -382,6 +382,9 @@ Route::get('/ajax/get-landmarks', [ExploreController::class, 'landmarks'])
     ->middleware('search.access')->name('ajax.landmarks');
 Route::get('/ajax/get-highways', [ExploreController::class, 'highways'])
     ->middleware('search.access')->name('ajax.highways');
+/* Nearby Landmark options for a town, from the saved nearby-places data. */
+Route::get('/ajax/nearby-places', [\App\Http\Controllers\Website\MediaInsightsController::class, 'cityPlaces'])
+    ->middleware('search.access')->name('ajax.nearby-places');
 
 /* ============ SEARCH ACCESS WINDOW ============
    Status is read-only and rate limited: the countdown polls it, and there is

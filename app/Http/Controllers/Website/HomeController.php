@@ -198,6 +198,9 @@ class HomeController extends Controller
             'max_area',    //  add
             'highway_id',     // Highway filter (single)
             'landmark_ids',   // Landmark filter (multiple, OR logic)
+            'nearby_place',       // "lat,lng" of a place from the nearby-places data
+            'nearby_place_name',  // its name, only to show the choice again
+            'nearby_distance',    // metres around that place
             'hoarding_code'   // Sector Code, partial match
         ]);
         //  SAVE FILTERS IN SESSION

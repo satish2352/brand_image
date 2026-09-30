@@ -433,6 +433,36 @@
                     @endisset
                 </div>
 
+                <!-- Nearby Landmark: places the provider (Geoapify / TomTom) already
+                     returned for this town's hoardings, loaded when a town is picked. -->
+                <div class="col-lg-2 col-md-4 col-sm-6" id="nearby_place_wrapper">
+                    <label class="form-label">Nearby Landmark</label>
+                    <select name="nearby_place" id="nearby_place" class="form-select" disabled>
+                        @if (!empty($filters['nearby_place']))
+                            <option value="{{ $filters['nearby_place'] }}" selected>
+                                {{ $filters['nearby_place_name'] ?? 'Selected landmark' }}
+                            </option>
+                        @else
+                            <option value="">Select Town first</option>
+                        @endif
+                    </select>
+                    <input type="hidden" name="nearby_place_name" id="nearby_place_name"
+                        value="{{ $filters['nearby_place_name'] ?? '' }}">
+                </div>
+
+                <!-- Distance around the Nearby Landmark -->
+                <div class="col-lg-2 col-md-4 col-sm-6" id="nearby_distance_wrapper">
+                    <label class="form-label">Within</label>
+                    <select name="nearby_distance" id="nearby_distance" class="form-select">
+                        @foreach (\App\Http\Repository\Website\HomeRepository::NEARBY_DISTANCES as $m)
+                            <option value="{{ $m }}"
+                                {{ (int) ($filters['nearby_distance'] ?? 1000) === $m ? 'selected' : '' }}>
+                                {{ $m < 1000 ? $m . ' m' : ($m / 1000) . ' km' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <!-- Area -->
                 <div class="col-lg-2 col-md-4 col-sm-6">
                     <label class="form-label">Area</label>
@@ -1303,6 +1333,70 @@
         minSlider.on("input change", updateSlider);
         maxSlider.on("input change", updateSlider);
 
+    });
+</script>
+
+<script>
+    /* ===== Nearby Landmark: filled from the saved nearby-places data of the
+       selected town (no API call from the browser). ===== */
+    $(function () {
+        const $place = $('#nearby_place');
+        const $name = $('#nearby_place_name');
+        const selected = @json($filters['nearby_place'] ?? '');
+        let loadedCity = null;
+
+        function loadNearbyPlaces(cityId, keep) {
+            cityId = cityId ? String(cityId) : '';
+            // The Town dropdown fills itself by AJAX and may fire change for the
+            // same town again; only a real switch should reset the landmark.
+            if (cityId === loadedCity) return;
+            loadedCity = cityId;
+
+            if (!cityId) {
+                $place.html('<option value="">Select Town first</option>').prop('disabled', true).trigger('change.select2');
+                $name.val('');
+                return;
+            }
+
+            $place.html('<option value="">Loading…</option>').prop('disabled', true);
+
+            $.get("{{ route('ajax.nearby-places') }}", { city_id: cityId }, function (places) {
+                if (!places.length) {
+                    $place.html('<option value="">No landmarks saved for this town yet</option>')
+                        .prop('disabled', true).trigger('change.select2');
+                    $name.val('');
+                    return;
+                }
+
+                let html = '<option value="">Select Landmark</option>';
+                places.forEach(function (p) {
+                    const label = p.category ? p.name + ' (' + p.category + ')' : p.name;
+                    const sel = keep && p.value === keep ? ' selected' : '';
+                    html += '<option value="' + $('<div>').text(p.value).html() + '" data-name="' +
+                        $('<div>').text(p.name).html() + '"' + sel + '>' + $('<div>').text(label).html() + '</option>';
+                });
+
+                $place.html(html).prop('disabled', false).trigger('change.select2');
+            }).fail(function () {
+                $place.html('<option value="">Could not load landmarks</option>').prop('disabled', true);
+            });
+        }
+
+        if ($.fn.select2) {
+            $place.select2({ width: '100%', placeholder: 'Select Landmark', allowClear: true });
+        }
+
+        $place.on('change', function () {
+            $name.val($(this).find(':selected').data('name') || '');
+        });
+
+        // A new town: the old landmark belongs to the old town.
+        $(document).on('change', '#city_id', function () {
+            loadNearbyPlaces(this.value, loadedCity === null ? selected : null);
+        });
+
+        // Page load / back from results: reload this town's list and keep the choice.
+        loadNearbyPlaces($('#city_id').val() || @json($filters['city_id'] ?? ''), selected);
     });
 </script>
 

@@ -106,6 +106,27 @@ class MediaInsightsController extends Controller
         ]);
     }
 
+    /**
+     * GET — the Nearby Landmark options for one town on the search form:
+     * places the provider already returned for that town's hoardings, read
+     * from the database (no API request).
+     */
+    public function cityPlaces(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $cityId = (int) $request->query('city_id');
+        if ($cityId <= 0) {
+            return response()->json([]);
+        }
+
+        try {
+            return response()->json($this->insights->nearbyPlacesForCity($cityId));
+        } catch (Throwable $e) {
+            Log::warning('Nearby places for city failed', ['city_id' => $cityId, 'message' => $e->getMessage()]);
+
+            return response()->json([]);
+        }
+    }
+
     private function isAdmin(): bool
     {
         return AdminSession::onSite() || AdminSession::onPanel();

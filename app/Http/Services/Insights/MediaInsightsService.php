@@ -44,6 +44,7 @@ class MediaInsightsService
     {
         return match (config('services.insights.places_provider', 'geoapify')) {
             'serpapi' => app(SerpApiService::class),
+            'tomtom'  => app(TomTomPlacesService::class),
             default   => app(GeoapifyPlacesService::class),
         };
     }
@@ -343,9 +344,11 @@ class MediaInsightsService
         $provider ??= $this->provider();
         $places = $this->placesForMedia($media, $location);
 
-        $cap = $location?->provider === 'geoapify'
-            ? max(1, (int) config('services.geoapify.limit', 60))
-            : 20;
+        $cap = match ($location?->provider) {
+            'geoapify' => max(1, (int) config('services.geoapify.limit', 60)),
+            'tomtom'   => max(1, (int) config('services.tomtom.limit', 60)),
+            default    => 20,
+        };
 
         $visibility = $this->scoring->visibility($media);
         $premium    = $location ? $this->scoring->premiumLocation($places, $cap)
@@ -416,6 +419,50 @@ class MediaInsightsService
         usort($out, fn($a, $b) => ($a['distance_m'] ?? PHP_INT_MAX) <=> ($b['distance_m'] ?? PHP_INT_MAX));
 
         return $out;
+    }
+
+    /* ============================ SEARCH: NEARBY LANDMARKS ============================ */
+
+    /**
+     * Every nearby place already saved for the active hoardings of one town —
+     * the "Nearby Landmark" options on the search form. Reads place_results
+     * only; never calls the provider. Cached for an hour per town.
+     *
+     * @return array<int, array{value: string, name: string, category: ?string}>
+     */
+    public function nearbyPlacesForCity(int $cityId): array
+    {
+        return Cache::remember('nearby-places:city:' . $cityId, now()->addHour(), function () use ($cityId) {
+            $results = DB::table('media_insights as mi')
+                ->join('media_management as m', 'm.id', '=', 'mi.media_id')
+                ->join('place_results as pr', 'pr.id', '=', 'mi.place_result_id')
+                ->where('m.city_id', $cityId)
+                ->where('m.is_deleted', 0)
+                ->where('m.is_active', 1)
+                ->distinct()
+                ->pluck('pr.places');
+
+            $out = [];
+            foreach ($results as $json) {
+                foreach ((array) json_decode((string) $json, true) as $p) {
+                    $name = trim((string) ($p['title'] ?? ''));
+                    if ($name === '' || !isset($p['lat'], $p['lng'])) {
+                        continue;
+                    }
+                    // Same place seen from several hoardings: keep it once.
+                    $key = mb_strtolower($name) . '|' . round((float) $p['lat'], 4) . '|' . round((float) $p['lng'], 4);
+                    $out[$key] ??= [
+                        'value'    => round((float) $p['lat'], 6) . ',' . round((float) $p['lng'], 6),
+                        'name'     => $name,
+                        'category' => $p['category'] ?? null,
+                    ];
+                }
+            }
+
+            usort($out, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+
+            return array_values($out);
+        });
     }
 
     /* ============================ PRESENTATION ============================ */
@@ -505,7 +552,11 @@ class MediaInsightsService
 
     private function sourceLabel(string $provider): string
     {
-        return $provider === 'serpapi' ? 'Google Maps (via SerpApi)' : 'Geoapify Places (OpenStreetMap data)';
+        return match ($provider) {
+            'serpapi' => 'Google Maps (via SerpApi)',
+            'tomtom'  => 'TomTom Search',
+            default   => 'Geoapify Places (OpenStreetMap data)',
+        };
     }
 
     private function providerByName(string $name): ?PlacesProvider
@@ -513,6 +564,7 @@ class MediaInsightsService
         return match ($name) {
             'serpapi'  => app(SerpApiService::class),
             'geoapify' => app(GeoapifyPlacesService::class),
+            'tomtom'   => app(TomTomPlacesService::class),
             default    => null,
         };
     }
