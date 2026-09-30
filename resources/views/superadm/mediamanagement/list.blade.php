@@ -70,6 +70,9 @@
                     {{-- TABLE --}}
                     <div class="table">
                         <form method="GET" class="mb-3">
+                            @if (request('per_page'))
+                                <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                            @endif
                             <div class="row">
 
                                 <div class="col-md-3">
@@ -196,7 +199,19 @@
                                 data-available="1" disabled>
                                 <i class="fa fa-check"></i> Available
                             </button>
-                            <small class="text-muted ms-2" id="selectedCount"></small>
+                            <span class="text-muted" style="margin-left:12px;font-size:15px;font-weight:500;" id="selectedCount"></span>
+                            {{-- Shown once the whole page is ticked and there are more pages. --}}
+                            @if ($mediaList->total() > $mediaList->count())
+                                <span class="d-none" style="margin-left:12px;font-size:15px;font-weight:600;" id="selectAllPrompt">
+                                    <a href="javascript:void(0)" id="selectAllMatching" style="text-decoration:underline;">
+                                        Select all {{ $mediaList->total() }} media
+                                    </a>
+                                </span>
+                                <span class="d-none" style="margin-left:12px;font-size:15px;" id="clearAllPrompt">
+                                    <b>All {{ $mediaList->total() }} media selected.</b>
+                                    <a href="javascript:void(0)" id="clearSelection">Clear selection</a>
+                                </span>
+                            @endif
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped">
@@ -307,8 +322,19 @@
                                     of {{ $mediaList->total() }} rows
                                 </div>
 
-                                {{-- RIGHT : PAGINATION --}}
-                                <div>
+                                {{-- RIGHT : ROWS PER PAGE + PAGINATION --}}
+                                <div class="d-flex align-items-start">
+                                    <div class="d-flex align-items-center mr-3" style="margin-right:12px;">
+                                        <label for="perPage" class="text-muted mb-0" style="margin-right:6px;">Show</label>
+                                        <select id="perPage" class="form-control form-control-sm" style="width:auto;">
+                                            @foreach ([10, 20, 50, 100] as $size)
+                                                <option value="{{ $size }}"
+                                                    {{ $mediaList->perPage() == $size ? 'selected' : '' }}>
+                                                    {{ $size }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     {{ $mediaList->appends(request()->query())->links() }}
                                 </div>
                             </div>
@@ -395,12 +421,37 @@
                 });
 
 
+                // ================= ROWS PER PAGE =================
+                // Keeps the current filters, restarts at page 1.
+                $(document).on('change', '#perPage', function() {
+                    let url = new URL(window.location.href);
+                    url.searchParams.set('per_page', this.value);
+                    url.searchParams.delete('page');
+                    window.location.href = url.toString();
+                });
+
+
                 // ================= BULK AVAILABILITY =================
+                // true once "Select all N media" is clicked: the action then covers every
+                // record matching the filters, not only the rows on this page.
+                let selectAllMatching = false;
+                const totalMatching = {{ $mediaList->total() }};
+                @php
+                    $listFilters = request()->only(['vendor_id', 'category_id', 'district_id', 'city_id', 'month', 'year', 'from_date', 'to_date', 'hoarding_code']);
+                @endphp
+                const listFilters = @json((object) $listFilters);
+
                 function refreshSelection() {
                     let count = $('.media-select:checked').length;
+                    let pageFull = count > 0 && count === $('.media-select').length;
+
+                    if (!pageFull) selectAllMatching = false;
+
                     $('.bulk-availability').prop('disabled', count === 0);
-                    $('#selectedCount').text(count ? count + ' selected' : '');
-                    $('#selectAllMedia').prop('checked', count > 0 && count === $('.media-select').length);
+                    $('#selectAllMedia').prop('checked', pageFull);
+                    $('#selectedCount').text(selectAllMatching ? '' : (count ? count + ' selected' : ''));
+                    $('#selectAllPrompt').toggleClass('d-none', !pageFull || selectAllMatching);
+                    $('#clearAllPrompt').toggleClass('d-none', !selectAllMatching);
                 }
 
                 $(document).on('change', '#selectAllMedia', function() {
@@ -409,6 +460,17 @@
                 });
 
                 $(document).on('change', '.media-select', refreshSelection);
+
+                $(document).on('click', '#selectAllMatching', function() {
+                    selectAllMatching = true;
+                    refreshSelection();
+                });
+
+                $(document).on('click', '#clearSelection', function() {
+                    selectAllMatching = false;
+                    $('.media-select').prop('checked', false);
+                    refreshSelection();
+                });
 
                 $(document).on('click', '.bulk-availability', function() {
 
@@ -419,12 +481,13 @@
 
                     let available = $(this).data('available');
                     let label = available == 1 ? 'Available' : 'Not Available';
+                    let total = selectAllMatching ? totalMatching : ids.length;
 
                     Swal.fire({
                         title: 'Mark as ' + label + '?',
                         text: available == 1 ?
-                            ids.length + ' media will be bookable on the website again.' :
-                            ids.length + ' media will show as Not Available on the website and cannot be booked.',
+                            total + ' media will be bookable on the website again.' :
+                            total + ' media will show as Not Available on the website and cannot be booked.',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: available == 1 ? '#198754' : '#d33',
@@ -434,11 +497,19 @@
 
                         if (!result.isConfirmed) return;
 
-                        $.post("{{ route('media.availability') }}", {
+                        // select_all carries the list's current filters (from the URL) so the
+                        // server picks the same records the list is showing.
+                        let payload = selectAllMatching ?
+                            Object.assign({}, listFilters, {
+                                select_all: 1
+                            }) : {
+                                ids: ids
+                            };
+
+                        $.post("{{ route('media.availability') }}", Object.assign(payload, {
                             _token: "{{ csrf_token() }}",
-                            ids: ids,
                             is_available: available
-                        }, function(response) {
+                        }), function(response) {
                             toastr.success(response.message);
                             setTimeout(function() {
                                 location.reload();

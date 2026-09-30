@@ -10,7 +10,10 @@ class MediaManagementRepository
 
     public function getAll($filters = [])
     {
-        $perPage = config('fileConstants.PAGINATION', 1);
+        // Rows per page from the list's "Show" dropdown; anything else falls back to the default.
+        $perPage = in_array((int) ($filters['per_page'] ?? 0), [10, 20, 50, 100], true)
+            ? (int) $filters['per_page']
+            : config('fileConstants.PAGINATION', 1);
 
         $query = DB::table('media_management as m')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
@@ -36,6 +39,26 @@ class MediaManagementRepository
             ])
             ->where('m.is_deleted', 0);
 
+        $this->applyFilters($query, $filters);
+
+        return $query->orderBy('m.id', 'desc')->paginate($perPage);
+    }
+
+    /**
+     * Every id the Media List would show for these filters, across all pages —
+     * what "Select all" on that list acts on.
+     */
+    public function getFilteredIds($filters = [])
+    {
+        $query = DB::table('media_management as m')->where('m.is_deleted', 0);
+
+        $this->applyFilters($query, $filters);
+
+        return $query->pluck('m.id')->all();
+    }
+
+    private function applyFilters($query, $filters)
+    {
         // 🔍 FILTERS
         if (!empty($filters['vendor_id'])) {
             $query->where('m.vendor_id', $filters['vendor_id']);
@@ -71,8 +94,6 @@ class MediaManagementRepository
         if (!empty($filters['hoarding_code'])) {
             $query->where('m.hoarding_code', 'like', '%' . trim($filters['hoarding_code']) . '%');
         }
-
-        return $query->orderBy('m.id', 'desc')->paginate($perPage);
     }
 
     public function store(array $data)

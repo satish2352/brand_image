@@ -45,6 +45,7 @@ class MediaManagementController extends Controller
                 'from_date'     => $request->from_date,
                 'to_date'       => $request->to_date,
                 'hoarding_code' => $request->hoarding_code,
+                'per_page'      => $request->per_page,
             ];
 
             $mediaList  = $this->mediaService->getAll($filters);
@@ -535,17 +536,25 @@ class MediaManagementController extends Controller
     public function updateAvailability(Request $request)
     {
         $request->validate([
-            'ids'          => 'required|array|min:1',
+            'ids'          => 'required_unless:select_all,1|array',
             'is_available' => 'required|in:0,1',
         ]);
 
         try {
-            $ids = collect($request->ids)
-                ->map(fn ($id) => base64_decode($id))
-                ->filter(fn ($id) => is_numeric($id))
-                ->map(fn ($id) => (int) $id)
-                ->values()
-                ->all();
+            if ($request->select_all == 1) {
+                // "Select all N media": every row matching the list's filters, not just this page.
+                $ids = $this->mediaService->getFilteredIds($request->only([
+                    'vendor_id', 'category_id', 'district_id', 'city_id',
+                    'month', 'year', 'from_date', 'to_date', 'hoarding_code',
+                ]));
+            } else {
+                $ids = collect($request->ids)
+                    ->map(fn ($id) => base64_decode($id))
+                    ->filter(fn ($id) => is_numeric($id))
+                    ->map(fn ($id) => (int) $id)
+                    ->values()
+                    ->all();
+            }
 
             if (empty($ids)) {
                 return response()->json(['status' => false, 'message' => 'Please select media'], 422);
