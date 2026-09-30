@@ -175,7 +175,7 @@
                     <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" class="media-img">
 
                     @if ($isNotAvailable)
-                        <span class="media-badge not-available">Not Available</span>
+                        <span class="media-badge not-available">Ask For Availability</span>
                     @elseif ($isBillboard)
                         @if ($isBooked === 1)
                             <span class="media-badge booked">Booked</span>

@@ -540,7 +540,7 @@
                                 {{-- Flagged Not Available from the admin Media List: no calendar, no booking. --}}
                                 <div class="alert alert-danger mb-0 mt-2">
                                     <i class="fas fa-ban"></i>
-                                    <strong>Not Available</strong> — this media cannot be booked at the moment.
+                                    <strong>Ask For Availability</strong> — please contact us to check availability for this media.
                                 </div>
                             @elseif ((int) $media->category_id === 1)
                                 {{-- CALENDAR --}}
