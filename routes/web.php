@@ -32,6 +32,8 @@ use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
 use App\Http\Controllers\Website\SharedLinkController;
+use App\Http\Controllers\Website\MediaInsightsController;
+use App\Http\Controllers\Superadm\InsightsUsageController;
 use App\Http\Controllers\Website\SearchSessionController;
 use App\Http\Controllers\Website\RequirementController;
 use App\Http\Controllers\Superadm\PortalAccessController;
@@ -123,6 +125,9 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('image/delete', [MediaManagementController::class, 'deleteImage'])->name('media.image.delete');
         Route::post('image/upload', [MediaManagementController::class, 'uploadImage'])->name('media.image.upload');
         Route::get('view-details/{encodedId}', [MediaManagementController::class, 'viewDetails'])->name('media.viewdetails');
+
+        /* NEARBY-PLACES API USAGE — Geoapify / SerpApi credits vs budget, coverage, log */
+        Route::get('insights-usage', [InsightsUsageController::class, 'index'])->name('media.insights.usage');
 
         /* BULK DATA UPLOAD — IMPORT & EXPORT */
         Route::get('import-export', [MediaImportExportController::class, 'index'])->name('media.import-export');
@@ -354,6 +359,18 @@ Route::post('/shared-links', [SharedLinkController::class, 'store'])->name('shar
    the token, so there is nothing for a second endpoint to guard. */
 Route::match(['get', 'post'], '/shared/{token}', [SharedLinkController::class, 'show'])
     ->name('shared.link.show');
+
+/* ============ MEDIA LOCATION INSIGHTS ============
+   GET  loads the insights panel into the media details page by AJAX. The
+        first view of a hoarding with no nearby places fetches them once
+        (within the credit budget); later views read MySQL only.
+   POST "Refresh Insights": admin-gated inside the controller like shared
+        links (site admin mode or the admin panel), POST so CSRF applies, and
+        throttled — it is the only web path that can spend API credits. */
+Route::get('/media-details/{encodedId}/insights', [MediaInsightsController::class, 'show'])
+    ->middleware('throttle:60,1')->name('media.insights.show');
+Route::post('/media-details/{encodedId}/insights/refresh', [MediaInsightsController::class, 'refresh'])
+    ->middleware('throttle:6,1')->name('media.insights.refresh');
 
 /* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
 Route::get('/explore', [ExploreController::class, 'index'])
