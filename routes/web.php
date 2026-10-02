@@ -371,6 +371,10 @@ Route::get('/media-details/{encodedId}/insights', [MediaInsightsController::clas
     ->middleware('throttle:60,1')->name('media.insights.show');
 Route::post('/media-details/{encodedId}/insights/refresh', [MediaInsightsController::class, 'refresh'])
     ->middleware('throttle:6,1')->name('media.insights.refresh');
+/* Stored TomTom Traffic Flow as JSON — reads MySQL only, never calls TomTom
+   (refresh:hoarding-traffic keeps it up to date every 15 days). */
+Route::get('/media-details/{encodedId}/traffic', [MediaInsightsController::class, 'traffic'])
+    ->middleware('throttle:60,1')->name('media.traffic.show');
 
 /* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
 Route::get('/explore', [ExploreController::class, 'index'])

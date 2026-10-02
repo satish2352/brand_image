@@ -95,12 +95,15 @@ return [
         'requests_per_second' => (int) env('GEOAPIFY_REQUESTS_PER_SECOND', 4),
     ],
 
-    /* ---------------- TomTom Search (Media Location Insights) ----------------
+    /* ---------------- TomTom Search + Traffic (Media Location Insights) ----------------
        https://developer.tomtom.com/search-api/documentation/search-service/nearby-search
+       https://developer.tomtom.com/traffic-api/documentation/traffic-flow/flow-segment-data
        Server-side only: the key is read here and by
-       App\Http\Services\Insights\TomTomPlacesService, never sent to a view. */
+       App\Http\Services\Insights\TomTomPlacesService / TomTomTrafficService,
+       never sent to a view. 'key' and 'api_key' are the same TOMTOM_API_KEY. */
     'tomtom' => [
         'key'               => env('TOMTOM_API_KEY'),
+        'api_key'           => env('TOMTOM_API_KEY'),
         'base_url'          => env('TOMTOM_BASE_URL', 'https://api.tomtom.com'),
         'timeout'           => (int) env('TOMTOM_TIMEOUT', 15),
         // Search radius around the hoarding, in metres.
@@ -122,6 +125,19 @@ return [
         'coord_precision'   => (int) env('TOMTOM_COORD_PRECISION', 3),
         // Request rate the queued jobs are held to.
         'requests_per_second' => (int) env('TOMTOM_REQUESTS_PER_SECOND', 4),
+
+        // ---- Traffic Flow (refresh:hoarding-traffic → hoarding_traffic_data) ----
+        // Days a hoarding's stored traffic flow is used before it is fetched again.
+        'traffic_refresh_days' => (int) env('TOMTOM_CACHE_DAYS', 15),
+        // Hoardings read from the database per chunk (never all at once).
+        'traffic_batch_size'   => (int) env('TOMTOM_BATCH_SIZE', 100),
+        // Pause between two traffic requests, in milliseconds (one at a time).
+        'traffic_request_delay_ms' => (int) env('TOMTOM_REQUEST_DELAY_MS', 250),
+        // Our own ceiling on traffic requests per calendar day. TomTom's free
+        // plan is 2,500 non-tile requests a day, shared with Search.
+        'traffic_daily_limit'  => (int) env('TOMTOM_TRAFFIC_DAILY_LIMIT', 2000),
+        // A failed hoarding is tried again after this many hours, not every run.
+        'traffic_retry_hours'  => (int) env('TOMTOM_TRAFFIC_RETRY_HOURS', 24),
     ],
 
     /* ---------------- SerpApi (Media Location Insights) ----------------

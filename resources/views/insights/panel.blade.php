@@ -20,6 +20,7 @@
         'inferred'    => ['Inferred', 'ins-badge--est'],
         'rule_based'  => ['Rule-based', 'ins-badge--est'],
         'available'   => ['Available', 'ins-badge--ok'],
+        'tomtom'      => ['TomTom', 'ins-badge--ok'],
         'unavailable' => ['Not Available', 'ins-badge--na'],
     ];
     $b = fn($status) => $badge[$status] ?? $badge['unavailable'];
@@ -69,10 +70,27 @@
 @endif
 
 <div class="ins-grid">
-    {{-- PRD points in order; Nearby Landmarks (6) is the full-width table below.
-         1, 2, 7 have no verified source and always read "Not Available". --}}
-    @foreach (['traffic', 'footfall', 'visibility', 'premium', 'audience', 'impressions', 'recommendation', 'value'] as $k)
-        @if (in_array($k, ['traffic', 'footfall', 'impressions'], true))
+    {{-- The points shown, in order; Nearby Landmarks is a full-width table.
+         Traffic is TomTom Traffic Flow from the database (a level, not a vehicle
+         count); footfall has no verified source and always reads "Not Available".
+         (Impressions and ROI / Value are still calculated but not shown.) --}}
+    @foreach (['traffic', 'visibility', 'premium', 'audience', 'landmarks', 'recommendation', 'footfall'] as $k)
+        @if ($k === 'traffic')
+            <div class="ins-tile">
+                <div class="ins-label">{{ $p['traffic']['label'] }}
+                    <span class="ins-badge {{ $b($p['traffic']['status'])[1] }}">{{ $b($p['traffic']['status'])[0] }}</span>
+                </div>
+                @if ($p['traffic']['value'])
+                    <div class="ins-value">{{ $p['traffic']['value'] }}</div>
+                    @foreach ($p['traffic']['details'] as $name => $val)
+                        <div class="ins-sector"><span>{{ $name }}</span><span>{{ $val }}</span></div>
+                    @endforeach
+                @else
+                    <div class="ins-value ins-value--na">Not Available</div>
+                @endif
+                <div class="ins-note">{{ $p['traffic']['note'] }}</div>
+            </div>
+        @elseif ($k === 'footfall')
             <div class="ins-tile">
                 <div class="ins-label">{{ $p[$k]['label'] }}
                     <span class="ins-badge {{ $b($p[$k]['status'])[1] }}">{{ $b($p[$k]['status'])[0] }}</span>
@@ -80,7 +98,7 @@
                 <div class="ins-value ins-value--na">Not Available</div>
                 <div class="ins-note">{{ $p[$k]['note'] }}</div>
             </div>
-        @elseif (in_array($k, ['visibility', 'premium', 'value'], true))
+        @elseif (in_array($k, ['visibility', 'premium'], true))
             <div class="ins-tile">
                 <div class="ins-label">{{ $p[$k]['label'] }}
                     <span class="ins-badge {{ $b($p[$k]['status'])[1] }}">{{ $b($p[$k]['status'])[0] }}</span>
@@ -107,14 +125,14 @@
                 @endforelse
                 <div class="ins-note">{{ $p['audience']['note'] }}</div>
             </div>
-        @else
+        @elseif ($k === 'recommendation')
             <div class="ins-tile">
                 <div class="ins-label">{{ $p['recommendation']['label'] }}
                     <span class="ins-badge {{ $b($p['recommendation']['status'])[1] }}">{{ $b($p['recommendation']['status'])[0] }}</span>
                 </div>
                 @forelse ($p['recommendation']['value'] as $r)
                     <div class="ins-sector" title="Based on {{ $r['basis'] }}">
-                        <span>{{ $r['sector'] }}</span>
+                        <span>{{ $r['label'] ?? $r['sector'] }}</span>
                         <span class="ins-badge {{ $r['fit'] === 'Strong fit' ? 'ins-badge--ok' : ($r['fit'] === 'Moderate fit' ? 'ins-badge--est' : 'ins-badge--na') }}">{{ $r['fit'] }}</span>
                     </div>
                 @empty
@@ -122,10 +140,8 @@
                 @endforelse
                 <div class="ins-note">{{ $p['recommendation']['note'] }}</div>
             </div>
-        @endif
-    @endforeach
-
-    {{-- 6 — nearby places / landmarks --}}
+        @else
+    {{-- nearby places / landmarks --}}
     <div class="ins-tile ins-tile--wide">
         <div class="ins-label">
             <span>Nearby Landmarks <span class="ins-note d-inline">(within {{ $radius }} m of this media)</span></span>
@@ -186,6 +202,8 @@
             </div>
         @endif
     </div>
+        @endif
+    @endforeach
 </div>
 
 @if (!empty($insights['attribution']))

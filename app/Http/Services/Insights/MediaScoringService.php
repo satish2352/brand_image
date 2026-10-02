@@ -31,6 +31,15 @@ class MediaScoringService
 
     public const SECTORS = ['FMCG', 'Real Estate', 'Automobile', 'Political Campaign', 'Retail Launch'];
 
+    /* How each sector is shown on the insights panel. */
+    public const SECTOR_LABELS = [
+        'FMCG'               => 'Best for FMCG Campaigns',
+        'Real Estate'        => 'Best for Real Estate Promotions',
+        'Automobile'         => 'Best for Automobile Advertising',
+        'Political Campaign' => 'Best for Political Campaigns',
+        'Retail Launch'      => 'Best for Retail/Product Launches',
+    ];
+
     /**
      * VISIBILITY SCORE (1–10), Estimated.
      *

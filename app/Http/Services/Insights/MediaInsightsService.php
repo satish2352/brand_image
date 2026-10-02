@@ -36,7 +36,10 @@ class MediaInsightsService
     /* After this many failed attempts a hoarding waits a day before the batch retries it. */
     public const MAX_FAILED_ATTEMPTS = 3;
 
-    public function __construct(private MediaScoringService $scoring) {}
+    public function __construct(
+        private MediaScoringService $scoring,
+        private HoardingTrafficService $traffic,
+    ) {}
 
     /* ============================ PROVIDER ============================ */
 
@@ -484,8 +487,7 @@ class MediaInsightsService
         $notAvailable = fn(string $why) => ['value' => null, 'status' => 'unavailable', 'note' => $why];
 
         $points = [
-            'traffic' => ['label' => 'Estimated Daily Traffic'] + $notAvailable(
-                'No verified traffic-count source is connected. Nearby-place data does not measure vehicle traffic.'),
+            'traffic' => $this->trafficPoint((int) $media['id']),
             'footfall' => ['label' => 'Estimated Daily Footfall'] + $notAvailable(
                 'No verified pedestrian-count source is connected.'),
             'visibility' => [
@@ -521,8 +523,9 @@ class MediaInsightsService
             'impressions' => ['label' => 'Estimated Monthly Impressions'] + $notAvailable(
                 'Needs verified daily traffic, which is not available, so impressions are not calculated.'),
             'recommendation' => [
-                'label'  => 'AI Recommendations',
-                'value'  => $insight->recommendations['items'] ?? [],
+                'label'  => 'AI-Based Recommendations',
+                'value'  => array_map(fn($r) => $r + ['label' => MediaScoringService::SECTOR_LABELS[$r['sector']] ?? $r['sector']],
+                    $insight->recommendations['items'] ?? []),
                 'status' => $insight->recommendations['status'] ?? 'unavailable',
                 'note'   => ($insight->recommendations['status'] ?? '') === 'rule_based'
                     ? 'Suggested from nearby places and media details by documented rules — not a trained AI model.'
@@ -547,6 +550,70 @@ class MediaInsightsService
             'source'        => $source,
             'attribution'   => $location ? $this->providerByName($location->provider)?->attribution() : null,
             'has_location'  => $this->hasCoordinates($media),
+        ];
+    }
+
+    /* TomTom road classes (Functional Road Class), most important first. */
+    private const ROAD_CLASSES = [
+        'FRC0' => 'Motorway / freeway',
+        'FRC1' => 'Major road',
+        'FRC2' => 'Other major road',
+        'FRC3' => 'Secondary road',
+        'FRC4' => 'Local connecting road',
+        'FRC5' => 'Local road (high importance)',
+        'FRC6' => 'Local road',
+    ];
+
+    /**
+     * Estimated Daily Traffic tile, from the stored TomTom Traffic Flow
+     * (hoarding_traffic_data — MySQL only, refreshed by refresh:hoarding-traffic).
+     * TomTom gives road speeds and road class, not vehicles per day, so the
+     * value is a traffic LEVEL (current speed against free-flow speed) and
+     * no vehicle count is shown.
+     */
+    private function trafficPoint(int $mediaId): array
+    {
+        $label = 'Estimated Daily Traffic';
+        $flow = $this->traffic->forDisplay($mediaId);
+
+        if (!$flow['traffic_data_available']) {
+            return ['label' => $label, 'value' => null, 'status' => 'unavailable',
+                'note' => 'Traffic flow for this location has not been fetched from TomTom yet.'];
+        }
+
+        $t = $flow['traffic'];
+        $current = $t['current_speed'];
+        $free = $t['free_flow_speed'];
+
+        if ($t['road_closure']) {
+            $level = 'Road closed';
+        } elseif ($current === null || !$free) {
+            $level = null;
+        } else {
+            $ratio = $current / $free;
+            $level = match (true) {
+                $ratio >= 0.85 => 'Free-flowing traffic',
+                $ratio >= 0.65 => 'Moderate traffic',
+                $ratio >= 0.40 => 'Heavy traffic',
+                default        => 'Very heavy traffic',
+            };
+        }
+
+        $fmt = fn($v) => rtrim(rtrim(number_format((float) $v, 1), '0'), '.');
+        $details = array_filter([
+            'Road type' => self::ROAD_CLASSES[$t['frc']] ?? $t['frc'],
+            'Speed now' => $current !== null ? $fmt($current) . ' km/h' : null,
+            'Free-flow speed' => $free !== null ? $fmt($free) . ' km/h' : null,
+        ], fn($v) => $v !== null);
+
+        return [
+            'label'   => $label,
+            'value'   => $level,
+            'details' => $details,
+            'status'  => $level ? 'tomtom' : 'unavailable',
+            'note'    => 'TomTom Traffic Flow on the nearest road, updated '
+                . Carbon::parse($t['traffic_updated_at'])->format('d M Y')
+                . '. Shows traffic conditions, not a vehicle count.',
         ];
     }
 

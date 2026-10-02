@@ -89,6 +89,14 @@ class MediaManagement extends Model
     }
 
     /**
+     * Stored TomTom Traffic Flow (refreshed every 15 days by the scheduler).
+     */
+    public function trafficData()
+    {
+        return $this->hasOne(HoardingTrafficData::class, 'media_id');
+    }
+
+    /**
      * Landmarks tagged on this hoarding (many-to-many).
      */
     public function landmarks()

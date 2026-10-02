@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
+use App\Http\Services\Insights\HoardingTrafficService;
 use App\Http\Services\Insights\MediaInsightsService;
 use App\Models\ApiUsageLog;
+use App\Models\MediaManagement;
 use App\Support\AdminSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -104,6 +106,28 @@ class MediaInsightsController extends Controller
             'message' => $result['message'],
             'quota'   => array_intersect_key($this->insights->quota(), array_flip(['provider', 'period', 'used', 'limit', 'remaining'])),
         ]);
+    }
+
+    /**
+     * GET — the hoarding's stored TomTom Traffic Flow, read from MySQL only.
+     * Never calls TomTom: the data is fetched and refreshed by the scheduled
+     * `refresh:hoarding-traffic` command. traffic_data_available is false
+     * until the first fetch has succeeded.
+     */
+    public function traffic(string $encodedId, HoardingTrafficService $traffic): JsonResponse
+    {
+        $id = $this->decode($encodedId);
+        if ($id === null || !MediaManagement::where('id', $id)->where('is_deleted', 0)->exists()) {
+            return response()->json(['ok' => false, 'message' => 'Media not found.'], 404);
+        }
+
+        try {
+            return response()->json(['ok' => true, 'media_id' => $id] + $traffic->forDisplay($id));
+        } catch (Throwable $e) {
+            Log::warning('Hoarding traffic unavailable', ['media_id' => $id, 'message' => $e->getMessage()]);
+
+            return response()->json(['ok' => false, 'message' => 'Traffic data is not available right now.'], 503);
+        }
     }
 
     /**
