@@ -62,11 +62,15 @@ class CartService
 
         $media = DB::table('media_management')
             ->where('id', $mediaId)
-            ->select('id', 'price')
+            ->select('id', 'price', 'is_available')
             ->first();
 
         if (!$media) {
             throw new \Exception('Media not found.');
+        }
+
+        if ((int) $media->is_available === 0) {
+            throw new \Exception('This media is not available for booking.');
         }
 
         $this->repo->addItem($media->id, $media->price);
@@ -76,6 +80,11 @@ class CartService
         DB::transaction(function () use ($mediaId, $from, $to, $cartType) {
             $fromDate = Carbon::parse($from);
             $toDate   = Carbon::parse($to);
+
+            // 0) Flagged Not Available from the admin Media List
+            if ($cartType === 'NORMAL' && $this->isNotAvailable($mediaId)) {
+                throw new \Exception('This media is not available for booking.');
+            }
 
             // 1) SAME MEDIA + SAME DATE → only for NORMAL
             if ($cartType === 'NORMAL') {
@@ -134,6 +143,13 @@ class CartService
                 $cartType
             );
         });
+    }
+    public function isNotAvailable($mediaId): bool
+    {
+        return DB::table('media_management')
+            ->where('id', $mediaId)
+            ->where('is_available', 0)
+            ->exists();
     }
     public function updateCartDates($cartItemId, $from, $to)
     {

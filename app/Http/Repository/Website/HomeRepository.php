@@ -107,6 +107,7 @@ class HomeRepository
                 'hw.highway_name',
                 'a.common_stdiciar_name as common_area_name',
                 'm.panorama_image',
+                'm.is_available',
                 'mi.first_image',
                 DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price')

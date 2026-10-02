@@ -3319,6 +3319,21 @@ table.order-details tbody td {
   /* green */
 }
 
+/* NOT AVAILABLE — flagged from the admin Media List ("Ask For Availability").
+   The text is too long for the default band, so the band is longer and its
+   centre sits further along the diagonal (left + width/2 = top + height/2 ≈ 54px),
+   which gives ~150px of visible band across the corner. */
+.media-badge.not-available {
+  background: #DC2626;
+  top: 43px;
+  left: -76px;
+  width: 260px;
+  padding: 5px 0;
+  font-size: 9px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
 
 /* Hording billboard next pre btn css */
 
