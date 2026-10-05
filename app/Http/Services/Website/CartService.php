@@ -48,9 +48,14 @@ class CartService
     {
         $userId = auth('website')->id();
 
+        // Only the NORMAL cart counts. A CAMPAIGN row is the same media sitting
+        // in a campaign plan, which is a separate list — without this the cart
+        // would refuse the media and then show itself empty, because the cart
+        // listing only ever reads NORMAL rows.
         $exists = DB::table('cart_items')
             ->where('user_id', $userId)
             ->where('media_id', $mediaId)
+            ->where('cart_type', 'NORMAL')
             ->where('is_deleted', 0)
             ->where('is_active', 1)
             ->where('status', 'ACTIVE')

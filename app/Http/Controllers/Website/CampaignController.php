@@ -314,54 +314,63 @@ class CampaignController extends Controller
         // end rather than only the last item's.
         $tempPaths = [];
 
+
         /* =====================================================
-        SLIDE 1 : COVER
+        SLIDE 1 : WELCOME — the designed cover, full bleed
         ===================================================== */
-        $slide1 = $ppt->getActiveSlide();
+        $this->pptFullBleed(
+            $ppt->getActiveSlide(),
+            public_path('assets/img/brand_adda_welcome.png')
+        );
 
-        $this->pptBackdrop($slide1);
+        /* =====================================================
+        SLIDE 2 : CAMPAIGN NAME
+        ===================================================== */
+        $cover = $ppt->createSlide();
 
-        $title = $slide1->createRichTextShape()
-            ->setOffsetX(180)
-            ->setOffsetY(205)
-            ->setWidth(600)
-            ->setHeight(150);
+        $this->pptChrome($cover);
 
-        $title->getActiveParagraph()
-            ->getAlignment()
+        $title = $cover->createRichTextShape()
+            ->setOffsetX(self::PPT_MARGIN)
+            ->setOffsetY(170)
+            ->setWidth(self::PPT_W - (2 * self::PPT_MARGIN))
+            ->setHeight(70);
+
+        $title->getActiveParagraph()->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $title->createTextRun("Campaign Name\n")
-            ->getFont()->setSize(34)->setBold(true)
-            ->setColor(new Color(self::PPT_INK));
+        // Two-tone, as the format sheet has it: navy word, orange word.
+        $title->createTextRun('Campaign ')
+            ->getFont()->setSize(40)->setBold(true)
+            ->setColor(new Color(self::PPT_NAVY_HEX));
 
-        $title->createTextRun($campaign->campaign_name)
-            ->getFont()->setSize(22)
-            ->setColor(new Color(self::PPT_INK));
+        $title->createTextRun('Name')
+            ->getFont()->setSize(40)->setBold(true)
+            ->setColor(new Color(self::PPT_ORANGE_HEX));
+
+        $subtitle = $cover->createRichTextShape()
+            ->setOffsetX(self::PPT_MARGIN)
+            ->setOffsetY(262)
+            ->setWidth(self::PPT_W - (2 * self::PPT_MARGIN))
+            ->setHeight(40);
+
+        $subtitle->getActiveParagraph()->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $subtitle->createTextRun('# ' . $campaign->campaign_name . ' #')
+            ->getFont()->setSize(18)->setBold(true)->setItalic(true)
+            ->setColor(new Color(self::PPT_NAVY_HEX));
 
         /* =====================================================
-        MEDIA SLIDES — image 70% / details 30%
+        MEDIA SLIDES — picture left, SITE DETAILS right
         ===================================================== */
         foreach ($items as $item) {
 
             $slide = $ppt->createSlide();
 
-            $this->pptBackdrop($slide);
+            $this->pptChrome($slide);
 
-            /* ---------- TITLE ---------- */
-            $heading = $slide->createRichTextShape()
-                ->setOffsetX(self::PPT_MARGIN)
-                ->setOffsetY(78)
-                ->setWidth(self::PPT_W - (2 * self::PPT_MARGIN))
-                ->setHeight(34);
-
-            $heading->createTextRun(trim(
-                ($item->media_title ?: $item->media_type) . ' ' . ($item->area_name ?? '')
-            ))
-                ->getFont()->setSize(22)->setBold(true)
-                ->setColor(new Color(self::PPT_INK));
-
-            /* ---------- IMAGES : LEFT 70% ---------- */
+            /* ---------- PICTURES : LEFT ---------- */
             $images = [];
 
             foreach (explode(',', (string) $item->all_images) as $stored) {
@@ -371,7 +380,7 @@ class CampaignController extends Controller
                     $images[] = $prepared;
                 }
 
-                // Four is all the panel can show: one hero plus a strip of three.
+                // Four is all the space can show: one hero plus a strip of three.
                 if (count($images) === 4) {
                     break;
                 }
@@ -379,10 +388,10 @@ class CampaignController extends Controller
 
             if ($images === []) {
                 $placeholder = $slide->createRichTextShape()
-                    ->setOffsetX(self::PPT_PANEL_X)
-                    ->setOffsetY(self::PPT_PANEL_Y)
-                    ->setWidth(self::PPT_PANEL_W)
-                    ->setHeight(self::PPT_PANEL_H);
+                    ->setOffsetX(self::PPT_PIC_X)
+                    ->setOffsetY(self::PPT_CONTENT_Y)
+                    ->setWidth(self::PPT_PIC_W)
+                    ->setHeight(self::PPT_CONTENT_H);
 
                 $placeholder->getFill()
                     ->setFillType(Fill::FILL_SOLID)
@@ -395,31 +404,31 @@ class CampaignController extends Controller
                     ->getFont()->setSize(16)->setBold(true)
                     ->setColor(new Color('FF8A8A8A'));
             } else {
-                // One image fills the panel. More than one and the first keeps
+                // One picture fills the space. More than one and the first keeps
                 // the top of it, with the rest as a strip underneath.
                 $heroHeight = count($images) > 1
                     ? self::PPT_HERO_H
-                    : self::PPT_PANEL_H;
+                    : self::PPT_CONTENT_H;
 
                 $this->pptPlaceImage(
                     $slide,
                     array_shift($images),
-                    self::PPT_PANEL_X,
-                    self::PPT_PANEL_Y,
-                    self::PPT_PANEL_W,
+                    self::PPT_PIC_X,
+                    self::PPT_CONTENT_Y,
+                    self::PPT_PIC_W,
                     $heroHeight
                 );
 
                 $thumbGap   = 8;
-                $thumbWidth = (int) floor((self::PPT_PANEL_W - (2 * $thumbGap)) / 3);
-                $thumbY     = self::PPT_PANEL_Y + self::PPT_HERO_H + 12;
-                $thumbH     = self::PPT_PANEL_Y + self::PPT_PANEL_H - $thumbY;
+                $thumbWidth = (int) floor((self::PPT_PIC_W - (2 * $thumbGap)) / 3);
+                $thumbY     = self::PPT_CONTENT_Y + self::PPT_HERO_H + 12;
+                $thumbH     = self::PPT_CONTENT_Y + self::PPT_CONTENT_H - $thumbY;
 
                 foreach (array_values($images) as $index => $thumb) {
                     $this->pptPlaceImage(
                         $slide,
                         $thumb,
-                        self::PPT_PANEL_X + ($index * ($thumbWidth + $thumbGap)),
+                        self::PPT_PIC_X + ($index * ($thumbWidth + $thumbGap)),
                         $thumbY,
                         $thumbWidth,
                         $thumbH
@@ -427,7 +436,7 @@ class CampaignController extends Controller
                 }
             }
 
-            /* ---------- SITE DETAILS : RIGHT 30% ---------- */
+            /* ---------- SITE DETAILS : RIGHT ---------- */
             $from = $item->from_date
                 ? \Carbon\Carbon::parse($item->from_date)->format('d M Y')
                 : '-';
@@ -437,18 +446,19 @@ class CampaignController extends Controller
                 : '-';
 
             $rows = [
-                'Code'       => $item->hoarding_code ?: '-',
-                'Location'   => $item->common_stdiciar_name ?: '-',
-                'Area'       => $item->area_name ?: '-',
-                'City'       => $item->city_name ?: '-',
-                'Size'       => $item->width . ' × ' . $item->height,
-                'Media type' => $item->media_type ?: '-',
-                'Price'      => '₹ ' . number_format((float) $item->price),
-                'From Date'  => $from,
-                'To Date'    => $to,
-                'Lighting'   => $item->illumination_name ?: '-',
-                'Highway'    => $item->highway_name ?: '-',
-                'Landmarks'  => $item->landmark_names ?: '-',
+                'Media Title' => $item->media_title ?: '-',
+                'Code'        => $item->hoarding_code ?: '-',
+                'Location'    => $item->common_stdiciar_name ?: '-',
+                'Area'        => $item->area_name ?: '-',
+                'City'        => $item->city_name ?: '-',
+                'Size'        => $this->pptSize($item),
+                'Media type'  => $item->media_type ?: '-',
+                'Price'       => '₹ ' . number_format((float) $item->price),
+                'From Date'   => $from,
+                'To Date'     => $to,
+                'Lighting'    => $item->illumination_name ?: '-',
+                'Highway'     => $item->highway_name ?: '-',
+                'Landmarks'   => $item->landmark_names ?: '-',
             ];
 
             $panel = $this->pptDetailsPanel($rows, $tempPaths);
@@ -458,32 +468,19 @@ class CampaignController extends Controller
                     ->setPath($panel)
                     ->setResizeProportional(false)
                     ->setWidth(self::PPT_DETAIL_W)
-                    ->setHeight(self::PPT_PANEL_H)
+                    ->setHeight(self::PPT_CONTENT_H)
                     ->setOffsetX(self::PPT_DETAIL_X)
-                    ->setOffsetY(self::PPT_PANEL_Y);
+                    ->setOffsetY(self::PPT_CONTENT_Y);
             }
         }
 
         /* =====================================================
-        LAST SLIDE : THANK YOU
+        LAST SLIDE : THANK YOU — the designed closer, full bleed
         ===================================================== */
-        $last = $ppt->createSlide();
-
-        $this->pptBackdrop($last);
-
-        $thanks = $last->createRichTextShape()
-            ->setOffsetX(180)
-            ->setOffsetY(230)
-            ->setWidth(600)
-            ->setHeight(90);
-
-        $thanks->getActiveParagraph()->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        $thanks->createTextRun('Thank You..!')
-            ->getFont()->setSize(40)->setBold(true)->setItalic(true)
-            ->setColor(new Color(self::PPT_INK));
-
+        $this->pptFullBleed(
+            $ppt->createSlide(),
+            public_path('assets/img/brand_adda_thankyou.png')
+        );
         /* ================= RETURN BINARY ================= */
         $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
 
@@ -506,26 +503,36 @@ class CampaignController extends Controller
        (0 - 672) to the pictures and the right 30% to the details.
        ========================================================= */
 
+
+    /* =========================================================
+       PPT LAYOUT — follows the Brand Adda PPT format sheet.
+       Slide is 960 x 540 px. The welcome and thank-you slides are
+       the supplied artwork, full bleed. Everything between them is
+       white, with the logo top-left and a footer rule, and splits
+       into a picture on the left and SITE DETAILS on the right.
+       ========================================================= */
+
     private const PPT_W      = 960;
     private const PPT_H      = 540;
-    private const PPT_MARGIN = 28;
+    private const PPT_MARGIN = 44;
 
-    /** Body text colour — dark, for the light centre of the backdrop. */
-    private const PPT_INK = 'FF1A1A1A';
+    private const PPT_NAVY_HEX   = 'FF142A4F';
+    private const PPT_ORANGE_HEX = 'FFFD5F00';
 
-    /** Picture panel: the left 70% of the slide. */
-    private const PPT_PANEL_X = 28;
-    private const PPT_PANEL_Y = 124;
-    private const PPT_PANEL_W = 644;   // 28 + 644 = 672 = 70% of 960
-    private const PPT_PANEL_H = 386;
+    /** The band both columns sit in. */
+    private const PPT_CONTENT_Y = 76;
+    private const PPT_CONTENT_H = 372;
+
+    /** Picture column, left. */
+    private const PPT_PIC_X = 44;
+    private const PPT_PIC_W = 526;
 
     /** Height the first picture keeps when a thumbnail strip sits below it. */
-    private const PPT_HERO_H = 288;
+    private const PPT_HERO_H = 278;
 
-    /** Details column: the right 30%. */
-    private const PPT_DETAIL_X = 688;
-    private const PPT_DETAIL_W = 244;
-
+    /** SITE DETAILS column, right. 610 + 306 = 916, the footer rule's end. */
+    private const PPT_DETAIL_X = 610;
+    private const PPT_DETAIL_W = 306;
 
     /** Longest edge a picture keeps once it is in the deck. */
     private const PPT_IMAGE_MAX_EDGE = 1400;
@@ -533,32 +540,26 @@ class CampaignController extends Controller
     /** JPEG quality for everything this class re-encodes. */
     private const PPT_JPEG_QUALITY = 82;
 
-    /** Pixel size of the cached backdrop — 16:9, sharp on a projector. */
+    /** Pixel size of cached full-slide artwork — 16:9, sharp on a projector. */
     private const PPT_BACKDROP_W = 1440;
     private const PPT_BACKDROP_H = 810;
 
-    /** Where the two corner logos sit, in slide pixels. */
-    private const PPT_LOGO_H = 44;
-    private const PPT_LOGO_Y = 24;
-
     /**
-     * Backdrop plus logo — on every slide, so the deck reads as one piece.
+     * A whole slide of supplied artwork — the welcome and thank-you pages.
      *
-     * One picture, not two: PhpPresentation stores a separate copy of every
-     * drawing on every slide, so a 1 MB background and a logo would be re-
-     * embedded per slide and a twenty site campaign would weigh tens of MB.
-     * They are composited once into a small cached JPEG instead.
+     * Shrunk and cached first: the originals run to several MB and
+     * PhpPresentation stores a separate copy of every drawing it is given.
      */
-    private function pptBackdrop(\PhpOffice\PhpPresentation\Slide $slide): void
+    private function pptFullBleed(\PhpOffice\PhpPresentation\Slide $slide, string $artwork): void
     {
-        $backdrop = $this->pptBackdropFile();
+        $file = $this->pptSlideArtwork($artwork);
 
-        if ($backdrop === null) {
+        if ($file === null) {
             return;
         }
 
         $slide->createDrawingShape()
-            ->setPath($backdrop)
+            ->setPath($file)
             ->setResizeProportional(false)
             ->setWidth(self::PPT_W)
             ->setHeight(self::PPT_H)
@@ -567,58 +568,163 @@ class CampaignController extends Controller
     }
 
     /**
-     * Build (or reuse) the composited backdrop: the campaign background with
-     * the logo burned into its top-left corner.
+     * The furniture every middle slide carries: white ground, logo top-left,
+     * footer rule and the two footer lines.
      *
-     * Cached under storage/app/ppt, keyed on both source files, so it survives
-     * between downloads and rebuilds by itself if either artwork is replaced.
+     * Painted once into a cached file and placed as a single picture. As one
+     * drawing rather than five shapes it keeps the file small, and the footer
+     * cannot drift out of line from slide to slide.
      */
-    private function pptBackdropFile(): ?string
+    private function pptChrome(\PhpOffice\PhpPresentation\Slide $slide): void
     {
-        $background = public_path('assets/img/logo/brand_adda_ppt.png');
+        $file = $this->pptChromeFile();
 
-        if (!is_file($background)) {
+        if ($file === null) {
+            return;
+        }
+
+        $slide->createDrawingShape()
+            ->setPath($file)
+            ->setResizeProportional(false)
+            ->setWidth(self::PPT_W)
+            ->setHeight(self::PPT_H)
+            ->setOffsetX(0)
+            ->setOffsetY(0);
+    }
+
+    /** Build (or reuse) the white slide furniture. */
+    private function pptChromeFile(): ?string
+    {
+        // The .png rather than the .webp twin: PowerPoint before 365 cannot
+        // draw WebP, and a logo that fails to render is worse than no logo.
+        $logo = public_path('assets/img/logo/brand_adda.png');
+
+        $cached = $this->pptCachePath('chrome', [
+            is_file($logo) ? (string) @filemtime($logo) : 'no-logo',
+        ]);
+
+        if ($cached === null) {
             return null;
         }
 
-        // Brand Adda, top-right. The .png rather than the .webp twin:
-        // PowerPoint before 365 cannot draw WebP, and a logo that fails to
-        // render is worse than no logo.
-        $logos = [
-            'right' => public_path('assets/img/logo/brand_adda.png'),
-        ];
-
-        $key = md5(implode('|', [
-            $background,
-            (string) @filemtime($background),
-            // Keyed on whichever logos are in play, so adding, moving or
-            // replacing one rebuilds the backdrop by itself.
-            implode(',', array_map(
-                fn(string $align, string $path) => $align . ':' . (is_file($path) ? @filemtime($path) : 'missing'),
-                array_keys($logos),
-                $logos
-            )),
-            self::PPT_BACKDROP_W . 'x' . self::PPT_BACKDROP_H,
-        ]));
-
-        $cacheDir  = storage_path('app/ppt');
-        $cacheFile = $cacheDir . DIRECTORY_SEPARATOR . 'backdrop_' . $key . '.jpg';
-
-        if (is_file($cacheFile)) {
-            return $cacheFile;
+        if (is_file($cached)) {
+            return $cached;
         }
 
-        if (!is_dir($cacheDir) && !@mkdir($cacheDir, 0775, true) && !is_dir($cacheDir)) {
+        $w = self::PPT_BACKDROP_W;
+        $h = self::PPT_BACKDROP_H;
+        $r = $h / self::PPT_H;          // slide px -> artwork px
+
+        $canvas = imagecreatetruecolor($w, $h);
+
+        imagefilledrectangle($canvas, 0, 0, $w, $h, imagecolorallocate($canvas, 255, 255, 255));
+        imagealphablending($canvas, true);
+
+        $orange = imagecolorallocate($canvas, ...self::PPT_ORANGE);
+        $navy   = imagecolorallocate($canvas, ...self::PPT_NAVY);
+
+        if (is_file($logo)) {
+            $mark = @imagecreatefromstring((string) @file_get_contents($logo));
+
+            if ($mark !== false) {
+                $logoH = (int) round(34 * $r);
+                $logoW = (int) round($logoH * (imagesx($mark) / imagesy($mark)));
+
+                imagecopyresampled(
+                    $canvas,
+                    $mark,
+                    (int) round(self::PPT_MARGIN * $r),
+                    (int) round(16 * $r),
+                    0,
+                    0,
+                    $logoW,
+                    $logoH,
+                    imagesx($mark),
+                    imagesy($mark)
+                );
+
+                imagedestroy($mark);
+            }
+        }
+
+        /* ---------- footer ---------- */
+        $ruleY = (int) round(497 * $r);
+
+        imagefilledrectangle(
+            $canvas,
+            (int) round(self::PPT_MARGIN * $r),
+            $ruleY,
+            (int) round((self::PPT_W - self::PPT_MARGIN) * $r),
+            $ruleY + max(1, (int) round(1.2 * $r)),
+            $orange
+        );
+
+        $textFont = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans.ttf');
+
+        if (is_file($textFont)) {
+            $size     = 8 * $r;
+            $baseline = (int) round(518 * $r);
+
+            imagettftext($canvas, $size, 0, (int) round(self::PPT_MARGIN * $r), $baseline, $navy, $textFont, 'brand-adda.co.in');
+
+            $tag = "Maharashtra's Outdoor Media Platform";
+            $box = imagettfbbox($size, 0, $textFont, $tag);
+
+            imagettftext(
+                $canvas,
+                $size,
+                0,
+                (int) round((self::PPT_W - self::PPT_MARGIN) * $r) - ($box[2] - $box[0]),
+                $baseline,
+                $navy,
+                $textFont,
+                $tag
+            );
+        }
+
+        $written = @imagejpeg($canvas, $cached, self::PPT_JPEG_QUALITY);
+        imagedestroy($canvas);
+
+        return $written ? $cached : null;
+    }
+
+    /** Shrink a full-slide artwork file once and keep the result. */
+    private function pptSlideArtwork(string $artwork): ?string
+    {
+        if (!is_file($artwork)) {
+            Log::warning('Campaign PPT: slide artwork missing', ['path' => $artwork]);
             return null;
         }
 
-        $source = @imagecreatefromstring((string) @file_get_contents($background));
+        $cached = $this->pptCachePath(
+            'slide_' . pathinfo($artwork, PATHINFO_FILENAME),
+            [(string) @filemtime($artwork)]
+        );
+
+        if ($cached === null) {
+            return null;
+        }
+
+        if (is_file($cached)) {
+            return $cached;
+        }
+
+        $source = @imagecreatefromstring((string) @file_get_contents($artwork));
 
         if ($source === false) {
             return null;
         }
 
         $canvas = imagecreatetruecolor(self::PPT_BACKDROP_W, self::PPT_BACKDROP_H);
+
+        imagefilledrectangle(
+            $canvas,
+            0,
+            0,
+            self::PPT_BACKDROP_W,
+            self::PPT_BACKDROP_H,
+            imagecolorallocate($canvas, 255, 255, 255)
+        );
 
         imagecopyresampled(
             $canvas,
@@ -635,81 +741,52 @@ class CampaignController extends Controller
 
         imagedestroy($source);
 
-        foreach ($logos as $align => $logo) {
-            if (is_file($logo)) {
-                $this->pptStampLogo($canvas, $logo, $align);
-            }
-        }
-
-        $written = @imagejpeg($canvas, $cacheFile, self::PPT_JPEG_QUALITY);
+        $written = @imagejpeg($canvas, $cached, self::PPT_JPEG_QUALITY);
         imagedestroy($canvas);
 
-        if (!$written) {
+        return $written ? $cached : null;
+    }
+
+    /**
+     * Where a cached slide asset lives. Keyed on what it was built from, so
+     * replacing the artwork rebuilds it by itself.
+     *
+     * @param list<string> $parts
+     */
+    private function pptCachePath(string $name, array $parts): ?string
+    {
+        $dir = storage_path('app/ppt');
+
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
             return null;
         }
 
-        return $cacheFile;
+        $key = md5(implode('|', array_merge($parts, [
+            self::PPT_BACKDROP_W . 'x' . self::PPT_BACKDROP_H,
+        ])));
+
+        return $dir . DIRECTORY_SEPARATOR . $name . '_' . $key . '.jpg';
     }
 
     /**
-     * Draw a logo into one of the backdrop's top corners, on the slide margin
-     * the shapes themselves use.
-     *
-     * @param 'left'|'right' $align which corner it sits in
+     * Size as the format sheet writes it — "20 x 20 Feet" — falling back to the
+     * total area for panelled media, which has no single face.
      */
-    private function pptStampLogo(\GdImage $canvas, string $logo, string $align): void
+    private function pptSize(object $item): string
     {
-        $mark = @imagecreatefromstring((string) @file_get_contents($logo));
+        $width  = (float) ($item->width ?? 0);
+        $height = (float) ($item->height ?? 0);
 
-        if ($mark === false) {
-            return;
+        $trim = static fn(float $n): string => rtrim(rtrim(number_format($n, 2, '.', ''), '0'), '.');
+
+        if ($width > 0 && $height > 0) {
+            return $trim($width) . ' x ' . $trim($height) . ' Feet';
         }
 
-        // The backdrop is drawn larger than the slide so it stays sharp when
-        // projected; everything placed on it scales by the same factor.
-        $ratio = self::PPT_BACKDROP_H / self::PPT_H;
+        $area = (float) ($item->area_auto ?? 0);
 
-        $height = (int) round(self::PPT_LOGO_H * $ratio);
-        $width  = (int) round($height * (imagesx($mark) / imagesy($mark)));
-
-        $x = $align === 'right'
-            ? (int) round((self::PPT_W - self::PPT_MARGIN) * $ratio) - $width
-            : (int) round(self::PPT_MARGIN * $ratio);
-
-        imagealphablending($canvas, true);
-
-        imagecopyresampled(
-            $canvas,
-            $mark,
-            $x,
-            (int) round(self::PPT_LOGO_Y * $ratio),
-            0,
-            0,
-            $width,
-            $height,
-            imagesx($mark),
-            imagesy($mark)
-        );
-
-        imagedestroy($mark);
+        return $area > 0 ? $trim($area) . ' sq.ft' : '-';
     }
-
-    /**
-     * Make one stored media image usable in a .pptx.
-     *
-     * Two things are wrong with handing the stored file straight over. Most of
-     * the inventory is WebP, which PowerPoint cannot draw at all; and the
-     * originals are far larger than the panel they are shown in, which matters
-     * because every slide carries its own copy. Both are settled here: decode
-     * whatever it is, shrink it to the longest edge the deck needs, and write
-     * a JPEG.
-     *
-     * Returns the path and the size it was written at, or null when the file is
-     * missing or will not decode.
-     *
-     * @param  list<string> $tempPaths  collects temp files for the caller to delete
-     * @return array{path:string,width:int,height:int}|null
-     */
     private function pptImage(string $stored, array &$tempPaths): ?array
     {
         $stored = trim($stored);
@@ -790,11 +867,14 @@ class CampaignController extends Controller
     private const PPT_PANEL_SCALE = 3;
 
     private const PPT_ORANGE = [253, 95, 0];      // sampled from the logo
-    private const PPT_VALUE  = [22, 36, 63];      // navy, for the values
-    private const PPT_LABEL  = [85, 96, 110];     // grey, for the labels
+    private const PPT_NAVY   = [20, 42, 79];      // headings, values, footer
+    private const PPT_LABEL  = [98, 105, 115];    // grey, for the labels
+    private const PPT_PILL   = [242, 242, 242];   // the row's light ground
+    private const PPT_RULE   = [222, 224, 228];   // divider between icon and label
 
     /** Font Awesome Solid glyph per row, keyed on the label. */
     private const PPT_ROW_ICONS = [
+        'Media Title' => 0xf108, // desktop — the site's own name
         'Code'       => 0xf292, // hashtag
         'Location'   => 0xf3c5, // location-dot
         'Area'       => 0xf279, // map
@@ -830,32 +910,33 @@ class CampaignController extends Controller
 
         $s = self::PPT_PANEL_SCALE;
         $w = self::PPT_DETAIL_W * $s;
-        $h = self::PPT_PANEL_H * $s;
+        $h = self::PPT_CONTENT_H * $s;
 
         $canvas = imagecreatetruecolor($w, $h);
 
-        // Transparent: the panel sits on the campaign backdrop, and the pills
-        // are meant to let that gradient show through.
+        // The slide is white, so the panel is painted on white rather than left
+        // transparent — it keeps the rounded pills free of fringing.
         imagealphablending($canvas, false);
         imagesavealpha($canvas, true);
-        imagefilledrectangle($canvas, 0, 0, $w, $h, imagecolorallocatealpha($canvas, 0, 0, 0, 127));
+        imagefilledrectangle($canvas, 0, 0, $w, $h, imagecolorallocate($canvas, 255, 255, 255));
         imagealphablending($canvas, true);
 
         $orange = imagecolorallocate($canvas, ...self::PPT_ORANGE);
-        $navy   = imagecolorallocate($canvas, ...self::PPT_VALUE);
+        $navy   = imagecolorallocate($canvas, ...self::PPT_NAVY);
         $grey   = imagecolorallocate($canvas, ...self::PPT_LABEL);
+        $pill   = imagecolorallocate($canvas, ...self::PPT_PILL);
+        $rule   = imagecolorallocate($canvas, ...self::PPT_RULE);
         $white  = imagecolorallocate($canvas, 255, 255, 255);
-        $pill   = imagecolorallocatealpha($canvas, 255, 255, 255, 18);
 
         /* ---------- heading ---------- */
-        $headFont = 12 * $s;
-        $badge    = 10 * $s;
+        $headFont = 13 * $s;
+        $badge    = 9 * $s;
 
-        imagefilledellipse($canvas, $badge, $badge + (2 * $s), $badge * 2, $badge * 2, $orange);
-        $this->pptGlyph($canvas, $iconFont, 0xf3c5, 9 * $s, $badge, $badge + (2 * $s), $white);
+        imagefilledellipse($canvas, $badge, $badge, $badge * 2, $badge * 2, $orange);
+        $this->pptGlyph($canvas, $iconFont, 0xf3c5, 8 * $s, $badge, $badge, $white);
 
-        $headX = 27 * $s;
-        $headY = 16 * $s;
+        $headX = 26 * $s;
+        $headY = 14 * $s;
 
         imagettftext($canvas, $headFont, 0, $headX, $headY, $navy, $boldFont, 'SITE');
 
@@ -864,26 +945,29 @@ class CampaignController extends Controller
 
         imagettftext($canvas, $headFont, 0, $headX + $siteWidth, $headY, $orange, $boldFont, 'DETAILS');
 
-        // Orange rule under SITE only, as in the reference.
+        // Orange rule under SITE only, as the format sheet has it.
         imagefilledrectangle(
             $canvas,
             $headX,
             $headY + (3 * $s),
-            $headX + ($siteBox[2] - $siteBox[0]) - (4 * $s),
-            $headY + (5 * $s),
+            $headX + $siteWidth - (4 * $s),
+            $headY + (4 * $s),
             $orange
         );
 
         /* ---------- rows ---------- */
-        $top    = 28 * $s;
-        $pitch  = (int) floor(($h - $top - (5 * $s)) / max(1, count($rows)));
-        $pillH  = (int) round($pitch * 0.78);
-        $circleR = (int) round($pitch * 0.36);
-        $font   = 8 * $s;
+        $top   = 26 * $s;
+        $pitch = (int) floor(($h - $top) / max(1, count($rows)));
+        $pillH = (int) round($pitch * 0.84);
+        $font  = 7.5 * $s;
 
-        // The colon lines up past the widest label, so the values form a column.
+        // Columns, measured off the format sheet: icon, a hairline divider,
+        // then the label, the colon and the value.
+        $iconX    = 10 * $s;
+        $ruleX    = 20 * $s;
         $labelX   = 27 * $s;
-        $widest   = 0;
+
+        $widest = 0;
 
         foreach (array_keys($rows) as $label) {
             $box    = imagettfbbox($font, 0, $textFont, $label);
@@ -891,35 +975,45 @@ class CampaignController extends Controller
         }
 
         $colonX = $labelX + $widest + (5 * $s);
-        $valueX = $colonX + (7 * $s);
-        $valueW = $w - $valueX - (4 * $s);
+        $valueX = $colonX + (6 * $s);
+        $valueW = $w - $valueX - (5 * $s);
 
         $index = 0;
 
         foreach ($rows as $label => $value) {
             $rowTop = $top + ($index * $pitch);
             $midY   = $rowTop + (int) round($pitch / 2);
+            $halfH  = (int) round($pillH / 2);
 
             $this->pptRoundedRect(
                 $canvas,
-                $circleR,
-                $midY - (int) round($pillH / 2),
+                0,
+                $midY - $halfH,
                 $w - 1,
-                $midY + (int) round($pillH / 2),
-                (int) round($pillH / 2),
+                $midY + $halfH,
+                (int) round($halfH * 0.55),
                 $pill
             );
 
-            imagefilledellipse($canvas, $circleR, $midY, $circleR * 2, $circleR * 2, $orange);
-
+            // Plain orange glyph, no badge — the format sheet keeps the circles
+            // for the heading only.
             $this->pptGlyph(
                 $canvas,
                 $iconFont,
                 self::PPT_ROW_ICONS[$label] ?? 0xf111,
-                (int) round($circleR * 0.9),
-                $circleR,
+                8 * $s,
+                $iconX,
                 $midY,
-                $white
+                $orange
+            );
+
+            imagefilledrectangle(
+                $canvas,
+                $ruleX,
+                $midY - (int) round($halfH * 0.5),
+                $ruleX + max(1, (int) round(0.4 * $s)),
+                $midY + (int) round($halfH * 0.5),
+                $rule
             );
 
             $baseline = $midY + (int) round($font * 0.36);

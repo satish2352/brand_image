@@ -379,6 +379,14 @@
                 {{ session('success') }}
             </div>
         @endif
+
+        {{-- Add to Cart reports why it could not add through 'info'. Without
+             this the page just showed an empty cart and said nothing. --}}
+        @if (session('info'))
+            <div class="alert alert-info text-center fw-bold py-2 mb-3 auto-hide-alert">
+                {{ session('info') }}
+            </div>
+        @endif
         @if ($items->isEmpty())
             <div class="text-center py-5">
                 <h5>Your cart is empty</h5>
