@@ -162,4 +162,59 @@ return [
         // 110 m, so hoardings standing together share one search.
         'coord_precision' => (int) env('SERPAPI_COORD_PRECISION', 3),
     ],
+
+    /* ---------------- RoadStar Audience API ----------------
+       "RoadStar API for Audience Data" (API Documentation V2, Relu Ai Systems).
+       HTTP Basic auth on every request. Server-side only: username/password
+       are read here and by App\Http\Services\RoadStar\RoadStarService, never
+       passed to a view, a JS variable, a JSON response, a log line or the
+       database.
+
+       The documentation states no rate limit, page size or batch size, so
+       every limit below is our own and configurable — not RoadStar's. */
+    'roadstar' => [
+        'base_url'        => env('ROADSTAR_BASE_URL'),
+        'username'        => env('ROADSTAR_USERNAME'),
+        'password'        => env('ROADSTAR_PASSWORD'),
+        'timeout'         => (int) env('ROADSTAR_TIMEOUT', 60),
+        'connect_timeout' => (int) env('ROADSTAR_CONNECT_TIMEOUT', 10),
+
+        // Sites sent in one POST /sitedata (it accepts an array of sites).
+        'batch_size'      => (int) env('ROADSTAR_BATCH_SIZE', 20),
+        // Pause between two requests when running in-process (--sync).
+        'request_delay_ms' => (int) env('ROADSTAR_REQUEST_DELAY_MS', 1000),
+        // Requests per minute the queued jobs are held to.
+        'requests_per_minute' => (int) env('ROADSTAR_REQUESTS_PER_MINUTE', 30),
+        // Most hoardings `roadstar:sync` queues per run, so a first load of
+        // ~10,000 is spread over several days instead of one burst.
+        'max_per_run'     => (int) env('ROADSTAR_MAX_PER_RUN', 2000),
+        'queue'           => env('ROADSTAR_QUEUE', 'roadstar'),
+        // Bulk sync (scheduled roadstar:sync, admin "sync many"). Off until
+        // single-media sync is confirmed; single-media sync always works.
+        'bulk_enabled'    => (bool) env('ROADSTAR_BULK_SYNC_ENABLED', false),
+
+        // A mapped hoarding is refreshed this many days after its last sync.
+        'refresh_days'    => (int) env('ROADSTAR_REFRESH_DAYS', 15),
+        // A failed attempt (network, 5xx, 429, auth) is retried after this.
+        'retry_hours'     => (int) env('ROADSTAR_RETRY_HOURS', 24),
+
+        // Audience period requested from /sitedata (st / ed). Rolling window:
+        // the last ROADSTAR_PERIOD_DAYS days ending ROADSTAR_PERIOD_END_OFFSET_DAYS
+        // before today. ROADSTAR_PERIOD_START + ROADSTAR_PERIOD_END (yyyy-mm-dd)
+        // pin a fixed period instead — the dev server only answers for
+        // 2024-03-01 → 2024-03-31.
+        'period_days'     => (int) env('ROADSTAR_PERIOD_DAYS', 30),
+        'period_end_offset_days' => (int) env('ROADSTAR_PERIOD_END_OFFSET_DAYS', 1),
+        'period_start'    => env('ROADSTAR_PERIOD_START'),
+        'period_end'      => env('ROADSTAR_PERIOD_END'),
+
+        // Site identifier ("arr") we register a hoarding under with /addsite:
+        // prefix + hoarding code (or "M" + media id when it has no code).
+        'site_prefix'     => env('ROADSTAR_SITE_PREFIX', 'BI/'),
+
+        // Scheduled `roadstar:sync`: time of day, and weekdays only (the test
+        // server is up Mon–Fri 10:00–20:00).
+        'schedule_at'     => env('ROADSTAR_SCHEDULE_AT', '11:00'),
+        'schedule_weekdays_only' => (bool) env('ROADSTAR_SCHEDULE_WEEKDAYS_ONLY', true),
+    ],
 ];

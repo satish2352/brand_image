@@ -593,6 +593,57 @@
                     </div>
                 </div>
             </div>
+
+            {{-- ROADSTAR AUDIENCE INSIGHTS — the saved roadstar_audience_data row
+                 (MySQL only; opening this page never calls RoadStar). Visitors see
+                 it once data exists; admins also see the sync status and the
+                 "Sync RoadStar Data" button, which POSTs to our own route. --}}
+            @php
+                $rsAudience = $roadstar['audience'] ?? null;
+                $rsShow = !empty($roadstar['found']) && ($rsAudience || !empty($roadstarAdmin));
+            @endphp
+            @if ($rsShow)
+                <div class="container mt-4">
+                    <div class="card shadow-sm border-0 p-4 insights-card" id="roadstar-audience">
+                        <h4 class="mb-3">RoadStar Audience Insights</h4>
+
+                        @if (!empty($roadstarAdmin))
+                            @php
+                                $rsStatus = [
+                                    'pending' => 'Not synced yet', 'queued' => 'Queued', 'success' => 'Synced',
+                                    'no_data' => 'No data for the period', 'not_available' => 'Site not registered in RoadStar',
+                                    'failed' => 'Last sync failed',
+                                ][$roadstar['sync_status'] ?? ''] ?? 'Not mapped to a RoadStar site';
+                            @endphp
+                            <div class="ins-admin mb-3">
+                                <div><strong>Admin:</strong> RoadStar site
+                                    <strong>{{ $roadstar['roadstar_site_id'] ?: '—' }}</strong> · {{ $rsStatus }}
+                                    @if ($roadstar['last_synced_at']) · last synced {{ $roadstar['last_synced_at'] }} @endif
+                                    @if ($roadstar['next_sync_due_at']) · next due {{ $roadstar['next_sync_due_at'] }} @endif
+                                </div>
+                                @if ($roadstar['sync_error'])
+                                    <div class="text-danger mt-1">{{ $roadstar['sync_error'] }}</div>
+                                @endif
+                                @if ($roadstar['roadstar_site_id'])
+                                    <button type="button" class="ins-refresh-btn mt-2" id="roadstarSyncBtn"
+                                        data-url="{{ route('media.roadstar.sync.site', base64_encode($media->id)) }}">
+                                        <i class="fas fa-sync-alt"></i> Sync RoadStar Data
+                                    </button>
+                                @else
+                                    <div class="mt-1">Map this hoarding to a RoadStar site in the admin panel (Media → View Details) to sync it.</div>
+                                @endif
+                                <div id="roadstarSyncMsg" class="mt-1"></div>
+                            </div>
+                        @endif
+
+                        @if ($rsAudience)
+                            @include('roadstar.audience', ['audience' => $rsAudience])
+                        @else
+                            <div class="ins-empty">No RoadStar audience data has been synced for this site yet.</div>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
 
         <style>
@@ -698,6 +749,44 @@
                 });
 
                 load();
+            });
+
+            /* RoadStar: admin "Sync RoadStar Data" → our route → RoadStar
+               (server-side) → MySQL; then reload to show the saved data. */
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('roadstarSyncBtn');
+                if (!btn) return;
+                const msg = document.getElementById('roadstarSyncMsg');
+                const label = btn.innerHTML;
+
+                btn.addEventListener('click', function() {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Syncing…';
+                    msg.className = 'mt-1';
+                    msg.textContent = '';
+
+                    fetch(btn.dataset.url, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+                    })
+                    .then(r => r.json().then(data => ({ status: r.status, data })))
+                    .then(({ status, data }) => {
+                        msg.textContent = data.message || (status === 429 ? 'Too many syncs. Please wait a minute.' : 'Sync failed.');
+                        msg.className = 'mt-1 ' + (data.ok ? 'text-success' : 'text-danger');
+                        if (data.ok) {
+                            setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                            btn.disabled = false;
+                            btn.innerHTML = label;
+                        }
+                    })
+                    .catch(() => {
+                        msg.textContent = 'Could not reach the server. Please try again.';
+                        msg.className = 'mt-1 text-danger';
+                        btn.disabled = false;
+                        btn.innerHTML = label;
+                    });
+                });
             });
         </script>
         <script>

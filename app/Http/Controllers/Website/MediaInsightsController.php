@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Website;
 use App\Http\Controllers\Controller;
 use App\Http\Services\Insights\HoardingTrafficService;
 use App\Http\Services\Insights\MediaInsightsService;
+use App\Http\Services\RoadStar\RoadStarSyncService;
 use App\Models\ApiUsageLog;
 use App\Models\MediaManagement;
 use App\Support\AdminSession;
@@ -106,6 +107,44 @@ class MediaInsightsController extends Controller
             'message' => $result['message'],
             'quota'   => array_intersect_key($this->insights->quota(), array_flip(['provider', 'period', 'used', 'limit', 'remaining'])),
         ]);
+    }
+
+    /**
+     * POST "Sync RoadStar Data" on the Media Details page — admin only, same
+     * check as refresh(), CSRF-protected and throttled on the route. Syncs a
+     * hoarding already mapped to a RoadStar site (mapping and /addsite are
+     * done from the admin panel). Returns status + message only.
+     */
+    public function roadstarSync(string $encodedId, RoadStarSyncService $roadStar): JsonResponse
+    {
+        if (!$this->isAdmin()) {
+            return response()->json(['ok' => false, 'message' => 'Only admins can sync RoadStar data.'], 403);
+        }
+
+        $id = $this->decode($encodedId);
+        if ($id === null) {
+            return response()->json(['ok' => false, 'message' => 'Invalid media.'], 404);
+        }
+
+        try {
+            $r = $roadStar->syncOne($id, null, false, 'admin', AdminSession::siteId() ?? session('user_id'));
+        } catch (Throwable $e) {
+            Log::error('RoadStar sync failed', ['media_id' => $id, 'message' => $e->getMessage()]);
+
+            return response()->json(['ok' => false, 'message' => 'Could not sync RoadStar data. Please try again later.'], 500);
+        }
+
+        $code = match ($r['status']) {
+            'not_found'  => 404,
+            'not_mapped' => 422,
+            'busy'       => 409,
+            default      => 200,
+        };
+        $message = $r['status'] === 'not_mapped'
+            ? 'This hoarding is not mapped to a RoadStar site yet. Map it from the admin panel (Media → View Details).'
+            : $r['message'];
+
+        return response()->json(['ok' => $r['ok'], 'status' => $r['status'], 'message' => $message], $code);
     }
 
     /**

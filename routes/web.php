@@ -34,6 +34,7 @@ use App\Http\Controllers\Website\GoogleAuthController;
 use App\Http\Controllers\Website\SharedLinkController;
 use App\Http\Controllers\Website\MediaInsightsController;
 use App\Http\Controllers\Superadm\InsightsUsageController;
+use App\Http\Controllers\Superadm\RoadStarController;
 use App\Http\Controllers\Website\SearchSessionController;
 use App\Http\Controllers\Website\RequirementController;
 use App\Http\Controllers\Superadm\PortalAccessController;
@@ -128,6 +129,23 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 
         /* NEARBY-PLACES API USAGE — Geoapify / SerpApi credits vs budget, coverage, log */
         Route::get('insights-usage', [InsightsUsageController::class, 'index'])->name('media.insights.usage');
+
+        /* ROADSTAR AUDIENCE — admin only (this SuperAdmin group); JSON; POSTs
+           carry the CSRF token. Endpoints that call RoadStar are throttled. */
+        Route::prefix('roadstar')->name('media.roadstar.')->group(function () {
+            Route::get('test-connection', [RoadStarController::class, 'testConnection'])
+                ->middleware('throttle:10,1')->name('test');
+            Route::post('sync-bulk', [RoadStarController::class, 'syncBulk'])
+                ->middleware('throttle:10,1')->name('sync.bulk');
+            Route::get('{encodedId}/status', [RoadStarController::class, 'status'])->name('status');
+            Route::get('{encodedId}/site-data', [RoadStarController::class, 'siteData'])
+                ->middleware('throttle:20,1')->name('site-data');
+            Route::post('{encodedId}/map', [RoadStarController::class, 'map'])->name('map');
+            Route::post('{encodedId}/register', [RoadStarController::class, 'register'])
+                ->middleware('throttle:10,1')->name('register');
+            Route::post('{encodedId}/sync', [RoadStarController::class, 'sync'])
+                ->middleware('throttle:20,1')->name('sync');
+        });
 
         /* BULK DATA UPLOAD — IMPORT & EXPORT */
         Route::get('import-export', [MediaImportExportController::class, 'index'])->name('media.import-export');
@@ -375,6 +393,11 @@ Route::post('/media-details/{encodedId}/insights/refresh', [MediaInsightsControl
    (refresh:hoarding-traffic keeps it up to date every 15 days). */
 Route::get('/media-details/{encodedId}/traffic', [MediaInsightsController::class, 'traffic'])
     ->middleware('throttle:60,1')->name('media.traffic.show');
+/* "Sync RoadStar Data" on Media Details: admin-gated inside the controller
+   (like Refresh Insights), POST so CSRF applies, throttled. The page itself
+   only reads saved RoadStar data from MySQL. */
+Route::post('/media-details/{encodedId}/roadstar/sync', [MediaInsightsController::class, 'roadstarSync'])
+    ->middleware('throttle:6,1')->name('media.roadstar.sync.site');
 
 /* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
 Route::get('/explore', [ExploreController::class, 'index'])

@@ -37,6 +37,12 @@ class AppServiceProvider extends ServiceProvider
             ))
         ));
 
+        // RoadStar Audience API: queued SyncRoadStarSites jobs share one request
+        // rate. RoadStar documents no limit, so this is our own (default 30/min).
+        RateLimiter::for('roadstar-api', fn() => Limit::perMinute(
+            max(1, (int) config('services.roadstar.requests_per_minute', 30))
+        ));
+
         /* ========================================
             SEARCH ACCESS WINDOW
             Opened on the Login event rather than in the auth controllers:
