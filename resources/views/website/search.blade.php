@@ -324,7 +324,11 @@
 
                 if (selectAll) {
                     selectAll.addEventListener('change', function () {
-                        allBoxes().forEach(box => setBox(box, selectAll.checked));
+                        // Read once: ticking the first card re-renders, and
+                        // render() resets the master tick to "partial", which
+                        // would untick every card after the first.
+                        const on = selectAll.checked;
+                        allBoxes().forEach(box => setBox(box, on));
                     });
                 }
 

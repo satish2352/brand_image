@@ -13,6 +13,8 @@ use App\Support\LocationCache;
 use App\Support\MasterCache;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Exports\ShortlistExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 /**
  * Shareable hoarding shortlists.
@@ -87,6 +89,54 @@ class SharedLinkController extends Controller
             'ok'    => true,
             'url'   => route('shared.link.show', $link->token),
             'count' => count($mediaIds),
+        ]);
+    }
+
+    /**
+     * Download the ticked hoardings as the campaign PPT deck or quotation
+     * Excel. Admin only, like store(). Posted as a plain form so the browser
+     * handles the download itself.
+     */
+    public function export(Request $request, string $format)
+    {
+        if (!AdminSession::onSite()) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'media_ids'   => 'required|array|min:1',
+            'media_ids.*' => 'integer',
+        ]);
+
+        // Live media only, kept in the order the team ticked them.
+        $live = DB::table('media_management')
+            ->whereIn('id', $data['media_ids'])
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->pluck('id')
+            ->all();
+
+        $mediaIds = array_values(array_filter(
+            array_unique(array_map('intval', $data['media_ids'])),
+            fn ($id) => in_array($id, $live, true)
+        ));
+
+        if (empty($mediaIds)) {
+            return back()->with('error', 'None of the selected hoardings are available to export.');
+        }
+
+        $fileName = 'BrandAdda_Shortlist_' . now()->format('d-m-Y');
+
+        if ($format === 'excel') {
+            return Excel::download(new ShortlistExport($mediaIds), $fileName . '.xlsx');
+        }
+
+        $binary = app(CampaignController::class)->generateShortlistPptBinary($mediaIds);
+
+        return response($binary, 200, [
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '.pptx"',
+            'Cache-Control'       => 'no-store, no-cache',
         ]);
     }
 

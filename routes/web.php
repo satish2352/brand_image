@@ -350,6 +350,9 @@ Route::post('/search', [HomeController::class, 'search'])
    (the admin session is `user_id`, not a guard, so it cannot use auth:*).
    Viewing is deliberately public — the token IS the credential. */
 Route::post('/shared-links', [SharedLinkController::class, 'store'])->name('shared.link.store');
+Route::post('/shared-links/export/{format}', [SharedLinkController::class, 'export'])
+    ->whereIn('format', ['ppt', 'excel'])
+    ->name('shared.link.export');
 /* GET renders the shortlist; POST is the same page with the client's filters
    applied. One action either way — the filter card can only narrow the ids on
    the token, so there is nothing for a second endpoint to guard. */

@@ -251,11 +251,6 @@ class CampaignController extends Controller
 
     public function generatePptBinary(int $campaignId): string
     {
-        // VERY IMPORTANT: Clean output buffers
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
-
         /* ================= CAMPAIGN ================= */
         $campaign = DB::table('campaign')
             ->where('id', $campaignId)
@@ -266,8 +261,42 @@ class CampaignController extends Controller
         }
 
         /* ================= ITEMS ================= */
-        $items = DB::table('cart_items as ci')
-            ->join('media_management as m', 'm.id', '=', 'ci.media_id')
+        $items = $this->pptItemsQuery()
+            ->join('cart_items as ci', 'ci.media_id', '=', 'm.id')
+            ->addSelect('ci.from_date', 'ci.to_date')
+            ->where('ci.campaign_id', $campaignId)
+            ->where('ci.cart_type', 'CAMPAIGN')
+            ->get();
+
+        return $this->buildPpt(['Campaign ', 'Name'], $campaign->campaign_name, $items);
+    }
+
+    /**
+     * The same deck for a shortlist ticked on /search or the Map — no campaign
+     * behind it, so no booking dates, and the hoardings come in the order the
+     * team picked them.
+     */
+    public function generateShortlistPptBinary(array $mediaIds): string
+    {
+        $items = $this->pptItemsQuery()
+            ->addSelect(DB::raw('NULL as from_date'), DB::raw('NULL as to_date'), 'm.id as media_id')
+            ->whereIn('m.id', $mediaIds)
+            ->get();
+
+        $order = array_flip(array_values($mediaIds));
+        $items = $items->sortBy(fn ($item) => $order[$item->media_id] ?? PHP_INT_MAX)->values();
+
+        return $this->buildPpt(
+            ['Media ', 'Shortlist'],
+            count($mediaIds) . ' Hoarding' . (count($mediaIds) === 1 ? '' : 's') . ' - ' . now()->format('d M Y'),
+            $items
+        );
+    }
+
+    /** Everything a media slide shows, keyed off media_management as m. */
+    private function pptItemsQuery(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('media_management as m')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
             ->leftJoin('illuminations as i', 'i.id', '=', 'm.illumination_id')
@@ -287,8 +316,6 @@ class CampaignController extends Controller
                 'm.width',
                 'm.height',
                 'm.price',
-                'ci.from_date',
-                'ci.to_date',
                 'a.area_name',
                 'a.common_stdiciar_name',
                 'c.city_name',
@@ -297,10 +324,18 @@ class CampaignController extends Controller
                 DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 'cat.category_name as media_type',
                 'mi.all_images'
-            )
-            ->where('ci.campaign_id', $campaignId)
-            ->where('ci.cart_type', 'CAMPAIGN')
-            ->get();
+            );
+    }
+
+    /**
+     * @param array{0:string,1:string} $heading  Navy word, orange word.
+     */
+    private function buildPpt(array $heading, string $subtitleText, \Illuminate\Support\Collection $items): string
+    {
+        // VERY IMPORTANT: Clean output buffers
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
 
         /* ================= INIT PPT ================= */
         $ppt = new PhpPresentation();
@@ -340,11 +375,11 @@ class CampaignController extends Controller
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // Two-tone, as the format sheet has it: navy word, orange word.
-        $title->createTextRun('Campaign ')
+        $title->createTextRun($heading[0])
             ->getFont()->setSize(40)->setBold(true)
             ->setColor(new Color(self::PPT_NAVY_HEX));
 
-        $title->createTextRun('Name')
+        $title->createTextRun($heading[1])
             ->getFont()->setSize(40)->setBold(true)
             ->setColor(new Color(self::PPT_ORANGE_HEX));
 
@@ -357,7 +392,7 @@ class CampaignController extends Controller
         $subtitle->getActiveParagraph()->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-        $subtitle->createTextRun('# ' . $campaign->campaign_name . ' #')
+        $subtitle->createTextRun('# ' . $subtitleText . ' #')
             ->getFont()->setSize(18)->setBold(true)->setItalic(true)
             ->setColor(new Color(self::PPT_NAVY_HEX));
 

@@ -8063,6 +8063,44 @@ body:has(.bi-contact) .bi-contact {
     cursor: default;
 }
 
+/* PPT / Excel download, after Share selected. Outlined so Share stays the
+   main action. */
+.share-bar-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, .45);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--brand-white);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+.share-bar-export:hover:not(:disabled) {
+    background: rgba(255, 255, 255, .12);
+    border-color: var(--brand-white);
+}
+
+.share-bar-export:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+@media (max-width: 575px) {
+    .share-bar {
+        flex-wrap: wrap;
+        justify-content: center;
+        border-radius: 20px;
+        width: calc(100% - 32px);
+    }
+}
+
 /* ---- the generated-link dialog ---- */
 .share-modal {
     position: fixed;

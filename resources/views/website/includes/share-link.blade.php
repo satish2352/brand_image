@@ -26,7 +26,20 @@
             <button type="button" class="share-bar-go" id="shareGenerate">
                 <i class="bi bi-link-45deg" aria-hidden="true"></i> Share selected
             </button>
+            {{-- The same deck and quotation sheet a campaign exports, built
+                 from the ticked hoardings. --}}
+            <button type="button" class="share-bar-export" data-share-export="ppt">
+                <i class="bi bi-file-earmark-slides" aria-hidden="true"></i> PPT
+            </button>
+            <button type="button" class="share-bar-export" data-share-export="excel">
+                <i class="bi bi-file-earmark-excel" aria-hidden="true"></i> Excel
+            </button>
         </div>
+
+        {{-- Posted rather than fetched so the browser saves the file itself. --}}
+        <form id="shareExportForm" method="POST" action="" hidden>
+            @csrf
+        </form>
 
         <div class="share-modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
             <div class="share-modal-card">
@@ -142,6 +155,40 @@
                         generateBtn.disabled = false;
                         generateBtn.innerHTML = '<i class="bi bi-link-45deg"></i> Share selected';
                     });
+            });
+
+            const exportForm = document.getElementById('shareExportForm');
+            const exportUrls = {
+                ppt:   "{{ route('shared.link.export', 'ppt') }}",
+                excel: "{{ route('shared.link.export', 'excel') }}"
+            };
+
+            document.querySelectorAll('[data-share-export]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    if (!picked.size) return;
+
+                    exportForm.querySelectorAll('input[name="media_ids[]"]').forEach(i => i.remove());
+                    picked.forEach(function (id) {
+                        const input = document.createElement('input');
+                        input.type  = 'hidden';
+                        input.name  = 'media_ids[]';
+                        input.value = id;
+                        exportForm.appendChild(input);
+                    });
+
+                    exportForm.action = exportUrls[btn.dataset.shareExport];
+                    exportForm.submit();
+
+                    // There is no event for "download finished"; the deck with
+                    // pictures can take a few seconds, so hold off double clicks.
+                    const label = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.textContent = 'Preparing...';
+                    setTimeout(function () {
+                        btn.disabled = false;
+                        btn.innerHTML = label;
+                    }, 4000);
+                });
             });
 
             function openModal(url, count) {
