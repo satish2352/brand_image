@@ -234,7 +234,9 @@ class CampaignController extends Controller
             abort(403);
         }
 
-        $binary = $this->generatePptBinary($campaignId);
+        self::allowLongPptExport();
+
+        $file = $this->generatePptFile($campaignId);
 
         $fileName = preg_replace(
             '/[^A-Za-z0-9_-]/',
@@ -242,14 +244,16 @@ class CampaignController extends Controller
             $campaign->campaign_name
         ) . '_' . now()->format('d-m-Y') . '.pptx';
 
-        return response($binary, 200, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            'Cache-Control' => 'no-store, no-cache',
-        ]);
+        return self::pptDownload($file, $fileName);
     }
 
     public function generatePptBinary(int $campaignId): string
+    {
+        return $this->pptBinaryFromFile($this->generatePptFile($campaignId));
+    }
+
+    /** Build the campaign deck into a temp file and return its path. */
+    public function generatePptFile(int $campaignId): string
     {
         /* ================= CAMPAIGN ================= */
         $campaign = DB::table('campaign')
@@ -277,6 +281,12 @@ class CampaignController extends Controller
      * team picked them.
      */
     public function generateShortlistPptBinary(array $mediaIds): string
+    {
+        return $this->pptBinaryFromFile($this->generateShortlistPptFile($mediaIds));
+    }
+
+    /** Build the shortlist deck into a temp file and return its path. */
+    public function generateShortlistPptFile(array $mediaIds): string
     {
         $items = $this->pptItemsQuery()
             ->addSelect(DB::raw('NULL as from_date'), DB::raw('NULL as to_date'), 'm.id as media_id')
@@ -517,11 +527,12 @@ class CampaignController extends Controller
             public_path('assets/img/brand_adda_thankyou.png')
         );
         /* ================= RETURN BINARY ================= */
-        $writer = IOFactory::createWriter($ppt, 'PowerPoint2007');
+        // Written straight to disk rather than through an output buffer: a
+        // deck of several hundred slides runs to 100 MB+, and buffering it
+        // held two copies in memory at once.
+        $file = $this->pptTempFile();
 
-        ob_start();
-        $writer->save('php://output');
-        $pptContent = ob_get_clean();
+        IOFactory::createWriter($ppt, 'PowerPoint2007')->save($file);
 
         foreach ($tempPaths as $path) {
             if (is_file($path)) {
@@ -529,7 +540,59 @@ class CampaignController extends Controller
             }
         }
 
-        return $pptContent;
+        return $file;
+    }
+
+    /** Send a built deck as a download and delete it afterwards. */
+    public static function pptDownload(string $file, string $fileName)
+    {
+        return response()->download($file, $fileName, [
+            'Content-Type'  => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'Cache-Control' => 'no-store, no-cache',
+        ])->deleteFileAfterSend(true);
+    }
+
+    /** Somewhere to write a finished deck before it is sent. */
+    private function pptTempFile(): string
+    {
+        $dir = storage_path('app/ppt/out');
+
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+
+        // Anything left behind by an aborted download, a day on.
+        foreach (glob($dir . DIRECTORY_SEPARATOR . '*.pptx') ?: [] as $old) {
+            if (@filemtime($old) < time() - 86400) {
+                @unlink($old);
+            }
+        }
+
+        // Cached photos and panels no export has used for 60 days - hoardings
+        // since edited or removed. Anything still used is touched on each hit.
+        foreach (glob(storage_path('app/ppt/assets') . DIRECTORY_SEPARATOR . '*') ?: [] as $old) {
+            if (@filemtime($old) < time() - (60 * 86400)) {
+                @unlink($old);
+            }
+        }
+
+        return $dir . DIRECTORY_SEPARATOR . 'deck_' . bin2hex(random_bytes(8)) . '.pptx';
+    }
+
+    /** Lift the limits a large deck needs. Called by the download actions only. */
+    public static function allowLongPptExport(): void
+    {
+        @set_time_limit(600);
+        @ini_set('memory_limit', '1024M');
+    }
+
+    /** Read a built deck into memory and remove the file — for callers that need the bytes. */
+    private function pptBinaryFromFile(string $file): string
+    {
+        $binary = (string) file_get_contents($file);
+        @unlink($file);
+
+        return $binary;
     }
 
     /* =========================================================
@@ -804,6 +867,23 @@ class CampaignController extends Controller
     }
 
     /**
+     * A reusable per-hoarding asset (resized photo, details panel), kept under
+     * storage/app/ppt/assets. Named by a hash of what it was built from.
+     *
+     * @param list<string> $parts
+     */
+    private function pptAssetPath(string $kind, array $parts, string $ext): ?string
+    {
+        $dir = storage_path('app/ppt/assets');
+
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            return null;
+        }
+
+        return $dir . DIRECTORY_SEPARATOR . $kind . '_' . md5(implode('|', $parts)) . '.' . $ext;
+    }
+
+    /**
      * Size as the format sheet writes it — "20 x 20 Feet" — falling back to the
      * total area for panelled media, which has no single face.
      */
@@ -851,14 +931,29 @@ class CampaignController extends Controller
             return ['path' => $source, 'width' => $width, 'height' => $height];
         }
 
+        $targetWidth  = max(1, (int) round($width * $scale));
+        $targetHeight = max(1, (int) round($height * $scale));
+
+        // Resized once and kept: a big shortlist reuses the same photos export
+        // after export, and decoding them is most of the cost of a slide.
+        // Keyed on the source file, so replacing a photo rebuilds its copy.
+        $cached = $this->pptAssetPath('img', [
+            basename($stored),
+            (string) @filemtime($source),
+            (string) @filesize($source),
+            (string) self::PPT_IMAGE_MAX_EDGE,
+        ], 'jpg');
+
+        if ($cached !== null && is_file($cached)) {
+            @touch($cached); // still in use - keep it out of the clean-up
+            return ['path' => $cached, 'width' => $targetWidth, 'height' => $targetHeight];
+        }
+
         $image = @imagecreatefromstring((string) @file_get_contents($source));
 
         if ($image === false) {
             return null;
         }
-
-        $targetWidth  = max(1, (int) round($width * $scale));
-        $targetHeight = max(1, (int) round($height * $scale));
 
         $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
 
@@ -876,18 +971,22 @@ class CampaignController extends Controller
         imagecopyresampled($canvas, $image, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
         imagedestroy($image);
 
-        $tempPath = storage_path('app/temp_ppt_' . md5($stored) . '.jpg');
+        $path = $cached;
 
-        $written = @imagejpeg($canvas, $tempPath, self::PPT_JPEG_QUALITY);
+        if ($path === null) {
+            // No cache folder: fall back to a one-off temp file.
+            $path = storage_path('app/temp_ppt_' . md5($stored) . '.jpg');
+            $tempPaths[] = $path;
+        }
+
+        $written = @imagejpeg($canvas, $path, self::PPT_JPEG_QUALITY);
         imagedestroy($canvas);
 
         if (!$written) {
             return null;
         }
 
-        $tempPaths[] = $tempPath;
-
-        return ['path' => $tempPath, 'width' => $targetWidth, 'height' => $targetHeight];
+        return ['path' => $path, 'width' => $targetWidth, 'height' => $targetHeight];
     }
 
     /* =========================================================
@@ -900,6 +999,9 @@ class CampaignController extends Controller
 
     /** Rendered at this multiple of the slide size, so it stays sharp. */
     private const PPT_PANEL_SCALE = 3;
+
+    /** Bump when the panel drawing changes, so cached panels are rebuilt. */
+    private const PPT_PANEL_VERSION = '1';
 
     private const PPT_ORANGE = [253, 95, 0];      // sampled from the logo
     private const PPT_NAVY   = [20, 42, 79];      // headings, values, footer
@@ -941,6 +1043,15 @@ class CampaignController extends Controller
                 Log::warning('Campaign PPT: details panel font missing', ['font' => $font]);
                 return null;
             }
+        }
+
+        // Same rows, same picture: reuse the one painted last time. The
+        // version bumps whenever the drawing code below changes.
+        $cached = $this->pptAssetPath('panel', [self::PPT_PANEL_VERSION, serialize($rows)], 'png');
+
+        if ($cached !== null && is_file($cached)) {
+            @touch($cached); // still in use - keep it out of the clean-up
+            return $cached;
         }
 
         $s = self::PPT_PANEL_SCALE;
@@ -1074,18 +1185,20 @@ class CampaignController extends Controller
             $index++;
         }
 
-        $path    = storage_path('app/temp_ppt_panel_' . md5(serialize($rows)) . '.png');
-        $written = @imagepng($canvas, $path, 9);
+        $path = $cached;
+
+        if ($path === null) {
+            $path = storage_path('app/temp_ppt_panel_' . md5(serialize($rows)) . '.png');
+            $tempPaths[] = $path;
+        }
+
+        // Level 6, not 9: the same file size for this flat artwork at a third
+        // of the encoding time, which adds up over hundreds of slides.
+        $written = @imagepng($canvas, $path, 6);
 
         imagedestroy($canvas);
 
-        if (!$written) {
-            return null;
-        }
-
-        $tempPaths[] = $path;
-
-        return $path;
+        return $written ? $path : null;
     }
 
     /**

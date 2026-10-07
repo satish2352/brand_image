@@ -131,13 +131,11 @@ class SharedLinkController extends Controller
             return Excel::download(new ShortlistExport($mediaIds), $fileName . '.xlsx');
         }
 
-        $binary = app(CampaignController::class)->generateShortlistPptBinary($mediaIds);
+        CampaignController::allowLongPptExport();
 
-        return response($binary, 200, [
-            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '.pptx"',
-            'Cache-Control'       => 'no-store, no-cache',
-        ]);
+        $file = app(CampaignController::class)->generateShortlistPptFile($mediaIds);
+
+        return CampaignController::pptDownload($file, $fileName . '.pptx');
     }
 
     /**
