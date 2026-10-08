@@ -11,8 +11,10 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
@@ -35,7 +37,8 @@ abstract class QuotationExport implements FromArray, WithEvents, WithTitle
 {
     private const GST_RATE = 0.18;
 
-    private const ORANGE = 'EB7615';
+    private const NAVY   = '0F243E';
+    private const ORANGE = 'C65911';
     private const WHITE  = 'FFFFFF';
     private const LINK   = '0563C1';
 
@@ -226,8 +229,6 @@ abstract class QuotationExport implements FromArray, WithEvents, WithTitle
             $sheet->setCellValue("{$col}11", $text);
         }
         $this->banner($sheet, "B11:{$last}11", 12, Alignment::HORIZONTAL_CENTER);
-        // Black on orange here, as the template has it - only the banners are white.
-        $sheet->getStyle("B11:{$last}11")->getFont()->getColor()->setRGB('000000');
         $sheet->getStyle("B11:{$last}11")->getAlignment()->setWrapText(true);
         $sheet->getRowDimension(11)->setRowHeight(51.75);
 
@@ -308,12 +309,12 @@ abstract class QuotationExport implements FromArray, WithEvents, WithTitle
             $sheet->setCellValue("O{$r}", $formula);
             $sheet->getRowDimension($r)->setRowHeight(self::ROW_H);
         }
-        $sheet->getStyle("M{$sub}:O{$tot}")->getFont()->setSize(12);
+        $sheet->getStyle("M{$sub}:O{$tot}")->getFont()->setBold(true)->setSize(12)->getColor()->setRGB(self::WHITE);
         $sheet->getStyle("M{$sub}:O{$tot}")->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle("O{$sub}:O{$tot}")->getNumberFormat()->setFormatCode('#,##0.00');
-        // Sub Total and Total run orange the full width of the table.
-        foreach ([$sub, $tot] as $r) {
+        // Sub Total, GST and Total run navy the full width of the table.
+        foreach ([$sub, $gst, $tot] as $r) {
             $this->fill($sheet, "B{$r}:{$last}{$r}");
             $this->box($sheet, "B{$r}:{$last}{$r}");
         }
@@ -337,6 +338,7 @@ abstract class QuotationExport implements FromArray, WithEvents, WithTitle
 
         $sheet->mergeCells("B{$r}:{$last}{$r}");
         $sheet->getRowDimension($r)->setRowHeight(self::ROW_H);
+        $this->fill($sheet, "B{$r}:{$last}{$r}");
         $this->box($sheet, "B{$termsTop}:{$last}{$r}");
 
         /* ---------- printing ---------- */
@@ -365,14 +367,31 @@ abstract class QuotationExport implements FromArray, WithEvents, WithTitle
             $r++;
             $sheet->setCellValue("B{$r}", $i + 1);
             $sheet->mergeCells("C{$r}:{$last}{$r}");
-            $sheet->setCellValueExplicit("C{$r}", $term, DataType::TYPE_STRING);
+            $sheet->getCell("C{$r}")->setValue($this->term($term));
             $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle("C{$r}")->getFont()->setBold(true);
             $sheet->getStyle("B{$r}:C{$r}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
             $sheet->getRowDimension($r)->setRowHeight(self::ROW_H);
         }
 
         return $r + 1;
+    }
+
+    /** "Payment: 50% advance..." - the label before the colon in bold orange, the rest navy. */
+    private function term(string $term): RichText
+    {
+        $text = new RichText();
+        [$label, $rest] = array_pad(explode(':', $term, 2), 2, null);
+
+        if ($rest === null) {
+            $text->createTextRun($term)->getFont()->setColor(new Color('FF' . self::NAVY));
+            return $text;
+        }
+
+        $head = $text->createTextRun($label . ':');
+        $head->getFont()->setBold(true)->setColor(new Color('FF' . self::ORANGE));
+        $text->createTextRun($rest)->getFont()->setColor(new Color('FF' . self::NAVY));
+
+        return $text;
     }
 
     private function logo(Worksheet $sheet): void
@@ -436,7 +455,7 @@ abstract class QuotationExport implements FromArray, WithEvents, WithTitle
         $sheet->setCellValueExplicit($cell, $value === '' ? '-' : $value, DataType::TYPE_STRING);
     }
 
-    /** Orange band with white bold text. */
+    /** Navy band with white bold text. */
     private function banner(Worksheet $sheet, string $range, int $size, string $align): void
     {
         $this->fill($sheet, $range);
@@ -451,7 +470,7 @@ abstract class QuotationExport implements FromArray, WithEvents, WithTitle
 
     private function fill(Worksheet $sheet, string $range): void
     {
-        $sheet->getStyle($range)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::ORANGE);
+        $sheet->getStyle($range)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB(self::NAVY);
     }
 
     private function grid(Worksheet $sheet, string $range): void
