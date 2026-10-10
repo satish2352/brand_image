@@ -1001,7 +1001,7 @@ class CampaignController extends Controller
     private const PPT_PANEL_SCALE = 3;
 
     /** Bump when the panel drawing changes, so cached panels are rebuilt. */
-    private const PPT_PANEL_VERSION = '1';
+    private const PPT_PANEL_VERSION = '2';
 
     private const PPT_ORANGE = [253, 95, 0];      // sampled from the logo
     private const PPT_NAVY   = [20, 42, 79];      // headings, values, footer
@@ -1103,8 +1103,6 @@ class CampaignController extends Controller
 
         /* ---------- rows ---------- */
         $top   = 26 * $s;
-        $pitch = (int) floor(($h - $top) / max(1, count($rows)));
-        $pillH = (int) round($pitch * 0.84);
         $font  = 7.5 * $s;
 
         // Columns, measured off the format sheet: icon, a hairline divider,
@@ -1124,12 +1122,33 @@ class CampaignController extends Controller
         $valueX = $colonX + (6 * $s);
         $valueW = $w - $valueX - (5 * $s);
 
-        $index = 0;
+        // Long values (a site's title, mostly) wrap onto extra lines rather
+        // than being clipped, and their row grows to hold them: each extra
+        // line costs half a row, taken evenly from the rest.
+        $wrapped = [];
+        $weight  = 0;
 
         foreach ($rows as $label => $value) {
-            $rowTop = $top + ($index * $pitch);
+            $wrapped[$label] = $this->pptWrapText((string) $value, $boldFont, $font, $valueW);
+            $weight += 1 + (count($wrapped[$label][0]) - 1) * 0.5;
+        }
+
+        $unit   = ($h - $top) / max(1, $weight);
+        $gap    = (int) round($unit * 0.16);
+        $radius = (int) round(($unit * 0.84 / 2) * 0.55);
+        $rowTop = $top;
+
+        foreach ($rows as $label => $value) {
+            [$valueLines, $valueSize] = $wrapped[$label];
+
+            $pitch  = (int) round($unit * (1 + (count($valueLines) - 1) * 0.5));
             $midY   = $rowTop + (int) round($pitch / 2);
-            $halfH  = (int) round($pillH / 2);
+            $halfH  = (int) round(($pitch - $gap) / 2);
+
+            // Icon, label and colon line up with the first line of the value.
+            $lineH     = $valueSize * 1.55;
+            $firstLine = $midY - (int) round((count($valueLines) - 1) * $lineH / 2);
+            $baseline  = $firstLine + (int) round($font * 0.36);
 
             $this->pptRoundedRect(
                 $canvas,
@@ -1137,7 +1156,7 @@ class CampaignController extends Controller
                 $midY - $halfH,
                 $w - 1,
                 $midY + $halfH,
-                (int) round($halfH * 0.55),
+                min($radius, (int) round($halfH * 0.55)),
                 $pill
             );
 
@@ -1149,7 +1168,7 @@ class CampaignController extends Controller
                 self::PPT_ROW_ICONS[$label] ?? 0xf111,
                 8 * $s,
                 $iconX,
-                $midY,
+                $firstLine,
                 $orange
             );
 
@@ -1162,27 +1181,24 @@ class CampaignController extends Controller
                 $rule
             );
 
-            $baseline = $midY + (int) round($font * 0.36);
 
             imagettftext($canvas, $font, 0, $labelX, $baseline, $grey, $textFont, $label);
             imagettftext($canvas, $font, 0, $colonX, $baseline, $grey, $textFont, ':');
 
-            // Values vary wildly in length. Step the size down before letting
-            // anything spill out of the panel, and only clip as a last resort.
-            [$valueText, $valueSize] = $this->pptFitText((string) $value, $boldFont, $font, $valueW);
+            foreach ($valueLines as $i => $valueText) {
+                imagettftext(
+                    $canvas,
+                    $valueSize,
+                    0,
+                    $valueX,
+                    $firstLine + (int) round($i * $lineH + $valueSize * 0.36),
+                    $navy,
+                    $boldFont,
+                    $valueText
+                );
+            }
 
-            imagettftext(
-                $canvas,
-                $valueSize,
-                0,
-                $valueX,
-                $midY + (int) round($valueSize * 0.36),
-                $navy,
-                $boldFont,
-                $valueText
-            );
-
-            $index++;
+            $rowTop += $pitch;
         }
 
         $path = $cached;
@@ -1202,30 +1218,68 @@ class CampaignController extends Controller
     }
 
     /**
-     * Shrink text until it fits the given width, clipping with an ellipsis only
-     * once the smallest size still will not do.
+     * Word-wrap text to the given width, up to $maxLines lines. If it still
+     * will not fit, try once more a size smaller, then clip the last line
+     * with an ellipsis.
      *
-     * @return array{0:string,1:float} the text to draw and the size to draw it at
+     * @return array{0:list<string>,1:float} the lines to draw and the size to draw them at
      */
-    private function pptFitText(string $text, string $font, float $size, int $maxWidth): array
+    private function pptWrapText(string $text, string $font, float $size, int $maxWidth, int $maxLines = 3): array
     {
         $width = static fn(string $t, float $s): int => (int) (
             ($box = imagettfbbox($s, 0, $font, $t)) ? $box[2] - $box[0] : 0
         );
 
-        for ($try = $size; $try >= $size * 0.72; $try -= 1) {
-            if ($width($text, $try) <= $maxWidth) {
-                return [$text, $try];
+        $text = trim(preg_replace('/\s+/u', ' ', $text));
+
+        foreach ([$size, $size * 0.88] as $try) {
+            $lines = [];
+            $line  = '';
+
+            foreach (explode(' ', $text) as $word) {
+                $candidate = $line === '' ? $word : $line . ' ' . $word;
+
+                if ($width($candidate, $try) <= $maxWidth) {
+                    $line = $candidate;
+                    continue;
+                }
+
+                if ($line !== '') {
+                    $lines[] = $line;
+                }
+
+                // A single word wider than the panel is broken mid-word.
+                while ($width($word, $try) > $maxWidth && mb_strlen($word) > 1) {
+                    $cut = mb_strlen($word) - 1;
+
+                    while ($cut > 1 && $width(mb_substr($word, 0, $cut), $try) > $maxWidth) {
+                        $cut--;
+                    }
+
+                    $lines[] = mb_substr($word, 0, $cut);
+                    $word    = mb_substr($word, $cut);
+                }
+
+                $line = $word;
+            }
+
+            $lines[] = $line;
+
+            if (count($lines) <= $maxLines) {
+                return [$lines, $try];
             }
         }
 
-        $small = $size * 0.72;
+        $lines = array_slice($lines, 0, $maxLines);
+        $last  = $lines[$maxLines - 1];
 
-        while ($text !== '' && $width($text . '…', $small) > $maxWidth) {
-            $text = mb_substr($text, 0, -1);
+        while ($last !== '' && $width($last . '…', $try) > $maxWidth) {
+            $last = mb_substr($last, 0, -1);
         }
 
-        return [$text . '…', $small];
+        $lines[$maxLines - 1] = rtrim($last) . '…';
+
+        return [$lines, $try];
     }
 
     /** One Font Awesome glyph, centred on the given point. */
