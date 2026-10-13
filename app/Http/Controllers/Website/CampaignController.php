@@ -553,76 +553,36 @@ class CampaignController extends Controller
         return $file;
     }
 
-    /** Room above the shortlist's details panel for the editable title. */
-    private const PPT_TITLE_H = 84;
-
     /**
-     * The right-hand side of a shortlist slide: the media title as a real
-     * PowerPoint text box — wrapped, and editable by whoever sends the deck
-     * on — with the painted panel of site details underneath.
+     * The right-hand side of a shortlist slide: the painted panel of site
+     * details, led by the media title in its own grey strip — wrapped onto
+     * more lines when it is long.
      */
     private function pptShortlistDetails(\PhpOffice\PhpPresentation\Slide $slide, object $item, array &$tempPaths): void
     {
-        $title = trim(preg_replace('/\s+/u', ' ', (string) $item->media_title)) ?: '-';
-
-        // Largest size that still fits the box. Measured with the panel's
-        // bold font, which runs wider than PowerPoint's, so it errs on the
-        // side of fitting.
-        $boldFont = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-Bold.ttf');
-        $size     = 12;
-
-        if (is_file($boldFont)) {
-            foreach ([20, 17, 14, 12] as $try) {
-                $lines = count($this->pptWrapText($title, $boldFont, $try, self::PPT_DETAIL_W - 12, 99)[0]);
-
-                if ($lines * $try * 1.6 + 8 <= self::PPT_TITLE_H) {
-                    $size = $try;
-                    break;
-                }
-            }
-        }
-
-        $box = $slide->createRichTextShape()
-            ->setOffsetX(self::PPT_DETAIL_X)
-            ->setOffsetY(self::PPT_CONTENT_Y)
-            ->setWidth(self::PPT_DETAIL_W)
-            ->setHeight(self::PPT_TITLE_H)
-            ->setWrap(\PhpOffice\PhpPresentation\Shape\RichText::WRAP_SQUARE)
-            ->setAutoFit(\PhpOffice\PhpPresentation\Shape\RichText::AUTOFIT_NORMAL)
-            ->setVerticalOverflow(\PhpOffice\PhpPresentation\Shape\RichText::OVERFLOW_OVERFLOW);
-
-        $box->getActiveParagraph()->getAlignment()
-            ->setHorizontal(Alignment::HORIZONTAL_LEFT)
-            ->setVertical(Alignment::VERTICAL_CENTER);
-
-        $box->createTextRun($title)
-            ->getFont()->setSize($size)->setBold(true)
-            ->setColor(new Color(self::PPT_NAVY_HEX));
-
         $location = $item->common_stdiciar_name
             ?: implode(', ', array_filter([$item->area_name, $item->city_name]));
 
         $rows = [
-            'Code'       => $item->hoarding_code ?: '-',
-            'Location'   => $location ?: '-',
-            'Size'       => $this->pptSize($item),
-            'Media type' => $item->media_type ?: '-',
-            'Lighting'   => $item->illumination_name ?: '-',
-            'Landmarks'  => $item->landmark_names ?: '-',
+            'Media Title' => $item->media_title ?: '-',
+            'Code'        => $item->hoarding_code ?: '-',
+            'Location'    => $location ?: '-',
+            'Size'        => $this->pptSize($item),
+            'Media type'  => $item->media_type ?: '-',
+            'Lighting'    => $item->illumination_name ?: '-',
+            'Landmarks'   => $item->landmark_names ?: '-',
         ];
 
-        $panelY = self::PPT_CONTENT_Y + self::PPT_TITLE_H + 6;
-        $panelH = self::PPT_CONTENT_Y + self::PPT_CONTENT_H - $panelY;
-        $panel  = $this->pptDetailsPanel($rows, $tempPaths, $panelH);
+        $panel = $this->pptDetailsPanel($rows, $tempPaths);
 
         if ($panel !== null) {
             $slide->createDrawingShape()
                 ->setPath($panel)
                 ->setResizeProportional(false)
                 ->setWidth(self::PPT_DETAIL_W)
-                ->setHeight($panelH)
+                ->setHeight(self::PPT_CONTENT_H)
                 ->setOffsetX(self::PPT_DETAIL_X)
-                ->setOffsetY($panelY);
+                ->setOffsetY(self::PPT_CONTENT_Y);
         }
     }
 
@@ -1084,7 +1044,7 @@ class CampaignController extends Controller
     private const PPT_PANEL_SCALE = 3;
 
     /** Bump when the panel drawing changes, so cached panels are rebuilt. */
-    private const PPT_PANEL_VERSION = '2';
+    private const PPT_PANEL_VERSION = '3';
 
     private const PPT_ORANGE = [253, 95, 0];      // sampled from the logo
     private const PPT_NAVY   = [20, 42, 79];      // headings, values, footer
@@ -1206,17 +1166,17 @@ class CampaignController extends Controller
         $valueW = $w - $valueX - (5 * $s);
 
         // Long values (a site's title, mostly) wrap onto extra lines rather
-        // than being clipped, and their row grows to hold them: each extra
-        // line costs half a row, taken evenly from the rest.
+        // than being clipped, and their row grows by exactly the extra lines'
+        // height, taken evenly from the rest.
         $wrapped = [];
-        $weight  = 0;
+        $extra   = [];
 
         foreach ($rows as $label => $value) {
-            $wrapped[$label] = $this->pptWrapText((string) $value, $boldFont, $font, $valueW);
-            $weight += 1 + (count($wrapped[$label][0]) - 1) * 0.5;
+            [$lines, $size]  = $wrapped[$label] = $this->pptWrapText((string) $value, $boldFont, $font, $valueW);
+            $extra[$label]   = (int) round((count($lines) - 1) * $size * 1.55);
         }
 
-        $unit   = ($h - $top) / max(1, $weight);
+        $unit   = ($h - $top - array_sum($extra)) / max(1, count($rows));
         $gap    = (int) round($unit * 0.16);
         $radius = (int) round(($unit * 0.84 / 2) * 0.55);
         $rowTop = $top;
@@ -1224,7 +1184,7 @@ class CampaignController extends Controller
         foreach ($rows as $label => $value) {
             [$valueLines, $valueSize] = $wrapped[$label];
 
-            $pitch  = (int) round($unit * (1 + (count($valueLines) - 1) * 0.5));
+            $pitch  = (int) round($unit) + $extra[$label];
             $midY   = $rowTop + (int) round($pitch / 2);
             $halfH  = (int) round(($pitch - $gap) / 2);
 
