@@ -299,7 +299,8 @@ class CampaignController extends Controller
         return $this->buildPpt(
             ['Media ', 'Shortlist'],
             count($mediaIds) . ' Hoarding' . (count($mediaIds) === 1 ? '' : 's') . ' - ' . now()->format('d M Y'),
-            $items
+            $items,
+            true
         );
     }
 
@@ -339,8 +340,11 @@ class CampaignController extends Controller
 
     /**
      * @param array{0:string,1:string} $heading  Navy word, orange word.
+     * @param bool $shortlist  The slimmer client deck: one picture, the title
+     *                         as an editable text box, and only the site rows
+     *                         a client needs — no price, dates, area or city.
      */
-    private function buildPpt(array $heading, string $subtitleText, \Illuminate\Support\Collection $items): string
+    private function buildPpt(array $heading, string $subtitleText, \Illuminate\Support\Collection $items, bool $shortlist = false): string
     {
         // VERY IMPORTANT: Clean output buffers
         while (ob_get_level() > 0) {
@@ -426,7 +430,8 @@ class CampaignController extends Controller
                 }
 
                 // Four is all the space can show: one hero plus a strip of three.
-                if (count($images) === 4) {
+                // The shortlist deck shows just the one.
+                if (count($images) === ($shortlist ? 1 : 4)) {
                     break;
                 }
             }
@@ -482,6 +487,11 @@ class CampaignController extends Controller
             }
 
             /* ---------- SITE DETAILS : RIGHT ---------- */
+            if ($shortlist) {
+                $this->pptShortlistDetails($slide, $item, $tempPaths);
+                continue;
+            }
+
             $from = $item->from_date
                 ? \Carbon\Carbon::parse($item->from_date)->format('d M Y')
                 : '-';
@@ -541,6 +551,79 @@ class CampaignController extends Controller
         }
 
         return $file;
+    }
+
+    /** Room above the shortlist's details panel for the editable title. */
+    private const PPT_TITLE_H = 84;
+
+    /**
+     * The right-hand side of a shortlist slide: the media title as a real
+     * PowerPoint text box — wrapped, and editable by whoever sends the deck
+     * on — with the painted panel of site details underneath.
+     */
+    private function pptShortlistDetails(\PhpOffice\PhpPresentation\Slide $slide, object $item, array &$tempPaths): void
+    {
+        $title = trim(preg_replace('/\s+/u', ' ', (string) $item->media_title)) ?: '-';
+
+        // Largest size that still fits the box. Measured with the panel's
+        // bold font, which runs wider than PowerPoint's, so it errs on the
+        // side of fitting.
+        $boldFont = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans-Bold.ttf');
+        $size     = 12;
+
+        if (is_file($boldFont)) {
+            foreach ([20, 17, 14, 12] as $try) {
+                $lines = count($this->pptWrapText($title, $boldFont, $try, self::PPT_DETAIL_W - 12, 99)[0]);
+
+                if ($lines * $try * 1.6 + 8 <= self::PPT_TITLE_H) {
+                    $size = $try;
+                    break;
+                }
+            }
+        }
+
+        $box = $slide->createRichTextShape()
+            ->setOffsetX(self::PPT_DETAIL_X)
+            ->setOffsetY(self::PPT_CONTENT_Y)
+            ->setWidth(self::PPT_DETAIL_W)
+            ->setHeight(self::PPT_TITLE_H)
+            ->setWrap(\PhpOffice\PhpPresentation\Shape\RichText::WRAP_SQUARE)
+            ->setAutoFit(\PhpOffice\PhpPresentation\Shape\RichText::AUTOFIT_NORMAL)
+            ->setVerticalOverflow(\PhpOffice\PhpPresentation\Shape\RichText::OVERFLOW_OVERFLOW);
+
+        $box->getActiveParagraph()->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_LEFT)
+            ->setVertical(Alignment::VERTICAL_CENTER);
+
+        $box->createTextRun($title)
+            ->getFont()->setSize($size)->setBold(true)
+            ->setColor(new Color(self::PPT_NAVY_HEX));
+
+        $location = $item->common_stdiciar_name
+            ?: implode(', ', array_filter([$item->area_name, $item->city_name]));
+
+        $rows = [
+            'Code'       => $item->hoarding_code ?: '-',
+            'Location'   => $location ?: '-',
+            'Size'       => $this->pptSize($item),
+            'Media type' => $item->media_type ?: '-',
+            'Lighting'   => $item->illumination_name ?: '-',
+            'Landmarks'  => $item->landmark_names ?: '-',
+        ];
+
+        $panelY = self::PPT_CONTENT_Y + self::PPT_TITLE_H + 6;
+        $panelH = self::PPT_CONTENT_Y + self::PPT_CONTENT_H - $panelY;
+        $panel  = $this->pptDetailsPanel($rows, $tempPaths, $panelH);
+
+        if ($panel !== null) {
+            $slide->createDrawingShape()
+                ->setPath($panel)
+                ->setResizeProportional(false)
+                ->setWidth(self::PPT_DETAIL_W)
+                ->setHeight($panelH)
+                ->setOffsetX(self::PPT_DETAIL_X)
+                ->setOffsetY($panelY);
+        }
     }
 
     /** Send a built deck as a download and delete it afterwards. */
@@ -1032,7 +1115,7 @@ class CampaignController extends Controller
      * @param  array<string,string> $rows       label => value, in display order
      * @param  list<string>         $tempPaths  collects temp files to delete
      */
-    private function pptDetailsPanel(array $rows, array &$tempPaths): ?string
+    private function pptDetailsPanel(array $rows, array &$tempPaths, int $height = self::PPT_CONTENT_H): ?string
     {
         $iconFont  = public_path('asset/css/icons/font-awesome/webfonts/fa-solid-900.ttf');
         $textFont  = base_path('vendor/dompdf/dompdf/lib/fonts/DejaVuSans.ttf');
@@ -1047,7 +1130,7 @@ class CampaignController extends Controller
 
         // Same rows, same picture: reuse the one painted last time. The
         // version bumps whenever the drawing code below changes.
-        $cached = $this->pptAssetPath('panel', [self::PPT_PANEL_VERSION, serialize($rows)], 'png');
+        $cached = $this->pptAssetPath('panel', [self::PPT_PANEL_VERSION, $height, serialize($rows)], 'png');
 
         if ($cached !== null && is_file($cached)) {
             @touch($cached); // still in use - keep it out of the clean-up
@@ -1056,7 +1139,7 @@ class CampaignController extends Controller
 
         $s = self::PPT_PANEL_SCALE;
         $w = self::PPT_DETAIL_W * $s;
-        $h = self::PPT_CONTENT_H * $s;
+        $h = $height * $s;
 
         $canvas = imagecreatetruecolor($w, $h);
 
@@ -1204,7 +1287,7 @@ class CampaignController extends Controller
         $path = $cached;
 
         if ($path === null) {
-            $path = storage_path('app/temp_ppt_panel_' . md5(serialize($rows)) . '.png');
+            $path = storage_path('app/temp_ppt_panel_' . md5($height . serialize($rows)) . '.png');
             $tempPaths[] = $path;
         }
 
