@@ -340,9 +340,8 @@ class CampaignController extends Controller
 
     /**
      * @param array{0:string,1:string} $heading  Navy word, orange word.
-     * @param bool $shortlist  The slimmer client deck: one picture, the title
-     *                         as an editable text box, and only the site rows
-     *                         a client needs — no price, dates, area or city.
+     * @param bool $shortlist  The slimmer client deck: one picture per site
+     *                         rather than four.
      */
     private function buildPpt(array $heading, string $subtitleText, \Illuminate\Support\Collection $items, bool $shortlist = false): string
     {
@@ -487,46 +486,7 @@ class CampaignController extends Controller
             }
 
             /* ---------- SITE DETAILS : RIGHT ---------- */
-            if ($shortlist) {
-                $this->pptShortlistDetails($slide, $item, $tempPaths);
-                continue;
-            }
-
-            $from = $item->from_date
-                ? \Carbon\Carbon::parse($item->from_date)->format('d M Y')
-                : '-';
-
-            $to = $item->to_date
-                ? \Carbon\Carbon::parse($item->to_date)->format('d M Y')
-                : '-';
-
-            $rows = [
-                'Media Title' => $item->media_title ?: '-',
-                'Code'        => $item->hoarding_code ?: '-',
-                'Location'    => $item->common_stdiciar_name ?: '-',
-                'Area'        => $item->area_name ?: '-',
-                'City'        => $item->city_name ?: '-',
-                'Size'        => $this->pptSize($item),
-                'Media type'  => $item->media_type ?: '-',
-                'Price'       => '₹ ' . number_format((float) $item->price),
-                'From Date'   => $from,
-                'To Date'     => $to,
-                'Lighting'    => $item->illumination_name ?: '-',
-                'Highway'     => $item->highway_name ?: '-',
-                'Landmarks'   => $item->landmark_names ?: '-',
-            ];
-
-            $panel = $this->pptDetailsPanel($rows, $tempPaths);
-
-            if ($panel !== null) {
-                $slide->createDrawingShape()
-                    ->setPath($panel)
-                    ->setResizeProportional(false)
-                    ->setWidth(self::PPT_DETAIL_W)
-                    ->setHeight(self::PPT_CONTENT_H)
-                    ->setOffsetX(self::PPT_DETAIL_X)
-                    ->setOffsetY(self::PPT_CONTENT_Y);
-            }
+            $this->pptSiteDetails($slide, $item, $tempPaths);
         }
 
         /* =====================================================
@@ -554,11 +514,11 @@ class CampaignController extends Controller
     }
 
     /**
-     * The right-hand side of a shortlist slide: the painted panel of site
-     * details, led by the media title in its own grey strip — wrapped onto
-     * more lines when it is long.
+     * The right-hand side of a media slide (campaign and shortlist decks
+     * alike): the painted panel of site details, led by the media title in
+     * its own grey strip — wrapped onto more lines when it is long.
      */
-    private function pptShortlistDetails(\PhpOffice\PhpPresentation\Slide $slide, object $item, array &$tempPaths): void
+    private function pptSiteDetails(\PhpOffice\PhpPresentation\Slide $slide, object $item, array &$tempPaths): void
     {
         $location = $item->common_stdiciar_name
             ?: implode(', ', array_filter([$item->area_name, $item->city_name]));
