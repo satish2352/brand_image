@@ -56,10 +56,10 @@
     @else
         <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
             <section class="vp-card" aria-label="Bookings in {{ $stageLabels[$stage] }}" style="flex:1 1 280px;padding:8px">
-                <div class="vp-muted" style="padding:10px 12px;font-weight:700">{{ $stageLabels[$stage] }} · {{ $list->count() }} booking(s)</div>
+                <div class="vp-muted" style="padding:10px 12px;font-weight:700">{{ $stageLabels[$stage] }} · {{ $list->total() }} booking(s)</div>
                 @forelse ($list as $op)
                     @php $sel = $selected && $selected->id === $op->id; @endphp
-                    <a href="{{ route('vendor.operations', ['stage' => $stage, 'op' => $op->id, 'q' => request('q')]) }}"
+                    <a href="{{ route('vendor.operations', array_filter(['stage' => $stage, 'op' => $op->id, 'q' => request('q'), 'page' => $list->currentPage() > 1 ? $list->currentPage() : null])) }}"
                         style="display:block;padding:14px;border-radius:10px;text-decoration:none;color:#0F172A;margin-top:4px;{{ $sel ? 'background:#FFF7ED;border:1px solid #FDBA74' : 'border:1px solid transparent' }}">
                         <div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800"><span>{{ $op->order_no }}</span></div>
                         <div style="font-size:13px;color:#334155;margin-top:6px">{{ $op->hoarding_code ?: $op->media_code }} · {{ $op->media_title }}</div>
@@ -68,6 +68,12 @@
                 @empty
                     <p class="vp-muted" style="padding:10px 12px;margin:0">Nothing in this stage.</p>
                 @endforelse
+                @if ($list->hasPages())
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 4px">
+                        <span class="vp-muted" style="font-size:12px">{{ $list->firstItem() }}–{{ $list->lastItem() }} of {{ $list->total() }}</span>
+                        {{ $list->onEachSide(0)->links('pagination::simple-bootstrap-4') }}
+                    </div>
+                @endif
             </section>
 
             @if ($selected)

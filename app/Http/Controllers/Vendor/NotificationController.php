@@ -16,12 +16,18 @@ class NotificationController extends Controller
     }
 
     /** Notifications only: the bell and the sidebar open this page. */
-    public function index()
+    public function index(Request $request)
     {
         $vendor = $this->vendor();
 
+        // Server-side pagination: 15 per page; a page past the end goes to the last page.
+        $notifications = PanelNotification::forVendor($vendor->id)->latest()->latest('id')->paginate(15)->withQueryString();
+        if ($notifications->isEmpty() && $notifications->currentPage() > 1) {
+            return redirect()->to($notifications->url($notifications->lastPage()));
+        }
+
         return view('vendor.notifications.index', [
-            'notifications' => PanelNotification::forVendor($vendor->id)->latest()->limit(50)->get(),
+            'notifications' => $notifications,
             'unread'        => PanelNotification::forVendor($vendor->id)->where('is_read', false)->count(),
         ]);
     }

@@ -22,6 +22,15 @@
             @empty
                 <p class="vp-muted" style="margin:8px 0">No notifications yet.</p>
             @endforelse
+            @if ($notifications->total())
+                <div class="vp-pagination" style="margin:10px -20px -12px;flex-wrap:wrap;gap:12px">
+            <span class="vp-muted" style="font-size:13px">
+                @if ($notifications->total())Showing {{ $notifications->firstItem() }}–{{ $notifications->lastItem() }} of {{ $notifications->total() }}@else Nothing to show @endif
+                @if ($notifications->hasPages()) · Page {{ $notifications->currentPage() }} of {{ $notifications->lastPage() }}@endif
+            </span>
+            {{ $notifications->onEachSide(1)->links('pagination::bootstrap-4') }}
+        </div>
+            @endif
         </section>
         <p class="vp-muted" style="font-size:13px;margin:14px 2px 0">
             Looking for everything done on your account? See the <a href="{{ route('vendor.activity') }}" style="font-weight:700">Activity Log</a>.

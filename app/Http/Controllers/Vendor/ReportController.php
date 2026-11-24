@@ -139,7 +139,20 @@ class ReportController extends Controller
     {
         $vendor = $this->vendor();
 
-        return view('vendor.reports.utilisation', $this->build($request) + [
+        // The figures are worked out per media for the period (and the summary needs them all),
+        // so the table is split into pages here; Excel / PDF export still gets every row.
+        $data = $this->build($request);
+        $perPage = 15;
+        $page = max(1, (int) $request->query('page', 1));
+        $data['rows'] = (new \Illuminate\Pagination\LengthAwarePaginator(
+            $data['rows']->forPage($page, $perPage)->values(), $data['rows']->count(), $perPage, $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        ));
+        if ($data['rows']->isEmpty() && $page > 1) {
+            return redirect()->to($data['rows']->url($data['rows']->lastPage()));
+        }
+
+        return view('vendor.reports.utilisation', $data + [
             'allMedia' => DB::table('media_management')->where('vendor_id', $vendor->id)->where('is_deleted', 0)
                 ->where('approval_status', 'approved')->orderBy('hoarding_code')->get(['id', 'hoarding_code', 'media_code', 'media_title']),
             'years'    => getYears(),

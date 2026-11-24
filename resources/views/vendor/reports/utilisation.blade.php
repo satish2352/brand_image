@@ -46,7 +46,7 @@
                 <tbody>
                     @forelse ($rows as $r)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $rows->firstItem() + $loop->index }}</td>
                             <td class="nowrap" style="font-weight:700">{{ $r->code }}</td>
                             <td style="font-weight:600">{{ $r->title }}</td>
                             <td>{{ $r->location }}</td>
@@ -69,6 +69,13 @@
                 </tbody>
             </table>
         </div>
-        <div class="vp-muted" style="padding:14px 20px">Only your own inventory is included in this report.</div>
+        <div class="vp-pagination" style="flex-wrap:wrap;gap:12px">
+            <span class="vp-muted" style="font-size:13px">
+                @if ($rows->total())Showing {{ $rows->firstItem() }}–{{ $rows->lastItem() }} of {{ $rows->total() }}@else Nothing to show @endif
+                @if ($rows->hasPages()) · Page {{ $rows->currentPage() }} of {{ $rows->lastPage() }}@endif
+            </span>
+            {{ $rows->onEachSide(1)->links('pagination::bootstrap-4') }}
+        </div>
+        <div class="vp-muted" style="padding:0 20px 14px;font-size:13px">Only your own inventory is included in this report. Excel and PDF include every row.</div>
     </section>
 @endsection

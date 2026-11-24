@@ -235,6 +235,17 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertTrue(VendorActivityLog::where('media_id', $media->id)->where('action', 'Availability Updated')->count() >= 3);
 
         $this->asVendor()->get(route('vendor.availability'))->assertOk();
+
+        // Server-side pagination: 10 per page, and the status filter is applied in SQL.
+        for ($i = 1; $i <= 12; $i++) {
+            $this->makeMedia($this->vendor, ['media_title' => 'Avail Page ' . str_pad((string) $i, 2, '0', STR_PAD_LEFT)]);
+        }
+        $list = route('vendor.availability');
+        $this->asVendor()->get($list)->assertOk()->assertSee('Page 1 of');
+        $this->asVendor()->get($list . '?page=99')->assertRedirect();
+        $askOnly = $this->asVendor()->get($list . '?status=ask')->assertOk()->getContent();
+        $this->assertStringNotContainsString('Avail Page', $askOnly);
+        $this->assertStringContainsString('Avail Page 01', $this->asVendor()->get($list . '?status=available&per_page=100')->getContent());
         $this->asVendor()->get(route('vendor.availability.form', $media->id))->assertOk()->assertSee('Update Availability');
     }
 
@@ -470,6 +481,28 @@ class VendorInventoryModuleTest extends TestCase
         $body = $rows($this->asAdmin()->get($url . '&per_page=20')->assertOk()->getContent());
         $this->assertSame(13, substr_count($body, 'Paging Check'));
         $this->asAdmin()->get($url . '&page=9')->assertRedirect();
+    }
+
+    public function test_vendor_lists_are_paginated_on_the_server(): void
+    {
+        // Notifications: 15 per page, oldest on page 2, page past the end goes to the last page.
+        for ($i = 1; $i <= 17; $i++) {
+            \App\Models\PanelNotification::create([
+                'audience' => 'vendor', 'vendor_id' => $this->vendor->id, 'type' => 'info',
+                'title' => 'Paging Note ' . str_pad((string) $i, 2, '0', STR_PAD_LEFT), 'message' => 'x', 'is_read' => true,
+            ]);
+            \Illuminate\Support\Facades\DB::table('panel_notifications')->where('title', 'Paging Note ' . str_pad((string) $i, 2, '0', STR_PAD_LEFT))
+                ->update(['created_at' => now()->addHour()->subMinutes($i)]);
+        }
+        $url = route('vendor.notifications');
+        $this->asVendor()->get($url)->assertOk()->assertSee('Paging Note 01')->assertDontSee('Paging Note 17')->assertSee('Page 1 of');
+        $this->asVendor()->get($url . '?page=2')->assertOk()->assertSee('Paging Note 17')->assertDontSee('Paging Note 01');
+        $this->asVendor()->get($url . '?page=99')->assertRedirect();
+
+        // Activity Log shows a serial number; the Utilisation report and Operations still render.
+        $this->asVendor()->get(route('vendor.activity'))->assertOk()->assertSee('Sr. No.');
+        $this->asVendor()->get(route('vendor.reports.utilisation'))->assertOk()->assertSee('Sr. No.');
+        $this->asVendor()->get(route('vendor.operations'))->assertOk();
     }
 
     public function test_activity_log_keeps_six_months(): void

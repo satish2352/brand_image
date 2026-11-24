@@ -22,10 +22,11 @@
         </form>
         <div class="vp-table-wrap">
             <table class="vp-table">
-                <thead><tr><th>Date / Time</th><th>Activity</th><th>Media Code</th><th>Details</th><th>By</th></tr></thead>
+                <thead><tr><th style="width:70px">Sr. No.</th><th>Date / Time</th><th>Activity</th><th>Media Code</th><th>Details</th><th>By</th></tr></thead>
                 <tbody>
                     @forelse ($log as $l)
                         <tr>
+                            <td class="vp-muted">{{ $log->firstItem() + $loop->index }}</td>
                             <td class="nowrap" style="color:#334155">{{ $l->created_at->format('d M Y, h:i A') }}</td>
                             <td class="nowrap" style="font-weight:700">{{ $l->action }}</td>
                             <td class="nowrap">{{ $l->media_code ?: '—' }}</td>
@@ -35,11 +36,17 @@
                             <td class="nowrap" style="color:#334155">{{ $l->actor_type === 'admin' ? 'Brand Adda · ' . $l->actor_name : $l->actor_name }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" style="text-align:center;padding:40px;color:#475569">No activity yet.</td></tr>
+                        <tr><td colspan="6" style="text-align:center;padding:40px;color:#475569">No activity yet.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="vp-pagination"><span class="vp-muted">{{ $log->total() }} entries</span>{{ $log->links('pagination::bootstrap-4') }}</div>
+        <div class="vp-pagination" style="flex-wrap:wrap;gap:12px">
+            <span class="vp-muted" style="font-size:13px">
+                @if ($log->total())Showing {{ $log->firstItem() }}–{{ $log->lastItem() }} of {{ $log->total() }}@else Nothing to show @endif
+                @if ($log->hasPages()) · Page {{ $log->currentPage() }} of {{ $log->lastPage() }}@endif
+            </span>
+            {{ $log->onEachSide(1)->links('pagination::bootstrap-4') }}
+        </div>
     </section>
 @endsection

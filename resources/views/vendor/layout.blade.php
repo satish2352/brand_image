@@ -5,8 +5,8 @@
     $vpNewEnquiries = \App\Models\VendorEnquiry::forVendor($vendor->id)->whereNull('read_at')->count();
     $vpNav = [
         ['Dashboard', 'vendor.dashboard', 'fa-solid fa-table-cells-large', ['vendor.dashboard']],
-        ['Inventory', 'vendor.inventory', 'fa-solid fa-list', ['vendor.inventory', 'vendor.media.show', 'vendor.media.edit']],
-        ['Add Media', 'vendor.media.create', 'fa-solid fa-plus', ['vendor.media.create']],
+        // Add Media is reached from the Media Management page and the dashboard, so it has no menu item of its own.
+        ['Media Management', 'vendor.inventory', 'fa-solid fa-list', ['vendor.inventory', 'vendor.media.show', 'vendor.media.edit', 'vendor.media.create']],
         ['Availability', 'vendor.availability', 'fa-regular fa-calendar', ['vendor.availability']],
         ['Operations', 'vendor.operations', 'fa-solid fa-list-check', ['vendor.operations']],
         ['Bookings', 'vendor.bookings', 'fa-regular fa-clipboard', ['vendor.bookings']],

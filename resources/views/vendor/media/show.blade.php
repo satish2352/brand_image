@@ -1,7 +1,7 @@
 @extends('vendor.layout')
 @section('title', $media->display_code)
 @section('crumb')
-    <a href="{{ route('vendor.inventory') }}">Inventory</a> / {{ $media->display_code }}
+    <a href="{{ route('vendor.inventory') }}">Media Management</a> / {{ $media->display_code }}
 @endsection
 @section('heading', $media->media_title ?: $media->display_code)
 

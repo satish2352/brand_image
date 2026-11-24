@@ -56,12 +56,20 @@ class OperationsController extends Controller
             $operations = $operations->filter(fn ($op) => stripos($op->order_no . ' ' . $op->hoarding_code . ' ' . $op->media_title . ' ' . $op->user_name, $term) !== false);
         }
 
-        $list = $stage === 'pending' ? collect() : $operations->where('effective_stage', $stage)->values();
+        $all = $stage === 'pending' ? collect() : $operations->where('effective_stage', $stage)->values();
+
+        // The list pages 10 at a time; a linked booking (?op=) opens even if it is on another page.
+        $perPage = 10;
+        $pageNo = max(1, (int) $request->query('page', 1));
+        $list = new \Illuminate\Pagination\LengthAwarePaginator(
+            $all->forPage($pageNo, $perPage)->values(), $all->count(), $perPage, $pageNo,
+            ['path' => $request->url(), 'query' => $request->except('op')]
+        );
 
         $selected = null;
         $photos = [];
         if ($stage !== 'pending') {
-            $selected = $request->op ? $list->firstWhere('id', (int) $request->op) : $list->first();
+            $selected = $request->op ? $all->firstWhere('id', (int) $request->op) : $list->first();
             if ($selected) {
                 $photos = $this->ops->photosByStage($this->ops->findOwned($vendor->id, $selected->id));
             }

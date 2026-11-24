@@ -78,8 +78,8 @@ class InventoryController extends Controller
             'Price / Month', 'Vendor Name', 'Media Code', 'Status', 'Approval', 'Active'];
 
         return Excel::download(
-            new VendorBrandedExport($vendor, 'Inventory', $headings, $data),
-            Str::slug($vendor->vendor_name) . '-inventory-' . now()->format('Ymd') . '.xlsx'
+            new VendorBrandedExport($vendor, 'Media Management', $headings, $data),
+            Str::slug($vendor->vendor_name) . '-media-management-' . now()->format('Ymd') . '.xlsx'
         );
     }
 
@@ -89,7 +89,20 @@ class InventoryController extends Controller
         $vendor  = $this->vendor();
         $filters = $request->only(['q', 'category_id', 'status']) + ['approval' => 'approved'];
 
-        $rows   = $this->inventory->query($vendor->id, $filters)->orderBy('m.hoarding_code')->get();
+        // Server-side pagination: the status filter runs in SQL (same rule as
+        // MediaAvailability::forMedia), so only one page of rows is read.
+        $query = $this->inventory->query($vendor->id, $filters);
+        if (!empty($filters['status']) && isset(MediaAvailability::LABELS[$filters['status']])) {
+            $this->whereStatusToday($query, $filters['status']);
+        }
+
+        $perPage = in_array((int) $request->per_page, [10, 20, 50, 100], true) ? (int) $request->per_page : 10;
+        $page = $query->orderBy('m.hoarding_code')->orderBy('m.id')->paginate($perPage)->withQueryString();
+        if ($page->isEmpty() && $page->currentPage() > 1) {
+            return redirect()->to($page->url($page->lastPage()));
+        }
+
+        $rows   = collect($page->items());
         $status = MediaAvailability::forMedia($rows->pluck('id')->all());
 
         $ranges = DB::table('media_booked_date')
@@ -98,21 +111,40 @@ class InventoryController extends Controller
             ->where('to_date', '>=', now()->toDateString())
             ->orderBy('from_date')->get()->groupBy('media_id');
 
-        $rows = $rows->map(function ($r) use ($status, $ranges) {
+        $page->setCollection($rows->map(function ($r) use ($status, $ranges) {
             $r->availability = $status[$r->id];
             $r->ranges = $ranges->get($r->id, collect());
             return $r;
-        });
-
-        if (!empty($filters['status']) && isset(MediaAvailability::LABELS[$filters['status']])) {
-            $rows = $rows->filter(fn ($r) => $r->availability['status'] === $filters['status'])->values();
-        }
+        }));
 
         return view('vendor.inventory.availability', [
-            'rows'       => $rows,
+            'rows'       => $page,
+            'perPage'    => $perPage,
             'filters'    => $filters,
             'categories' => Category::where('is_active', 1)->where('is_deleted', 0)->orderBy('category_name')->get(),
         ]);
+    }
+
+    /**
+     * Limit $query to media whose status today is $status. Mirrors MediaAvailability::forMedia:
+     * the covering range with the latest end decides Booked / Blocked; with none, a media
+     * flagged not-available is Ask for Availability, anything else is Available.
+     */
+    private function whereStatusToday($query, string $status): void
+    {
+        $today = now()->toDateString();
+        $current = "(SELECT COALESCE(b.status_type, 'booked') FROM media_booked_date b
+            WHERE b.media_id = m.id AND b.is_active = 1 AND b.is_deleted = 0 AND b.from_date <= ? AND b.to_date >= ?
+            ORDER BY b.to_date DESC LIMIT 1)";
+
+        match ($status) {
+            MediaAvailability::BLOCKED   => $query->whereRaw("$current = 'blocked'", [$today, $today]),
+            MediaAvailability::BOOKED    => $query->whereRaw("$current <> 'blocked'", [$today, $today]),
+            MediaAvailability::ASK       => $query->whereRaw("$current IS NULL", [$today, $today])->where('m.is_available', 0),
+            MediaAvailability::AVAILABLE => $query->whereRaw("$current IS NULL", [$today, $today])
+                ->where(fn ($q) => $q->whereNull('m.is_available')->orWhere('m.is_available', '<>', 0)),
+            default => null,
+        };
     }
 
     /** Modal body for "Update Availability" (loaded over AJAX). */

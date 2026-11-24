@@ -1,12 +1,7 @@
 @extends('vendor.layout')
-@section('title', 'Inventory')
-@section('crumb', 'Vendor Panel / Inventory')
-@section('heading', 'My Inventory')
-
-@section('actions')
-    <a href="{{ route('vendor.inventory.export', request()->query()) }}" class="vp-btn vp-btn-g"><i class="fa-solid fa-download"></i>Export Excel</a>
-    <a href="{{ route('vendor.media.create') }}" class="vp-btn vp-btn-o"><i class="fa-solid fa-plus"></i>Add Media</a>
-@endsection
+@section('title', 'Media Management')
+@section('crumb', 'Vendor Panel / Media Management')
+@section('heading', 'Media Management')
 
 @section('content')
     @php
@@ -22,6 +17,16 @@
 
     <form class="vp-card vp-card-pad" method="GET" action="{{ route('vendor.inventory') }}" aria-label="Search filters">
         @if (!empty($f['approval']))<input type="hidden" name="approval" value="{{ $f['approval'] }}">@endif
+        <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #F1F5F9">
+            <div>
+                <h2 class="vp-h2" style="margin:0">Your media</h2>
+                <div class="vp-muted" style="font-size:13px;margin-top:2px">Filter your media, export it to Excel or add a new site.</div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+                <a href="{{ route('vendor.inventory.export', request()->query()) }}" class="vp-btn vp-btn-g"><i class="fa-solid fa-download"></i>Export Excel</a>
+                <a href="{{ route('vendor.media.create') }}" class="vp-btn vp-btn-o"><i class="fa-solid fa-plus"></i>Add Media</a>
+            </div>
+        </div>
         <div class="vp-grid">
             <div><label class="vp-label" for="f-cat">Category</label>
                 <select id="f-cat" name="category_id" class="vp-input">
@@ -51,10 +56,11 @@
             <div><label class="vp-label" for="f-from">From</label><input id="f-from" type="date" name="from_date" class="vp-input" value="{{ $f['from_date'] ?? '' }}"></div>
             <div><label class="vp-label" for="f-to">To</label><input id="f-to" type="date" name="to_date" class="vp-input" value="{{ $f['to_date'] ?? '' }}"></div>
             <div><label class="vp-label" for="f-sec">Sector Code</label><input id="f-sec" type="text" name="sector_code" class="vp-input" placeholder="e.g. HD000142" value="{{ $f['sector_code'] ?? '' }}"></div>
-        </div>
-        <div class="vp-filter-actions">
-            <a href="{{ route('vendor.inventory') }}" class="vp-btn vp-btn-g">Reset</a>
-            <button type="submit" class="vp-btn vp-btn-n">Filter</button>
+            {{-- Reset / Filter sit at the right end of the last row of fields, not on a line of their own. --}}
+            <div style="grid-column:-3 / -1;display:flex;gap:10px;justify-content:flex-end;align-items:flex-end">
+                <a href="{{ route('vendor.inventory') }}" class="vp-btn vp-btn-g">Reset</a>
+                <button type="submit" class="vp-btn vp-btn-n">Filter</button>
+            </div>
         </div>
     </form>
 

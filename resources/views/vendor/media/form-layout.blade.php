@@ -3,7 +3,7 @@
 @extends('vendor.layout')
 @section('title', $formHeading ?? 'Media')
 @section('crumb')
-    <a href="{{ route('vendor.inventory') }}">Inventory</a> / {{ $formHeading ?? 'Media' }}
+    <a href="{{ route('vendor.inventory') }}">Media Management</a> / {{ $formHeading ?? 'Media' }}
 @endsection
 @section('heading', $formHeading ?? 'Media')
 
