@@ -1,4 +1,4 @@
-@extends('superadm.layout.master')
+@extends($formLayout ?? 'superadm.layout.master')
 
 @section('styles')
     <style>
@@ -23,9 +23,12 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
-            <h4 class="mb-4">Edit Media</h4>
+            <h4 class="mb-4">{{ $formTitle ?? 'Edit Media' }}</h4>
+            @if (!empty($formIntro))
+                @include($formIntro)
+            @endif
 
-            <form method="POST" action="{{ route('media.update', $encodedId) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ $formAction ?? route('media.update', $encodedId) }}" enctype="multipart/form-data">
                 @csrf
                 {{-- <input type="hidden"
                     id="category_slug"
@@ -54,6 +57,11 @@
                             @endforeach
                         </select>
                     </div>
+                    @if (!empty($lockedVendor))
+                        {{-- Vendor panel: the signed-in vendor, fixed. The server
+                             ignores any posted vendor_id there anyway. --}}
+                        <input type="hidden" name="vendor_id" id="vendor_id" value="{{ $lockedVendor->id }}">
+                    @else
                     <div class="col-md-4 mb-3">
                         <label>Vendor <span class="text-danger">*</span></label>
                         <select name="vendor_id" id="vendor_id"
@@ -73,6 +81,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    @endif
                     @include('superadm.mediamanagement.partials.location-fields', ['fields' => ['state_id']])
                 </div>
 
@@ -163,7 +172,7 @@
                         {{-- editable so existing hoardings (added before auto-codes) can get/fix a code --}}
                         <input type="text" name="hoarding_code" class="form-control"
                             value="{{ old('hoarding_code', $media->hoarding_code ?? '') }}"
-                            placeholder="Auto-generated if left blank">
+                            placeholder="Auto-generated if left blank" @if (!empty($lockedVendor)) readonly @endif>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
@@ -479,8 +488,11 @@
                 </div>
 
                 <div class="text-end">
-                    <a href="{{ route('media.list') }}" class="btn btn-secondary me-2">Cancel</a>
-                    <button class="btn btn-success">Update Media</button>
+                    <a href="{{ $cancelUrl ?? route('media.list') }}" class="btn btn-secondary me-2">Cancel</a>
+                    @if (!empty($extraSubmit))
+                        <button class="btn btn-secondary me-2" name="{{ $extraSubmit[0] }}" value="1">{{ $extraSubmit[1] }}</button>
+                    @endif
+                    <button class="btn btn-success">{{ $submitLabel ?? 'Update Media' }}</button>
                 </div>
 
             </form>
@@ -641,7 +653,7 @@
                Select2 fires a native change, so the cascade handlers in
                partials/location-script keep working untouched. The Add
                form does the same; the shared look lives in satish.css. */
-            $('.location-select, #vendor_id').select2({
+            $('.location-select, select#vendor_id').select2({
                 width: '100%',
                 placeholder: function () { return $(this).find('option:first').text(); },
                 // Always show the search box, however short the list is.
@@ -861,7 +873,7 @@
             // DIFFERENT vendor → generate NEW code (needs a state + city)
             if (!$('#state_id').val() || !$('#city_id').val()) return;
 
-            $.get("{{ route('media.next.code') }}", {
+            $.get("{{ $nextCodeUrl ?? route('media.next.code') }}", {
                 vendor_id: selectedVendorId,
                 state_id: $('#state_id').val(),
                 city_id: $('#city_id').val()

@@ -1,4 +1,4 @@
-@extends('superadm.layout.master')
+@extends($formLayout ?? 'superadm.layout.master')
 @section('styles')
     <style>
         #billboardsId,
@@ -106,8 +106,11 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
-            <h4 class="mb-4">Add Media</h4>
-            <form id="mediaForm" method="POST" action="{{ route('media.store') }}" enctype="multipart/form-data">
+            <h4 class="mb-4">{{ $formTitle ?? 'Add Media' }}</h4>
+            @if (!empty($formIntro))
+                @include($formIntro)
+            @endif
+            <form id="mediaForm" method="POST" action="{{ $formAction ?? route('media.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     {{-- ================= BASIC INFO ================= --}}
@@ -131,6 +134,11 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    @if (!empty($lockedVendor))
+                        {{-- Vendor panel: the signed-in vendor, fixed. The server
+                             ignores any posted vendor_id there anyway. --}}
+                        <input type="hidden" name="vendor_id" id="vendor_id" value="{{ $lockedVendor->id }}">
+                    @else
                     <div class="col-md-4 mb-3">
                         <label>Vendor <span class="text-danger">*</span></label>
                         <select name="vendor_id" id="vendor_id"
@@ -150,6 +158,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    @endif
                     @include('superadm.mediamanagement.partials.location-fields', ['fields' => ['state_id']])
                 </div>
 
@@ -581,8 +590,8 @@
 
                 </div>
                 <div class="text-end d-flex justify-content-end">
-                    <a href="{{ route('media.list') }}" class="btn btn-secondary mr-2">Cancel</a>
-                    <button class="btn btn-success">Save Media</button>
+                    <a href="{{ $cancelUrl ?? route('media.list') }}" class="btn btn-secondary mr-2">Cancel</a>
+                    <button class="btn btn-success">{{ $submitLabel ?? 'Save Media' }}</button>
                 </div>
 
             </form>
@@ -744,7 +753,7 @@
                every vendor on the platform — so all get a type-ahead.
                Select2 fires a native change, so the cascade handlers in
                partials/location-script keep working untouched. */
-            $('.location-select, #vendor_id').select2({
+            $('.location-select, select#vendor_id').select2({
                 width: '100%',
                 placeholder: function () { return $(this).find('option:first').text(); },
                 // Always show the search box, however short the list is.
@@ -922,7 +931,7 @@
                 return;
             }
 
-            $.get("{{ route('media.next.code') }}", {
+            $.get("{{ $nextCodeUrl ?? route('media.next.code') }}", {
                 vendor_id: vendorId,
                 state_id: stateId,
                 city_id: cityId

@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Support\VendorAudit;
 use App\Models\{
     Category,
     FacingDirection,
@@ -119,124 +120,18 @@ class MediaManagementController extends Controller
 
         $slug = Str::slug($category->slug ?? $category->category_name);
 
-        $panelSized = $this->isPanelSized($slug);
-
-        $rules = self::locationRules($request) + [
-            'category_id' => 'required|integer',
-
-            // Every category carries a title — the website names a site
-            // "Media Title + Area", so it is no longer Hoardings-only.
-            'media_title' => 'required|string|max:255',
-
-            // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
-            // has no single Width x Height to demand - location_sizes carries it.
-            'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
-            'height'      => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
-
-            'latitude'    => 'required|numeric|between:-90,90',
-            'longitude'   => 'required|numeric|between:-180,180',
-
-            'price'       => 'required|numeric|min:0',
-            // 'vendor_name' => 'required|string|max:255',
-            'vendor_id' => 'required|integer|exists:vendors,id',
-
-            // 'images'      => 'nullable|array|max:10',
-            'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:600',
-            'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-
-            // Highway (single) + Landmarks (multiple) — optional
-            'highway_id'    => 'nullable|integer|exists:highway,id',
-            'landmark_ids'  => 'nullable|array',
-            'landmark_ids.*' => 'integer|exists:landmark,id',
-        ];
-
-        switch (true) {
-
-            //  Bus Shelter - Illumination plus a size per panel
-            case $panelSized:
-                $rules += self::busShelterRules();
-                break;
-
-            //  Hoardings / Billboards
-            case str_contains($slug, 'hoardings'):
-                $rules += [
-                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
-                    // 'facing_id' => 'required',
-                    'facing' => 'required',
-                    'illumination_id' => 'required',
-
-                    // 'minimum_booking_days' => 'required|integer|min:1',
-
-                    'address' => 'required',
-                ];
-                break;
-
-            //  Mall Media
-            case str_contains($slug, 'mall'):
-                $rules += [
-                    'mall_name' => 'required|string|max:255',
-                    'media_format' => 'required|string',
-                ];
-                break;
-
-            //  Airport Branding
-            case str_contains($slug, 'airport'):
-                $rules += [
-                    'airport_name' => 'required|string|max:255',
-                    'zone_type' => 'required|in:Arrival,Departure',
-                    'media_type' => 'required|string',
-                ];
-                break;
-
-            //  Transit Media
-            case str_contains($slug, 'transit'):
-                $rules += [
-                    'transit_type' => 'required|string',
-                    'branding_type' => 'required|string',
-                    'vehicle_count' => 'required|integer|min:1',
-                ];
-                break;
-
-            //  Office Branding
-            case str_contains($slug, 'office'):
-                $rules += [
-                    'building_name' => 'required|string|max:255',
-                    'wall_length' => 'required|string',
-                ];
-                break;
-
-            //  Wall Wrap
-            case str_contains($slug, 'wall'):
-                $rules += [
-
-                    // 'area_auto' => 'required|numeric|min:1',
-                ];
-                break;
-        }
-        $messages = [
-            'area_id.required' => 'Please select an area.',
-            'category_id.required' => 'Please select a category.',
-            'width.required' => 'Width is required.',
-            'height.required' => 'Height is required.',
-            'price.required' => 'Price is required.',
-            // 'vendor_name.required' => 'Vendor name is required.',
-            'vendor_id.required' => 'Please select a vendor',
-            // 'vendor_id.exists'   => 'Invalid vendor selected',
-            // 'images.max' => 'You can upload a maximum of 10 images.',
-            'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
-            'images.*.image' => 'Each file must be an image.',
-            'images.*.max' => 'Each image must be less than 600KB.',
-            // 'images.*.dimensions' => 'Please upload each image with width 500px and height 600px.',
-
-            'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',
-            'panorama_image.min'   => 'Image must be at least 1KB.',
-            'panorama_image.max'   => 'Image must not exceed 5MB.',
-            'panorama_image.image' => 'File must be an image.',
-        ];
-        $request->validate($rules, $messages + self::locationMessages() + self::busShelterMessages());
+        [$rules, $messages] = self::validationFor($request, $slug, false);
+        $request->validate($rules, $messages);
 
         try {
-            $this->mediaService->store($request, $slug);
+            $media = $this->mediaService->store($request, $slug);
+
+            // Vendor Inventory module: the vendor sees new inventory in its panel.
+            if ($media && $media->vendor_id) {
+                VendorAudit::adminDid($media->vendor_id, 'Inventory Added for Vendor', ['Vendor' => optional($media->vendor)->vendor_name], $media);
+                VendorAudit::notifyVendor($media->vendor_id, 'inventory_assigned', 'Inventory assigned – ' . $media->display_code,
+                    'Brand Adda added ' . ($media->media_title ?: $media->display_code) . ' to your inventory.', route('vendor.media.show', $media->id), $media->id);
+            }
 
             return redirect()
                 ->route('media.list')
@@ -319,96 +214,14 @@ class MediaManagementController extends Controller
         $category = Category::findOrFail($request->category_id);
         $slug = Str::slug($category->slug ?? $category->category_name);
 
-        $panelSized = $this->isPanelSized($slug);
-
-        $rules = self::locationRules($request) + [
-            'category_id' => 'required|integer',
-
-            // Every category carries a title — the website names a site
-            // "Media Title + Area", so it is no longer Hoardings-only.
-            'media_title' => 'required|string|max:255',
-
-            // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
-            // has no single Width x Height to demand - location_sizes carries it.
-            'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
-            'height'      => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
-
-            'latitude'    => 'required|numeric|between:-90,90',
-            'longitude'   => 'required|numeric|between:-180,180',
-
-            'price'       => 'required|numeric|min:0',
-            'vendor_id'   => 'required|integer|exists:vendors,id',
-
-            // ✅ ADD THIS
-            'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-
-            // Highway (single) + Landmarks (multiple) — optional
-            'highway_id'    => 'nullable|integer|exists:highway,id',
-            'landmark_ids'  => 'nullable|array',
-            'landmark_ids.*' => 'integer|exists:landmark,id',
-        ];
-        $messages = [
-            'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',
-            'panorama_image.max'   => 'Image must not exceed 5MB.',
-            'panorama_image.image' => 'File must be an image.',
-        ];
-        switch (true) {
-
-            //  Bus Shelter - Illumination plus a size per panel
-            case $panelSized:
-                $rules += self::busShelterRules();
-                break;
-
-            case str_contains($slug, 'hoardings'):
-                $rules += [
-                    // 'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
-                    // 'facing_id' => 'required',
-                    'facing' => 'required',
-                    'illumination_id' => 'required',
-                    // 'minimum_booking_days' => 'required|integer|min:1',
-                    'address' => 'required',
-                ];
-                break;
-
-            case str_contains($slug, 'mall'):
-                $rules += [
-                    'mall_name' => 'required|string|max:255',
-                    'media_format' => 'required|string',
-                ];
-                break;
-
-            case str_contains($slug, 'airport'):
-                $rules += [
-                    'airport_name' => 'required|string|max:255',
-                    'zone_type' => 'required|in:Arrival,Departure',
-                    'media_type' => 'required|string',
-                ];
-                break;
-
-            case str_contains($slug, 'transit'):
-                $rules += [
-                    'transit_type' => 'required|string',
-                    'branding_type' => 'required|string',
-                    'vehicle_count' => 'required|integer|min:1',
-                ];
-                break;
-
-            case str_contains($slug, 'office'):
-                $rules += [
-                    'building_name' => 'required|string|max:255',
-                    'wall_length' => 'required|string',
-                ];
-                break;
-
-            case str_contains($slug, 'wall'):
-                $rules += [
-                    'area_auto' => 'required|numeric|min:1',
-                ];
-                break;
-        }
-        $request->validate($rules, $messages + self::locationMessages() + self::busShelterMessages());
+        [$rules, $messages] = self::validationFor($request, $slug, true);
+        $request->validate($rules, $messages);
         try {
+            $before = MediaManagement::find($id)?->getAttributes() ?? [];
+
             $this->mediaService->update($id, $request, $slug);
+
+            $this->notifyVendorOfAdminEdit($before, MediaManagement::find($id));
 
             return redirect()
                 ->route('media.list')
@@ -418,6 +231,273 @@ class MediaManagementController extends Controller
             return back()->withInput()->with('error', 'Update failed');
         }
     }
+    /**
+     * Validation for the Add / Edit Media form, shared with the vendor panel
+     * (Vendor Inventory module) so a vendor's media is held to exactly the
+     * rules an admin's is. Kept byte-for-byte what store() and update() used
+     * to build inline.
+     *
+     * @return array{0: array, 1: array} [rules, messages]
+     */
+    public static function validationFor(Request $request, string $slug, bool $updating): array
+    {
+        if ($updating) {
+            $panelSized = str_contains($slug, 'bus-shelter');
+
+            $rules = self::locationRules($request) + [
+                'category_id' => 'required|integer',
+
+                // Every category carries a title — the website names a site
+                // "Media Title + Area", so it is no longer Hoardings-only.
+                'media_title' => 'required|string|max:255',
+
+                // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
+                // has no single Width x Height to demand - location_sizes carries it.
+                'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
+                'height'      => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
+
+                'latitude'    => 'required|numeric|between:-90,90',
+                'longitude'   => 'required|numeric|between:-180,180',
+
+                'price'       => 'required|numeric|min:0',
+                'vendor_id'   => 'required|integer|exists:vendors,id',
+
+                // ✅ ADD THIS
+                'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+
+                // Highway (single) + Landmarks (multiple) — optional
+                'highway_id'    => 'nullable|integer|exists:highway,id',
+                'landmark_ids'  => 'nullable|array',
+                'landmark_ids.*' => 'integer|exists:landmark,id',
+            ];
+            $messages = [
+                'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',
+                'panorama_image.max'   => 'Image must not exceed 5MB.',
+                'panorama_image.image' => 'File must be an image.',
+            ];
+            switch (true) {
+
+                //  Bus Shelter - Illumination plus a size per panel
+                case $panelSized:
+                    $rules += self::busShelterRules();
+                    break;
+
+                case str_contains($slug, 'hoardings'):
+                    $rules += [
+                        // 'media_code' => 'required|string|max:255|unique:media_management,media_code,' . $id . ',id,is_deleted,0',
+                        // 'facing_id' => 'required',
+                        'facing' => 'required',
+                        'illumination_id' => 'required',
+                        // 'minimum_booking_days' => 'required|integer|min:1',
+                        'address' => 'required',
+                    ];
+                    break;
+
+                case str_contains($slug, 'mall'):
+                    $rules += [
+                        'mall_name' => 'required|string|max:255',
+                        'media_format' => 'required|string',
+                    ];
+                    break;
+
+                case str_contains($slug, 'airport'):
+                    $rules += [
+                        'airport_name' => 'required|string|max:255',
+                        'zone_type' => 'required|in:Arrival,Departure',
+                        'media_type' => 'required|string',
+                    ];
+                    break;
+
+                case str_contains($slug, 'transit'):
+                    $rules += [
+                        'transit_type' => 'required|string',
+                        'branding_type' => 'required|string',
+                        'vehicle_count' => 'required|integer|min:1',
+                    ];
+                    break;
+
+                case str_contains($slug, 'office'):
+                    $rules += [
+                        'building_name' => 'required|string|max:255',
+                        'wall_length' => 'required|string',
+                    ];
+                    break;
+
+                case str_contains($slug, 'wall'):
+                    $rules += [
+                        'area_auto' => 'required|numeric|min:1',
+                    ];
+                    break;
+            }
+            return [$rules, $messages + self::locationMessages() + self::busShelterMessages()];
+        }
+
+            $panelSized = str_contains($slug, 'bus-shelter');
+
+            $rules = self::locationRules($request) + [
+                'category_id' => 'required|integer',
+
+                // Every category carries a title — the website names a site
+                // "Media Title + Area", so it is no longer Hoardings-only.
+                'media_title' => 'required|string|max:255',
+
+                // A Bus Shelter is sized panel by panel (Front / Back / Side), so it
+                // has no single Width x Height to demand - location_sizes carries it.
+                'width'       => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
+                'height'      => $panelSized ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
+
+                'latitude'    => 'required|numeric|between:-90,90',
+                'longitude'   => 'required|numeric|between:-180,180',
+
+                'price'       => 'required|numeric|min:0',
+                // 'vendor_name' => 'required|string|max:255',
+                'vendor_id' => 'required|integer|exists:vendors,id',
+
+                // 'images'      => 'nullable|array|max:10',
+                'images.*'    => 'image|mimes:webp,jpg,jpeg,png|max:600',
+                'panorama_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+
+                // Highway (single) + Landmarks (multiple) — optional
+                'highway_id'    => 'nullable|integer|exists:highway,id',
+                'landmark_ids'  => 'nullable|array',
+                'landmark_ids.*' => 'integer|exists:landmark,id',
+            ];
+
+            switch (true) {
+
+                //  Bus Shelter - Illumination plus a size per panel
+                case $panelSized:
+                    $rules += self::busShelterRules();
+                    break;
+
+                //  Hoardings / Billboards
+                case str_contains($slug, 'hoardings'):
+                    $rules += [
+                        // 'media_code' => 'required|string|max:255|unique:media_management,media_code,NULL,id,is_deleted,0',
+                        // 'facing_id' => 'required',
+                        'facing' => 'required',
+                        'illumination_id' => 'required',
+
+                        // 'minimum_booking_days' => 'required|integer|min:1',
+
+                        'address' => 'required',
+                    ];
+                    break;
+
+                //  Mall Media
+                case str_contains($slug, 'mall'):
+                    $rules += [
+                        'mall_name' => 'required|string|max:255',
+                        'media_format' => 'required|string',
+                    ];
+                    break;
+
+                //  Airport Branding
+                case str_contains($slug, 'airport'):
+                    $rules += [
+                        'airport_name' => 'required|string|max:255',
+                        'zone_type' => 'required|in:Arrival,Departure',
+                        'media_type' => 'required|string',
+                    ];
+                    break;
+
+                //  Transit Media
+                case str_contains($slug, 'transit'):
+                    $rules += [
+                        'transit_type' => 'required|string',
+                        'branding_type' => 'required|string',
+                        'vehicle_count' => 'required|integer|min:1',
+                    ];
+                    break;
+
+                //  Office Branding
+                case str_contains($slug, 'office'):
+                    $rules += [
+                        'building_name' => 'required|string|max:255',
+                        'wall_length' => 'required|string',
+                    ];
+                    break;
+
+                //  Wall Wrap
+                case str_contains($slug, 'wall'):
+                    $rules += [
+
+                        // 'area_auto' => 'required|numeric|min:1',
+                    ];
+                    break;
+            }
+            $messages = [
+                'area_id.required' => 'Please select an area.',
+                'category_id.required' => 'Please select a category.',
+                'width.required' => 'Width is required.',
+                'height.required' => 'Height is required.',
+                'price.required' => 'Price is required.',
+                // 'vendor_name.required' => 'Vendor name is required.',
+                'vendor_id.required' => 'Please select a vendor',
+                // 'vendor_id.exists'   => 'Invalid vendor selected',
+                // 'images.max' => 'You can upload a maximum of 10 images.',
+                'images.*.mimes' => 'Only WebP, JPG, JPEG, and PNG images are allowed.',
+                'images.*.image' => 'Each file must be an image.',
+                'images.*.max' => 'Each image must be less than 600KB.',
+                // 'images.*.dimensions' => 'Please upload each image with width 500px and height 600px.',
+
+                'panorama_image.mimes' => 'Only JPG, JPEG, PNG, WEBP allowed.',
+                'panorama_image.min'   => 'Image must be at least 1KB.',
+                'panorama_image.max'   => 'Image must not exceed 5MB.',
+                'panorama_image.image' => 'File must be an image.',
+            ];
+            return [$rules, $messages + self::locationMessages() + self::busShelterMessages()];
+    }
+
+    /**
+     * Vendor Inventory module (PRD 2.11): tell the vendor what an admin edit
+     * changed on its media — or that the media moved to another vendor.
+     */
+    private function notifyVendorOfAdminEdit(array $before, ?MediaManagement $after): void
+    {
+        if (!$after) {
+            return;
+        }
+
+        $oldVendor = $before['vendor_id'] ?? null;
+        $newVendor = $after->vendor_id;
+
+        if ((int) $oldVendor !== (int) $newVendor) {
+            if ($oldVendor) {
+                VendorAudit::adminDid((int) $oldVendor, 'Inventory Assignment Removed', ['Moved to' => optional($after->vendor)->vendor_name], $after);
+                VendorAudit::notifyVendor((int) $oldVendor, 'inventory_removed', 'Inventory assignment removed – ' . $after->display_code,
+                    ($after->media_title ?: $after->display_code) . ' is no longer assigned to you.', null, $after->id);
+            }
+            if ($newVendor) {
+                VendorAudit::adminDid($newVendor, 'Inventory Added for Vendor', ['Vendor' => optional($after->vendor)->vendor_name], $after);
+                VendorAudit::notifyVendor($newVendor, 'inventory_assigned', 'Inventory assigned – ' . $after->display_code,
+                    'Brand Adda assigned ' . ($after->media_title ?: $after->display_code) . ' to your account.', route('vendor.media.show', $after->id), $after->id);
+            }
+            return;
+        }
+
+        if (!$newVendor) {
+            return;
+        }
+
+        $labels = ['media_title' => 'Media Title', 'address' => 'Address', 'width' => 'Width', 'height' => 'Height',
+            'illumination_id' => 'Illumination', 'facing' => 'Facing', 'latitude' => 'Latitude', 'longitude' => 'Longitude',
+            'price' => 'Price', 'area_id' => 'Area', 'city_id' => 'City', 'category_id' => 'Category', 'hoarding_code' => 'Hoarding Code',
+            'highway_id' => 'Highway', 'areatype_id' => 'Area Type', 'panorama_image' => '360 Image'];
+        $changes = VendorAudit::diff($before, $after->getAttributes(), $labels);
+
+        if (!$changes) {
+            return;
+        }
+
+        VendorAudit::adminDid($newVendor, 'Vendor Media Updated', ['Changed fields' => implode(', ', array_keys($changes))], $after);
+        if (isset($changes['Price'])) {
+            VendorAudit::adminDid($newVendor, 'Vendor Rate Updated', ['Previous rate' => $changes['Price'][0], 'New rate' => $changes['Price'][1]], $after);
+        }
+        VendorAudit::notifyVendor($newVendor, 'inventory_updated', 'Inventory updated – ' . $after->display_code,
+            'Brand Adda changed: ' . implode(', ', array_keys($changes)) . '.', route('vendor.media.show', $after->id), $after->id);
+    }
+
     /**
      * Categories sized panel by panel rather than by one face.
      *
@@ -435,7 +515,7 @@ class MediaManagementController extends Controller
      * State -> District -> City -> Area, each checked against its parent so a
      * tampered or stale post cannot save an area under the wrong city.
      */
-    private static function locationRules(Request $request): array
+    public static function locationRules(Request $request): array
     {
         return [
             'state_id'    => 'required|integer|exists:states,id',
@@ -522,6 +602,15 @@ class MediaManagementController extends Controller
         try {
             $id = base64_decode($request->id);
 
+            // Vendor submissions go live through Vendor Approvals, not this switch.
+            $approval = DB::table('media_management')->where('id', $id)->value('approval_status');
+            if ($approval && $approval !== 'approved') {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'This media is waiting for approval. Approve it from Vendor Approvals first.',
+                ], 422);
+            }
+
             $this->mediaService->toggleStatus($id);
 
             return response()->json([
@@ -583,8 +672,15 @@ class MediaManagementController extends Controller
     {
         try {
             $id = base64_decode($request->id);
+            $deleted = MediaManagement::find($id);
 
             $this->mediaService->delete($id);
+
+            if ($deleted && $deleted->vendor_id) {
+                VendorAudit::adminDid($deleted->vendor_id, 'Inventory Assignment Removed', ['Reason' => 'Deleted by Brand Adda'], $deleted);
+                VendorAudit::notifyVendor($deleted->vendor_id, 'inventory_removed', 'Inventory removed – ' . $deleted->display_code,
+                    'Brand Adda deleted ' . ($deleted->media_title ?: $deleted->display_code) . '.', null, $deleted->id);
+            }
 
             return response()->json([
                 'status'  => true,

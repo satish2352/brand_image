@@ -488,3 +488,7 @@ Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.s
 // Route::get('/{any}', function () {
 //     return view('app');
 // })->where('any', '^(?!api).*$');
+
+// Vendor Inventory Management: vendor panel, its admin screens and the public
+// vendor showcase (/{vendorSlug}). Must stay the LAST include in this file.
+require __DIR__ . '/vendor.php';

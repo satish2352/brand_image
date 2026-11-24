@@ -13,6 +13,7 @@ class ComingSoonMiddleware
         if (
             $request->is('dashboard*') ||
             $request->is('admin*') ||
+            $request->is('vendor-panel*') ||
             $request->is('login')
         ) {
             return $next($request);

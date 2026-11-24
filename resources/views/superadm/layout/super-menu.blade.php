@@ -165,6 +165,38 @@
                 <span>Import &amp; Export</span>
             </a>
         </li>
+        @php
+            // Vendor Inventory Management (vendor panel) — Super Admin side.
+            $vpPending = \Illuminate\Support\Facades\DB::table('media_management')
+                ->where('is_deleted', 0)->where('approval_status', 'pending')->count();
+            $vpUnread = \App\Models\PanelNotification::forAdmin()->where('is_read', false)->count();
+        @endphp
+        <li class="nav-item {{ request()->routeIs('admin.vendor.approvals*') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.approvals') }}">
+                <i class="mdi mdi-check-decagram"></i>
+                <span>Vendor Approvals</span>
+                @if ($vpPending)<span class="badge badge-warning ml-1">{{ $vpPending }}</span>@endif
+            </a>
+        </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.inventory') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.inventory') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>Vendor Inventory &amp; Access</span>
+            </a>
+        </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.activity') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.activity') }}">
+                <i class="mdi mdi-history"></i>
+                <span>Vendor Activity Log</span>
+            </a>
+        </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.notifications') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.notifications') }}">
+                <i class="mdi mdi-bell-ring-outline"></i>
+                <span>Vendor Notifications</span>
+                @if ($vpUnread)<span class="badge badge-danger ml-1">{{ $vpUnread }}</span>@endif
+            </a>
+        </li>
         <li class="nav-item {{ request()->routeIs('admin-booking.index') ? 'active' : '' }}">
             <a href="{{ route('admin-booking.index') }}">
                 <i class="mdi mdi-calendar-check"></i>

@@ -109,7 +109,18 @@ class CartRepository
                 ->where('oi.media_id', $mediaId)
                 ->where('o.payment_status', 'PAID')
                 ->select('oi.from_date', 'oi.to_date')
-                ->get();
+                ->get()
+                // Dates a vendor marked Booked / Blocked in the Vendor Panel.
+                ->concat(
+                    DB::table('media_booked_date')
+                        ->where('media_id', $mediaId)
+                        ->where('source', 'vendor')
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->select('from_date', 'to_date')
+                        ->get()
+                )
+                ->values();
         } catch (\Exception $e) {
             return collect([]);
         }
@@ -136,7 +147,16 @@ class CartRepository
                             ->where('oi.to_date', '>=', $to);
                     });
             })
-            ->exists();
+            ->exists()
+            // ...or a vendor's own Booked / Blocked dates (Vendor Panel).
+            || DB::table('media_booked_date')
+                ->where('media_id', $mediaId)
+                ->where('source', 'vendor')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->where('from_date', '<=', $to)
+                ->where('to_date', '>=', $from)
+                ->exists();
     }
 
     // 🔄 Update cart dates + price

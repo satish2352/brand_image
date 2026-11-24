@@ -39,6 +39,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'shared.link.visitor' => \App\Http\Middleware\SharedLinkVisitor::class,
             // Timed access to the media search; see the class note.
             'search.access' => \App\Http\Middleware\EnsureSearchAccess::class,
+            // Vendor Inventory Management panel (/vendor-panel).
+            'vendor.auth' => \App\Http\Middleware\VendorAuth::class,
         ]);
     })
 

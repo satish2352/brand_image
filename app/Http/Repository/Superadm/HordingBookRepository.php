@@ -383,6 +383,9 @@ class HordingBookRepository
             ->where('media_id', $mediaId)
             ->where('is_active', 1)
             ->where('is_deleted', 0)
+            // Only merge into another booking — never stretch a vendor's
+            // "Blocked" hold (Vendor Inventory module) into a booking.
+            ->where('status_type', 'booked')
             ->where(function ($q) use ($from, $to) {
                 $q->whereBetween('from_date', [$from, $to])
                     ->orWhereBetween('to_date', [$from, $to])

@@ -51,7 +51,20 @@ class MediaManagement extends Model
         'is_active',
         'is_available',
         'is_deleted',
+        // Vendor Inventory module: vendor submissions wait for approval.
+        'approval_status',
+        'rejection_reason',
+        'submitted_by_vendor_id',
+        'submitted_at',
+        'reviewed_by',
+        'reviewed_at',
     ];
+
+    /** Site code shown everywhere a single media item is named. */
+    public function getDisplayCodeAttribute(): string
+    {
+        return $this->hoarding_code ?: ($this->media_code ?: '#' . $this->id);
+    }
 
     public function images()
     {
