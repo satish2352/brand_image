@@ -6,6 +6,7 @@
         'inventory_removed'  => ['fa-solid fa-minus', '#F1F5F9', '#334155'],
         'inventory_updated'  => ['fa-solid fa-pen', '#DBEAFE', '#1E40AF'],
         'booking_updated'    => ['fa-regular fa-calendar', '#DBEAFE', '#1E40AF'],
+        'enquiry_received'   => ['fa-regular fa-envelope', '#FFEDD5', '#9A3412'],
     ];
     [$nIcon, $nBg, $nFg] = $nIcons[$n->type] ?? ['fa-regular fa-bell', '#F1F5F9', '#334155'];
     $nHref = $n->link ? route('vendor.notifications.open', $n->id) : null;

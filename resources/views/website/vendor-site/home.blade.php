@@ -3,9 +3,7 @@
 @section('tagline', $totals['media'] . ' outdoor media sites')
 
 @section('nav')
-    <a href="#inventory" class="vs-link">Inventory</a>
-    <a href="#map" class="vs-link">Map</a>
-    <span style="width:1px;height:32px;background:#E5E7EB;margin:0 8px" aria-hidden="true"></span>
+    @include('website.vendor-site.partials.nav', ['active' => 'home'])
 @endsection
 
 @section('styles')

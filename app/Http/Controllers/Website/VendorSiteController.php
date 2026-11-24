@@ -141,6 +141,121 @@ class VendorSiteController extends Controller
         ]);
     }
 
+    /** Separate Contact page: brand-adda.co.in/{vendor-slug}/contact */
+    public function contact(string $vendorSlug)
+    {
+        $vendor = $this->vendorBySlug($vendorSlug);
+
+        if (!$this->hasAccess($vendor)) {
+            return redirect()->route('vendor-site.show', $vendor->slug);
+        }
+
+        $mediaOptions = $this->mediaQuery($vendor)->orderBy('m.hoarding_code')
+            ->get(['m.id', 'm.hoarding_code', 'm.media_code', 'm.media_title', 'a.area_name']);
+
+        return view('website.vendor-site.contact', [
+            'vendor'       => $vendor,
+            'contact'      => $this->contactFor($vendor),
+            'mediaOptions' => $mediaOptions,
+            'selectedMedia' => (int) request('media') ?: null,
+            'totals'       => [
+                'media'     => $mediaOptions->count(),
+                'districts' => $this->mediaQuery($vendor)->distinct()->count('m.district_id'),
+            ],
+        ]);
+    }
+
+    /**
+     * Contact form on the vendor website. The enquiry is saved for that
+     * vendor and appears in its panel under Enquiries, with a notification.
+     */
+    public function submitEnquiry(Request $request, string $vendorSlug)
+    {
+        $vendor = $this->vendorBySlug($vendorSlug);
+
+        if (!$this->hasAccess($vendor)) {
+            return redirect()->route('vendor-site.show', $vendor->slug);
+        }
+
+        // Hidden field real visitors never fill: quietly drop bot posts.
+        if (filled($request->input('website'))) {
+            return redirect()->route('vendor-site.contact', $vendor->slug)->with('enquiry_sent', true);
+        }
+
+        $data = $request->validate([
+            'name'     => ['required', 'string', 'min:2', 'max:120', 'regex:/^[\pL\s.\'-]+$/u'],
+            'email'    => 'required|email:rfc|max:150',
+            'mobile'   => ['required', 'regex:/^(\+?91[\s-]?)?[6-9]\d{9}$/'],
+            'company'  => 'nullable|string|max:150',
+            'city'     => 'nullable|string|max:100',
+            'media_id' => 'nullable|integer',
+            'message'  => 'required|string|min:10|max:2000',
+        ], [
+            'name.regex'    => 'Please enter a valid name (letters only).',
+            'mobile.regex'  => 'Enter a valid 10-digit Indian mobile number.',
+            'message.min'   => 'Please tell us a little more (at least 10 characters).',
+        ]);
+
+        // Only this vendor's live media can be referenced.
+        if (!empty($data['media_id']) && !$this->mediaQuery($vendor)->where('m.id', $data['media_id'])->exists()) {
+            $data['media_id'] = null;
+        }
+
+        $enquiry = \App\Models\VendorEnquiry::create($data + [
+            'vendor_id' => $vendor->id,
+            'status'    => 'new',
+            'ip'        => $request->ip(),
+        ]);
+
+        $about = $enquiry->media ? ' about ' . ($enquiry->media->display_code) : '';
+        \App\Support\VendorAudit::notifyVendor(
+            $vendor->id,
+            'enquiry_received',
+            'New enquiry from ' . $enquiry->name,
+            \Illuminate\Support\Str::limit($enquiry->message, 120) . $about,
+            route('vendor.enquiries', ['open' => $enquiry->id]),
+            $enquiry->media_id
+        );
+
+        return redirect()->route('vendor-site.contact', $vendor->slug)->with('enquiry_sent', true);
+    }
+
+    /**
+     * Contact details shown on the vendor website, from the vendor's record in
+     * the admin Vendor master (mobile, email, address, city).
+     */
+    private function contactFor(Vendor $vendor): array
+    {
+        $place = DB::table('vendors as v')
+            ->leftJoin('cities as c', 'c.id', '=', 'v.city_id')
+            ->leftJoin('districts as d', 'd.id', '=', 'v.district_id')
+            ->leftJoin('states as s', 's.id', '=', 'v.state_id')
+            ->where('v.id', $vendor->id)
+            ->first(['c.city_name', 'd.district_name', 's.state_name']);
+
+        $digits = preg_replace('/\D/', '', (string) $vendor->mobile);
+        // WhatsApp needs the country code; Indian 10-digit numbers get 91.
+        $whatsapp = strlen($digits) === 10 ? '91' . $digits : $digits;
+
+        $location = collect([$place->city_name ?? null, $place->district_name ?? null, $place->state_name ?? null])
+            ->filter()->unique()->implode(', ');
+
+        // Don't repeat the city when the address already spells it out.
+        if ($vendor->address && !empty($place->city_name) && stripos($vendor->address, $place->city_name) !== false) {
+            $location = '';
+        }
+
+        return [
+            'mobile'   => $vendor->mobile,
+            'tel'      => $digits ? '+' . (strlen($digits) === 10 ? '91' . $digits : $digits) : null,
+            'whatsapp' => $whatsapp ?: null,
+            'email'    => $vendor->email,
+            'address'  => $vendor->address,
+            'location' => $location,
+            'mapsUrl'  => 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode(trim($vendor->address . ', ' . ($location ?: ($place->city_name ?? '')), ', ')),
+        ];
+    }
+
     public function media(string $vendorSlug, int $mediaId)
     {
         $vendor = $this->vendorBySlug($vendorSlug);

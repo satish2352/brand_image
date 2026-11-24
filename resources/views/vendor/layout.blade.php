@@ -2,6 +2,7 @@
     /** @var \App\Models\Vendor $vendor */
     $vendor = auth('vendor')->user();
     $vpUnread = \App\Models\PanelNotification::forVendor($vendor->id)->where('is_read', false)->count();
+    $vpNewEnquiries = \App\Models\VendorEnquiry::forVendor($vendor->id)->whereNull('read_at')->count();
     $vpNav = [
         ['Dashboard', 'vendor.dashboard', 'fa-solid fa-table-cells-large', ['vendor.dashboard']],
         ['Inventory', 'vendor.inventory', 'fa-solid fa-list', ['vendor.inventory', 'vendor.media.show', 'vendor.media.edit']],
@@ -10,6 +11,7 @@
         ['Operations', 'vendor.operations', 'fa-solid fa-list-check', ['vendor.operations']],
         ['Bookings', 'vendor.bookings', 'fa-regular fa-clipboard', ['vendor.bookings']],
         ['Reports', 'vendor.reports.utilisation', 'fa-solid fa-chart-column', ['vendor.reports.utilisation']],
+        ['Enquiries', 'vendor.enquiries', 'fa-regular fa-envelope', ['vendor.enquiries'], $vpNewEnquiries],
         ['Website & Slider', 'vendor.website', 'fa-solid fa-globe', ['vendor.website']],
         ['Notifications & Log', 'vendor.notifications', 'fa-regular fa-bell', ['vendor.notifications'], $vpUnread],
     ];

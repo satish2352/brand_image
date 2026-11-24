@@ -68,6 +68,10 @@ Route::prefix('vendor-panel')->name('vendor.')->group(function () {
         Route::post('notifications/read-all', [Vendor\NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::get('notifications/{id}/open', [Vendor\NotificationController::class, 'open'])->whereNumber('id')->name('notifications.open');
 
+        // Enquiries from the vendor website's Contact page
+        Route::get('enquiries', [Vendor\EnquiryController::class, 'index'])->name('enquiries');
+        Route::post('enquiries/{id}/status', [Vendor\EnquiryController::class, 'updateStatus'])->whereNumber('id')->name('enquiries.status');
+
         // Website branding & slider
         Route::get('website', [Vendor\WebsiteController::class, 'index'])->name('website');
         Route::post('website/logo', [Vendor\WebsiteController::class, 'updateLogo'])->name('website.logo');
@@ -103,4 +107,6 @@ Route::prefix('{vendorSlug}')->where(['vendorSlug' => '[a-z0-9]+(?:-[a-z0-9]+)*'
     Route::post('otp/send', [VendorSiteController::class, 'sendOtp'])->name('otp.send')->middleware('throttle:5,10');
     Route::post('otp/verify', [VendorSiteController::class, 'verifyOtp'])->name('otp.verify')->middleware('throttle:10,10');
     Route::get('media/{mediaId}', [VendorSiteController::class, 'media'])->whereNumber('mediaId')->name('media');
+    Route::get('contact', [VendorSiteController::class, 'contact'])->name('contact');
+    Route::post('contact', [VendorSiteController::class, 'submitEnquiry'])->name('contact.submit')->middleware('throttle:5,10');
 });

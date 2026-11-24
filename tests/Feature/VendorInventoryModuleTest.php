@@ -287,6 +287,7 @@ class VendorInventoryModuleTest extends TestCase
 
         $site = route('vendor-site.show', $this->vendor->slug);
         $this->get($site)->assertOk()->assertSee('Verify to view inventory')->assertDontSee('Live Showcase Site');
+        $this->get(route('vendor-site.contact', $this->vendor->slug))->assertRedirect($site);
 
         $this->post(route('vendor-site.otp.send', $this->vendor->slug))->assertSessionHas('success');
 
@@ -303,7 +304,16 @@ class VendorInventoryModuleTest extends TestCase
             ->assertSee('Live Showcase Site')
             ->assertDontSee('Pending Hidden Site')
             ->assertDontSee('Other Vendor Site')
-            ->assertSee('Powered by');
+            ->assertSee('Powered by')
+            ->assertDontSee('id="contact"', false)
+            ->assertSee(route('vendor-site.contact', $this->vendor->slug));
+
+        // Separate Contact page with the vendor's details.
+        $this->get(route('vendor-site.contact', $this->vendor->slug))->assertOk()
+            ->assertSee('Contact Test Vendor Alpha')
+            ->assertSee($this->vendor->email)
+            ->assertSee('tel:+919876543210', false)
+            ->assertSee('https://wa.me/919876543210', false);
 
         $this->get(route('vendor-site.media', [$this->vendor->slug, $live->id]))->assertOk()->assertSee('Live Showcase Site');
         $this->get('/no-such-vendor-slug-xyz')->assertNotFound();
@@ -339,6 +349,53 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor($this->otherVendor)->post(route('vendor.website.slides.edit', $slide->id), ['media_type' => 'image'])->assertNotFound();
 
         $this->asVendor()->get(route('vendor.website'))->assertOk()->assertSee('Replace file (optional)');
+    }
+
+    public function test_contact_form_enquiry_reaches_the_vendor(): void
+    {
+        $media = $this->makeMedia($this->vendor, ['media_title' => 'Enquiry Site']);
+        $contact = route('vendor-site.contact', $this->vendor->slug);
+
+        // Needs the website OTP like the rest of the site.
+        $this->post($contact, ['name' => 'X'])->assertRedirect(route('vendor-site.show', $this->vendor->slug));
+
+        $this->asVendor()->get($contact . '?media=' . $media->id)->assertOk()->assertSee('Send an enquiry')->assertSee('Enquiry Site');
+
+        // Validation.
+        $this->asVendor()->post($contact, ['name' => '', 'email' => 'bad', 'mobile' => '123', 'message' => 'hi'])
+            ->assertSessionHasErrors(['name', 'email', 'mobile', 'message']);
+
+        // Bots filling the hidden field are dropped silently.
+        $this->asVendor()->post($contact, ['website' => 'spam', 'name' => 'Bot', 'email' => 'b@example.test', 'mobile' => '9876543210', 'message' => 'Buy cheap stuff now'])
+            ->assertSessionHas('enquiry_sent');
+        $this->assertSame(0, \App\Models\VendorEnquiry::where('vendor_id', $this->vendor->id)->count());
+
+        $this->asVendor()->post($contact, [
+            'name' => 'Priya Shah', 'email' => 'priya@example.test', 'mobile' => '9876543210', 'company' => 'Shah Foods',
+            'city' => 'Pune', 'media_id' => $media->id, 'message' => 'Need this hoarding for January, please share rates.',
+        ])->assertRedirect($contact)->assertSessionHas('enquiry_sent');
+
+        $enquiry = \App\Models\VendorEnquiry::where('vendor_id', $this->vendor->id)->firstOrFail();
+        $this->assertSame('new', $enquiry->status);
+        $this->assertSame($media->id, (int) $enquiry->media_id);
+        $this->assertTrue(PanelNotification::forVendor($this->vendor->id)->where('type', 'enquiry_received')->exists());
+
+        // Another vendor's media id is not attached.
+        $other = $this->makeMedia($this->otherVendor);
+        $this->asVendor()->post($contact, ['name' => 'Ravi', 'email' => 'r@example.test', 'mobile' => '9123456789', 'media_id' => $other->id, 'message' => 'General question about sites'])
+            ->assertSessionHas('enquiry_sent');
+        $this->assertNull(\App\Models\VendorEnquiry::where('name', 'Ravi')->value('media_id'));
+
+        // Visible in the vendor panel, marked read when opened, status can change.
+        $this->asVendor()->get(route('vendor.enquiries', ['open' => $enquiry->id]))->assertOk()
+            ->assertSee('Priya Shah')->assertSee('Need this hoarding for January')->assertSee('Shah Foods');
+        $this->assertNotNull($enquiry->fresh()->read_at);
+        $this->asVendor()->post(route('vendor.enquiries.status', $enquiry->id), ['status' => 'contacted'])->assertSessionHas('success');
+        $this->assertSame('contacted', $enquiry->fresh()->status);
+
+        // Not visible to, or editable by, another vendor.
+        $this->asVendor($this->otherVendor)->get(route('vendor.enquiries'))->assertOk()->assertDontSee('Priya Shah');
+        $this->asVendor($this->otherVendor)->post(route('vendor.enquiries.status', $enquiry->id), ['status' => 'closed'])->assertNotFound();
     }
 
     public function test_activity_log_keeps_six_months(): void

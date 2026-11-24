@@ -1,6 +1,10 @@
 @extends('website.vendor-site.layout')
 @section('title', ($media->hoarding_code ?: $media->media_code) . ' · ' . $media->media_title)
 
+@section('nav')
+    @include('website.vendor-site.partials.nav', ['active' => 'media'])
+@endsection
+
 @section('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css">
@@ -71,6 +75,8 @@
                     <button type="button" id="shareLink" class="vs-btn vs-btn-o" style="flex:1"><i class="fa-solid fa-share-nodes"></i>Share Link</button>
                     <a href="https://www.google.com/maps?q={{ $media->latitude }},{{ $media->longitude }}" target="_blank" rel="noopener" class="vs-btn vs-btn-g" style="flex:1">Open in Maps</a>
                 </div>
+                <a href="{{ route('vendor-site.contact', ['vendorSlug' => $vendor->slug, 'media' => $media->id]) }}" class="vs-btn vs-btn-n" style="width:100%">
+                    <i class="fa-regular fa-paper-plane"></i>Enquire about this site</a>
             </aside>
         </div>
 
