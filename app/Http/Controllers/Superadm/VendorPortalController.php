@@ -36,27 +36,43 @@ class VendorPortalController extends Controller
     public function approvals(Request $request)
     {
         $status = array_key_exists($request->status, self::STATUS_LABELS) ? $request->status : 'pending';
+        $vendorId = (int) $request->vendor_id;
+        $term = trim((string) $request->q);
 
+        // Left join: a submission whose vendor was later removed still needs a decision.
         $media = DB::table('media_management as m')
-            ->join('vendors as v', 'v.id', '=', 'm.vendor_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
             ->leftJoin('cities as cty', 'cty.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('users as rv', 'rv.id', '=', 'm.reviewed_by')
             ->where('m.is_deleted', 0)
             ->whereNotNull('m.submitted_by_vendor_id')
             ->where('m.approval_status', $status)
-            ->when($request->vendor_id, fn ($q, $v) => $q->where('m.vendor_id', (int) $v))
-            ->orderByDesc('m.submitted_at')
+            ->when($vendorId, fn ($q) => $q->where('m.vendor_id', $vendorId))
+            ->when($term !== '', function ($q) use ($term) {
+                $like = '%' . $term . '%';
+                $q->where(fn ($w) => $w->where('m.hoarding_code', 'like', $like)->orWhere('m.media_title', 'like', $like)
+                    ->orWhere('a.area_name', 'like', $like)->orWhere('cty.city_name', 'like', $like));
+            })
+            ->orderByDesc($status === 'pending' ? 'm.submitted_at' : 'm.reviewed_at')
             ->select(['m.id', 'm.hoarding_code', 'm.media_code', 'm.media_title', 'm.price', 'm.submitted_at', 'm.reviewed_at',
-                'm.rejection_reason', 'v.vendor_name', 'v.vendor_code', 'c.category_name', 'cty.city_name', 'a.area_name'])
+                'm.rejection_reason', 'v.vendor_name', 'v.vendor_code', 'c.category_name', 'cty.city_name', 'a.area_name',
+                'rv.name as reviewer_name'])
             ->paginate(20)
             ->withQueryString();
 
+        // First photo of each row, for the thumbnail column.
+        $thumbs = MediaImage::whereIn('media_id', $media->pluck('id'))->where('is_deleted', 0)->orderBy('id')
+            ->get(['media_id', 'images'])->groupBy('media_id')->map(fn ($g) => $g->first()->images);
+
         $counts = DB::table('media_management')->where('is_deleted', 0)->whereNotNull('submitted_by_vendor_id')
+            ->when($vendorId, fn ($q) => $q->where('vendor_id', $vendorId))
             ->selectRaw('approval_status, COUNT(*) as total')->groupBy('approval_status')->pluck('total', 'approval_status');
 
         return view('superadm.vendor-portal.approvals', [
             'media'   => $media,
+            'thumbs'  => $thumbs,
             'status'  => $status,
             'labels'  => self::STATUS_LABELS,
             'counts'  => $counts,
@@ -257,13 +273,17 @@ class VendorPortalController extends Controller
 
     public function activity(Request $request)
     {
-        $log = VendorActivityLog::retained()->with('vendor:id,vendor_name')
+        $filtered = VendorActivityLog::retained()
             ->when($request->vendor_id, fn ($q, $v) => $q->where('vendor_id', (int) $v))
             ->when($request->actor, fn ($q, $a) => $q->where('actor_type', $a))
             ->when($request->action, fn ($q, $a) => $q->where('action', $a))
             ->when($request->from_date, fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
             ->when($request->to_date, fn ($q, $d) => $q->whereDate('created_at', '<=', $d))
-            ->when(trim((string) $request->q), fn ($q, $t) => $q->where('media_code', 'like', '%' . $t . '%'))
+            ->when(trim((string) $request->q), fn ($q, $t) => $q->where('media_code', 'like', '%' . $t . '%'));
+
+        $byActor = (clone $filtered)->selectRaw('actor_type, COUNT(*) as total')->groupBy('actor_type')->pluck('total', 'actor_type');
+
+        $log = (clone $filtered)->with('vendor:id,vendor_name')
             ->latest('created_at')
             ->paginate(30)
             ->withQueryString();
@@ -272,6 +292,13 @@ class VendorPortalController extends Controller
             'log'     => $log,
             'vendors' => $this->vendors(),
             'actions' => VendorActivityLog::retained()->distinct()->orderBy('action')->pluck('action'),
+            'summary' => [
+                'total'  => (int) $byActor->sum(),
+                'vendor' => (int) ($byActor['vendor'] ?? 0),
+                'admin'  => (int) ($byActor['admin'] ?? 0),
+                'today'  => (clone $filtered)->whereDate('created_at', now()->toDateString())->count(),
+            ],
+            'filtered' => collect($request->only(['vendor_id', 'actor', 'action', 'from_date', 'to_date', 'q']))->filter(fn ($v) => filled($v))->isNotEmpty(),
         ]);
     }
 
