@@ -37,6 +37,31 @@ class VendorModuleSampleSeeder extends Seeder
 {
     private const IMG_DIR = 'upload/images/media';
 
+    /** Real outdoor-media photos shipped with the project (public/…). */
+    private const PHOTO_LIB = 'assets/img/';
+    private const PHOTO_SVC = 'assets/img/Brand Image 1/Brand Image/brand-image.co.in/assets/img/service/';
+
+    private const P_BILLBOARD_DAY   = self::PHOTO_LIB . 'hero-bg-2-1.jpg';
+    private const P_BILLBOARD_NIGHT = self::PHOTO_LIB . 'hero-bg-1.jpg';
+    private const P_FACADE          = self::PHOTO_LIB . 'hero-bg-3-1.jpg';
+    private const P_FACADE_2        = self::PHOTO_LIB . 'static2.jpg';
+    private const P_BUS_STAND       = self::PHOTO_SVC . 'out1.jpg';
+    private const P_BUS_STAND_2     = self::PHOTO_SVC . 'buss.jpg';
+    private const P_WALL_SITE       = self::PHOTO_SVC . '11.jpg';
+
+    /** Two photos per sample media: [long shot, close shot]. */
+    private const MEDIA_PHOTOS = [
+        'college_road' => [self::P_BILLBOARD_DAY, self::P_BILLBOARD_NIGHT],
+        'gangapur'     => [self::P_BILLBOARD_NIGHT, self::P_BILLBOARD_DAY],
+        'mumbai_naka'  => [self::P_BILLBOARD_NIGHT, self::P_FACADE],
+        'dwarka'       => [self::P_BILLBOARD_DAY, self::P_FACADE_2],
+        'govind_nagar' => [self::P_FACADE_2, self::P_FACADE],
+        'cidco'        => [self::P_WALL_SITE, self::P_FACADE_2],
+        'nashik_road'  => [self::P_BUS_STAND, self::P_BUS_STAND_2],
+        'fc_road'      => [self::P_FACADE, self::P_BILLBOARD_DAY],
+        'baner'        => [self::P_BILLBOARD_DAY, self::P_BILLBOARD_NIGHT],
+    ];
+
     private Vendor $vendor;
     private array $media = [];   // key => MediaManagement
     private array $users = [];   // key => website_users.id
@@ -67,6 +92,7 @@ class VendorModuleSampleSeeder extends Seeder
             $this->createAvailability();
             $this->createEnquiries();
             $this->createNotificationsAndLog();
+            $this->createBanners();
         });
 
         $this->command?->info('Sample data added for ' . $this->vendor->vendor_name . ': '
@@ -126,10 +152,13 @@ class VendorModuleSampleSeeder extends Seeder
                 'updated_at'      => $created,
             ]);
 
-            // Two generated placeholder photos per media.
-            foreach ([1, 2] as $n) {
+            // Two real site photos per media (from the project's own photo library).
+            foreach (self::MEDIA_PHOTOS[$key] as $n => $source) {
+                $n++;
                 $file = 'sample_' . $media->media_code . '_' . $n . '.jpg';
-                Storage::disk('public')->put(self::IMG_DIR . '/' . $file, $this->placeholder($title, $media->hoarding_code ?: $media->media_code, $n === 1 ? 'Long shot' : 'Close shot', $i + $n));
+                $bytes = $this->realPhoto($source, 1600, 1067)
+                    ?? $this->placeholder($title, $media->hoarding_code ?: $media->media_code, $n === 1 ? 'Long shot' : 'Close shot', $i + $n);
+                Storage::disk('public')->put(self::IMG_DIR . '/' . $file, $bytes);
                 MediaImage::create(['media_id' => $media->id, 'images' => $file, 'is_active' => 1, 'is_deleted' => 0]);
             }
 
@@ -357,6 +386,78 @@ class VendorModuleSampleSeeder extends Seeder
         $this->log('admin', 'mumbai_naka', 'Vendor Rate Updated', ['Previous rate' => '110000', 'New rate' => '120000'], now()->subDays(9));
     }
 
+    /**
+     * Website slider banners (1920 × 700) cropped from real outdoor-media
+     * photos in the project's photo library.
+     */
+    private function createBanners(): void
+    {
+        $banners = [
+            [self::P_BILLBOARD_DAY, 'Prime hoardings at Nashik’s busiest junctions'],
+            [self::P_BILLBOARD_NIGHT, 'Lit sites that keep your brand visible day and night'],
+            [self::P_BUS_STAND, 'Bus stand & transit branding across Nashik'],
+            [self::P_FACADE, 'Wall and façade branding that stops traffic'],
+        ];
+
+        $order = (int) DB::table('vendor_sliders')->where('vendor_id', $this->vendor->id)->max('sort_order');
+
+        foreach ($banners as $i => [$source, $caption]) {
+            $bytes = $this->realPhoto($source, 1920, 700);
+            if ($bytes === null) {
+                continue;
+            }
+            $path = 'upload/vendors/' . $this->vendor->id . '/slider/sample_banner_' . ($i + 1) . '.jpg';
+            Storage::disk('public')->put($path, $bytes);
+
+            DB::table('vendor_sliders')->insert([
+                'vendor_id'  => $this->vendor->id,
+                'media_type' => 'image',
+                'file'       => $path,
+                'title'      => $caption,
+                'sort_order' => $order + $i + 1,
+                'is_active'  => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * A real photo from public/, scaled and centre-cropped to exactly
+     * $w × $h (like CSS object-fit: cover) and returned as JPEG bytes.
+     * Null when the source photo is not there.
+     */
+    private function realPhoto(string $relative, int $w, int $h): ?string
+    {
+        $path = public_path($relative);
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $src = @imagecreatefromstring(file_get_contents($path));
+        if (!$src) {
+            return null;
+        }
+
+        $sw = imagesx($src);
+        $sh = imagesy($src);
+        $scale = max($w / $sw, $h / $sh);
+        $cw = (int) round($w / $scale);
+        $ch = (int) round($h / $scale);
+        $sx = (int) round(($sw - $cw) / 2);
+        $sy = (int) round(($sh - $ch) / 2);
+
+        $dst = imagecreatetruecolor($w, $h);
+        imagecopyresampled($dst, $src, 0, 0, $sx, $sy, $w, $h, $cw, $ch);
+        imagedestroy($src);
+
+        ob_start();
+        imagejpeg($dst, null, 82);
+        imagedestroy($dst);
+
+        return ob_get_clean();
+    }
+
     /* ------------------------------------------------------------------ */
 
     private function notify(string $audience, string $type, string $title, string $message, string $link, ?int $mediaId, Carbon $when, bool $read): void
@@ -398,8 +499,13 @@ class VendorModuleSampleSeeder extends Seeder
 
         foreach ($shots as $i => $shot) {
             $path = 'upload/operations/' . $op->id . '/sample_' . $stage . '_' . $shot . '.jpg';
-            Storage::disk('public')->put($path, $this->placeholder($media->media_title, $media->display_code,
-                ucfirst(str_replace('_', '-', $stage)) . ' · ' . $labels[$shot], $op->id + $i + 3));
+            // Real photos: a geotagged site shot as the "newspaper" proof, and the
+            // media's own long / close shots.
+            $photos = self::MEDIA_PHOTOS[array_search($media->id, array_map(fn ($m) => $m->id, $this->media), true)] ?? [self::P_BILLBOARD_DAY, self::P_BILLBOARD_NIGHT];
+            $source = ['newspaper' => self::P_WALL_SITE, 'long' => $photos[0], 'close' => $photos[1]][$shot];
+            $bytes = $this->realPhoto($source, 1200, 800)
+                ?? $this->placeholder($media->media_title, $media->display_code, ucfirst(str_replace('_', '-', $stage)) . ' · ' . $labels[$shot], $op->id + $i + 3);
+            Storage::disk('public')->put($path, $bytes);
 
             MediaOperationPhoto::create([
                 'operation_id'          => $op->id,
@@ -487,5 +593,10 @@ class VendorModuleSampleSeeder extends Seeder
         DB::table('vendor_enquiries')->whereIn('id', $enquiryIds)->delete();
         DB::table('media_management')->whereIn('id', $mediaIds)->delete();
         DB::table('website_users')->where('email', 'like', 'sample.%@example.com')->delete();
+
+        foreach (DB::table('vendor_sliders')->where('file', 'like', '%/sample_banner_%')->pluck('file') as $file) {
+            Storage::disk('public')->delete($file);
+        }
+        DB::table('vendor_sliders')->where('file', 'like', '%/sample_banner_%')->delete();
     }
 }
