@@ -36,6 +36,13 @@
 </head>
 
 <body class="vp-body">
+    {{-- Restore the collapsed sidebar before first paint (no flicker). --}}
+    <script>
+        if (window.innerWidth > 820 && localStorage.getItem('vpSidebar') === 'collapsed') {
+            document.body.classList.add('vp-collapsed');
+        }
+    </script>
+    <div class="vp-backdrop" id="vpBackdrop" hidden></div>
     <div class="vp-shell">
         @php
             // Sidebar colour chosen on Website & Slider → Colours; text and
@@ -43,7 +50,7 @@
             $sideBg = $vendor->panel_theme;
             $sideLight = \App\Support\ThemeColor::isLight($sideBg);
         @endphp
-        <aside class="vp-side" style="--vp-side-bg: {{ $sideBg }};
+        <aside class="vp-side" id="vpSide" style="--vp-side-bg: {{ $sideBg }};
             --vp-side-text: {{ \App\Support\ThemeColor::text($sideBg) }};
             --vp-side-muted: {{ \App\Support\ThemeColor::muted($sideBg) }};
             --vp-side-muted2: {{ $sideLight ? '#475569' : '#94A3B8' }};
@@ -67,7 +74,7 @@
             </div>
             <nav class="vp-nav" aria-label="Vendor panel">
                 @foreach ($vpNav as $item)
-                    <a href="{{ route($item[1]) }}" class="{{ request()->routeIs(...$item[3]) ? 'active' : '' }}">
+                    <a href="{{ route($item[1]) }}" class="{{ request()->routeIs(...$item[3]) ? 'active' : '' }}" title="{{ $item[0] }}">
                         <i class="{{ $item[2] }}" aria-hidden="true"></i>
                         <span>{{ $item[0] }}</span>
                         @if (!empty($item[4]))
@@ -81,9 +88,14 @@
 
         <main class="vp-main">
             <header class="vp-top">
-                <div>
-                    <div class="vp-crumb">@yield('crumb', 'Vendor Panel')</div>
-                    <h1 class="vp-title">@yield('heading', 'Dashboard')</h1>
+                <div style="display:flex;align-items:center;gap:14px;min-width:0">
+                    <button type="button" class="vp-toggle" id="vpToggle" aria-controls="vpSide" aria-expanded="true" aria-label="Collapse menu" title="Collapse menu">
+                        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                    </button>
+                    <div style="min-width:0">
+                        <div class="vp-crumb">@yield('crumb', 'Vendor Panel')</div>
+                        <h1 class="vp-title">@yield('heading', 'Dashboard')</h1>
+                    </div>
                 </div>
                 <div class="vp-top-actions">
                     @yield('actions')
@@ -133,6 +145,45 @@
     <script src="{{ asset('asset/plugins/sweetalert/sweetalert2@11.js') }}"></script>
     <script>
         $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
+
+        // Sidebar toggle: collapse to icons on desktop (remembered), slide-in menu on phones.
+        (function () {
+            const body = document.body, btn = document.getElementById('vpToggle'), backdrop = document.getElementById('vpBackdrop');
+            const mobile = () => window.innerWidth <= 820;
+
+            function sync() {
+                const open = mobile() ? body.classList.contains('vp-menu-open') : !body.classList.contains('vp-collapsed');
+                const label = mobile() ? (open ? 'Close menu' : 'Open menu') : (open ? 'Collapse menu' : 'Expand menu');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.setAttribute('aria-label', label);
+                btn.title = label;
+                backdrop.hidden = !(mobile() && open);
+            }
+
+            btn.addEventListener('click', function () {
+                if (mobile()) {
+                    body.classList.toggle('vp-menu-open');
+                } else {
+                    body.classList.toggle('vp-collapsed');
+                    localStorage.setItem('vpSidebar', body.classList.contains('vp-collapsed') ? 'collapsed' : 'expanded');
+                }
+                sync();
+            });
+            backdrop.addEventListener('click', function () { body.classList.remove('vp-menu-open'); sync(); });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && body.classList.contains('vp-menu-open')) { body.classList.remove('vp-menu-open'); sync(); btn.focus(); }
+            });
+            window.addEventListener('resize', function () {
+                if (mobile()) {
+                    body.classList.remove('vp-collapsed');
+                } else {
+                    body.classList.remove('vp-menu-open');
+                    body.classList.toggle('vp-collapsed', localStorage.getItem('vpSidebar') === 'collapsed');
+                }
+                sync();
+            });
+            sync();
+        })();
 
         // Confirm before any form marked data-confirm is submitted.
         $(document).on('submit', 'form[data-confirm]', function (e) {
