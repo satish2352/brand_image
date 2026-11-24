@@ -301,6 +301,8 @@
                     </div>
                 </div>
 
+                @include('superadm.mediamanagement.partials.roadstar')
+
                 {{-- ================= IMAGES ================= --}}
                 <div class="info-card">
                     <div class="info-card-header">Images</div>
@@ -352,4 +354,5 @@
             if (category.includes('wall')) $('#wallWrap').show();
         });
     </script>
+    @include('superadm.mediamanagement.partials.roadstar-script')
 @endsection

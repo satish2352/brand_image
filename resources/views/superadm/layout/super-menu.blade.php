@@ -190,6 +190,12 @@
                 <span>Vendor Activity Log</span>
             </a>
         </li>
+        <li class="nav-item {{ request()->routeIs('media.insights.usage') ? 'active' : '' }}">
+            <a href="{{ route('media.insights.usage') }}">
+                <i class="mdi mdi-chart-donut"></i>
+                <span>Insights API Usage</span>
+            </a>
+        </li>
         <li class="nav-item {{ request()->routeIs('admin-booking.index') ? 'active' : '' }}">
             <a href="{{ route('admin-booking.index') }}">
                 <i class="mdi mdi-calendar-check"></i>

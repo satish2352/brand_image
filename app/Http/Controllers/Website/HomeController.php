@@ -11,6 +11,8 @@ use Throwable;
 use Illuminate\Support\Facades\DB;
 use App\Models\HomeSlider;
 use App\Support\MasterCache;
+use App\Support\AdminSession;
+use App\Http\Services\RoadStar\RoadStarSyncService;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 
@@ -199,6 +201,9 @@ class HomeController extends Controller
             'max_area',    //  add
             'highway_id',     // Highway filter (single)
             'landmark_ids',   // Landmark filter (multiple, OR logic)
+            'nearby_place',       // "lat,lng" of a place from the nearby-places data
+            'nearby_place_name',  // its name, only to show the choice again
+            'nearby_distance',    // metres around that place
             'hoarding_code'   // Sector Code, partial match
         ]);
         //  SAVE FILTERS IN SESSION
@@ -289,7 +294,17 @@ class HomeController extends Controller
 
             $bookedRanges = $merged;
 
-            return view('website.media-details', compact('media', 'bookedRanges'));
+            // RoadStar audience: the saved row only (MySQL) — opening the page
+            // never calls RoadStar. A RoadStar problem must not break the page.
+            $roadstarAdmin = AdminSession::onSite() || AdminSession::onPanel();
+            try {
+                $roadstar = app(RoadStarSyncService::class)->forDisplay($mediaId);
+            } catch (Throwable $e) {
+                Log::warning('RoadStar audience unavailable', ['media_id' => $mediaId, 'message' => $e->getMessage()]);
+                $roadstar = ['found' => false];
+            }
+
+            return view('website.media-details', compact('media', 'bookedRanges', 'roadstar', 'roadstarAdmin'));
         } catch (HttpExceptionInterface $e) {
 
             // abort(404) — the media simply doesn't exist (or is deleted).

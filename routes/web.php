@@ -32,6 +32,9 @@ use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
 use App\Http\Controllers\Website\SharedLinkController;
+use App\Http\Controllers\Website\MediaInsightsController;
+use App\Http\Controllers\Superadm\InsightsUsageController;
+use App\Http\Controllers\Superadm\RoadStarController;
 use App\Http\Controllers\Website\SearchSessionController;
 use App\Http\Controllers\Website\RequirementController;
 use App\Http\Controllers\Superadm\PortalAccessController;
@@ -124,6 +127,26 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('image/delete', [MediaManagementController::class, 'deleteImage'])->name('media.image.delete');
         Route::post('image/upload', [MediaManagementController::class, 'uploadImage'])->name('media.image.upload');
         Route::get('view-details/{encodedId}', [MediaManagementController::class, 'viewDetails'])->name('media.viewdetails');
+
+        /* NEARBY-PLACES API USAGE — Geoapify / SerpApi credits vs budget, coverage, log */
+        Route::get('insights-usage', [InsightsUsageController::class, 'index'])->name('media.insights.usage');
+
+        /* ROADSTAR AUDIENCE — admin only (this SuperAdmin group); JSON; POSTs
+           carry the CSRF token. Endpoints that call RoadStar are throttled. */
+        Route::prefix('roadstar')->name('media.roadstar.')->group(function () {
+            Route::get('test-connection', [RoadStarController::class, 'testConnection'])
+                ->middleware('throttle:10,1')->name('test');
+            Route::post('sync-bulk', [RoadStarController::class, 'syncBulk'])
+                ->middleware('throttle:10,1')->name('sync.bulk');
+            Route::get('{encodedId}/status', [RoadStarController::class, 'status'])->name('status');
+            Route::get('{encodedId}/site-data', [RoadStarController::class, 'siteData'])
+                ->middleware('throttle:20,1')->name('site-data');
+            Route::post('{encodedId}/map', [RoadStarController::class, 'map'])->name('map');
+            Route::post('{encodedId}/register', [RoadStarController::class, 'register'])
+                ->middleware('throttle:10,1')->name('register');
+            Route::post('{encodedId}/sync', [RoadStarController::class, 'sync'])
+                ->middleware('throttle:20,1')->name('sync');
+        });
 
         /* BULK DATA UPLOAD — IMPORT & EXPORT */
         Route::get('import-export', [MediaImportExportController::class, 'index'])->name('media.import-export');
@@ -359,6 +382,27 @@ Route::post('/shared-links/export/{format}', [SharedLinkController::class, 'expo
 Route::match(['get', 'post'], '/shared/{token}', [SharedLinkController::class, 'show'])
     ->name('shared.link.show');
 
+/* ============ MEDIA LOCATION INSIGHTS ============
+   GET  loads the insights panel into the media details page by AJAX. The
+        first view of a hoarding with no nearby places fetches them once
+        (within the credit budget); later views read MySQL only.
+   POST "Refresh Insights": admin-gated inside the controller like shared
+        links (site admin mode or the admin panel), POST so CSRF applies, and
+        throttled — it is the only web path that can spend API credits. */
+Route::get('/media-details/{encodedId}/insights', [MediaInsightsController::class, 'show'])
+    ->middleware('throttle:60,1')->name('media.insights.show');
+Route::post('/media-details/{encodedId}/insights/refresh', [MediaInsightsController::class, 'refresh'])
+    ->middleware('throttle:6,1')->name('media.insights.refresh');
+/* Stored TomTom Traffic Flow as JSON — reads MySQL only, never calls TomTom
+   (refresh:hoarding-traffic keeps it up to date every 15 days). */
+Route::get('/media-details/{encodedId}/traffic', [MediaInsightsController::class, 'traffic'])
+    ->middleware('throttle:60,1')->name('media.traffic.show');
+/* "Sync RoadStar Data" on Media Details: admin-gated inside the controller
+   (like Refresh Insights), POST so CSRF applies, throttled. The page itself
+   only reads saved RoadStar data from MySQL. */
+Route::post('/media-details/{encodedId}/roadstar/sync', [MediaInsightsController::class, 'roadstarSync'])
+    ->middleware('throttle:6,1')->name('media.roadstar.sync.site');
+
 /* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
 Route::get('/explore', [ExploreController::class, 'index'])
     ->middleware(['shared.link.visitor', 'search.access'])->name('website.explore');
@@ -369,6 +413,9 @@ Route::get('/ajax/get-landmarks', [ExploreController::class, 'landmarks'])
     ->middleware('search.access')->name('ajax.landmarks');
 Route::get('/ajax/get-highways', [ExploreController::class, 'highways'])
     ->middleware('search.access')->name('ajax.highways');
+/* Nearby Landmark options for a town, from the saved nearby-places data. */
+Route::get('/ajax/nearby-places', [\App\Http\Controllers\Website\MediaInsightsController::class, 'cityPlaces'])
+    ->middleware('search.access')->name('ajax.nearby-places');
 
 /* ============ SEARCH ACCESS WINDOW ============
    Status is read-only and rate limited: the countdown polls it, and there is

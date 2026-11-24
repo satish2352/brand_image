@@ -15,6 +15,8 @@ use App\Http\Services\Website\SearchSessionService;
 use App\Listeners\StartSearchSessionOnLogin;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,23 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrap();
+
+        // Media Location Insights: queued jobs (EnrichMediaInsightsJob) share one
+        // request rate to the places provider. Geoapify's free plan allows 5
+        // requests/second; the default of 4 leaves room for admin refreshes.
+        // Held to the request rate of whichever provider is active.
+        RateLimiter::for('places-api', fn() => Limit::perSecond(
+            max(1, (int) config(
+                'services.' . (config('services.insights.places_provider') === 'tomtom' ? 'tomtom' : 'geoapify') . '.requests_per_second',
+                4
+            ))
+        ));
+
+        // RoadStar Audience API: queued SyncRoadStarSites jobs share one request
+        // rate. RoadStar documents no limit, so this is our own (default 30/min).
+        RateLimiter::for('roadstar-api', fn() => Limit::perMinute(
+            max(1, (int) config('services.roadstar.requests_per_minute', 30))
+        ));
 
         /* ========================================
             SEARCH ACCESS WINDOW
