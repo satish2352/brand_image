@@ -309,6 +309,38 @@ class VendorInventoryModuleTest extends TestCase
         $this->get('/no-such-vendor-slug-xyz')->assertNotFound();
     }
 
+    public function test_vendor_can_edit_a_slider_slide(): void
+    {
+        $this->asVendor()->post(route('vendor.website.slides.store'), [
+            'media_type' => 'image', 'title' => 'Old caption', 'file' => UploadedFile::fake()->image('a.jpg', 1920, 700),
+        ])->assertSessionHas('success');
+        $slide = \App\Models\VendorSlider::where('vendor_id', $this->vendor->id)->firstOrFail();
+        $oldFile = $slide->file;
+
+        // Caption only: file kept.
+        $this->asVendor()->post(route('vendor.website.slides.edit', $slide->id), ['media_type' => 'image', 'title' => 'New caption'])
+            ->assertSessionHas('success');
+        $this->assertSame('New caption', $slide->fresh()->title);
+        $this->assertSame($oldFile, $slide->fresh()->file);
+
+        // Switching to video without a file is refused.
+        $this->asVendor()->post(route('vendor.website.slides.edit', $slide->id), ['media_type' => 'video', 'title' => 'New caption'])
+            ->assertSessionHasErrors('file');
+
+        // Replacing the image swaps the file and removes the old one.
+        $this->asVendor()->post(route('vendor.website.slides.edit', $slide->id), [
+            'media_type' => 'image', 'title' => 'New caption', 'file' => UploadedFile::fake()->image('b.png', 1920, 700),
+        ])->assertSessionHas('success');
+        $this->assertNotSame($oldFile, $slide->fresh()->file);
+        Storage::disk('public')->assertMissing($oldFile);
+        Storage::disk('public')->assertExists($slide->fresh()->file);
+
+        // Another vendor cannot edit it.
+        $this->asVendor($this->otherVendor)->post(route('vendor.website.slides.edit', $slide->id), ['media_type' => 'image'])->assertNotFound();
+
+        $this->asVendor()->get(route('vendor.website'))->assertOk()->assertSee('Replace file (optional)');
+    }
+
     public function test_activity_log_keeps_six_months(): void
     {
         $old = VendorActivityLog::create([

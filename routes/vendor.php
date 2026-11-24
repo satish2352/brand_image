@@ -74,6 +74,7 @@ Route::prefix('vendor-panel')->name('vendor.')->group(function () {
         Route::post('website/logo/remove', [Vendor\WebsiteController::class, 'removeLogo'])->name('website.logo.remove');
         Route::post('website/slides', [Vendor\WebsiteController::class, 'storeSlide'])->name('website.slides.store');
         Route::post('website/slides/{id}', [Vendor\WebsiteController::class, 'updateSlide'])->whereNumber('id')->name('website.slides.update');
+        Route::post('website/slides/{id}/edit', [Vendor\WebsiteController::class, 'editSlide'])->whereNumber('id')->name('website.slides.edit');
         Route::post('website/slides/{id}/delete', [Vendor\WebsiteController::class, 'destroySlide'])->whereNumber('id')->name('website.slides.destroy');
     });
 });

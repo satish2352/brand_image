@@ -103,6 +103,61 @@ class WebsiteController extends Controller
         return back()->with('success', 'Slider updated.');
     }
 
+    /**
+     * Edit a slide: caption, and optionally a new image or video in place of
+     * the current file. The slide keeps its position and on/off state.
+     */
+    public function editSlide(Request $request, int $id)
+    {
+        $vendor = $this->vendor();
+        $slide  = VendorSlider::where('vendor_id', $vendor->id)->findOrFail($id);
+
+        $type = $request->input('media_type', $slide->media_type);
+
+        // If validation sends us back, reopen this slide's edit panel.
+        session()->flash('edit_slide', $slide->id);
+
+        $data = $request->validate([
+            'media_type' => 'required|in:image,video',
+            'title'      => 'nullable|string|max:120',
+            'file'       => $type === 'video'
+                ? 'nullable|file|mimetypes:video/mp4,video/webm|max:51200'
+                : 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+        ], [
+            'file.max'       => $type === 'video' ? 'Videos must be under 50 MB.' : 'Images must be under 4 MB.',
+            'file.mimetypes' => 'Videos must be MP4 or WebM.',
+            'file.image'     => 'Choose an image file (JPG, PNG or WEBP).',
+        ]);
+
+        // Switching between image and video needs the new file to go with it.
+        if ($data['media_type'] !== $slide->media_type && !$request->hasFile('file')) {
+            return back()->withErrors(['file' => 'Choose the new ' . $data['media_type'] . ' file to change this slide\'s type.'])
+                ->with('edit_slide', $slide->id);
+        }
+
+        $changed = [];
+        $update  = ['title' => ($data['title'] ?? null) ?: null];
+        if ($update['title'] !== $slide->title) {
+            $changed[] = 'Caption';
+        }
+
+        if ($request->hasFile('file')) {
+            $update['file'] = $request->file('file')->store('upload/vendors/' . $vendor->id . '/slider', 'public');
+            $update['media_type'] = $data['media_type'];
+            Storage::disk('public')->delete($slide->file);
+            $changed[] = ucfirst($data['media_type']) . ' replaced';
+        }
+
+        $slide->update($update);
+        session()->forget('edit_slide');
+
+        if ($changed) {
+            VendorAudit::vendorDid($vendor, 'Website Slider Updated', ['Changed fields' => 'Slide ' . $slide->sort_order . ': ' . implode(', ', $changed)]);
+        }
+
+        return back()->with('success', $changed ? 'Slide updated.' : 'No changes to save.');
+    }
+
     public function destroySlide(int $id)
     {
         $vendor = $this->vendor();
