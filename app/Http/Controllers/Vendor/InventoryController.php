@@ -201,8 +201,20 @@ class InventoryController extends Controller
     {
         $vendor = $this->vendor();
         $term   = trim((string) $request->q);
+        $status = in_array($request->status, ['running', 'upcoming', 'completed'], true) ? $request->status : '';
+        $today  = now()->toDateString();
 
-        $bookings = DB::table('order_items as oi')
+        // Running = today falls inside the booking; Upcoming = starts later; Completed = ended.
+        $byStatus = function ($q, string $s) use ($today) {
+            match ($s) {
+                'running'   => $q->whereDate('oi.from_date', '<=', $today)->whereDate('oi.to_date', '>=', $today),
+                'upcoming'  => $q->whereDate('oi.from_date', '>', $today),
+                'completed' => $q->whereDate('oi.to_date', '<', $today),
+                default     => $q,
+            };
+        };
+
+        $base = DB::table('order_items as oi')
             ->join('orders as o', 'o.id', '=', 'oi.order_id')
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
             ->leftJoin('website_users as u', 'u.id', '=', 'o.user_id')
@@ -217,7 +229,15 @@ class InventoryController extends Controller
                         ->orWhere('m.hoarding_code', 'like', $like)
                         ->orWhere('u.name', 'like', $like);
                 });
-            })
+            });
+
+        // Tab counts follow the search, so each tab says how many it will show.
+        $counts = ['all' => (clone $base)->count()];
+        foreach (['running', 'upcoming', 'completed'] as $s) {
+            $counts[$s] = tap(clone $base, fn ($q) => $byStatus($q, $s))->count();
+        }
+
+        $bookings = tap(clone $base, fn ($q) => $byStatus($q, $status))
             ->orderByDesc('oi.from_date')
             ->select([
                 'o.order_no', 'o.payment_status', 'o.created_at', 'oi.from_date', 'oi.to_date',
@@ -227,6 +247,6 @@ class InventoryController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('vendor.inventory.bookings', compact('bookings'));
+        return view('vendor.inventory.bookings', compact('bookings', 'status', 'counts'));
     }
 }

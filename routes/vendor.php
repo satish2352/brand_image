@@ -67,6 +67,7 @@ Route::prefix('vendor-panel')->name('vendor.')->group(function () {
         Route::get('notifications', [Vendor\NotificationController::class, 'index'])->name('notifications');
         Route::post('notifications/read-all', [Vendor\NotificationController::class, 'readAll'])->name('notifications.read-all');
         Route::get('notifications/{id}/open', [Vendor\NotificationController::class, 'open'])->whereNumber('id')->name('notifications.open');
+        Route::get('activity-log', [Vendor\NotificationController::class, 'activity'])->name('activity');
 
         // Enquiries from the vendor website's Contact page
         Route::get('enquiries', [Vendor\EnquiryController::class, 'index'])->name('enquiries');

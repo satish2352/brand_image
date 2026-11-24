@@ -118,12 +118,26 @@ class VendorSiteController extends Controller
         $covers = MediaImage::whereIn('media_id', $all->pluck('id'))->where('is_deleted', 0)->orderBy('id')
             ->get(['media_id', 'images'])->groupBy('media_id')->map(fn ($g) => $g->first()->images);
 
+        // Cards load 6 at a time: the first page with the page itself, the rest as the
+        // list is scrolled (an XHR for ?page=N returns just those cards, or nothing at the end).
+        $perPage = 6;
+        $page = max(1, (int) $request->query('page', 1));
+        $pageItems = $all->slice(($page - 1) * $perPage, $perPage)->values();
+
+        if ($request->ajax()) {
+            return $pageItems->isEmpty()
+                ? response('')
+                : response()->view('website.vendor-site.partials.inventory-cards', ['vendor' => $vendor, 'items' => $pageItems, 'covers' => $covers]);
+        }
+
         $base = $this->mediaQuery($vendor);
 
         return view('website.vendor-site.home', [
             'vendor'     => $vendor,
             'slides'     => VendorSlider::where('vendor_id', $vendor->id)->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get(),
             'media'      => $all,
+            'firstItems' => $all->take($perPage)->values(),
+            'perPage'    => $perPage,
             'covers'     => $covers,
             'imageBase'  => config('fileConstants.IMAGE_VIEW'),
             'filters'    => $filters,
@@ -132,6 +146,7 @@ class VendorSiteController extends Controller
             'towns'      => (clone $base)->whereNotNull('cty.id')->distinct()->orderBy('cty.city_name')->get(['cty.id', 'cty.city_name', 'cty.district_id']),
             'totals'     => ['media' => (clone $base)->count(), 'districts' => (clone $base)->distinct()->count('m.district_id')],
             'mapPoints'  => $all->filter(fn ($m) => $m->latitude && $m->longitude)->values()->map(fn ($m) => [
+                'id'     => $m->id,
                 'img'    => isset($covers[$m->id]) ? MediaImageUrl::for($covers[$m->id]) : null,
                 'price'  => '₹ ' . number_format((float) $m->price) . ' / month',
                 'lat'    => (float) $m->latitude,

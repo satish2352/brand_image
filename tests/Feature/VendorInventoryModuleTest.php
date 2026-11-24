@@ -329,6 +329,19 @@ class VendorInventoryModuleTest extends TestCase
         $this->get($site)->assertOk()->assertSee('first.jpg', false);
         $this->asVendor()->get(route('vendor.media.show', $live->id))->assertOk()->assertSee('second.jpg', false);
         $this->get('/no-such-vendor-slug-xyz')->assertNotFound();
+
+        // Cards lazy-load 6 at a time: the page renders the first 6, an XHR for page 2 returns
+        // only the remaining cards (no layout), and a page past the end returns nothing.
+        for ($i = 1; $i <= 7; $i++) {
+            $this->makeMedia($this->vendor, ['media_title' => 'Lazy Card ' . $i]);
+        }
+        $cards = fn ($html) => substr_count($html, 'class="vs-item"');
+        $this->assertSame(6, $cards($this->get($site)->assertOk()->getContent()));
+        $xhr = ['X-Requested-With' => 'XMLHttpRequest'];
+        $page2 = $this->get($site . '?page=2', $xhr)->assertOk()->getContent();
+        $this->assertSame(2, $cards($page2));
+        $this->assertStringNotContainsString('<html', $page2);
+        $this->assertSame('', trim($this->get($site . '?page=3', $xhr)->assertOk()->getContent()));
     }
 
     public function test_vendor_can_edit_a_slider_slide(): void
@@ -470,8 +483,11 @@ class VendorInventoryModuleTest extends TestCase
             'action' => 'Recent Entry', 'created_at' => now()->subMonths(5),
         ]);
 
-        $this->asVendor()->get(route('vendor.notifications'))->assertOk()
+        $this->asVendor()->get(route('vendor.activity'))->assertOk()
             ->assertSee('Recent Entry')->assertDontSee('Ancient Entry');
+        // Notifications page shows notifications only, not the log.
+        $this->asVendor()->get(route('vendor.notifications'))->assertOk()
+            ->assertDontSee('Recent Entry')->assertSee(route('vendor.activity'));
 
         (new VendorActivityLog())->pruneAll();
 

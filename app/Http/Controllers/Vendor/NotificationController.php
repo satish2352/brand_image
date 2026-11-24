@@ -7,7 +7,7 @@ use App\Models\PanelNotification;
 use App\Models\VendorActivityLog;
 use Illuminate\Http\Request;
 
-/** Notifications & Activity Log for the vendor (PRD 2.11 A). */
+/** Notifications and the Activity Log for the vendor (PRD 2.11 A), each on its own page. */
 class NotificationController extends Controller
 {
     private function vendor()
@@ -15,7 +15,19 @@ class NotificationController extends Controller
         return auth('vendor')->user();
     }
 
-    public function index(Request $request)
+    /** Notifications only: the bell and the sidebar open this page. */
+    public function index()
+    {
+        $vendor = $this->vendor();
+
+        return view('vendor.notifications.index', [
+            'notifications' => PanelNotification::forVendor($vendor->id)->latest()->limit(50)->get(),
+            'unread'        => PanelNotification::forVendor($vendor->id)->where('is_read', false)->count(),
+        ]);
+    }
+
+    /** Activity Log: everything done on the vendor's account, kept for 6 months. */
+    public function activity(Request $request)
     {
         $vendor = $this->vendor();
 
@@ -26,9 +38,7 @@ class NotificationController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('vendor.notifications.index', [
-            'notifications' => PanelNotification::forVendor($vendor->id)->latest()->limit(50)->get(),
-            'unread'        => PanelNotification::forVendor($vendor->id)->where('is_read', false)->count(),
+        return view('vendor.notifications.activity', [
             'log'           => $log,
             'actions'       => VendorActivityLog::retained()->where('vendor_id', $vendor->id)->distinct()->orderBy('action')->pluck('action'),
         ]);

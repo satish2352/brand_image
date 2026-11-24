@@ -13,7 +13,8 @@
         ['Reports', 'vendor.reports.utilisation', 'fa-solid fa-chart-column', ['vendor.reports.utilisation']],
         ['Enquiries', 'vendor.enquiries', 'fa-regular fa-envelope', ['vendor.enquiries'], $vpNewEnquiries],
         ['Website & Slider', 'vendor.website', 'fa-solid fa-globe', ['vendor.website']],
-        ['Notifications & Log', 'vendor.notifications', 'fa-regular fa-bell', ['vendor.notifications'], $vpUnread],
+        ['Notifications', 'vendor.notifications', 'fa-regular fa-bell', ['vendor.notifications'], $vpUnread],
+        ['Activity Log', 'vendor.activity', 'fa-solid fa-clock-rotate-left', ['vendor.activity']],
     ];
 @endphp
 <!DOCTYPE html>
