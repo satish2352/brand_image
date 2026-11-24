@@ -1,21 +1,37 @@
-<div class="table-responsive" style="max-height:520px;overflow:auto">
-    <table class="table table-sm table-bordered vpa-table mb-0">
-        <thead><tr>
-            <th style="width:34px"><input type="checkbox" class="js-pick-all" aria-label="Select all"></th>
-            <th>Code</th><th>Title</th><th>Location</th>@if ($showVendor)<th>Current Vendor</th>@endif<th>Approval</th>
-        </tr></thead>
+{{-- Selectable media table for Vendor Inventory & Access. --}}
+<div class="table-responsive vi-scroll">
+    <table class="table table-hover vi-table">
+        <thead>
+            <tr>
+                <th style="width:40px"><input type="checkbox" class="vi-check js-pick-all" aria-label="Select all" @disabled($rows->isEmpty())></th>
+                <th>Code</th>
+                <th>Media Title</th>
+                <th>Location</th>
+                @if ($showVendor)<th>Current Vendor</th>@endif
+                <th>Approval</th>
+            </tr>
+        </thead>
         <tbody>
             @forelse ($rows as $r)
-                <tr>
-                    <td><input type="checkbox" name="media_ids[]" value="{{ $r->id }}" aria-label="Select {{ $r->hoarding_code ?: $r->media_title }}"></td>
-                    <td class="text-nowrap">{{ $r->hoarding_code ?: '—' }}</td>
-                    <td>{{ $r->media_title }}</td>
-                    <td>{{ $r->area_name }}{{ $r->city_name ? ', ' . $r->city_name : '' }}</td>
-                    @if ($showVendor)<td>{{ $r->vendor_name ?: 'Unassigned' }}</td>@endif
-                    <td><span class="vpa-badge vpa-{{ $r->approval_status }}">{{ ucfirst($r->approval_status) }}</span></td>
+                @php
+                    $approvalClass = ['approved' => 'vi-approved', 'pending' => 'vi-pending', 'rejected' => 'vi-rejected'][$r->approval_status] ?? 'vi-grey';
+                @endphp
+                <tr data-pick style="cursor:pointer">
+                    <td><input type="checkbox" class="vi-check" name="media_ids[]" value="{{ $r->id }}" aria-label="Select {{ $r->hoarding_code ?: $r->media_title }}"></td>
+                    <td class="text-nowrap">
+                        <a href="{{ route('admin.vendor.approvals.show', $r->id) }}" title="Open details"><strong>{{ $r->hoarding_code ?: '—' }}</strong></a>
+                    </td>
+                    <td style="min-width:140px">{{ $r->media_title ?: '—' }}
+                        @if ($r->category_name)<div class="vi-muted">{{ $r->category_name }}</div>@endif
+                    </td>
+                    <td style="min-width:130px">{{ $r->area_name }}@if ($r->city_name)<div class="vi-muted">{{ $r->city_name }}</div>@endif</td>
+                    @if ($showVendor)
+                        <td class="text-nowrap">{!! $r->vendor_name ? e($r->vendor_name) : '<span class="vi-badge vi-grey">Unassigned</span>' !!}</td>
+                    @endif
+                    <td><span class="vi-badge {{ $approvalClass }}">{{ ucfirst($r->approval_status) }}</span></td>
                 </tr>
             @empty
-                <tr><td colspan="{{ $showVendor ? 6 : 5 }}" class="text-center text-muted py-3">None.</td></tr>
+                <tr><td colspan="{{ $showVendor ? 6 : 5 }}" class="text-center vi-muted py-4">No media here.</td></tr>
             @endforelse
         </tbody>
     </table>
