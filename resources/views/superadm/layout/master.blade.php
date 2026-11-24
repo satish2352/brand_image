@@ -60,7 +60,9 @@
         $admin = $adminId ? \App\Models\User::find($adminId) : null;
 
         // Step 3: unread count
-        $notifyCount = \App\Models\Notification::where('user_id', $adminId)->where('is_read', 0)->count();
+        $notifyCount = \App\Models\Notification::where('user_id', $adminId)->where('is_read', 0)->count()
+            // Vendor Inventory module notifications share this bell.
+            + \App\Models\PanelNotification::forAdmin()->where('is_read', false)->count();
 
     @endphp
 
@@ -200,18 +202,23 @@
                     setInterval(refreshNotificationCount, 10000);
                 </script>
                 <script>
+                    // The modal sits inside .page-wrapper, whose stacking layer
+                    // kept it underneath the backdrop; it belongs on <body>.
+                    $('#notificationModal').appendTo('body');
+
                     $('#notificationModal').on('shown.bs.modal', function() {
 
                         $.get("{{ route('admin.notifications.data') }}", function(res) {
                             $('#notificationList').html(res);
-                        });
-
-                        // NOW UPDATE read_at to current time
-                        $.post("{{ route('admin.notifications.markRead') }}", {
-                            _token: "{{ csrf_token() }}"
-                        }, function() {
-                            // remove badge visually
-                            $('.fa-bell').next('span.badge').remove();
+                        }).always(function() {
+                            // Mark read only after the list is loaded, so items
+                            // that were unread still show as "New" this time.
+                            $.post("{{ route('admin.notifications.markRead') }}", {
+                                _token: "{{ csrf_token() }}"
+                            }, function() {
+                                // remove badge visually
+                                $('.fa-bell').next('span.badge').remove();
+                            });
                         });
                     });
                 </script>

@@ -169,7 +169,7 @@
             // Vendor Inventory Management (vendor panel) — Super Admin side.
             $vpPending = \Illuminate\Support\Facades\DB::table('media_management')
                 ->where('is_deleted', 0)->where('approval_status', 'pending')->count();
-            $vpUnread = \App\Models\PanelNotification::forAdmin()->where('is_read', false)->count();
+            // Vendor notifications are shown on the top bell (layout/master), not here.
         @endphp
         <li class="nav-item {{ request()->routeIs('admin.vendor.approvals*') ? 'active' : '' }}">
             <a href="{{ route('admin.vendor.approvals') }}">
@@ -188,13 +188,6 @@
             <a href="{{ route('admin.vendor.activity') }}">
                 <i class="mdi mdi-history"></i>
                 <span>Vendor Activity Log</span>
-            </a>
-        </li>
-        <li class="nav-item {{ request()->routeIs('admin.vendor.notifications') ? 'active' : '' }}">
-            <a href="{{ route('admin.vendor.notifications') }}">
-                <i class="mdi mdi-bell-ring-outline"></i>
-                <span>Vendor Notifications</span>
-                @if ($vpUnread)<span class="badge badge-danger ml-1">{{ $vpUnread }}</span>@endif
             </a>
         </li>
         <li class="nav-item {{ request()->routeIs('admin-booking.index') ? 'active' : '' }}">

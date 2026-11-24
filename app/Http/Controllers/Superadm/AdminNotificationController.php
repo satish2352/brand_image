@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Superadm;
 
 use App\Models\User;
 use App\Models\Notification;
+use App\Models\PanelNotification;
 use App\Http\Controllers\Controller;
 
 class AdminNotificationController extends Controller
@@ -23,7 +24,15 @@ class AdminNotificationController extends Controller
             ->take(20)
             ->get();
 
-        return view('superadm.notifications.index', compact('notifications'));
+        // Vendor Inventory module: vendor activity shares the same bell.
+        // The latest ones are listed whether read or not; unread are marked.
+        $vendorNotifications = PanelNotification::forAdmin()
+            ->with('vendor:id,vendor_name')
+            ->latest()
+            ->take(15)
+            ->get();
+
+        return view('superadm.notifications.index', compact('notifications', 'vendorNotifications'));
     }
 
 
@@ -59,6 +68,7 @@ class AdminNotificationController extends Controller
 
         return \App\Models\Notification::where('user_id', $adminId)
             ->where('is_read', 0)
-            ->count();
+            ->count()
+            + PanelNotification::forAdmin()->where('is_read', false)->count();
     }
 }
