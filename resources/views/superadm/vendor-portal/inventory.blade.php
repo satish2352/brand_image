@@ -28,6 +28,16 @@
             cursor: pointer; accent-color: #008a93; vertical-align: middle; margin: 0;
         }
         #manage { scroll-margin-top: 90px; }
+        /* Vendor row actions: two equal-width buttons, stacked, icon + label on one line. */
+        .vi-actions { display: flex; flex-direction: column; gap: 6px; width: 168px; margin-left: auto; }
+        .vi-actions form { margin: 0; }
+        .vi-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 34px; padding: 0 12px;
+            border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; text-decoration: none !important; transition: .15s; }
+        .vi-btn i { font-size: 16px; line-height: 1; }
+        .vi-btn-solid { background: #00929c; border: 1px solid #00929c; color: #fff !important; }
+        .vi-btn-solid:hover { background: #007a82; border-color: #007a82; }
+        .vi-btn-outline { background: #fff; border: 1px solid #00929c; color: #00929c !important; }
+        .vi-btn-outline:hover { background: #E6F6F7; }
         .vi-header-btn { background: #fff; color: #00929c; border: 0; font-weight: 600; }
         .vi-header-btn:disabled { opacity: .6; cursor: not-allowed; }
         .vi-header-btn.danger { color: #DC2626; }
@@ -58,25 +68,24 @@
                     <thead>
                         <tr>
                             <th>Vendor</th>
-                            <th>Login Email</th>
                             <th class="text-center">Media</th>
                             <th class="text-center">Pending</th>
                             <th>Vendor Panel Login</th>
-                            <th class="text-right">Actions</th>
+                            <th class="text-right" style="width:190px">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($summary as $s)
                             <tr class="{{ $vendorId === $s->id ? 'vi-selected-row' : '' }}">
-                                <td style="min-width:170px">
+                                <td style="min-width:220px">
                                     <strong>{{ $s->vendor_name }}</strong>
                                     @unless ($s->is_active)<span class="vi-badge vi-rejected ml-1">Inactive</span>@endunless
                                     <div class="vi-muted">{{ $s->vendor_code }}</div>
+                                    <div style="font-size:13px;margin-top:2px"><i class="mdi mdi-email-outline vi-muted"></i> {{ $s->email }}</div>
                                     @if ($s->slug)
                                         <a href="{{ url($s->slug) }}" target="_blank" rel="noopener" style="font-size:13px"><i class="mdi mdi-web"></i> /{{ $s->slug }}</a>
                                     @endif
                                 </td>
-                                <td style="word-break:break-all;min-width:150px">{{ $s->email }}</td>
                                 <td class="text-center"><strong>{{ $s->total }}</strong></td>
                                 <td class="text-center">
                                     @if ($s->pending)
@@ -93,17 +102,19 @@
                                     @endif
                                     <div class="vi-muted mt-1">Last login: {{ $s->last_login_at ? \Carbon\Carbon::parse($s->last_login_at)->format('d M Y, h:i A') : 'never' }}</div>
                                 </td>
-                                <td class="text-right">
-                                    <a href="{{ route('admin.vendor.inventory', ['vendor_id' => $s->id]) }}#manage" class="btn btn-sm btn-info mb-1">
-                                        <i class="mdi mdi-format-list-bulleted"></i> Manage Inventory</a>
-                                    <form method="POST" action="{{ route('admin.vendor.credentials', $s->id) }}" class="d-inline js-confirm"
-                                        data-title="{{ $s->credentials_sent_at ? 'Resend login details?' : 'Send login details?' }}"
-                                        data-text="{{ $s->credentials_sent_at ? 'A NEW password will be generated and emailed to ' . $s->email . '. The old one stops working.' : 'A password will be generated and the login details emailed to ' . $s->email . '.' }}"
-                                        data-button="Yes, send">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary">
-                                            <i class="mdi mdi-email-outline"></i> {{ $s->credentials_sent_at ? 'Resend Login' : 'Send Login' }}</button>
-                                    </form>
+                                <td>
+                                    <div class="vi-actions">
+                                        <a href="{{ route('admin.vendor.inventory', ['vendor_id' => $s->id]) }}#manage" class="vi-btn vi-btn-solid">
+                                            <i class="mdi mdi-format-list-bulleted"></i><span>Manage Inventory</span></a>
+                                        <form method="POST" action="{{ route('admin.vendor.credentials', $s->id) }}" class="js-confirm"
+                                            data-title="{{ $s->credentials_sent_at ? 'Resend login details?' : 'Send login details?' }}"
+                                            data-text="{{ $s->credentials_sent_at ? 'A NEW password will be generated and emailed to ' . $s->email . '. The old one stops working.' : 'A password will be generated and the login details emailed to ' . $s->email . '.' }}"
+                                            data-button="Yes, send">
+                                            @csrf
+                                            <button type="submit" class="vi-btn vi-btn-outline">
+                                                <i class="mdi mdi-email-outline"></i><span>{{ $s->credentials_sent_at ? 'Resend Login' : 'Send Login' }}</span></button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
