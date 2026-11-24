@@ -225,13 +225,18 @@
                             @enderror
                         </div>
 
-                        {{-- reCAPTCHA --}}
-                        <div class="mb-3">
-                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
-                            @error('g-recaptcha-response')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        {{-- reCAPTCHA: only when RECAPTCHA_ENABLED=true. The server
+                             skips the check when it is off, so drawing the widget
+                             then only shows Google's "Invalid site key" on hosts
+                             the key is not registered for (e.g. localhost). --}}
+                        @if (config('services.recaptcha.enabled'))
+                            <div class="mb-3">
+                                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
+                                @error('g-recaptcha-response')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endif
 
                         {{-- Submit --}}
                         <div class="d-grid mt-4">
@@ -247,8 +252,10 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- reCAPTCHA -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @if (config('services.recaptcha.enabled'))
+        <!-- reCAPTCHA -->
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 
     <script>
         document.getElementById('togglePassword').addEventListener('click', function() {
