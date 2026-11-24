@@ -8,6 +8,7 @@ use App\Models\MediaImage;
 use App\Models\Vendor;
 use App\Models\VendorSlider;
 use App\Support\MediaAvailability;
+use App\Support\MediaImageUrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -131,6 +132,8 @@ class VendorSiteController extends Controller
             'towns'      => (clone $base)->whereNotNull('cty.id')->distinct()->orderBy('cty.city_name')->get(['cty.id', 'cty.city_name', 'cty.district_id']),
             'totals'     => ['media' => (clone $base)->count(), 'districts' => (clone $base)->distinct()->count('m.district_id')],
             'mapPoints'  => $all->filter(fn ($m) => $m->latitude && $m->longitude)->values()->map(fn ($m) => [
+                'img'    => isset($covers[$m->id]) ? MediaImageUrl::for($covers[$m->id]) : null,
+                'price'  => '₹ ' . number_format((float) $m->price) . ' / month',
                 'lat'    => (float) $m->latitude,
                 'lng'    => (float) $m->longitude,
                 'title'  => ($m->hoarding_code ?: $m->media_code) . ' · ' . $m->media_title,
