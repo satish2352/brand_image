@@ -74,17 +74,23 @@ class VendorPortalController extends Controller
             ->leftJoin('cities as cty', 'cty.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('illuminations as i', 'i.id', '=', 'm.illumination_id')
+            ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
+            ->leftJoin('highway as h', 'h.id', '=', 'm.highway_id')
+            ->leftJoin('users as rv', 'rv.id', '=', 'm.reviewed_by')
             ->where('m.id', $id)
             ->where('m.is_deleted', 0)
             ->first(['m.*', 'v.vendor_name', 'v.vendor_code', 'v.email as vendor_email', 'v.mobile as vendor_mobile',
-                'c.category_name', 's.state_name', 'd.district_name', 'cty.city_name', 'a.area_name', 'i.illumination_name']);
+                'c.category_name', 's.state_name', 'd.district_name', 'cty.city_name', 'a.area_name', 'i.illumination_name',
+                'at.areatype_name', 'h.highway_name', 'rv.name as reviewer_name']);
 
         abort_unless($media, 404);
 
         return view('superadm.vendor-portal.review', [
             'media'     => $media,
             'images'    => MediaImage::where('media_id', $id)->where('is_deleted', 0)->get(),
-            'imageBase' => config('fileConstants.IMAGE_VIEW'),
+            'sizes'     => \App\Models\MediaLocationSize::where('media_id', $id)->get(),
+            'landmarks' => DB::table('media_landmark as ml')->join('landmark as l', 'l.id', '=', 'ml.landmark_id')
+                ->where('ml.media_id', $id)->where('l.is_deleted', 0)->pluck('l.landmark_name'),
             'history'   => VendorActivityLog::retained()->where('media_id', $id)->latest('created_at')->limit(15)->get(),
             'labels'    => self::STATUS_LABELS,
         ]);

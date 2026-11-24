@@ -95,7 +95,7 @@
                 <article class="vs-card">
                     <div style="position:relative">
                         @if (isset($covers[$m->id]))
-                            <img src="{{ $imageBase . $covers[$m->id] }}" alt="{{ $m->media_title }}" loading="lazy">
+                            <img src="{{ \App\Support\MediaImageUrl::for($covers[$m->id]) }}" alt="{{ $m->media_title }}" loading="lazy">
                         @else
                             <div class="vs-ph" style="height:190px">No photo yet</div>
                         @endif

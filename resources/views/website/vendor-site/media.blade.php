@@ -34,7 +34,7 @@
             <div style="flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:12px">
                 <div style="position:relative">
                     @if ($images->isNotEmpty())
-                        <img id="mainPhoto" src="{{ $imageBase . $images->first()->images }}" alt="{{ $media->media_title }}" style="width:100%;height:460px;object-fit:cover;border-radius:12px;display:block">
+                        <img id="mainPhoto" src="{{ \App\Support\MediaImageUrl::for($images->first)()->images }}" alt="{{ $media->media_title }}" style="width:100%;height:460px;object-fit:cover;border-radius:12px;display:block">
                     @else
                         <div class="vs-ph" style="height:460px;border-radius:12px">No photo yet</div>
                     @endif
@@ -45,8 +45,8 @@
                 @if ($images->count() > 1)
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px">
                         @foreach ($images as $img)
-                            <button type="button" class="vs-thumb {{ $loop->first ? 'active' : '' }}" data-src="{{ $imageBase . $img->images }}" aria-label="Photo {{ $loop->iteration }}">
-                                <img src="{{ $imageBase . $img->images }}" alt="" loading="lazy"></button>
+                            <button type="button" class="vs-thumb {{ $loop->first ? 'active' : '' }}" data-src="{{ \App\Support\MediaImageUrl::for($img->images) }}" aria-label="Photo {{ $loop->iteration }}">
+                                <img src="{{ \App\Support\MediaImageUrl::for($img->images) }}" alt="" loading="lazy"></button>
                         @endforeach
                     </div>
                 @endif
@@ -120,7 +120,7 @@
             document.getElementById('open360').addEventListener('click', function () {
                 const pano = document.getElementById('pano');
                 pano.style.display = 'block';
-                pannellum.viewer('pano', { type: 'equirectangular', panorama: @json($imageBase . $media->panorama_image), autoLoad: true });
+                pannellum.viewer('pano', { type: 'equirectangular', panorama: @json(\App\Support\MediaImageUrl::for($media->panorama_image)), autoLoad: true });
                 pano.scrollIntoView({ behavior: 'smooth' });
             });
         @endif

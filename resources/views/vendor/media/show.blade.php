@@ -55,7 +55,7 @@
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px">
                     @foreach ($images as $img)
                         <div style="position:relative">
-                            <img src="{{ $imageBase . $img->images }}" alt="Media photo {{ $loop->iteration }}" class="vp-thumb" style="width:100%;height:120px">
+                            <img src="{{ \App\Support\MediaImageUrl::for($img->images) }}" alt="Media photo {{ $loop->iteration }}" class="vp-thumb" style="width:100%;height:120px">
                             @if ($loop->first)<span class="vp-badge" style="position:absolute;left:8px;top:8px;background:#0F172A;color:#fff">Cover</span>@endif
                             <form method="POST" action="{{ route('vendor.media.images.delete', [$media->id, $img->id]) }}" data-confirm="Remove this photo?" data-confirm-button="Yes, remove"
                                 style="position:absolute;right:6px;top:6px;margin:0">
