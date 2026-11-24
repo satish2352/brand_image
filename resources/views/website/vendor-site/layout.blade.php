@@ -33,8 +33,10 @@
         .vs-sub { font-size: 13px; color: #475569; }
         .vs-nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .vs-nav a.vs-link { min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; font-size: 14px; font-weight: 700; color: #0F172A; text-decoration: none; }
-        .vs-powered { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #475569; }
-        .vs-powered img { height: 38px; width: auto; }
+        .vs-powered { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-decoration: none; padding: 4px 0 4px 4px; }
+        .vs-powered span { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #64748B; line-height: 1; }
+        .vs-powered img { height: 34px; width: auto; display: block; }
+        @media (max-width: 640px) { .vs-powered img { height: 26px; } }
         .vs-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
         .vs-label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; }
         .vs-input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #CBD5E1; border-radius: 10px; font: 500 14px 'Montserrat', sans-serif; color: #0F172A; background: #fff; }
@@ -66,7 +68,10 @@
             </a>
             <nav class="vs-nav" aria-label="Page sections">
                 @yield('nav')
-                <span class="vs-powered">Powered by<img src="{{ asset('assets/img/logo/brand_adda.png') }}" alt="Brand Adda"></span>
+                <a href="{{ url('/') }}" class="vs-powered" target="_blank" rel="noopener" title="Brand Adda – Maharashtra’s Outdoor Media Platform">
+                    <span>Powered by</span>
+                    <img src="{{ asset('assets/img/logo/brand_adda_powered.png') }}" alt="Brand Adda – Maharashtra’s Outdoor Media Platform">
+                </a>
             </nav>
         </div>
     </header>
