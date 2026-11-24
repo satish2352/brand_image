@@ -34,6 +34,7 @@
     <link href="{{ asset('asset/css/vendor-panel.css') }}?v={{ @filemtime(public_path('asset/css/vendor-panel.css')) }}" rel="stylesheet">
     <script src="{{ asset('asset/plugins/jquery/jquery-3.6.0.min.js') }}"></script>
     @yield('styles')
+    @stack('vendor-head')
 </head>
 
 <body class="vp-body">
@@ -195,6 +196,7 @@
         });
     </script>
     @yield('scripts')
+    @stack('vendor-scripts')
 </body>
 
 </html>

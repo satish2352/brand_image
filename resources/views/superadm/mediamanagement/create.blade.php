@@ -1159,6 +1159,18 @@
                 return valid;
             }, 'File size is too large');
 
+            // The rules above use minfilesize too; without this method jQuery Validate
+            // throws on every check and the form posted with no browser-side validation.
+            $.validator.addMethod('minfilesize', function(value, element, limit) {
+                let valid = true;
+                $.each($(element)[0].files, function(idx, file) {
+                    if (file.size < limit) {
+                        valid = false;
+                    }
+                });
+                return valid;
+            }, 'File size is too small');
+
 
         });
     </script>
