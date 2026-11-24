@@ -72,7 +72,14 @@
                 <select id="t" name="city_id" class="vs-input"><option value="">All towns</option>
                     @foreach ($towns as $t)<option value="{{ $t->id }}" @selected(($filters['city_id'] ?? '') == $t->id)>{{ $t->city_name }}</option>@endforeach</select></div>
             <div><label class="vs-label" for="s">Search</label><input id="s" type="search" name="q" class="vs-input" placeholder="Area, landmark or code" value="{{ $filters['q'] ?? '' }}"></div>
-            <button type="submit" class="vs-btn vs-btn-n">Search</button>
+            @php $hasFilters = collect($filters)->filter(fn($v) => filled($v))->isNotEmpty(); @endphp
+            <div style="display:flex;gap:10px">
+                <button type="submit" class="vs-btn vs-btn-n" style="flex:1"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
+                @if ($hasFilters)
+                    <a href="{{ route('vendor-site.show', $vendor->slug) }}#inventory" class="vs-btn vs-btn-g" style="flex:1" title="Clear all filters">
+                        <i class="fa-solid fa-rotate-right"></i>Reset</a>
+                @endif
+            </div>
         </form>
     </div>
 
@@ -80,7 +87,12 @@
         <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:20px">
             <div>
                 <h2 style="margin:0;font-size:28px;font-weight:800">Our Inventory</h2>
-                <div style="font-size:14px;color:#475569;margin-top:6px">Showing {{ $media->count() }} of {{ $totals['media'] }} media</div>
+                <div style="font-size:14px;color:#475569;margin-top:6px">
+                    Showing {{ $media->count() }} of {{ $totals['media'] }} media
+                    @if ($hasFilters)
+                        · <a href="{{ route('vendor-site.show', $vendor->slug) }}#inventory" style="font-weight:700">Clear filters</a>
+                    @endif
+                </div>
             </div>
             <div style="display:flex;gap:8px">
                 <a href="{{ route('vendor-site.show', array_merge(['vendorSlug' => $vendor->slug], \Illuminate\Support\Arr::except($filters, 'available'))) }}#inventory" class="vs-btn {{ empty($filters['available']) ? 'vs-btn-n' : 'vs-btn-g' }}" style="min-height:40px;border-radius:999px">All</a>

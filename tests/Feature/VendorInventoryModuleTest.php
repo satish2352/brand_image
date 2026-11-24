@@ -317,6 +317,10 @@ class VendorInventoryModuleTest extends TestCase
 
         $this->get(route('vendor-site.media', [$this->vendor->slug, $live->id]))->assertOk()->assertSee('Live Showcase Site');
 
+        // Reset appears only once a filter is applied.
+        $this->get($site)->assertDontSee('Clear all filters');
+        $this->get($site . '?q=Live')->assertOk()->assertSee('Clear all filters')->assertSee('Live Showcase Site');
+
         // Media details with photos (main photo + thumbnails) must render too.
         \App\Models\MediaImage::create(['media_id' => $live->id, 'images' => 'first.jpg', 'is_active' => 1, 'is_deleted' => 0]);
         \App\Models\MediaImage::create(['media_id' => $live->id, 'images' => 'second.jpg', 'is_active' => 1, 'is_deleted' => 0]);
