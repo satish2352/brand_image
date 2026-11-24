@@ -316,6 +316,14 @@ class VendorInventoryModuleTest extends TestCase
             ->assertSee('https://wa.me/919876543210', false);
 
         $this->get(route('vendor-site.media', [$this->vendor->slug, $live->id]))->assertOk()->assertSee('Live Showcase Site');
+
+        // Media details with photos (main photo + thumbnails) must render too.
+        \App\Models\MediaImage::create(['media_id' => $live->id, 'images' => 'first.jpg', 'is_active' => 1, 'is_deleted' => 0]);
+        \App\Models\MediaImage::create(['media_id' => $live->id, 'images' => 'second.jpg', 'is_active' => 1, 'is_deleted' => 0]);
+        $this->get(route('vendor-site.media', [$this->vendor->slug, $live->id]))->assertOk()
+            ->assertSee('first.jpg', false)->assertSee('second.jpg', false);
+        $this->get($site)->assertOk()->assertSee('first.jpg', false);
+        $this->asVendor()->get(route('vendor.media.show', $live->id))->assertOk()->assertSee('second.jpg', false);
         $this->get('/no-such-vendor-slug-xyz')->assertNotFound();
     }
 

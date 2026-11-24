@@ -1,5 +1,5 @@
 @extends('website.vendor-site.layout')
-@section('title', ($media->hoarding_code ?: $media->media_code) . ' · ' . $media->media_title)
+@section('title', collect([$media->hoarding_code ?: $media->media_code, $media->media_title])->filter()->implode(' · ') ?: 'Media')
 
 @section('nav')
     @include('website.vendor-site.partials.nav', ['active' => 'media'])
@@ -38,7 +38,7 @@
             <div style="flex:999 1 600px;min-width:0;display:flex;flex-direction:column;gap:12px">
                 <div style="position:relative">
                     @if ($images->isNotEmpty())
-                        <img id="mainPhoto" src="{{ \App\Support\MediaImageUrl::for($images->first)()->images }}" alt="{{ $media->media_title }}" style="width:100%;height:460px;object-fit:cover;border-radius:12px;display:block">
+                        <img id="mainPhoto" src="{{ \App\Support\MediaImageUrl::for($images->first()->images) }}" alt="{{ $media->media_title }}" style="width:100%;height:460px;object-fit:cover;border-radius:12px;display:block">
                     @else
                         <div class="vs-ph" style="height:460px;border-radius:12px">No photo yet</div>
                     @endif
