@@ -9,12 +9,12 @@
 @section('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <style>
-        .vs-slider { position: relative; height: 480px; background: #0F172A; overflow: hidden; }
+        .vs-slider { position: relative; height: 480px; background: var(--vs-brand); overflow: hidden; }
         .vs-slide { position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease; }
         .vs-slide.active { opacity: 1; }
         .vs-slide img, .vs-slide video { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .vs-slide::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,23,42,.85) 0%, rgba(15,23,42,.15) 65%); }
-        .vs-hero-text { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 16px; color: #fff; }
+        .vs-slide::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(var(--vs-brand-rgb), .85) 0%, rgba(var(--vs-brand-rgb), .15) 65%); }
+        .vs-hero-text { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 16px; color: var(--vs-brand-text); }
         .vs-arrow { position: absolute; top: 50%; margin-top: -24px; width: 48px; height: 48px; border-radius: 999px; border: 0; background: rgba(255,255,255,.9); color: #0F172A; font-size: 18px; cursor: pointer; z-index: 3; }
         .vs-dots { position: absolute; left: 0; right: 0; bottom: 22px; display: flex; justify-content: center; gap: 8px; z-index: 3; }
         .vs-dots button { width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,.6); border: 0; padding: 0; cursor: pointer; }
@@ -42,11 +42,11 @@
                 </div>
             </div>
         @empty
-            <div class="vs-slide active" style="background:#0F172A">
+            <div class="vs-slide active" style="background:var(--vs-brand)">
                 <div class="vs-wrap vs-hero-text" style="position:absolute;inset:0">
                     <span class="vs-badge" style="align-self:flex-start;background:#F97316;color:#0F172A">{{ $totals['media'] }} media · {{ $totals['districts'] }} district{{ $totals['districts'] == 1 ? '' : 's' }}</span>
                     <h1 style="margin:0;font-size:46px;line-height:1.1;font-weight:800;max-width:640px">{{ $vendor->vendor_name }}</h1>
-                    <p style="margin:0;font-size:17px;color:#E2E8F0">Outdoor media inventory · Powered by Brand Adda</p>
+                    <p style="margin:0;font-size:17px;color:var(--vs-brand-muted)">Outdoor media inventory · Powered by Brand Adda</p>
                 </div>
             </div>
         @endforelse

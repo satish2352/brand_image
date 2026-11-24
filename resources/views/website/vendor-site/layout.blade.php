@@ -10,7 +10,20 @@
     <link rel="icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    @php
+        // Brand colour chosen in the Vendor Panel (Website & Slider → Colours).
+        $brand = $vendor->site_theme;
+        $brandLight = \App\Support\ThemeColor::isLight($brand);
+    @endphp
     <style>
+        :root {
+            --vs-brand: {{ $brand }};
+            --vs-brand-rgb: {{ \App\Support\ThemeColor::rgb($brand) }};
+            --vs-brand-text: {{ \App\Support\ThemeColor::text($brand) }};
+            --vs-brand-muted: {{ \App\Support\ThemeColor::muted($brand) }};
+            --vs-brand-raised: {{ \App\Support\ThemeColor::raised($brand) }};
+            --vs-brand-link: {{ $brandLight ? '#9A3412' : '#FDBA74' }};
+        }
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Montserrat', system-ui, sans-serif; color: #0F172A; background: #F8FAFC; }
         a { color: #C2410C; }
@@ -32,7 +45,7 @@
         .vs-input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #CBD5E1; border-radius: 10px; font: 500 14px 'Montserrat', sans-serif; color: #0F172A; background: #fff; }
         .vs-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 10px; font: 700 14px 'Montserrat', sans-serif; text-decoration: none; cursor: pointer; border: 1px solid transparent; }
         .vs-btn-o, .vs-btn-o:hover { background: #F97316; color: #0F172A; }
-        .vs-btn-n, .vs-btn-n:hover { background: #0F172A; color: #fff; }
+        .vs-btn-n, .vs-btn-n:hover { background: var(--vs-brand); color: var(--vs-brand-text); border-color: var(--vs-brand-raised); }
         .vs-btn-g, .vs-btn-g:hover { background: #fff; color: #0F172A; border-color: #CBD5E1; }
         .vs-ph { background: repeating-linear-gradient(135deg, #E2E8F0 0 12px, #F1F5F9 12px 24px); display: grid; place-items: center; color: #475569; font-size: 13px; font-weight: 600; }
         .vs-alert { padding: 12px 16px; border-radius: 10px; font-size: 14px; }

@@ -182,19 +182,66 @@ class VendorSiteController extends Controller
             return redirect()->route('vendor-site.contact', $vendor->slug)->with('enquiry_sent', true);
         }
 
-        $data = $request->validate([
-            'name'     => ['required', 'string', 'min:2', 'max:120', 'regex:/^[\pL\s.\'-]+$/u'],
-            'email'    => 'required|email:rfc|max:150',
-            'mobile'   => ['required', 'regex:/^(\+?91[\s-]?)?[6-9]\d{9}$/'],
-            'company'  => 'nullable|string|max:150',
-            'city'     => 'nullable|string|max:100',
-            'media_id' => 'nullable|integer',
-            'message'  => 'required|string|min:10|max:2000',
-        ], [
-            'name.regex'    => 'Please enter a valid name (letters only).',
-            'mobile.regex'  => 'Enter a valid 10-digit Indian mobile number.',
-            'message.min'   => 'Please tell us a little more (at least 10 characters).',
+        // Tidy what people type before checking it: collapse spaces, and reduce
+        // the mobile to its 10 digits ("+91 98765-43210" → "9876543210").
+        $clean = fn ($v) => is_string($v) ? trim(preg_replace('/\s+/u', ' ', $v)) : $v;
+        $mobile = preg_replace('/\D/', '', (string) $request->input('mobile'));
+        if (strlen($mobile) === 12 && str_starts_with($mobile, '91')) {
+            $mobile = substr($mobile, 2);
+        } elseif (strlen($mobile) === 11 && str_starts_with($mobile, '0')) {
+            $mobile = substr($mobile, 1);
+        }
+        $request->merge([
+            'name'    => $clean($request->input('name')),
+            'email'   => strtolower((string) $clean($request->input('email'))),
+            'mobile'  => $mobile,
+            'company' => $clean($request->input('company')),
+            'city'    => $clean($request->input('city')),
+            'message' => is_string($request->input('message')) ? trim($request->input('message')) : $request->input('message'),
         ]);
+
+        $data = $request->validate([
+            'name'     => ['required', 'string', 'min:3', 'max:60', 'regex:/^[\pL][\pL .\'-]*$/u'],
+            'mobile'   => ['required', 'digits:10', 'regex:/^[6-9]\d{9}$/', 'not_regex:/^(\d)\1{9}$/'],
+            'email'    => ['required', 'max:100', 'email:rfc,strict', 'regex:/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i'],
+            'company'  => ['nullable', 'string', 'min:2', 'max:100', 'regex:/^[\pL\pN][\pL\pN .,&\'()\/-]*$/u'],
+            'city'     => ['nullable', 'string', 'min:2', 'max:50', 'regex:/^[\pL][\pL .\'-]*$/u'],
+            'media_id' => 'nullable|integer',
+            'message'  => ['required', 'string', 'min:10', 'max:1000', 'regex:/\pL{2,}/u'],
+        ], [
+            'name.required'     => 'Please enter your full name.',
+            'name.min'          => 'Name must be at least 3 characters.',
+            'name.max'          => 'Name cannot be more than 60 characters.',
+            'name.regex'        => 'Name can contain only letters, spaces, dots, hyphens and apostrophes.',
+            'mobile.required'   => 'Please enter your mobile number.',
+            'mobile.digits'     => 'Mobile number must be exactly 10 digits.',
+            'mobile.regex'      => 'Mobile number must start with 6, 7, 8 or 9.',
+            'mobile.not_regex'  => 'Please enter a real mobile number.',
+            'email.required'    => 'Please enter your email ID.',
+            'email.email'       => 'Please enter a valid email ID, e.g. name@company.com.',
+            'email.regex'       => 'Please enter a valid email ID, e.g. name@company.com.',
+            'email.max'         => 'Email ID cannot be more than 100 characters.',
+            'company.min'       => 'Company / brand must be at least 2 characters.',
+            'company.max'       => 'Company / brand cannot be more than 100 characters.',
+            'company.regex'     => 'Company / brand contains characters that are not allowed.',
+            'city.min'          => 'City must be at least 2 characters.',
+            'city.max'          => 'City cannot be more than 50 characters.',
+            'city.regex'        => 'City can contain only letters and spaces.',
+            'message.required'  => 'Please write your message.',
+            'message.min'       => 'Please tell us a little more (at least 10 characters).',
+            'message.max'       => 'Message cannot be more than 1000 characters.',
+            'message.regex'     => 'Please write your message in words.',
+        ]);
+
+        // At most 5 sent enquiries per visitor per vendor in 10 minutes.
+        $limitKey = 'vendor-enquiry:' . $vendor->id . ':' . $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($limitKey, 5)) {
+            $minutes = (int) ceil(\Illuminate\Support\Facades\RateLimiter::availableIn($limitKey) / 60);
+            return back()->withInput()->withErrors([
+                'message' => 'You have sent several enquiries already. Please try again in ' . $minutes . ' minute' . ($minutes === 1 ? '' : 's') . ', or call us directly.',
+            ]);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($limitKey, 600);
 
         // Only this vendor's live media can be referenced.
         if (!empty($data['media_id']) && !$this->mediaQuery($vendor)->where('m.id', $data['media_id'])->exists()) {

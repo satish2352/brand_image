@@ -70,6 +70,18 @@ class Vendor extends Authenticatable
         return $this->logo ? Storage::disk('public')->url($this->logo) : null;
     }
 
+    /** Vendor panel sidebar background (Brand Adda navy unless the vendor chose one). */
+    public function getPanelThemeAttribute(): string
+    {
+        return \App\Support\ThemeColor::normalize($this->panel_color);
+    }
+
+    /** Brand colour of the vendor's public website. */
+    public function getSiteThemeAttribute(): string
+    {
+        return \App\Support\ThemeColor::normalize($this->site_color);
+    }
+
     /** Two-letter monogram used when no logo has been uploaded. */
     public function getInitialsAttribute(): string
     {

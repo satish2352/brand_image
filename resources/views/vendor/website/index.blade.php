@@ -51,10 +51,79 @@
                 <span class="vp-muted" style="font-size:14px">Visitors verify with an OTP sent to your registered email before viewing.</span>
             </div>
             <div style="padding:14px 16px;border-radius:10px;background:#F8FAFC;font-size:13px;line-height:1.6;color:#334155">
-                Shows only your approved, active inventory and its location map. No login, cart, campaign, booking, About Us, Contact, footer or timer.
+                Shows only your approved, active inventory, its location map and a Contact page with an enquiry form. No login, cart, campaign, booking, footer or timer.
             </div>
         </section>
     </div>
+
+    {{-- ================= COLOURS ================= --}}
+    @php
+        use App\Support\ThemeColor;
+        $colorFields = [
+            'panel_color' => ['Vendor Panel Sidebar', 'Background of the left menu in your Vendor Panel. Only you see this.', $vendor->panel_theme, 'panel'],
+            'site_color'  => ['Website Brand Colour', 'Used on your public website: slider, page banners and dark buttons.', $vendor->site_theme, 'site'],
+        ];
+    @endphp
+    <section class="vp-card vp-card-pad">
+        <h2 class="vp-h2" style="margin-bottom:4px">Colours</h2>
+        <p class="vp-muted" style="margin:0 0 18px">Pick a preset or any custom colour. Text colour adjusts automatically so it stays readable.</p>
+
+        <form method="POST" action="{{ route('vendor.website.colors') }}" id="colorForm">
+            @csrf
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:24px">
+                @foreach ($colorFields as $field => [$title, $hint, $current, $key])
+                    <fieldset style="border:1px solid #E5E7EB;border-radius:12px;padding:18px;margin:0">
+                        <legend style="font-size:15px;font-weight:800;padding:0 6px;width:auto;margin:0">{{ $title }}</legend>
+                        <p class="vp-muted" style="margin:0 0 12px;font-size:13px">{{ $hint }}</p>
+
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px" role="radiogroup" aria-label="{{ $title }} presets">
+                            @foreach (ThemeColor::PRESETS as $hex => $name)
+                                <button type="button" class="vp-swatch js-swatch" data-target="{{ $field }}" data-color="{{ $hex }}" title="{{ $name }}" aria-label="{{ $name }}"
+                                    style="background:{{ $hex }};{{ $current === $hex ? 'outline:3px solid #F97316;outline-offset:2px' : '' }}"></button>
+                            @endforeach
+                        </div>
+
+                        <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+                            <label for="{{ $field }}" class="vp-muted" style="font-size:13px;margin:0">Custom</label>
+                            <input type="color" id="{{ $field }}" name="{{ $field }}" value="{{ $current }}" class="js-color" data-preview="pv-{{ $key }}"
+                                style="width:52px;height:40px;border:1px solid #CBD5E1;border-radius:8px;padding:2px;cursor:pointer;background:#fff">
+                            <code class="js-hex" data-for="{{ $field }}" style="font-size:13px">{{ $current }}</code>
+                            @if (($key === 'panel' && $vendor->panel_color) || ($key === 'site' && $vendor->site_color))
+                                <button type="submit" name="reset" value="{{ $key }}" class="vp-btn vp-btn-g vp-btn-sm" style="margin-left:auto">Reset to default</button>
+                            @endif
+                        </div>
+
+                        {{-- Live preview --}}
+                        @if ($key === 'panel')
+                            <div id="pv-panel" class="js-preview" data-kind="panel" style="display:flex;border-radius:10px;overflow:hidden;border:1px solid #E5E7EB;height:150px">
+                                <div class="pv-bg" style="width:150px;padding:14px 10px;display:flex;flex-direction:column;gap:6px;background:{{ $current }}">
+                                    <div class="pv-chip" style="height:26px;border-radius:6px;background:{{ ThemeColor::raised($current) }}"></div>
+                                    <div style="height:22px;border-radius:6px;background:#F97316;color:#0F172A;font-size:11px;font-weight:700;padding:4px 8px">Dashboard</div>
+                                    <div class="pv-text" style="font-size:11px;font-weight:600;padding:2px 8px;color:{{ ThemeColor::muted($current) }}">Inventory</div>
+                                    <div class="pv-text" style="font-size:11px;font-weight:600;padding:2px 8px;color:{{ ThemeColor::muted($current) }}">Operations</div>
+                                </div>
+                                <div style="flex:1;background:#F1F5F9;padding:14px"><div style="height:18px;width:60%;border-radius:4px;background:#E2E8F0"></div></div>
+                            </div>
+                        @else
+                            <div id="pv-site" class="js-preview" data-kind="site" style="border-radius:10px;overflow:hidden;border:1px solid #E5E7EB;height:150px;display:flex;flex-direction:column">
+                                <div style="height:26px;background:#fff;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:800">{{ $vendor->vendor_name }}</div>
+                                <div class="pv-bg" style="flex:1;padding:14px;display:flex;flex-direction:column;justify-content:center;gap:8px;background:{{ $current }}">
+                                    <div class="pv-text" style="font-size:16px;font-weight:800;color:{{ ThemeColor::text($current) }}">Our outdoor media</div>
+                                    <div style="display:flex;gap:6px">
+                                        <span style="font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;background:#F97316;color:#0F172A">View details</span>
+                                        <span class="pv-btn" style="font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;background:{{ ThemeColor::raised($current) }};color:{{ ThemeColor::text($current) }}">Search</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </fieldset>
+                @endforeach
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:18px">
+                <button type="submit" class="vp-btn vp-btn-o"><i class="fa-solid fa-palette"></i>Save Colours</button>
+            </div>
+        </form>
+    </section>
 
     <section class="vp-card vp-card-pad">
         <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
@@ -152,5 +221,56 @@
                 ? '<video src="' + url + '" muted style="width:160px;height:64px;object-fit:cover;border-radius:10px;background:#0F172A"></video>'
                 : '<img src="' + url + '" alt="New file preview" style="width:160px;height:64px;object-fit:cover;border-radius:10px">';
         });
+
+        // ---- Colours: live preview (same rules as App\Support\ThemeColor) ----
+        function lum(hex) {
+            const c = [1, 3, 5].map(i => parseInt(hex.substr(i, 2), 16) / 255)
+                .map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+            return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+        }
+        function shade(hex, amt) {
+            const t = amt >= 0 ? 255 : 0; amt = Math.abs(amt);
+            return '#' + [1, 3, 5].map(i => {
+                const c = parseInt(hex.substr(i, 2), 16);
+                return Math.round(c + (t - c) * amt).toString(16).padStart(2, '0');
+            }).join('').toUpperCase();
+        }
+        function themeOf(hex) {
+            const light = lum(hex) > 0.18;
+            return { text: light ? '#0F172A' : '#FFFFFF', muted: light ? '#475569' : '#CBD5E1', raised: light ? shade(hex, -0.06) : shade(hex, 0.1) };
+        }
+        function applyColor(input) {
+            const hex = input.value.toUpperCase();
+            const t = themeOf(hex);
+            const pv = document.getElementById(input.dataset.preview);
+            pv.querySelector('.pv-bg').style.background = hex;
+            pv.querySelectorAll('.pv-text').forEach(el => el.style.color = pv.dataset.kind === 'panel' ? t.muted : t.text);
+            const chip = pv.querySelector('.pv-chip'); if (chip) chip.style.background = t.raised;
+            const btn = pv.querySelector('.pv-btn'); if (btn) { btn.style.background = t.raised; btn.style.color = t.text; }
+            document.querySelector('.js-hex[data-for="' + input.id + '"]').textContent = hex;
+            if (input.id === 'panel_color') {
+                // Preview on the real sidebar too (saved only with "Save Colours").
+                const side = document.querySelector('.vp-side'), light = lum(hex) > 0.18;
+                side.style.setProperty('--vp-side-bg', hex);
+                side.style.setProperty('--vp-side-text', t.text);
+                side.style.setProperty('--vp-side-muted', t.muted);
+                side.style.setProperty('--vp-side-muted2', light ? '#475569' : '#94A3B8');
+                side.style.setProperty('--vp-side-raised', t.raised);
+                side.style.setProperty('--vp-side-tag', light ? '#9A3412' : '#FDBA74');
+                const logo = side.querySelector('.vp-side-logo');
+                logo.src = light ? logo.dataset.logoLightBg : logo.dataset.logoDarkBg;
+            }
+            document.querySelectorAll('.js-swatch[data-target="' + input.id + '"]').forEach(s => {
+                s.style.outline = s.dataset.color === hex ? '3px solid #F97316' : 'none';
+                s.style.outlineOffset = '2px';
+                s.setAttribute('aria-pressed', s.dataset.color === hex ? 'true' : 'false');
+            });
+        }
+        document.querySelectorAll('.js-color').forEach(input => input.addEventListener('input', () => applyColor(input)));
+        document.querySelectorAll('.js-swatch').forEach(sw => sw.addEventListener('click', () => {
+            const input = document.getElementById(sw.dataset.target);
+            input.value = sw.dataset.color.toLowerCase();
+            applyColor(input);
+        }));
     </script>
 @endsection

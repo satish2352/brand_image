@@ -17,8 +17,8 @@ body.vp-body {
 /* ---------- sidebar ---------- */
 .vp-side {
     flex: 0 0 248px;
-    background: #0F172A;
-    color: #fff;
+    background: var(--vp-side-bg, #0F172A);
+    color: var(--vp-side-text, #fff);
     padding: 24px 16px;
     display: flex;
     flex-direction: column;
@@ -27,11 +27,11 @@ body.vp-body {
 .vp-side-logo { width: 150px; height: auto; margin-left: 8px; }
 .vp-side-tag {
     font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-    color: #FDBA74; font-weight: 700; margin: -10px 0 0 8px;
+    color: var(--vp-side-tag, #FDBA74); font-weight: 700; margin: -10px 0 0 8px;
 }
 .vp-vendor-chip {
     display: flex; gap: 12px; align-items: center; padding: 12px;
-    border-radius: 12px; background: #1E293B;
+    border-radius: 12px; background: var(--vp-side-raised, #1E293B);
 }
 .vp-mono {
     width: 42px; height: 42px; border-radius: 10px; background: #F97316; color: #0F172A;
@@ -39,13 +39,13 @@ body.vp-body {
 }
 .vp-mono img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
 .vp-vendor-name { font-weight: 700; font-size: 14px; line-height: 1.3; }
-.vp-vendor-id { font-size: 12px; color: #94A3B8; }
+.vp-vendor-id { font-size: 12px; color: var(--vp-side-muted2, #94A3B8); }
 .vp-nav { display: flex; flex-direction: column; gap: 4px; }
 .vp-body .vp-nav a {
     display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px;
-    border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; color: #CBD5E1;
+    border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; color: var(--vp-side-muted, #CBD5E1);
 }
-.vp-body .vp-nav a:hover { background: #1E293B; color: #fff; }
+.vp-body .vp-nav a:hover { background: var(--vp-side-raised, #1E293B); color: var(--vp-side-text, #fff); }
 .vp-body .vp-nav a.active { background: #F97316; color: #0F172A; }
 .vp-nav i { width: 18px; text-align: center; font-size: 15px; }
 .vp-nav .vp-count {
@@ -54,7 +54,7 @@ body.vp-body {
 }
 .vp-nav a.active .vp-count { background: #0F172A; color: #fff; }
 .vp-side-foot {
-    margin-top: auto; padding: 12px 8px 0; border-top: 1px solid #1E293B; font-size: 12px; color: #94A3B8;
+    margin-top: auto; padding: 12px 8px 0; border-top: 1px solid var(--vp-side-raised, #1E293B); font-size: 12px; color: var(--vp-side-muted2, #94A3B8);
 }
 
 /* ---------- main ---------- */
@@ -174,6 +174,10 @@ textarea.vp-input { padding: 10px 12px; min-height: 90px; }
 /* the shared admin media form inside the vendor panel */
 .vp-content .card { border: 1px solid #E5E7EB; border-radius: 14px; }
 .vp-body .btn-primary, .vp-body .btn-success { background: #F97316 !important; border-color: #F97316 !important; color: #0F172A !important; font-weight: 700; }
+
+/* colour swatches (Website & Slider → Colours) */
+.vp-swatch { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #CBD5E1; cursor: pointer; padding: 0; }
+.vp-swatch:focus-visible { outline: 3px solid #0F172A !important; outline-offset: 2px; }
 
 /* modal */
 .vp-body .modal-content { border-radius: 16px; border: 0; }

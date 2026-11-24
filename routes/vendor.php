@@ -75,6 +75,7 @@ Route::prefix('vendor-panel')->name('vendor.')->group(function () {
         // Website branding & slider
         Route::get('website', [Vendor\WebsiteController::class, 'index'])->name('website');
         Route::post('website/logo', [Vendor\WebsiteController::class, 'updateLogo'])->name('website.logo');
+        Route::post('website/colors', [Vendor\WebsiteController::class, 'updateColors'])->name('website.colors');
         Route::post('website/logo/remove', [Vendor\WebsiteController::class, 'removeLogo'])->name('website.logo.remove');
         Route::post('website/slides', [Vendor\WebsiteController::class, 'storeSlide'])->name('website.slides.store');
         Route::post('website/slides/{id}', [Vendor\WebsiteController::class, 'updateSlide'])->whereNumber('id')->name('website.slides.update');
@@ -108,5 +109,7 @@ Route::prefix('{vendorSlug}')->where(['vendorSlug' => '[a-z0-9]+(?:-[a-z0-9]+)*'
     Route::post('otp/verify', [VendorSiteController::class, 'verifyOtp'])->name('otp.verify')->middleware('throttle:10,10');
     Route::get('media/{mediaId}', [VendorSiteController::class, 'media'])->whereNumber('mediaId')->name('media');
     Route::get('contact', [VendorSiteController::class, 'contact'])->name('contact');
-    Route::post('contact', [VendorSiteController::class, 'submitEnquiry'])->name('contact.submit')->middleware('throttle:5,10');
+    // Generous on attempts (fixing typos must not lock anyone out); sent
+    // enquiries are limited separately in the controller.
+    Route::post('contact', [VendorSiteController::class, 'submitEnquiry'])->name('contact.submit')->middleware('throttle:30,10');
 });
