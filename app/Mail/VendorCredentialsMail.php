@@ -14,7 +14,9 @@ class VendorCredentialsMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Brand Adda Vendor Panel login')
-            ->view('emails.vendor-credentials');
+        return $this->from(config('mail.from.address'), 'Brand Adda')
+            ->subject('Your Brand Adda Vendor Panel login details')
+            ->view('emails.vendor-credentials')
+            ->text('emails.vendor-credentials-text');
     }
 }

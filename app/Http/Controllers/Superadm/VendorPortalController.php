@@ -177,8 +177,6 @@ class VendorPortalController extends Controller
                 'v.vendor_name', 'c.category_name', 'cty.city_name', 'a.area_name']);
 
         $assigned = $vendorId ? (clone $base)->where('m.vendor_id', $vendorId)->orderBy('m.hoarding_code')->get() : collect();
-        $others   = $vendorId ? (clone $base)->where(fn ($q) => $q->whereNull('m.vendor_id')->orWhere('m.vendor_id', '!=', $vendorId))
-            ->orderBy('m.hoarding_code')->limit(200)->get() : collect();
 
         $summary = DB::table('vendors as v')
             ->leftJoin('media_management as m', function ($j) {
@@ -198,7 +196,6 @@ class VendorPortalController extends Controller
             'vendorId' => $vendorId,
             'vendor'   => $vendorId ? Vendor::find($vendorId) : null,
             'assigned' => $assigned,
-            'others'   => $others,
             'summary'  => $summary,
         ]);
     }

@@ -29,7 +29,8 @@ class OperationPhotosMail extends Mailable
         $title = self::STAGE_TITLES[$this->stage] ?? 'Media photos';
         $code  = $this->booking->hoarding_code ?: ($this->booking->media_code ?: $this->booking->media_title);
 
-        $mail = $this->subject($title . ' – ' . $code . ' (Booking ' . $this->booking->order_no . ')')
+        $mail = $this->from(config('mail.from.address'), $this->vendor->vendor_name . ' via Brand Adda')
+            ->subject($title . ' – ' . $code . ' (Booking ' . $this->booking->order_no . ')')
             ->view('emails.operation-photos', ['title' => $title]);
 
         foreach ($this->photos as $photo) {

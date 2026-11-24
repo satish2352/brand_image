@@ -47,8 +47,9 @@
         <div class="d-flex flex-wrap justify-content-between align-items-end mb-3" style="gap:12px">
             <div>
                 <h3 class="mb-1" style="font-weight:600">Vendor Inventory &amp; Access</h3>
-                <div class="vi-muted">Assign media to vendors, remove assignments, and send each vendor its Vendor Panel login.
-                    Bulk assignment by Excel stays in <a href="{{ route('media.import-export') }}">Import &amp; Export</a> (Vendor column).</div>
+                <div class="vi-muted">See each vendor’s inventory, remove assignments, and send each vendor its Vendor Panel login.
+                    To assign media to a vendor, set the Vendor field in <a href="{{ route('media.list') }}">Media Management</a>
+                    or use <a href="{{ route('media.import-export') }}">Import &amp; Export</a> (Vendor column).</div>
             </div>
             <a href="{{ route('admin.vendor.approvals') }}" class="btn btn-outline-info"><i class="mdi mdi-check-decagram"></i> Vendor Approvals</a>
         </div>
@@ -129,7 +130,7 @@
                 <div class="vi-card-body text-center py-5">
                     <i class="mdi mdi-cursor-default-click-outline" style="font-size:36px;color:#00929c"></i>
                     <h5 class="mt-2 mb-1">Choose a vendor to manage its inventory</h5>
-                    <div class="vi-muted">Click <strong>Manage Inventory</strong> on a vendor above to assign or remove media.</div>
+                    <div class="vi-muted">Click <strong>Manage Inventory</strong> on a vendor above to see or remove its media.</div>
                 </div>
             </div>
         @else
@@ -154,7 +155,7 @@
             </div>
 
             <div class="row">
-                <div class="col-xl-6">
+                <div class="col-12">
                     <form method="POST" action="{{ route('admin.vendor.inventory.remove') }}" class="vi-card js-confirm js-pick-form"
                         data-title="Remove selected media from {{ $vendor->vendor_name }}?"
                         data-text="The vendor will no longer see this media in its panel and is notified." data-button="Yes, remove">
@@ -166,21 +167,6 @@
                                 <i class="mdi mdi-minus-circle"></i> Remove Selected <span class="js-pick-count"></span></button>
                         </div>
                         @include('superadm.vendor-portal._media-pick', ['rows' => $assigned, 'showVendor' => false])
-                    </form>
-                </div>
-                <div class="col-xl-6">
-                    <form method="POST" action="{{ route('admin.vendor.inventory.assign') }}" class="vi-card js-confirm js-pick-form"
-                        data-title="Assign selected media to {{ $vendor->vendor_name }}?"
-                        data-text="Media assigned to another vendor will move to {{ $vendor->vendor_name }}. Both vendors are notified." data-button="Yes, assign">
-                        @csrf
-                        <input type="hidden" name="vendor_id" value="{{ $vendorId }}">
-                        <div class="vi-card-header">
-                            <span>Other Inventory ({{ $others->count() }}{{ $others->count() >= 200 ? '+' : '' }})</span>
-                            <button type="submit" class="btn btn-sm vi-header-btn js-pick-submit" disabled>
-                                <i class="mdi mdi-plus-circle"></i> Assign Selected <span class="js-pick-count"></span></button>
-                        </div>
-                        @include('superadm.vendor-portal._media-pick', ['rows' => $others, 'showVendor' => true])
-                        @if ($others->count() >= 200)<div class="vi-muted px-3 py-2">Showing the first 200. Search to narrow down.</div>@endif
                     </form>
                 </div>
             </div>

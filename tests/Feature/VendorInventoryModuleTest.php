@@ -503,6 +503,12 @@ class VendorInventoryModuleTest extends TestCase
         });
         $this->assertTrue(Hash::check($sent, $this->vendor->fresh()->password));
 
+        // The branded emails render (HTML + plain text) with the right details.
+        $html = (new VendorCredentialsMail($this->vendor->fresh(), $sent))->render();
+        $this->assertStringContainsString($sent, $html);
+        $this->assertStringContainsString('Login to Vendor Panel', $html);
+        $this->assertStringContainsString('482915', (new VendorSiteOtpMail($this->vendor, '482915', 10))->render());
+
         // Admin's own active switch cannot publish a pending vendor submission.
         $this->asAdmin()->post(route('media.status'), ['id' => base64_encode($media->id)])->assertStatus(422);
     }
