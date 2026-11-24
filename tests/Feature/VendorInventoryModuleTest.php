@@ -426,6 +426,39 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor($this->otherVendor)->post(route('vendor.enquiries.status', $enquiry->id), ['status' => 'closed'])->assertNotFound();
     }
 
+    public function test_admin_activity_log_is_paginated_on_the_server(): void
+    {
+        for ($i = 1; $i <= 13; $i++) {
+            VendorActivityLog::create([
+                'vendor_id' => $this->vendor->id, 'actor_type' => 'vendor', 'actor_name' => 'x',
+                'action' => 'Paging Check ' . str_pad((string) $i, 2, '0', STR_PAD_LEFT), 'created_at' => now()->addHour()->subMinutes($i),
+            ]);
+        }
+        $url = route('admin.vendor.activity', ['vendor_id' => $this->vendor->id]);
+
+        // Only the table body counts: the Action filter lists every action name.
+        $rows = function (string $html): string {
+            preg_match('#<tbody>(.*?)</tbody>#s', $html, $m);
+            return $m[1] ?? '';
+        };
+
+        // 10 per page by default: newest 10 on page 1, the rest on page 2.
+        $page1 = $this->asAdmin()->get($url)->assertOk()->assertSee('Page 1 of 2');
+        $body = $rows($page1->getContent());
+        $this->assertSame(10, substr_count($body, 'Paging Check'));
+        $this->assertStringContainsString('Paging Check 01', $body);
+        $this->assertStringNotContainsString('Paging Check 11', $body);
+
+        $body = $rows($this->asAdmin()->get($url . '&page=2')->assertOk()->getContent());
+        $this->assertStringContainsString('Paging Check 13', $body);
+        $this->assertStringNotContainsString('Paging Check 01', $body);
+
+        // Per-page choice, and a page past the end goes to the last page.
+        $body = $rows($this->asAdmin()->get($url . '&per_page=20')->assertOk()->getContent());
+        $this->assertSame(13, substr_count($body, 'Paging Check'));
+        $this->asAdmin()->get($url . '&page=9')->assertRedirect();
+    }
+
     public function test_activity_log_keeps_six_months(): void
     {
         $old = VendorActivityLog::create([

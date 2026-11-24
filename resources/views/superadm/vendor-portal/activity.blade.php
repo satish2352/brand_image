@@ -50,6 +50,10 @@
         .al-who { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
         .al-btn { background: #00929c; border: 1px solid #00929c; color: #fff !important; font-weight: 600; }
         .al-btn:hover { background: #007a82; border-color: #007a82; }
+        .al-pager { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid #f1f5f9; }
+        .al-pager .pagination { margin: 0; }
+        .al-pager .page-item.active .page-link { background: #00929c; border-color: #00929c; color: #fff; }
+        .al-pager .page-link { color: #00929c; }
     </style>
 
     <div class="container-fluid mt-3">
@@ -183,12 +187,25 @@
                         </tbody>
                     </table>
                 </div>
-                @if ($log->hasPages())
-                    <div class="d-flex justify-content-between align-items-center flex-wrap px-3 py-2" style="gap:10px">
-                        <span class="al-muted">Showing {{ $log->firstItem() }}–{{ $log->lastItem() }} of {{ number_format($log->total()) }}</span>
-                        {{ $log->links('pagination::bootstrap-4') }}
-                    </div>
-                @endif
+                <div class="al-pager">
+                    <form method="GET" action="{{ route('admin.vendor.activity') }}" class="d-flex align-items-center" style="gap:8px;margin:0">
+                        @foreach (request()->except(['per_page', 'page']) as $k => $v)
+                            @if (is_string($v))<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
+                        @endforeach
+                        <label for="per-page" class="al-muted" style="margin:0">Show</label>
+                        <select id="per-page" name="per_page" class="form-control form-control-sm" style="width:auto" onchange="this.form.submit()">
+                            @foreach ([10, 20, 50, 100] as $n)<option value="{{ $n }}" @selected($perPage === $n)>{{ $n }}</option>@endforeach
+                        </select>
+                        <span class="al-muted">per page</span>
+                    </form>
+                    <span class="al-muted">
+                        Showing <strong style="color:#111827">{{ $log->firstItem() }}–{{ $log->lastItem() }}</strong> of <strong style="color:#111827">{{ number_format($log->total()) }}</strong>
+                        @if ($log->hasPages()) · Page {{ $log->currentPage() }} of {{ $log->lastPage() }} @endif
+                    </span>
+                    @if ($log->hasPages())
+                        <nav aria-label="Activity log pages">{{ $log->onEachSide(1)->links('pagination::bootstrap-4') }}</nav>
+                    @endif
+                </div>
             @endif
         </div>
     </div>

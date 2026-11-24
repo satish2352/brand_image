@@ -283,10 +283,19 @@ class VendorPortalController extends Controller
 
         $byActor = (clone $filtered)->selectRaw('actor_type, COUNT(*) as total')->groupBy('actor_type')->pluck('total', 'actor_type');
 
+        // Server-side pagination: only one page of rows is read from the database.
+        $perPage = in_array((int) $request->per_page, [10, 20, 50, 100], true) ? (int) $request->per_page : 10;
+
         $log = (clone $filtered)->with('vendor:id,vendor_name')
             ->latest('created_at')
-            ->paginate(30)
+            ->latest('id')
+            ->paginate($perPage)
             ->withQueryString();
+
+        // A page past the end (e.g. after filtering) goes to the last page.
+        if ($log->isEmpty() && $log->currentPage() > 1 && $log->lastPage() >= 1) {
+            return redirect()->to($log->url($log->lastPage()));
+        }
 
         return view('superadm.vendor-portal.activity', [
             'log'     => $log,
@@ -299,6 +308,7 @@ class VendorPortalController extends Controller
                 'today'  => (clone $filtered)->whereDate('created_at', now()->toDateString())->count(),
             ],
             'filtered' => collect($request->only(['vendor_id', 'actor', 'action', 'from_date', 'to_date', 'q']))->filter(fn ($v) => filled($v))->isNotEmpty(),
+            'perPage'  => $perPage,
         ]);
     }
 
