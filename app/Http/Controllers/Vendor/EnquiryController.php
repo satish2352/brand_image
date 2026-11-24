@@ -33,12 +33,10 @@ class EnquiryController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        // The open enquiry: the one asked for, else the newest on this page.
-        $selected = null;
-        if ($request->open) {
-            $selected = VendorEnquiry::forVendor($vendor->id)->with('media')->find((int) $request->open);
-        }
-        $selected ??= $enquiries->first();
+        // The enquiry to show in the popup: only when asked for (View / ?open=ID).
+        $selected = $request->open
+            ? VendorEnquiry::forVendor($vendor->id)->with('media')->find((int) $request->open)
+            : null;
 
         if ($selected && !$selected->read_at) {
             $selected->forceFill(['read_at' => now()])->save();
