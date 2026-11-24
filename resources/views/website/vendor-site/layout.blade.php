@@ -10,19 +10,14 @@
     <link rel="icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    @php
-        // Brand colour chosen in the Vendor Panel (Website & Slider → Colours).
-        $brand = $vendor->site_theme;
-        $brandLight = \App\Support\ThemeColor::isLight($brand);
-    @endphp
     <style>
         :root {
-            --vs-brand: {{ $brand }};
-            --vs-brand-rgb: {{ \App\Support\ThemeColor::rgb($brand) }};
-            --vs-brand-text: {{ \App\Support\ThemeColor::text($brand) }};
-            --vs-brand-muted: {{ \App\Support\ThemeColor::muted($brand) }};
-            --vs-brand-raised: {{ \App\Support\ThemeColor::raised($brand) }};
-            --vs-brand-link: {{ $brandLight ? '#9A3412' : '#FDBA74' }};
+            --vs-brand: #0F172A;
+            --vs-brand-rgb: 15, 23, 42;
+            --vs-brand-text: #FFFFFF;
+            --vs-brand-muted: #CBD5E1;
+            --vs-brand-raised: #1E293B;
+            --vs-brand-link: #FDBA74;
         }
         * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Montserrat', system-ui, sans-serif; color: #0F172A; background: #F8FAFC; }

@@ -175,10 +175,6 @@ textarea.vp-input { padding: 10px 12px; min-height: 90px; }
 .vp-content .card { border: 1px solid #E5E7EB; border-radius: 14px; }
 .vp-body .btn-primary, .vp-body .btn-success { background: #F97316 !important; border-color: #F97316 !important; color: #0F172A !important; font-weight: 700; }
 
-/* colour swatches (Website & Slider → Colours) */
-.vp-swatch { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #CBD5E1; cursor: pointer; padding: 0; }
-.vp-swatch:focus-visible { outline: 3px solid #0F172A !important; outline-offset: 2px; }
-
 /* modal */
 .vp-body .modal-content { border-radius: 16px; border: 0; }
 

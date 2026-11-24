@@ -46,47 +46,6 @@ class WebsiteController extends Controller
         return back()->with('success', 'Logo updated.');
     }
 
-    /**
-     * Colours: the vendor panel sidebar and the public website's brand colour.
-     * An empty value (or "Reset") goes back to the Brand Adda default.
-     */
-    public function updateColors(Request $request)
-    {
-        $vendor = $this->vendor();
-
-        $data = $request->validate([
-            'panel_color' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'site_color'  => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-        ], [
-            'panel_color.regex' => 'Choose a valid sidebar colour.',
-            'site_color.regex'  => 'Choose a valid website colour.',
-        ]);
-
-        $reset = $request->input('reset');
-        $panel = $reset === 'panel' ? null : (isset($data['panel_color']) ? strtoupper($data['panel_color']) : $vendor->panel_color);
-        $site  = $reset === 'site' ? null : (isset($data['site_color']) ? strtoupper($data['site_color']) : $vendor->site_color);
-
-        // The default colour is stored as "no custom colour".
-        $panel = $panel === \App\Support\ThemeColor::DEFAULT ? null : $panel;
-        $site  = $site === \App\Support\ThemeColor::DEFAULT ? null : $site;
-
-        $changed = [];
-        if ($panel !== $vendor->panel_color) {
-            $changed[] = 'Sidebar colour';
-        }
-        if ($site !== $vendor->site_color) {
-            $changed[] = 'Website colour';
-        }
-
-        $vendor->forceFill(['panel_color' => $panel, 'site_color' => $site])->save();
-
-        if ($changed) {
-            VendorAudit::vendorDid($vendor, 'Branding Updated', ['Changed fields' => implode(', ', $changed)]);
-        }
-
-        return back()->with('success', $changed ? 'Colours updated.' : 'No colour changes to save.');
-    }
-
     public function removeLogo()
     {
         $vendor = $this->vendor();

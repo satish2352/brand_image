@@ -426,36 +426,6 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor($this->otherVendor)->post(route('vendor.enquiries.status', $enquiry->id), ['status' => 'closed'])->assertNotFound();
     }
 
-    public function test_vendor_can_set_panel_and_website_colours(): void
-    {
-        $this->asVendor()->get(route('vendor.website'))->assertOk()->assertSee('Save Colours')->assertSee('--vp-side-bg: #0F172A', false);
-
-        $this->asVendor()->post(route('vendor.website.colors'), ['panel_color' => 'not-a-colour'])->assertSessionHasErrors('panel_color');
-
-        $this->asVendor()->post(route('vendor.website.colors'), ['panel_color' => '#0f766e', 'site_color' => '#F8FAFC'])
-            ->assertSessionHas('success');
-        $v = $this->vendor->fresh();
-        $this->assertSame('#0F766E', $v->panel_color);
-        $this->assertSame('#F8FAFC', $v->site_color);
-
-        // Panel sidebar uses it (dark colour → white text, light logo).
-        $this->asVendor()->get(route('vendor.dashboard'))->assertOk()
-            ->assertSee('--vp-side-bg: #0F766E', false)->assertSee('--vp-side-text: #FFFFFF', false)
-            ->assertSee('brand_adda_light.png', false);
-
-        // Website uses it (light colour → dark text).
-        $this->makeMedia($this->vendor);
-        $this->asVendor()->get(route('vendor-site.show', $this->vendor->slug))->assertOk()
-            ->assertSee('--vs-brand: #F8FAFC', false)->assertSee('--vs-brand-text: #0F172A', false);
-
-        // Reset goes back to the default (stored as null).
-        $this->asVendor()->post(route('vendor.website.colors'), ['reset' => 'site', 'panel_color' => '#0F766E', 'site_color' => '#F8FAFC']);
-        $this->assertNull($this->vendor->fresh()->site_color);
-        $this->assertSame('#0F766E', $this->vendor->fresh()->panel_color);
-
-        $this->assertTrue(VendorActivityLog::where('vendor_id', $this->vendor->id)->where('action', 'Branding Updated')->exists());
-    }
-
     public function test_activity_log_keeps_six_months(): void
     {
         $old = VendorActivityLog::create([

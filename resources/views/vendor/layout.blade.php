@@ -44,20 +44,8 @@
     </script>
     <div class="vp-backdrop" id="vpBackdrop" hidden></div>
     <div class="vp-shell">
-        @php
-            // Sidebar colour chosen on Website & Slider → Colours; text and
-            // shades follow it so everything stays readable.
-            $sideBg = $vendor->panel_theme;
-            $sideLight = \App\Support\ThemeColor::isLight($sideBg);
-        @endphp
-        <aside class="vp-side" id="vpSide" style="--vp-side-bg: {{ $sideBg }};
-            --vp-side-text: {{ \App\Support\ThemeColor::text($sideBg) }};
-            --vp-side-muted: {{ \App\Support\ThemeColor::muted($sideBg) }};
-            --vp-side-muted2: {{ $sideLight ? '#475569' : '#94A3B8' }};
-            --vp-side-raised: {{ \App\Support\ThemeColor::raised($sideBg) }};
-            --vp-side-tag: {{ $sideLight ? '#9A3412' : '#FDBA74' }};">
-            <img src="{{ asset($sideLight ? 'assets/img/logo/brand_adda.png' : 'assets/img/logo/brand_adda_light.png') }}" alt="Brand Adda" class="vp-side-logo"
-                data-logo-dark-bg="{{ asset('assets/img/logo/brand_adda_light.png') }}" data-logo-light-bg="{{ asset('assets/img/logo/brand_adda.png') }}">
+        <aside class="vp-side" id="vpSide">
+            <img src="{{ asset('assets/img/logo/brand_adda_light.png') }}" alt="Brand Adda" class="vp-side-logo">
             <div class="vp-side-tag">Vendor Panel</div>
             <div class="vp-vendor-chip">
                 <div class="vp-mono">
