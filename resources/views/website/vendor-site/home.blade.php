@@ -75,6 +75,9 @@
         .vs-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; margin-bottom: 20px; }
         .vs-count { font-size: 14px; color: #475569; white-space: nowrap; }
         .vs-count b { color: #0F172A; }
+        /* Admin "Select all loaded" in the toolbar row, a pill like the search box. */
+        .vs-pickall { display: inline-flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 14px;
+            border: 1px solid #E5E7EB; border-radius: 999px; background: #fff; box-shadow: 0 2px 8px rgba(15, 23, 42, .06); white-space: nowrap; }
         .vs-qsearch { display: flex; align-items: center; gap: 10px; padding: 6px 6px 6px 18px; background: #fff; border: 1px solid #CBD5E1; border-radius: 999px;
             box-shadow: 0 6px 18px rgba(15,23,42,.06); transition: border-color .15s, box-shadow .15s; }
         .vs-qsearch:focus-within { border-color: #F97316; box-shadow: 0 0 0 4px rgba(249,115,22,.15); }
@@ -259,6 +262,17 @@
                     · <a href="{{ route('vendor-site.show', $vendor->slug) }}#inventory" style="font-weight:700">Clear filters</a>
                 @endif
             </div>
+            {{-- Brand Adda team only (as on /search): tick every card loaded so far. More cards
+                 load as the list scrolls, hence "loaded". Sits in this row, beside the count. --}}
+            @if (site_admin() && $media->isNotEmpty())
+                <div class="vs-pickall">
+                    <label class="share-all">
+                        <input type="checkbox" id="shareSelectAll">
+                        <span>Select all loaded</span>
+                    </label>
+                    <span class="share-toolbar-hint" id="shareToolbarHint"></span>
+                </div>
+            @endif
             <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-left:auto">
                 <a href="{{ route('vendor-site.show', array_merge(['vendorSlug' => $vendor->slug], \Illuminate\Support\Arr::except($filters, 'available'))) }}#inventory" class="vs-btn {{ empty($filters['available']) ? 'vs-btn-n' : 'vs-btn-g' }}" style="min-height:40px;border-radius:999px">All</a>
                 <a href="{{ route('vendor-site.show', array_merge(['vendorSlug' => $vendor->slug], $filters, ['available' => 1])) }}#inventory" class="vs-btn {{ !empty($filters['available']) ? 'vs-btn-n' : 'vs-btn-g' }}" style="min-height:40px;border-radius:999px">Available now</a>
@@ -267,17 +281,6 @@
 
         <div class="vs-split">
         <div class="vs-list" id="vsList">
-        {{-- Brand Adda team only (as on /search): tick every card loaded so far. More cards
-             load as the list scrolls, hence "loaded". --}}
-        @if (site_admin() && $media->isNotEmpty())
-            <div class="share-toolbar" style="margin:0 0 14px">
-                <label class="share-all">
-                    <input type="checkbox" id="shareSelectAll">
-                    <span>Select all loaded</span>
-                </label>
-                <span class="share-toolbar-hint" id="shareToolbarHint"></span>
-            </div>
-        @endif
         <div id="vsGrid" aria-live="polite">
             @if ($media->isEmpty())
                 <p style="color:#475569">No media matches these filters.</p>
