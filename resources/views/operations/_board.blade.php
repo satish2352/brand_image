@@ -118,7 +118,14 @@
                 <section class="vp-card vp-card-pad">
                     <h2 class="vp-h2" style="margin-bottom:14px">Booking Details</h2>
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px">
-                        @foreach (['Name' => $selected->user_name, 'Email ID' => $selected->user_email, 'Mobile Number' => $selected->user_mobile, 'Booking Start Date' => $fmt($selected->from_date), 'Booking End Date' => $fmt($selected->to_date)] as $k => $v)
+                        @php
+                            $bookingRows = ['Name' => $selected->user_name, 'Email ID' => $selected->user_email, 'Mobile Number' => $selected->user_mobile, 'Booking Start Date' => $fmt($selected->from_date), 'Booking End Date' => $fmt($selected->to_date)];
+                            // Booked through Update Availability (no website / Admin Booking order, no user).
+                            if (!empty($selected->booked_by)) {
+                                $bookingRows = ['Booked by' => ($selected->booked_by === 'admin' ? 'Brand Adda' : 'Vendor') . ' (booked dates, no user)'] + $bookingRows;
+                            }
+                        @endphp
+                        @foreach ($bookingRows as $k => $v)
                             <div><div class="vp-muted" style="font-size:12px;font-weight:600">{{ $k }}</div><div style="font-size:15px;font-weight:700;margin-top:4px;word-break:break-word">{{ $v ?: '—' }}</div></div>
                         @endforeach
                     </div>
@@ -191,9 +198,12 @@
                         </div>
 
                         <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:10px;background:#F8FAFC">
+                            @php $noUser = empty($selected->user_email) && !empty($selected->booked_by); @endphp
                             <span style="font-size:13px;color:#334155">
                                 @if ($setShared)
-                                    Shared with <strong>{{ $selected->user_email }}</strong>.
+                                    {!! $noUser ? 'Photos recorded.' : 'Shared with <strong>' . e($selected->user_email) . '</strong>.' !!}
+                                @elseif ($canEdit && $noUser)
+                                    This booking has no user to email. Saving moves it to the next stage and keeps the photos in its history.
                                 @elseif ($canEdit)
                                     Photos will be emailed to <strong>{{ $selected->user_email ?: 'the user' }}</strong> and kept in this booking’s history.
                                 @else
@@ -201,12 +211,14 @@
                                 @endif
                             </span>
                             @if ($canEdit)
-                                <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0" data-confirm="Email these photos to {{ $selected->user_email }}?" data-confirm-button="Yes, share">
+                                <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0"
+                                    data-confirm="{{ $noUser ? 'Save these photos and move the booking to the next stage?' : 'Email these photos to ' . $selected->user_email . '?' }}" data-confirm-button="{{ $noUser ? 'Yes, save' : 'Yes, share' }}">
                                     @csrf
                                     @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
                                     <input type="hidden" name="stage" value="{{ $panelStage }}">
                                     @if ($panelStage === 'monitoring')<input type="hidden" name="photo_date" value="{{ $monitorDate }}">@endif
-                                    <button type="submit" class="vp-btn vp-btn-o" @disabled(count($set) < 3 || $setShared)><i class="fa fa-envelope"></i>Share with User</button>
+                                    <button type="submit" class="vp-btn vp-btn-o" @disabled(count($set) < 3 || $setShared)>
+                                        @if ($noUser)<i class="fa fa-check"></i>Save &amp; Move On @else<i class="fa fa-envelope"></i>Share with User @endif</button>
                                 </form>
                             @endif
                         </div>

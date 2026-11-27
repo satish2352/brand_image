@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * The operational life of one booked media item (one order_item): installation,
- * monitoring, end-date photos and removal. Created from bookings by
- * VendorOperationsService::syncBookings().
+ * The operational life of one booked media item: installation, monitoring,
+ * end-date photos and removal. Created by VendorOperationsService::syncBookings()
+ * from an order_item (website / Admin Booking order) or, for a booking the
+ * vendor or admin entered as booked dates, from a media_booked_date row.
  */
 class MediaOperation extends Model
 {
@@ -19,7 +20,7 @@ class MediaOperation extends Model
     ];
 
     protected $fillable = [
-        'vendor_id', 'media_id', 'order_id', 'order_item_id', 'stage',
+        'vendor_id', 'media_id', 'order_id', 'order_item_id', 'booked_date_id', 'stage',
         'installation_shared_at', 'end_date_shared_at', 'completed_at', 'removal_note',
     ];
 

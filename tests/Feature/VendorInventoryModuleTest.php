@@ -268,7 +268,8 @@ class VendorInventoryModuleTest extends TestCase
         ]);
 
         // Super Admin runs Operations for every vendor.
-        $this->asAdmin()->get(route('admin.vendor.operations'))->assertOk()->assertSee('Ops User')->assertSee('Upload Photo');
+        // (Filtered to this vendor: the list holds every vendor's bookings.)
+        $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id]))->assertOk()->assertSee('Ops User')->assertSee('Upload Photo');
         $op = MediaOperation::where('media_id', $media->id)->firstOrFail();
         $this->assertSame('installation', $op->stage);
         $this->assertSame($this->vendor->id, (int) $op->vendor_id);
@@ -300,6 +301,42 @@ class VendorInventoryModuleTest extends TestCase
         $this->flushSession();
         $this->asVendor()->get(route('admin.vendor.operations'))->assertRedirect();
         $this->asVendor()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertRedirect();
+    }
+
+    public function test_operations_include_vendor_booked_dates_without_an_order(): void
+    {
+        $media = $this->makeMedia($this->vendor, ['media_title' => 'Vendor Booked Site']);
+        // Booked by the vendor through Update Availability: a booked-date row, no order, no user.
+        $bookedId = DB::table('media_booked_date')->insertGetId([
+            'media_id' => $media->id, 'from_date' => now()->toDateString(), 'to_date' => now()->addDays(20)->toDateString(),
+            'status_type' => 'booked', 'source' => 'vendor', 'vendor_id' => $this->vendor->id,
+            'is_active' => 1, 'is_deleted' => 0, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $this->asAdmin()->get(route('admin.vendor.operations', ['stage' => 'installation', 'vendor_id' => $this->vendor->id]))->assertOk()
+            ->assertSee('Vendor Booked Site')->assertSee('Booking #' . $bookedId);
+        $op = MediaOperation::where('booked_date_id', $bookedId)->firstOrFail();
+        $this->assertSame('installation', $op->stage);
+        $this->assertNull($op->order_id);
+
+        foreach (['newspaper', 'long', 'close'] as $shot) {
+            $this->asAdmin()->post(route('admin.vendor.operations.photo', $op->id), [
+                'stage' => 'installation', 'shot_type' => $shot, 'photo' => UploadedFile::fake()->image($shot . '.jpg', 800, 600),
+            ])->assertRedirect();
+        }
+
+        // No user to email: the photos are recorded and the booking moves on, nothing is sent.
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertSessionHas('success');
+        Mail::assertNotSent(OperationPhotosMail::class);
+        $this->assertSame('monitoring', $op->fresh()->stage);
+
+        // Running the sync again does not add a second operation for the same booking.
+        $this->asAdmin()->get(route('admin.vendor.operations'))->assertOk();
+        $this->assertSame(1, MediaOperation::where('media_id', $media->id)->count());
+
+        // The vendor sees it too (read-only).
+        $this->flushSession();
+        $this->asVendor()->get(route('vendor.operations', ['stage' => 'monitoring']))->assertOk()->assertSee('Booking #' . $bookedId);
     }
 
     public function test_vendor_website_requires_otp_and_shows_only_live_media(): void

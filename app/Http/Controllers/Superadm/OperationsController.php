@@ -151,13 +151,14 @@ class OperationsController extends Controller
         }
 
         $detail = $this->ops->detail($op->vendor_id, $op->id);
-        VendorAudit::adminDid($op->vendor_id, 'Photos Shared with User', [
+        $emailed = !empty($detail->user_email); // a vendor / admin booked-date booking has no user to email
+        VendorAudit::adminDid($op->vendor_id, $emailed ? 'Photos Shared with User' : 'Photos Recorded', [
             'Booking number' => $detail->order_no,
             'Stage'          => VendorOperationsService::STAGE_LABELS[$data['stage']],
-            'Sent to'        => $detail->user_email,
+            'Sent to'        => $emailed ? $detail->user_email : 'No user email (vendor booking)',
         ], $op->media, $op->order_id);
         VendorAudit::notifyVendor($op->vendor_id, 'photos_shared',
-            VendorOperationsService::STAGE_LABELS[$data['stage']] . ' photos shared with the user',
+            VendorOperationsService::STAGE_LABELS[$data['stage']] . ($emailed ? ' photos shared with the user' : ' photos recorded by Brand Adda'),
             $detail->order_no . ' · ' . $op->media->display_code,
             route('vendor.operations', ['stage' => $op->fresh()->stage === 'monitoring' ? 'monitoring' : $data['stage'], 'op' => $op->id]),
             $op->media_id, $op->order_id);
@@ -168,7 +169,9 @@ class OperationsController extends Controller
             'vendor_id' => $request->input('vendor_id'),
             'stage'     => $op->fresh()->stage === 'monitoring' ? 'monitoring' : $next,
             'op'        => $op->id,
-        ]))->with('success', 'Photos emailed to ' . $detail->user_email . '.');
+        ]))->with('success', $emailed
+            ? 'Photos emailed to ' . $detail->user_email . '.'
+            : 'Photos saved and the booking moved on (this booking has no user email, so nothing was emailed).');
     }
 
     public function complete(Request $request, int $operationId)

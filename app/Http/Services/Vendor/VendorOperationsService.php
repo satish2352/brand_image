@@ -78,6 +78,40 @@ class VendorOperationsService
                 ]
             );
         }
+
+        // Bookings the vendor or admin entered as booked dates (Update Availability) have no
+        // order. Those that do not mirror an order (website / Admin Booking orders write a
+        // booked-date row with the same media and dates) get an operation of their own.
+        $booked = DB::table('media_booked_date as b')
+            ->join('media_management as m', 'm.id', '=', 'b.media_id')
+            ->leftJoin('media_operations as op', 'op.booked_date_id', '=', 'b.id')
+            ->when($vendorId, fn ($q) => $q->where('m.vendor_id', $vendorId), fn ($q) => $q->whereNotNull('m.vendor_id'))
+            ->where('b.status_type', 'booked')
+            ->where('b.is_active', 1)
+            ->where('b.is_deleted', 0)
+            ->whereNull('op.id')
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))->from('order_items as oi')
+                    ->whereColumn('oi.media_id', 'b.media_id')
+                    ->whereColumn('oi.from_date', 'b.from_date')
+                    ->whereColumn('oi.to_date', 'b.to_date')
+                    ->where('oi.is_deleted', 0);
+            })
+            ->get(['b.id as booked_date_id', 'b.media_id', 'b.to_date', 'm.vendor_id']);
+
+        foreach ($booked as $row) {
+            $ended = Carbon::parse($row->to_date)->lt(now()->subDays(7)->startOfDay());
+
+            MediaOperation::firstOrCreate(
+                ['booked_date_id' => $row->booked_date_id],
+                [
+                    'vendor_id'    => $row->vendor_id,
+                    'media_id'     => $row->media_id,
+                    'stage'        => $ended ? 'completed' : 'installation',
+                    'completed_at' => $ended ? now() : null,
+                ]
+            );
+        }
     }
 
     /** Stage shown for an operation: monitoring rolls into end_date on the end date. */
@@ -95,17 +129,27 @@ class VendorOperationsService
     {
         $this->syncBookings($vendorId);
 
+        // An operation comes from an order (order_items) or from a vendor / admin booked-date row;
+        // dates and the booking number fall back to the booked-date row when there is no order.
         return DB::table('media_operations as op')
-            ->join('order_items as oi', 'oi.id', '=', 'op.order_item_id')
-            ->join('orders as o', 'o.id', '=', 'op.order_id')
+            ->leftJoin('order_items as oi', 'oi.id', '=', 'op.order_item_id')
+            ->leftJoin('orders as o', 'o.id', '=', 'op.order_id')
+            ->leftJoin('media_booked_date as b', 'b.id', '=', 'op.booked_date_id')
             ->join('media_management as m', 'm.id', '=', 'op.media_id')
             ->leftJoin('website_users as u', 'u.id', '=', 'o.user_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('vendors as v', 'v.id', '=', 'op.vendor_id')
             ->when($vendorId, fn ($q) => $q->where('op.vendor_id', $vendorId))
-            ->orderBy('oi.from_date', 'desc')
+            ->where(fn ($q) => $q->whereNotNull('oi.id')
+                // A booked-date booking the vendor later removed is dropped, unless it already finished.
+                ->orWhere(fn ($w) => $w->whereNotNull('b.id')->where(fn ($x) => $x->where('b.is_deleted', 0)->orWhere('op.stage', 'completed'))))
+            ->orderByRaw('COALESCE(oi.from_date, b.from_date) DESC')
             ->get([
-                'op.*', 'o.order_no', 'oi.from_date', 'oi.to_date', 'v.vendor_name',
+                'op.*', 'v.vendor_name',
+                DB::raw("COALESCE(o.order_no, CONCAT('Booking #', b.id)) as order_no"),
+                DB::raw('COALESCE(oi.from_date, b.from_date) as from_date'),
+                DB::raw('COALESCE(oi.to_date, b.to_date) as to_date'),
+                DB::raw("CASE WHEN op.booked_date_id IS NOT NULL THEN COALESCE(b.source, 'vendor') END as booked_by"),
                 'm.media_title', 'm.hoarding_code', 'm.media_code', 'a.area_name',
                 'u.name as user_name', 'u.email as user_email', 'u.mobile_number as user_mobile',
             ])
@@ -204,12 +248,16 @@ class VendorOperationsService
     /**
      * Email a stage's three shots to the booking user and move the operation
      * on. Returns the photos that were sent.
+     *
+     * A booking the vendor / admin entered as booked dates has no user to email:
+     * its photos are recorded as done and the operation moves on all the same.
      */
     public function share(Vendor $vendor, MediaOperation $op, string $stage, ?string $date): array
     {
         $detail = $this->detail($vendor->id, $op->id);
+        $noUser = $detail && empty($detail->user_email) && $op->booked_date_id;
 
-        if (!$detail || empty($detail->user_email)) {
+        if (!$detail || (empty($detail->user_email) && !$noUser)) {
             throw ValidationException::withMessages(['share' => 'This booking has no user email to share photos with.']);
         }
 
@@ -228,7 +276,9 @@ class VendorOperationsService
             ]);
         }
 
-        Mail::to($detail->user_email)->send(new OperationPhotosMail($vendor, $detail, $stage, $date, $photos->values()->all()));
+        if (!$noUser) {
+            Mail::to($detail->user_email)->send(new OperationPhotosMail($vendor, $detail, $stage, $date, $photos->values()->all()));
+        }
 
         MediaOperationPhoto::whereIn('id', $photos->pluck('id'))->update(['shared_at' => now()]);
 
