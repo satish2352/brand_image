@@ -12,6 +12,13 @@
             : null;
     @endphp
     <article class="vs-item" data-id="{{ $m->id }}" data-href="{{ $detailsUrl }}">
+        {{-- Shortlist tick: Brand Adda team only (as on /search); visitors see the card unchanged. --}}
+        @if (site_admin())
+            <label class="share-pick" title="Shortlist this hoarding">
+                <input type="checkbox" class="share-pick-input" value="{{ $m->id }}">
+                <span>Select</span>
+            </label>
+        @endif
         <div class="vs-item-photo">
             @if (isset($covers[$m->id]))
                 <img src="{{ \App\Support\MediaImageUrl::for($covers[$m->id]) }}" alt="{{ $m->media_title }}" loading="lazy">

@@ -82,6 +82,9 @@
     {{-- Custom Website CSS --}}
     <link rel="stylesheet"
         href="{{ asset('asset/css/website_css/style.css') }}?v={{ $cssVersion('asset/css/website_css/style.css') }}">
+    {{-- Shortlist bar / Select ticks (team only); shared with the vendor websites. --}}
+    <link rel="stylesheet"
+        href="{{ asset('asset/css/shortlist.css') }}?v={{ $cssVersion('asset/css/shortlist.css') }}">
 
     {{-- Swal.fire() is only ever called from a handler or a ready callback. --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>

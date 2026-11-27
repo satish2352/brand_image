@@ -107,6 +107,9 @@ Route::middleware('SuperAdmin')->prefix('admin-vendor')->name('admin.vendor.')->
     Route::post('operations/{id}/share', [\App\Http\Controllers\Superadm\OperationsController::class, 'share'])->whereNumber('id')->name('operations.share');
     Route::post('operations/{id}/complete', [\App\Http\Controllers\Superadm\OperationsController::class, 'complete'])->whereNumber('id')->name('operations.complete');
 
+    // Enquiries from every vendor's website Contact page (read-only here; the vendor works them).
+    Route::get('enquiries', [VendorPortalController::class, 'enquiries'])->name('enquiries');
+
     Route::get('notifications', [VendorPortalController::class, 'notifications'])->name('notifications');
     Route::post('notifications/read-all', [VendorPortalController::class, 'readAllNotifications'])->name('notifications.read-all');
     Route::get('notifications/{id}/open', [VendorPortalController::class, 'openNotification'])->whereNumber('id')->name('notifications.open');

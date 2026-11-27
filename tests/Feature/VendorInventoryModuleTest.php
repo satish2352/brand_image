@@ -342,6 +342,24 @@ class VendorInventoryModuleTest extends TestCase
         $this->post(route('vendor.login.submit'), ['email' => $this->vendor->email, 'password' => 'NewPass123'])->assertRedirect(route('vendor.dashboard'));
     }
 
+    public function test_vendor_website_shortlist_is_for_brand_adda_admins_only(): void
+    {
+        $this->makeMedia($this->vendor, ['media_title' => 'Shortlist Site']);
+        $site = route('vendor-site.show', $this->vendor->slug);
+
+        // The vendor (or a verified visitor) sees no Select ticks or shortlist bar.
+        $this->asVendor()->get($site)->assertOk()->assertSee('Shortlist Site')
+            ->assertDontSee('class="share-pick-input"', false)->assertDontSee('id="shareBar"', false);
+
+        // A Brand Adda admin signed in on the site gets the same shortlist as /search.
+        $this->flushSession();
+        auth('vendor')->logout();
+        $adminId = DB::table('users')->value('id') ?? 1;
+        $this->withSession(['site_admin_id' => $adminId, 'user_id' => $adminId])->get($site)->assertOk()
+            ->assertSee('class="share-pick-input"', false)->assertSee('Select all loaded')
+            ->assertSee('id="shareBar"', false)->assertSee(route('shared.link.store'), false);
+    }
+
     public function test_operations_include_vendor_booked_dates_without_an_order(): void
     {
         $media = $this->makeMedia($this->vendor, ['media_title' => 'Vendor Booked Site']);
@@ -568,6 +586,13 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertSame('priya@example.test', $enquiry->email);
         $this->assertSame($media->id, (int) $enquiry->media_id);
         $this->assertTrue(PanelNotification::forVendor($this->vendor->id)->where('type', 'enquiry_received')->exists());
+
+        // Brand Adda is told too and sees it in Super Admin → Vendor Enquiries (with the vendor filter and popup).
+        $this->assertTrue(PanelNotification::forAdmin()->where('type', 'enquiry_received')->where('vendor_id', $this->vendor->id)->exists());
+        $this->asAdmin()->get(route('admin.vendor.enquiries', ['vendor_id' => $this->vendor->id]))->assertOk()
+            ->assertSee($enquiry->name)->assertSee($this->vendor->vendor_name);
+        $this->asAdmin()->get(route('admin.vendor.enquiries', ['open' => $enquiry->id]))->assertOk()
+            ->assertSee('id="eqModal"', false)->assertSee($enquiry->email);
 
         // Another vendor's media id is not attached.
         $other = $this->makeMedia($this->otherVendor);

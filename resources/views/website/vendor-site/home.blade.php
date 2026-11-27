@@ -267,6 +267,17 @@
 
         <div class="vs-split">
         <div class="vs-list" id="vsList">
+        {{-- Brand Adda team only (as on /search): tick every card loaded so far. More cards
+             load as the list scrolls, hence "loaded". --}}
+        @if (site_admin() && $media->isNotEmpty())
+            <div class="share-toolbar" style="margin:0 0 14px">
+                <label class="share-all">
+                    <input type="checkbox" id="shareSelectAll">
+                    <span>Select all loaded</span>
+                </label>
+                <span class="share-toolbar-hint" id="shareToolbarHint"></span>
+            </div>
+        @endif
         <div id="vsGrid" aria-live="polite">
             @if ($media->isEmpty())
                 <p style="color:#475569">No media matches these filters.</p>
@@ -295,9 +306,68 @@
         </div>
     </section>
 
+    {{-- Shortlist bar + share dialog (Share selected / PPT / Excel): the same one /search uses.
+         Renders only for a logged-in Brand Adda admin; its endpoints check that again. --}}
+    @include('website.includes.share-link')
+
 @endsection
 
 @section('scripts')
+    @if (site_admin())
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="{{ asset('asset/css/shortlist.css') }}?v={{ @filemtime(public_path('asset/css/shortlist.css')) }}">
+        <script>
+            // Ticks on the vendor cards feed the shared shortlist (window.BrandAddaShare),
+            // exactly as the cards on /search do.
+            (function () {
+                const share = window.BrandAddaShare;
+                if (!share) return;
+                const grid = document.getElementById('vsGrid');
+                const selectAll = document.getElementById('shareSelectAll');
+                const hintEl = document.getElementById('shareToolbarHint');
+                const boxes = () => Array.from(grid.querySelectorAll('.share-pick-input'));
+
+                function setBox(box, on) {
+                    box.checked = on;
+                    share.toggle(box.value, on);
+                    box.closest('.vs-item')?.classList.toggle('is-picked', on);
+                }
+
+                // Master tick: checked when every loaded card is picked, partial otherwise.
+                share.onRender(function () {
+                    const all = boxes(), ticked = all.filter(b => b.checked).length;
+                    if (selectAll) {
+                        selectAll.checked = all.length > 0 && ticked === all.length;
+                        selectAll.indeterminate = ticked > 0 && ticked < all.length;
+                    }
+                    if (hintEl) hintEl.textContent = all.length ? ticked + ' of ' + all.length + ' selected' : '';
+                });
+                share.onClear(function () {
+                    boxes().forEach(function (b) { b.checked = false; b.closest('.vs-item')?.classList.remove('is-picked'); });
+                });
+                if (selectAll) {
+                    selectAll.addEventListener('change', function () {
+                        const on = selectAll.checked; // read once: each tick re-renders the master box
+                        boxes().forEach(b => setBox(b, on));
+                    });
+                }
+                // (The tick sits above the card's full-card link, so ticking never opens the card.)
+                grid.addEventListener('change', function (e) {
+                    const box = e.target.closest('.share-pick-input');
+                    if (box) setBox(box, box.checked);
+                });
+
+                // Cards loaded while scrolling: show ticks for ones already shortlisted, update the hint.
+                new MutationObserver(function () {
+                    boxes().forEach(function (b) {
+                        if (share.has(b.value) && !b.checked) { b.checked = true; b.closest('.vs-item')?.classList.add('is-picked'); }
+                    });
+                    share.refresh();
+                }).observe(grid, { childList: true });
+                share.refresh();
+            })();
+        </script>
+    @endif
     @include('website.vendor-site.partials.map-kit')
     <script>
         // ---------- Filter panel ----------

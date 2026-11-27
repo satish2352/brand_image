@@ -510,6 +510,15 @@ class VendorSiteController extends Controller
             route('vendor.enquiries', ['open' => $enquiry->id]),
             $enquiry->media_id
         );
+        // Brand Adda sees every vendor's enquiries too (Super Admin → Vendor Enquiries).
+        \App\Support\VendorAudit::notifyAdmin(
+            'enquiry_received',
+            'New enquiry for ' . $vendor->vendor_name . ' from ' . $enquiry->name,
+            \Illuminate\Support\Str::limit($enquiry->message, 120) . $about,
+            route('admin.vendor.enquiries', ['open' => $enquiry->id]),
+            $vendor->id,
+            $enquiry->media_id
+        );
 
         return redirect()->route('vendor-site.contact', $vendor->slug)->with('enquiry_sent', true);
     }

@@ -231,6 +231,14 @@
                 <span>Operations</span>
             </a>
         </li>
+        @php $vpNewEnquiries = \App\Models\VendorEnquiry::where('status', 'new')->count(); @endphp
+        <li class="nav-item {{ request()->routeIs('admin.vendor.enquiries') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.enquiries') }}">
+                <i class="mdi mdi-email-multiple-outline"></i>
+                <span>Vendor Enquiries</span>
+                @if ($vpNewEnquiries)<span class="badge badge-warning ml-1">{{ $vpNewEnquiries }}</span>@endif
+            </a>
+        </li>
         <li class="nav-item {{ request()->routeIs('media.insights.usage') ? 'active' : '' }}">
             <a href="{{ route('media.insights.usage') }}">
                 <i class="mdi mdi-chart-donut"></i>

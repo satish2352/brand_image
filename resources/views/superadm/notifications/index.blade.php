@@ -14,6 +14,7 @@
         'monitoring_photos'    => ['mdi-camera', '#166534', '#DCFCE7'],
         'end_date_photos'      => ['mdi-camera', '#166534', '#DCFCE7'],
         'media_removed'        => ['mdi-check-all', '#166534', '#DCFCE7'],
+        'enquiry_received'     => ['mdi-email-alert-outline', '#9A3412', '#FFEDD5'],
     ];
 @endphp
 

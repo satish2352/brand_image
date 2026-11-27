@@ -341,6 +341,57 @@ class VendorPortalController extends Controller
         ]);
     }
 
+    /* ------------------------------ enquiries ------------------------------ */
+
+    /**
+     * Enquiries sent from every vendor's website Contact page. Read-only for
+     * Brand Adda: the vendor works them and sets their status in its panel.
+     */
+    public function enquiries(Request $request)
+    {
+        $vendorId = (int) $request->vendor_id ?: null;
+        $status   = array_key_exists((string) $request->status, \App\Models\VendorEnquiry::STATUSES) ? $request->status : null;
+        $term     = trim((string) $request->q);
+
+        // Columns named with their table: the list joins vendors, which has email / mobile too.
+        $base = \App\Models\VendorEnquiry::query()
+            ->when($vendorId, fn ($q) => $q->where('vendor_enquiries.vendor_id', $vendorId))
+            ->when($term !== '', function ($q) use ($term) {
+                $like = '%' . addcslashes($term, '\\%_') . '%';
+                $q->where(function ($w) use ($like) {
+                    foreach (['name', 'email', 'mobile', 'company', 'city', 'message'] as $col) {
+                        $w->orWhere('vendor_enquiries.' . $col, 'like', $like);
+                    }
+                });
+            });
+
+        $perPage = in_array((int) $request->per_page, [10, 20, 50, 100], true) ? (int) $request->per_page : 20;
+
+        $enquiries = (clone $base)
+            ->when($status, fn ($q) => $q->where('vendor_enquiries.status', $status))
+            ->with(['media:id,hoarding_code,media_code,media_title'])
+            ->leftJoin('vendors as v', 'v.id', '=', 'vendor_enquiries.vendor_id')
+            ->select('vendor_enquiries.*', 'v.vendor_name', 'v.slug as vendor_slug')
+            ->latest('vendor_enquiries.created_at')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $selected = $request->open
+            ? \App\Models\VendorEnquiry::with('media')->leftJoin('vendors as v', 'v.id', '=', 'vendor_enquiries.vendor_id')
+                ->select('vendor_enquiries.*', 'v.vendor_name')->find((int) $request->open)
+            : null;
+
+        return view('superadm.vendor-portal.enquiries', [
+            'enquiries' => $enquiries,
+            'selected'  => $selected,
+            'status'    => $status,
+            'vendorId'  => $vendorId,
+            'counts'    => (clone $base)->selectRaw('vendor_enquiries.status, COUNT(*) as total')->groupBy('vendor_enquiries.status')->pluck('total', 'status'),
+            'vendors'   => $this->vendors(),
+            'perPage'   => $perPage,
+        ]);
+    }
+
     /* --------------------------- notifications ----------------------------- */
 
     public function notifications()
