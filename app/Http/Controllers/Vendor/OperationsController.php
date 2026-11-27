@@ -54,7 +54,8 @@ class OperationsController extends Controller
         $selected = null;
         $photos = [];
         if ($stage !== 'pending') {
-            $selected = $request->op ? $all->firstWhere('id', (int) $request->op) : $list->first();
+            // A linked booking (?op=) if it is in this stage, else the first one listed.
+            $selected = ($request->op ? $all->firstWhere('id', (int) $request->op) : null) ?? $list->first();
             if ($selected) {
                 $photos = $this->ops->photosByStage($this->ops->findOwned($vendor->id, $selected->id));
             }
