@@ -309,17 +309,19 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor()->get(route('vendor.dashboard'))->assertOk()
             ->assertSee(route('vendor.profile'), false)->assertSee(route('vendor.password'), false)->assertSee('Change Password');
 
-        // Profile: company name, mobile and address are editable; email / code are not.
-        $this->asVendor()->get(route('vendor.profile'))->assertOk()->assertSee($this->vendor->email)->assertSee($this->vendor->vendor_code);
-        $this->asVendor()->post(route('vendor.profile.update'), ['company_name' => 'Alpha Outdoor', 'mobile' => '12345', 'address' => 'Some street, Nashik'])
-            ->assertSessionHasErrors('mobile');
+        // Profile: only the address is editable; company name, email and mobile are shown read-only.
+        $before = $this->vendor->fresh();
+        $this->asVendor()->get(route('vendor.profile'))->assertOk()->assertSee($this->vendor->email)->assertSee($this->vendor->vendor_code)
+            ->assertSee('name="address"', false)->assertDontSee('name="company_name"', false)->assertDontSee('name="mobile"', false);
+        $this->asVendor()->post(route('vendor.profile.update'), ['address' => 'abc'])->assertSessionHasErrors('address');
         $this->asVendor()->post(route('vendor.profile.update'), [
-            'company_name' => 'Alpha Outdoor', 'mobile' => '9876543210', 'address' => 'Some street, Nashik', 'email' => 'hacker@example.test',
+            'address' => 'Some street, Nashik', 'company_name' => 'Hacked Co', 'mobile' => '9000000001', 'email' => 'hacker@example.test',
         ])->assertRedirect(route('vendor.profile'))->assertSessionHas('success');
         $fresh = $this->vendor->fresh();
-        $this->assertSame('Alpha Outdoor', $fresh->company_name);
-        $this->assertSame('9876543210', (string) $fresh->mobile);
-        $this->assertNotSame('hacker@example.test', $fresh->email);
+        $this->assertSame('Some street, Nashik', $fresh->address);
+        $this->assertSame((string) $before->company_name, (string) $fresh->company_name);
+        $this->assertSame((string) $before->mobile, (string) $fresh->mobile);
+        $this->assertSame($before->email, $fresh->email);
 
         // Password: wrong current, weak or mismatched new passwords are refused.
         $this->asVendor()->get(route('vendor.password'))->assertOk();

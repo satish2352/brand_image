@@ -21,10 +21,12 @@
             </div>
             @php
                 $info = [
-                    'Vendor Name'  => $vendor->vendor_name,
-                    'Vendor Code'  => $vendor->vendor_code,
-                    'Login Email'  => $vendor->email,
-                    'Location'     => $location ?: '—',
+                    'Vendor Name'   => $vendor->vendor_name,
+                    'Company Name'  => $vendor->company_name,
+                    'Vendor Code'   => $vendor->vendor_code,
+                    'Login Email'   => $vendor->email,
+                    'Mobile Number' => $vendor->mobile,
+                    'Location'      => $location ?: '—',
                     'Last Login'   => $vendor->last_login_at ? $vendor->last_login_at->format('d M Y, h:i A') : '—',
                 ];
             @endphp
@@ -37,23 +39,14 @@
                         <dd style="margin:3px 0 0;font-size:15px;font-weight:700;word-break:break-all"><a href="{{ url($vendor->slug) }}" target="_blank" rel="noopener">{{ url($vendor->slug) }}</a></dd></div>
                 @endif
             </dl>
-            <p class="vp-muted" style="margin:16px 0 0;font-size:12px">To change your vendor name, login email or location, contact Brand Adda.</p>
+            <p class="vp-muted" style="margin:16px 0 0;font-size:12px">To change your vendor name, company name, login email, mobile number or location, contact Brand Adda.</p>
         </section>
 
         <section class="vp-card vp-card-pad" style="flex:2 1 420px">
             <h2 class="vp-h2" style="margin-bottom:16px">Edit Profile</h2>
+            {{-- Only the address is editable; company name, email and mobile are managed by Brand Adda. --}}
             <form method="POST" action="{{ route('vendor.profile.update') }}" style="display:flex;flex-direction:column;gap:16px" novalidate>
                 @csrf
-                <div>
-                    <label class="vp-label" for="company_name">Company Name <span class="vp-muted" style="font-weight:400">(optional; shown on your website and panel)</span></label>
-                    <input id="company_name" name="company_name" type="text" maxlength="255" class="vp-input" value="{{ old('company_name', $vendor->company_name) }}" placeholder="{{ $vendor->vendor_name }}">
-                    @error('company_name')<div style="color:#B91C1C;font-size:13px;margin-top:4px">{{ $message }}</div>@enderror
-                </div>
-                <div>
-                    <label class="vp-label" for="mobile">Mobile Number <span style="color:#B91C1C">*</span></label>
-                    <input id="mobile" name="mobile" type="tel" inputmode="numeric" maxlength="10" class="vp-input" value="{{ old('mobile', $vendor->mobile) }}" required>
-                    @error('mobile')<div style="color:#B91C1C;font-size:13px;margin-top:4px">{{ $message }}</div>@enderror
-                </div>
                 <div>
                     <label class="vp-label" for="address">Address <span style="color:#B91C1C">*</span></label>
                     <textarea id="address" name="address" class="vp-input" maxlength="1000" required>{{ old('address', $vendor->address) }}</textarea>
@@ -65,9 +58,3 @@
     </div>
 @endsection
 
-@section('scripts')
-    <script>
-        // Mobile: digits only.
-        document.getElementById('mobile').addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').slice(0, 10); });
-    </script>
-@endsection

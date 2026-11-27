@@ -12,8 +12,8 @@ use Illuminate\Validation\Rules\Password;
 /**
  * The signed-in vendor's own profile and password (header menu of the vendor panel).
  *
- * The vendor may change its company name, mobile and address. Vendor name, code,
- * login email, location and website address are managed by Brand Adda
+ * The vendor may change only its address. Vendor name, company name, code, login
+ * email, mobile, location and website address are managed by Brand Adda
  * (Super Admin → Master → Vendor) and are shown read-only.
  */
 class ProfileController extends Controller
@@ -44,20 +44,15 @@ class ProfileController extends Controller
     {
         $vendor = $this->vendor();
 
-        // Same rules as the Super Admin vendor form.
+        // Only the address is taken; any other posted field (company name, mobile, email…) is ignored.
         $data = $request->validate([
-            'company_name' => 'nullable|string|max:255',
-            'mobile'       => ['required', 'regex:/^[6-9][0-9]{9}$/'],
-            'address'      => 'required|string|min:5|max:1000',
-        ], [
-            'mobile.regex' => 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.',
+            'address' => 'required|string|min:5|max:1000',
         ]);
 
-        $before = $vendor->only(['company_name', 'mobile', 'address']);
-        $vendor->fill($data)->save();
+        $before = $vendor->only(['address']);
+        $vendor->forceFill(['address' => $data['address']])->save();
 
-        $changes = VendorAudit::diff($before, $vendor->only(['company_name', 'mobile', 'address']),
-            ['company_name' => 'Company name', 'mobile' => 'Mobile', 'address' => 'Address']);
+        $changes = VendorAudit::diff($before, $vendor->only(['address']), ['address' => 'Address']);
         if ($changes) {
             VendorAudit::vendorDid($vendor, 'Profile Updated', $changes);
         }
