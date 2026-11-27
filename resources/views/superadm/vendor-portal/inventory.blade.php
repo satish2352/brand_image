@@ -5,6 +5,16 @@
         .vi-card { background: #fff; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, .06); margin-bottom: 24px; overflow: hidden; }
         .vi-card-header { background: #00929c; color: #fff; padding: 12px 20px; font-weight: 600; font-size: 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
         .vi-card-body { padding: 20px; }
+        .vi-pager { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid #e5e7eb; }
+        .vi-pager-info { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; color: #6b7280; font-size: 13px; }
+        .vi-pager-size { display: flex; gap: 6px; align-items: center; margin: 0; }
+        .vi-pager-size label { margin: 0; }
+        .vi-pager-size select { width: auto !important; }
+        .vi-pager .pagination { margin: 0; }
+        .vi-pager .page-item.active .page-link { background: #00929c; border-color: #00929c; }
+        .vi-pager .page-link { color: #00929c; }
+        .vi-vsearch { display: flex; gap: 6px; align-items: center; margin: 0; }
+        .vi-vsearch input { min-width: 240px; height: 34px; border-radius: 6px; border: 0; padding: 0 10px; font-size: 14px; }
         .vi-muted { color: #6b7280; font-size: 13px; }
         .vi-table { font-size: 14px; margin-bottom: 0; }
         .vi-table thead th { background: #f8fafc; color: #374151; font-weight: 600; font-size: 13px; border-bottom: 1px solid #e5e7eb; white-space: nowrap; position: sticky; top: 0; z-index: 1; }
@@ -61,8 +71,18 @@
         {{-- ================= VENDORS ================= --}}
         <div class="vi-card">
             <div class="vi-card-header">
-                <span>Vendors</span>
-                <span style="font-weight:400;font-size:14px">{{ $summary->count() }} vendors</span>
+                <span>Vendors <span style="font-weight:400;font-size:14px">({{ $summary->total() }})</span></span>
+                {{-- Vendor search (server-side): name, code, email or site address. --}}
+                <form method="GET" action="{{ route('admin.vendor.inventory') }}" class="vi-vsearch" role="search">
+                    @foreach (request()->except(['vq', 'page']) as $k => $v)
+                        @if (is_string($v))<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
+                    @endforeach
+                    <input type="search" name="vq" value="{{ request('vq') }}" placeholder="Search vendor name, code, email…" aria-label="Search vendors">
+                    <button class="btn btn-sm vi-header-btn"><i class="mdi mdi-magnify"></i> Search</button>
+                    @if (request('vq'))
+                        <a href="{{ route('admin.vendor.inventory', request()->except(['vq', 'page'])) }}" class="btn btn-sm vi-header-btn">Clear</a>
+                    @endif
+                </form>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover vi-table">
@@ -77,9 +97,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($summary as $s)
+                        @forelse ($summary as $s)
                             <tr class="{{ $vendorId === $s->id ? 'vi-selected-row' : '' }}">
-                                <td class="text-center vi-muted">{{ $loop->iteration }}</td>
+                                <td class="text-center vi-muted">{{ $summary->firstItem() + $loop->index }}</td>
                                 <td style="min-width:220px">
                                     <strong>{{ $s->vendor_name }}</strong>
                                     @unless ($s->is_active)<span class="vi-badge vi-rejected ml-1">Inactive</span>@endunless
@@ -120,10 +140,22 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr><td colspan="6" class="text-center vi-muted py-4">
+                                @if (filled(request('vq')))
+                                    No vendors match “{{ request('vq') }}”.
+                                    <a href="{{ route('admin.vendor.inventory', request()->except(['vq', 'page'])) }}">Clear search</a>
+                                @elseif ($summary->total())
+                                    No vendors on this page. <a href="{{ route('admin.vendor.inventory', request()->except(['page'])) }}">Go to the first page</a>
+                                @else
+                                    No vendors yet.
+                                @endif
+                            </td></tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
+            @include('superadm.vendor-portal._pager', ['page' => $summary, 'sizeKey' => 'per_page', 'size' => $perPage, 'noun' => 'vendors'])
         </div>
 
         <div id="manage"></div>
@@ -144,14 +176,17 @@
                             <span class="vi-muted">Managing</span>
                             <b>{{ $vendor->vendor_name }}</b>
                         </div>
-                        <div class="vi-stat"><span class="vi-muted">Assigned media</span><b>{{ $assigned->count() }}</b></div>
-                        <div class="vi-stat"><span class="vi-muted">Pending approval</span><b>{{ $assigned->where('approval_status', 'pending')->count() }}</b></div>
+                        <div class="vi-stat"><span class="vi-muted">Assigned media</span><b>{{ $assigned->total() }}</b></div>
+                        <div class="vi-stat"><span class="vi-muted">Pending approval</span><b>{{ $assignedPending }}</b></div>
                     </div>
                     <form method="GET" action="{{ route('admin.vendor.inventory') }}#manage" class="d-flex" style="gap:8px">
+                        @foreach (request()->except(['q', 'mpage', 'vendor_id']) as $k => $v)
+                            @if (is_string($v))<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
+                        @endforeach
                         <input type="hidden" name="vendor_id" value="{{ $vendorId }}">
                         <input type="search" name="q" value="{{ request('q') }}" class="form-control" style="min-width:260px" placeholder="Search code, title or area" aria-label="Search media">
                         <button class="btn btn-info"><i class="mdi mdi-magnify"></i> Search</button>
-                        @if (request('q'))<a href="{{ route('admin.vendor.inventory', ['vendor_id' => $vendorId]) }}#manage" class="btn btn-outline-secondary">Clear</a>@endif
+                        @if (request('q'))<a href="{{ route('admin.vendor.inventory', request()->except(['q', 'mpage'])) }}#manage" class="btn btn-outline-secondary">Clear</a>@endif
                     </form>
                 </div>
             </div>
@@ -164,12 +199,14 @@
                         @csrf
                         <input type="hidden" name="vendor_id" value="{{ $vendorId }}">
                         <div class="vi-card-header">
-                            <span>Assigned to {{ $vendor->vendor_name }} ({{ $assigned->count() }})</span>
+                            <span>Assigned to {{ $vendor->vendor_name }} ({{ $assigned->total() }})</span>
                             <button type="submit" class="btn btn-sm vi-header-btn danger js-pick-submit" disabled>
                                 <i class="mdi mdi-minus-circle"></i> Remove Selected <span class="js-pick-count"></span></button>
                         </div>
-                        @include('superadm.vendor-portal._media-pick', ['rows' => $assigned, 'showVendor' => false])
+                        @include('superadm.vendor-portal._media-pick', ['rows' => $assigned, 'showVendor' => false, 'offset' => max(0, ($assigned->firstItem() ?? 1) - 1)])
                     </form>
+                    {{-- Outside the Remove form so the "Show" selector never submits it. --}}
+                    @include('superadm.vendor-portal._pager', ['page' => $assigned, 'sizeKey' => 'mper_page', 'size' => $mPerPage, 'noun' => 'media', 'pageKey' => 'mpage', 'anchor' => 'manage'])
                 </div>
             </div>
         @endif

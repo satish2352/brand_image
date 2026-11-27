@@ -192,27 +192,51 @@ class VendorPortalController extends Controller
             ->select(['m.id', 'm.hoarding_code', 'm.media_code', 'm.media_title', 'm.price', 'm.is_active', 'm.approval_status',
                 'v.vendor_name', 'c.category_name', 'cty.city_name', 'a.area_name']);
 
-        $assigned = $vendorId ? (clone $base)->where('m.vendor_id', $vendorId)->orderByDesc('m.id')->get() : collect();
+        // Server-side paging: the vendor list uses ?page / ?per_page, the selected vendor's
+        // media its own ?mpage / ?mper_page, so paging one list never resets the other.
+        $sizes = [10, 20, 50, 100];
+        $perPage  = in_array((int) $request->per_page, $sizes, true) ? (int) $request->per_page : 10;
+        $mPerPage = in_array((int) $request->mper_page, $sizes, true) ? (int) $request->mper_page : 20;
+
+        $assigned = null;
+        $assignedPending = 0;
+        if ($vendorId) {
+            $own = (clone $base)->where('m.vendor_id', $vendorId);
+            $assignedPending = (clone $own)->where('m.approval_status', 'pending')->count();
+            $assigned = $own->orderByDesc('m.id')->paginate($mPerPage, ['*'], 'mpage')->withQueryString()->fragment('manage');
+        }
 
         $summary = DB::table('vendors as v')
             ->leftJoin('media_management as m', function ($j) {
                 $j->on('m.vendor_id', '=', 'v.id')->where('m.is_deleted', 0);
             })
             ->where('v.is_deleted', 0)
+            // Vendor search: name, code, email or site address.
+            ->when(trim((string) $request->vq) !== '', function ($q) use ($request) {
+                $like = '%' . addcslashes(trim((string) $request->vq), '\\%_') . '%';
+                $q->where(fn ($w) => $w->where('v.vendor_name', 'like', $like)->orWhere('v.vendor_code', 'like', $like)
+                    ->orWhere('v.email', 'like', $like)->orWhere('v.slug', 'like', $like));
+            })
             ->groupBy('v.id', 'v.vendor_name', 'v.vendor_code', 'v.email', 'v.slug', 'v.credentials_sent_at', 'v.last_login_at', 'v.is_active')
             ->orderByDesc('v.id')
-            ->get([
+            ->select([
                 'v.id', 'v.vendor_name', 'v.vendor_code', 'v.email', 'v.slug', 'v.credentials_sent_at', 'v.last_login_at', 'v.is_active',
                 DB::raw('COUNT(m.id) as total'),
                 DB::raw("SUM(CASE WHEN m.approval_status = 'pending' THEN 1 ELSE 0 END) as pending"),
-            ]);
+            ])
+            ->paginate($perPage)
+            ->withQueryString();
 
         return view('superadm.vendor-portal.inventory', [
             'vendors'  => $this->vendors(),
             'vendorId' => $vendorId,
             'vendor'   => $vendorId ? Vendor::find($vendorId) : null,
             'assigned' => $assigned,
+            'assignedPending' => $assignedPending,
             'summary'  => $summary,
+            'perPage'  => $perPage,
+            'mPerPage' => $mPerPage,
+            'pageSizes' => $sizes,
         ]);
     }
 

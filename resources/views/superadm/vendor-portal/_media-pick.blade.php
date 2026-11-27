@@ -19,7 +19,7 @@
                 @endphp
                 <tr data-pick style="cursor:pointer">
                     <td><input type="checkbox" class="vi-check" name="media_ids[]" value="{{ $r->id }}" aria-label="Select {{ $r->hoarding_code ?: $r->media_title }}"></td>
-                    <td class="text-center vi-muted">{{ $loop->iteration }}</td>
+                    <td class="text-center vi-muted">{{ ($offset ?? 0) + $loop->iteration }}</td>
                     <td class="text-nowrap">
                         <a href="{{ route('admin.vendor.approvals.show', $r->id) }}" title="Open details"><strong>{{ $r->hoarding_code ?: '—' }}</strong></a>
                     </td>
