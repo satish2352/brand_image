@@ -38,6 +38,41 @@
 
 
 
+    /* Long menu names ("Vendor Inventory & Access", "API Request Manager") wrap
+       beside their icon instead of being cut off: satish.css sets every menu
+       label to white-space: nowrap. */
+    .sidebar-nav #sidebarnav > li > a {
+        display: flex;
+        align-items: center;
+        white-space: normal;
+        line-height: 1.3;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > i {
+        flex: 0 0 auto;
+    }
+
+    /* The theme keeps 35px on the right of every link for a dropdown arrow;
+       only menus with a submenu (Master, Reports) need it. */
+    .sidebar-nav #sidebarnav > li:not(.has-sub) > a {
+        padding-left: 12px;
+        padding-right: 6px;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > i {
+        width: 26px;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > span {
+        white-space: normal;
+        min-width: 0;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > span.badge {
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+
     .nav-item.has-sub .submenu {
         display: none;
     }
