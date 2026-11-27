@@ -23,10 +23,11 @@
                 <select id="r-md" name="media_id" class="vp-input"><option value="">All Media</option>
                     @foreach ($allMedia as $m)<option value="{{ $m->id }}" @selected(request('media_id') == $m->id)>{{ $m->hoarding_code ?: $m->media_code }} · {{ $m->media_title }}</option>@endforeach</select></div>
             <div><label class="vp-label" for="r-q">Search</label><input id="r-q" type="search" name="q" class="vp-input" placeholder="Media or user name" value="{{ request('q') }}"></div>
-        </div>
-        <div class="vp-filter-actions">
-            <a href="{{ route('vendor.reports.utilisation') }}" class="vp-btn vp-btn-g">Reset</a>
-            <button type="submit" class="vp-btn vp-btn-n">Apply</button>
+            {{-- Filter / Reset on the same row as the fields, at the right end. --}}
+            <div class="vp-filter-inline">
+                <button type="submit" class="vp-btn vp-btn-n"><i class="fa-solid fa-filter"></i>Filter</button>
+                <a href="{{ route('vendor.reports.utilisation') }}" class="vp-btn vp-btn-g"><i class="fa-solid fa-rotate-left"></i>Reset</a>
+            </div>
         </div>
     </form>
 

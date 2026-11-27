@@ -18,6 +18,8 @@
                     <option value="">All time</option>
                     @foreach ([7 => 'Last 7 days', 30 => 'Last 30 days', 90 => 'Last 90 days'] as $d => $l)<option value="{{ $d }}" @selected(request('days') == $d)>{{ $l }}</option>@endforeach
                 </select>
+                {{-- Clears both filters (All activities, All time). --}}
+                <a href="{{ route('vendor.activity') }}" class="vp-btn vp-btn-g" title="Clear filters"><i class="fa-solid fa-rotate-left"></i>Reset</a>
             </div>
         </form>
         <div class="vp-table-wrap">
@@ -36,7 +38,13 @@
                             <td class="nowrap" style="color:#334155">{{ $l->actor_type === 'admin' ? 'Brand Adda · ' . $l->actor_name : $l->actor_name }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" style="text-align:center;padding:40px;color:#475569">No activity yet.</td></tr>
+                        <tr><td colspan="6" style="text-align:center;padding:40px;color:#475569">
+                            @if (request('action') || request('days'))
+                                No activity matches these filters. <a href="{{ route('vendor.activity') }}" style="font-weight:700">Reset filters</a>
+                            @else
+                                No activity yet.
+                            @endif
+                        </td></tr>
                     @endforelse
                 </tbody>
             </table>

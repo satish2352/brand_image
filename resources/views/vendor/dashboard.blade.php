@@ -44,7 +44,7 @@
         }
 
         /* ---------- KPI cards ---------- */
-        .db-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+        .db-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
         @media (max-width: 1280px) { .db-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
         @media (max-width: 720px) { .db-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         .db-kpi { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 18px 18px 16px; text-decoration: none !important; color: #0F172A;
@@ -116,9 +116,18 @@
     @php
         $total = max(0, (int) $status['total']);
         $pct = fn ($n) => $total > 0 ? round($n * 100 / $total) : 0;
+        // Total Media counts every media of the vendor (approved, pending and rejected), like
+        // Media Management; the status tiles after it cover approved media, which can be booked.
+        $totalHint = collect(['approved' => 'approved', 'pending' => 'pending', 'rejected' => 'rejected'])
+            ->filter(fn ($l, $k) => ($approval[$k] ?? 0) > 0)
+            ->map(fn ($l, $k) => $approval[$k] . ' ' . $l)
+            ->implode(' · ') ?: 'No media yet';
         $tiles = [
             // label, value, hint, colour, tint, icon, link
-            ['Total Media', $status['total'], 'Approved & assigned', '#EA580C', '#FFF7ED', 'fa-solid fa-rectangle-ad', route('vendor.inventory')],
+            ['Total Media', $approval['all'], $totalHint, '#EA580C', '#FFF7ED', 'fa-solid fa-rectangle-ad', route('vendor.inventory')],
+            // Waiting for Brand Adda's approval; its bar is its share of all media (8th item = own percentage).
+            ['Pending Approval', $approval['pending'], 'Awaiting Brand Adda', '#C2410C', '#FFEDD5', 'fa-solid fa-hourglass-half',
+                route('vendor.inventory', ['approval' => 'pending']), $approval['all'] ? round($approval['pending'] * 100 / $approval['all']) : 0],
             ['Available', $status['available'], 'Open for booking', '#16A34A', '#DCFCE7', 'fa-solid fa-circle-check', route('vendor.availability')],
             ['Booked', $status['booked'], 'Active booking', '#2563EB', '#DBEAFE', 'fa-solid fa-calendar-check', route('vendor.bookings')],
             ['Blocked', $status['blocked'], 'Held for dates', '#DC2626', '#FEE2E2', 'fa-solid fa-ban', route('vendor.availability')],
@@ -170,12 +179,16 @@
 
         {{-- ================= KPIs ================= --}}
         <section class="db-kpis" aria-label="Inventory summary">
-            @foreach ($tiles as [$label, $value, $sub, $fg, $bg, $icon, $href])
+            @foreach ($tiles as $tile)
+                @php
+                    [$label, $value, $sub, $fg, $bg, $icon, $href] = $tile;
+                    $share = $tile[7] ?? ($loop->first ? null : $pct($value)); // own % if given, else share of approved media
+                @endphp
                 <a href="{{ $href }}" class="vp-card db-kpi" style="--fg:{{ $fg }};--bg:{{ $bg }}">
                     <div class="db-kpi-top"><span>{{ $label }}</span><span class="db-ico" aria-hidden="true"><i class="{{ $icon }}"></i></span></div>
                     <div class="db-kpi-value">{{ $value }}</div>
-                    <div class="db-bar" aria-hidden="true"><span style="width:{{ $loop->first ? ($total ? 100 : 0) : $pct($value) }}%"></span></div>
-                    <div class="db-kpi-sub"><span>{{ $sub }}</span><span>{{ $loop->first ? '' : $pct($value) . '%' }}</span></div>
+                    <div class="db-bar" aria-hidden="true"><span style="width:{{ $loop->first ? ($approval['all'] ? 100 : 0) : $share }}%"></span></div>
+                    <div class="db-kpi-sub"><span>{{ $sub }}</span><span>{{ $loop->first ? '' : $share . '%' }}</span></div>
                 </a>
             @endforeach
         </section>

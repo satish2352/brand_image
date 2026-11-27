@@ -115,6 +115,12 @@ body.vp-body {
 textarea.vp-input { padding: 10px 12px; min-height: 90px; }
 .vp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
 .vp-filter-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 18px; }
+/* Filter / Reset as the last cell of a .vp-grid filter row (same row as the fields). */
+.vp-filter-inline { display: flex; gap: 10px; align-items: flex-end; justify-content: flex-end; }
+.vp-filter-inline .vp-btn { white-space: nowrap; }
+@media (min-width: 1360px) { /* wide enough for six fields plus the two buttons beside the sidebar */
+    .vp-grid:has(> .vp-filter-inline) { grid-template-columns: repeat(var(--vp-fields, 6), minmax(0, 1fr)) auto; }
+}
 
 .vp-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; }
 .vp-kpi { padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
@@ -257,13 +263,15 @@ textarea.vp-input { padding: 10px 12px; min-height: 90px; }
     .vp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .vp-grid .vp-input { padding: 0 8px; }
     .vp-grid-end { grid-column: 1 / -1; }
-    .vp-grid-end .vp-btn, .vp-filter-actions .vp-btn { flex: 1; }
+    .vp-grid-end .vp-btn, .vp-filter-actions .vp-btn, .vp-filter-inline .vp-btn { flex: 1; }
+    .vp-filter-inline { grid-column: 1 / -1; }
     .vp-search { width: 100%; }
     .vp-search .vp-input { width: 100% !important; flex: 1; }
     .vp-acts { width: 100%; }
     .vp-acts .vp-btn { flex: 1; padding: 0 10px; }
     .vp-selects { width: 100%; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
     .vp-selects .vp-input { width: 100%; min-height: 44px; }
+    .vp-selects > .vp-btn { grid-column: 1 / -1; } /* Reset on its own row */
     .vp-tabs { gap: 6px; }
     .vp-body .vp-tab { padding: 0 12px; }
 }
