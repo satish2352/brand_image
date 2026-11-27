@@ -93,7 +93,7 @@
                             <th class="text-center">Media</th>
                             <th class="text-center">Pending</th>
                             <th>Vendor Panel Login</th>
-                            <th class="text-right" style="width:190px">Actions</th>
+                            <th class="text-right" style="width:230px">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -130,12 +130,12 @@
                                         <a href="{{ route('admin.vendor.inventory', ['vendor_id' => $s->id]) }}#manage" class="vi-btn vi-btn-solid">
                                             <i class="mdi mdi-format-list-bulleted"></i><span>Manage Inventory</span></a>
                                         <form method="POST" action="{{ route('admin.vendor.credentials', $s->id) }}" class="js-confirm"
-                                            data-title="{{ $s->credentials_sent_at ? 'Resend login details?' : 'Send login details?' }}"
+                                            data-title="{{ $s->credentials_sent_at ? 'Reshare login details?' : 'Share login details?' }}"
                                             data-text="{{ $s->credentials_sent_at ? 'A NEW password will be generated and emailed to ' . $s->email . '. The old one stops working.' : 'A password will be generated and the login details emailed to ' . $s->email . '.' }}"
-                                            data-button="Yes, send">
+                                            data-button="Yes, share">
                                             @csrf
                                             <button type="submit" class="vi-btn vi-btn-outline">
-                                                <i class="mdi mdi-email-outline"></i><span>{{ $s->credentials_sent_at ? 'Resend Login' : 'Send Login' }}</span></button>
+                                                <i class="mdi mdi-email-outline"></i><span>{{ $s->credentials_sent_at ? 'Reshare Login Details' : 'Share Login Details' }}</span></button>
                                         </form>
                                     </div>
                                 </td>

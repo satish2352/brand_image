@@ -27,6 +27,12 @@ Route::prefix('vendor-panel')->name('vendor.')->group(function () {
 
     Route::middleware('vendor.auth')->group(function () {
         Route::post('logout', [Vendor\AuthController::class, 'logout'])->name('logout');
+
+        // Header menu: own profile and password
+        Route::get('profile', [Vendor\ProfileController::class, 'show'])->name('profile');
+        Route::post('profile', [Vendor\ProfileController::class, 'update'])->name('profile.update');
+        Route::get('change-password', [Vendor\ProfileController::class, 'editPassword'])->name('password');
+        Route::post('change-password', [Vendor\ProfileController::class, 'updatePassword'])->name('password.update')->middleware('throttle:10,1');
         Route::get('/', fn () => redirect()->route('vendor.dashboard'));
         Route::get('dashboard', [Vendor\DashboardController::class, 'index'])->name('dashboard');
 

@@ -267,3 +267,36 @@ textarea.vp-input { padding: 10px 12px; min-height: 90px; }
     .vp-tabs { gap: 6px; }
     .vp-body .vp-tab { padding: 0 12px; }
 }
+
+/* ---------- account menu (header): profile, change password, logout ---------- */
+.vp-user-menu { position: relative; padding-left: 0; }
+.vp-user-btn {
+    display: flex; align-items: center; gap: 10px; padding: 4px 8px 4px 4px; border: 1px solid transparent;
+    border-radius: 999px; background: none; cursor: pointer; font: inherit; color: #0F172A; text-align: left;
+}
+.vp-user-btn:hover, .vp-user-menu.is-open .vp-user-btn { background: #F1F5F9; border-color: #E2E8F0; }
+.vp-user-caret { font-size: 12px; color: #64748B; transition: transform .15s; }
+.vp-user-menu.is-open .vp-user-caret { transform: rotate(180deg); }
+.vp-user-drop {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 1100; min-width: 240px; padding: 6px;
+    background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; box-shadow: 0 16px 36px rgba(15, 23, 42, .16);
+}
+.vp-user-head { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 12px; border-bottom: 1px solid #F1F5F9; margin-bottom: 6px; }
+.vp-user-head strong { font-size: 14px; }
+.vp-user-head span { font-size: 12px; color: #64748B; word-break: break-all; }
+.vp-body .vp-user-drop a, .vp-user-drop button {
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; border-radius: 8px;
+    background: none; color: #0F172A; font: 600 14px 'Montserrat', sans-serif; text-decoration: none; cursor: pointer; text-align: left;
+}
+.vp-body .vp-user-drop a:hover, .vp-user-drop button:hover, .vp-body .vp-user-drop a.is-on { background: #FFF7ED; color: #C2410C; }
+.vp-user-drop i { width: 18px; text-align: center; color: #64748B; }
+.vp-user-drop button { color: #B91C1C; }
+.vp-user-drop button i { color: #B91C1C; }
+@media (max-width: 820px) {
+    .vp-user-text, .vp-user-caret { display: none; }
+}
+@media (max-width: 640px) {
+    /* Keep the account menu on phones as an avatar button. */
+    .vp-top-actions > .vp-user-menu { display: flex; order: 1; flex: none; }
+    .vp-user-btn { padding: 0; }
+}

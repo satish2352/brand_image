@@ -96,11 +96,27 @@
                             <span class="vp-dot">{{ $vpUnread }}</span>
                         @endif
                     </a>
-                    <div class="vp-user">
-                        <div class="vp-avatar">{{ $vendor->initials }}</div>
-                        <div>
-                            <div style="font-size:14px;font-weight:700">{{ $vendor->display_name }}</div>
-                            <div class="vp-muted" style="font-size:12px">Vendor Admin</div>
+                    {{-- Account menu: profile, password, logout. --}}
+                    <div class="vp-user vp-user-menu" id="vpUserMenu">
+                        <button type="button" class="vp-user-btn" aria-haspopup="true" aria-expanded="false" aria-controls="vpUserDrop">
+                            <span class="vp-avatar">{{ $vendor->initials }}</span>
+                            <span class="vp-user-text">
+                                <span style="display:block;font-size:14px;font-weight:700">{{ $vendor->display_name }}</span>
+                                <span class="vp-muted" style="display:block;font-size:12px">Vendor Admin</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down vp-user-caret" aria-hidden="true"></i>
+                        </button>
+                        <div class="vp-user-drop" id="vpUserDrop" role="menu" hidden>
+                            <div class="vp-user-head">
+                                <strong>{{ $vendor->display_name }}</strong>
+                                <span>{{ $vendor->email }}</span>
+                            </div>
+                            <a href="{{ route('vendor.profile') }}" role="menuitem" class="{{ request()->routeIs('vendor.profile') ? 'is-on' : '' }}"><i class="fa-regular fa-user"></i>My Profile</a>
+                            <a href="{{ route('vendor.password') }}" role="menuitem" class="{{ request()->routeIs('vendor.password') ? 'is-on' : '' }}"><i class="fa-solid fa-key"></i>Change Password</a>
+                            <form method="POST" action="{{ route('vendor.logout') }}" style="margin:0">
+                                @csrf
+                                <button type="submit" role="menuitem"><i class="fa-solid fa-right-from-bracket"></i>Logout</button>
+                            </form>
                         </div>
                     </div>
                     <form method="POST" action="{{ route('vendor.logout') }}" class="vp-logout" style="margin:0">
@@ -176,6 +192,21 @@
                 sync();
             });
             sync();
+        })();
+
+        // Account menu (name in the header): open / close on click, close on outside click or Escape.
+        (function () {
+            const menu = document.getElementById('vpUserMenu');
+            if (!menu) return;
+            const btn = menu.querySelector('.vp-user-btn'), drop = document.getElementById('vpUserDrop');
+            function set(open) {
+                drop.hidden = !open;
+                menu.classList.toggle('is-open', open);
+                btn.setAttribute('aria-expanded', String(open));
+            }
+            btn.addEventListener('click', function (e) { e.stopPropagation(); set(drop.hidden); });
+            document.addEventListener('click', function (e) { if (!menu.contains(e.target)) set(false); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !drop.hidden) { set(false); btn.focus(); } });
         })();
 
         // Confirm before any form marked data-confirm is submitted.

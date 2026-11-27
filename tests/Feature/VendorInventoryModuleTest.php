@@ -303,6 +303,43 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertRedirect();
     }
 
+    public function test_vendor_profile_and_password_from_the_header_menu(): void
+    {
+        // Header menu links to both pages.
+        $this->asVendor()->get(route('vendor.dashboard'))->assertOk()
+            ->assertSee(route('vendor.profile'), false)->assertSee(route('vendor.password'), false)->assertSee('Change Password');
+
+        // Profile: company name, mobile and address are editable; email / code are not.
+        $this->asVendor()->get(route('vendor.profile'))->assertOk()->assertSee($this->vendor->email)->assertSee($this->vendor->vendor_code);
+        $this->asVendor()->post(route('vendor.profile.update'), ['company_name' => 'Alpha Outdoor', 'mobile' => '12345', 'address' => 'Some street, Nashik'])
+            ->assertSessionHasErrors('mobile');
+        $this->asVendor()->post(route('vendor.profile.update'), [
+            'company_name' => 'Alpha Outdoor', 'mobile' => '9876543210', 'address' => 'Some street, Nashik', 'email' => 'hacker@example.test',
+        ])->assertRedirect(route('vendor.profile'))->assertSessionHas('success');
+        $fresh = $this->vendor->fresh();
+        $this->assertSame('Alpha Outdoor', $fresh->company_name);
+        $this->assertSame('9876543210', (string) $fresh->mobile);
+        $this->assertNotSame('hacker@example.test', $fresh->email);
+
+        // Password: wrong current, weak or mismatched new passwords are refused.
+        $this->asVendor()->get(route('vendor.password'))->assertOk();
+        $this->asVendor()->post(route('vendor.password.update'), ['current_password' => 'wrong', 'password' => 'NewPass123', 'password_confirmation' => 'NewPass123'])
+            ->assertSessionHasErrors('current_password');
+        $this->asVendor()->post(route('vendor.password.update'), ['current_password' => 'Secret#123', 'password' => 'short', 'password_confirmation' => 'short'])
+            ->assertSessionHasErrors('password');
+        $this->asVendor()->post(route('vendor.password.update'), ['current_password' => 'Secret#123', 'password' => 'NewPass123', 'password_confirmation' => 'Other123'])
+            ->assertSessionHasErrors('password');
+
+        $this->asVendor()->post(route('vendor.password.update'), ['current_password' => 'Secret#123', 'password' => 'NewPass123', 'password_confirmation' => 'NewPass123'])
+            ->assertRedirect(route('vendor.password'))->assertSessionHas('success');
+        $this->assertTrue(Hash::check('NewPass123', $this->vendor->fresh()->password));
+
+        // The new password signs in; the old one no longer does.
+        auth('vendor')->logout();
+        $this->post(route('vendor.login.submit'), ['email' => $this->vendor->email, 'password' => 'Secret#123'])->assertSessionHas('error');
+        $this->post(route('vendor.login.submit'), ['email' => $this->vendor->email, 'password' => 'NewPass123'])->assertRedirect(route('vendor.dashboard'));
+    }
+
     public function test_operations_include_vendor_booked_dates_without_an_order(): void
     {
         $media = $this->makeMedia($this->vendor, ['media_title' => 'Vendor Booked Site']);
