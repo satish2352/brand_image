@@ -297,15 +297,20 @@ class VendorPortalController extends Controller
 
     public function activity(Request $request)
     {
-        $filtered = VendorActivityLog::retained()
+        // Vendor / activity / media-code filters; the summary cards count within these.
+        $base = VendorActivityLog::retained()
             ->when($request->vendor_id, fn ($q, $v) => $q->where('vendor_id', (int) $v))
-            ->when($request->actor, fn ($q, $a) => $q->where('actor_type', $a))
             ->when($request->action, fn ($q, $a) => $q->where('action', $a))
-            ->when($request->from_date, fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
-            ->when($request->to_date, fn ($q, $d) => $q->whereDate('created_at', '<=', $d))
             ->when(trim((string) $request->q), fn ($q, $t) => $q->where('media_code', 'like', '%' . $t . '%'));
 
-        $byActor = (clone $filtered)->selectRaw('actor_type, COUNT(*) as total')->groupBy('actor_type')->pluck('total', 'actor_type');
+        // ...plus "done by" and dates for the list (the cards set these, so they are left out of
+        // the card counts — otherwise picking "By vendors" would show "By Brand Adda" as 0).
+        $filtered = (clone $base)
+            ->when($request->actor, fn ($q, $a) => $q->where('actor_type', $a))
+            ->when($request->from_date, fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
+            ->when($request->to_date, fn ($q, $d) => $q->whereDate('created_at', '<=', $d));
+
+        $byActor = (clone $base)->selectRaw('actor_type, COUNT(*) as total')->groupBy('actor_type')->pluck('total', 'actor_type');
 
         // Server-side pagination: only one page of rows is read from the database.
         $perPage = in_array((int) $request->per_page, [10, 20, 50, 100], true) ? (int) $request->per_page : 10;
@@ -329,7 +334,7 @@ class VendorPortalController extends Controller
                 'total'  => (int) $byActor->sum(),
                 'vendor' => (int) ($byActor['vendor'] ?? 0),
                 'admin'  => (int) ($byActor['admin'] ?? 0),
-                'today'  => (clone $filtered)->whereDate('created_at', now()->toDateString())->count(),
+                'today'  => (clone $base)->whereDate('created_at', now()->toDateString())->count(),
             ],
             'filtered' => collect($request->only(['vendor_id', 'actor', 'action', 'from_date', 'to_date', 'q']))->filter(fn ($v) => filled($v))->isNotEmpty(),
             'perPage'  => $perPage,

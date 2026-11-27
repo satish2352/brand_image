@@ -164,10 +164,12 @@
                 <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
-                            <div class="modal-header">
+                            <div class="modal-header" style="align-items:center">
                                 <h5 class="modal-title">Notifications</h5>
+                                <a href="javascript:void(0)" id="markAllNotificationsRead" style="margin-left:auto;margin-right:12px;font-size:13px;font-weight:600;color:#00929c;white-space:nowrap">
+                                    <i class="mdi mdi-check-all"></i> Mark all as read</a>
 
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-left:0">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
 
@@ -180,6 +182,20 @@
                     </div>
                 </div>
                 <script>
+                    // Bell count: set it to a number (0 removes the badge).
+                    function setNotificationCount(count) {
+                        let badge = $('.fa-bell').next('span.badge');
+                        if (count > 0) {
+                            if (badge.length) {
+                                badge.text(count);
+                            } else {
+                                $('.fa-bell').after('<span class="badge badge-danger" style="position:absolute; top:5px; right:5px;">' + count + '</span>');
+                            }
+                        } else {
+                            badge.remove();
+                        }
+                    }
+
                     function refreshNotificationCount() {
                         $.get("{{ route('admin.notifications.count') }}", function(count) {
                             let badge = $('.fa-bell').next('span.badge');
@@ -206,19 +222,29 @@
                     // kept it underneath the backdrop; it belongs on <body>.
                     $('#notificationModal').appendTo('body');
 
+                    // Opening the bell only lists the notifications; nothing is marked read.
+                    // A notification is marked read when it is clicked (its link marks just that
+                    // one and opens it), and "Mark all as read" clears them all.
                     $('#notificationModal').on('shown.bs.modal', function() {
-
                         $.get("{{ route('admin.notifications.data') }}", function(res) {
                             $('#notificationList').html(res);
-                        }).always(function() {
-                            // Mark read only after the list is loaded, so items
-                            // that were unread still show as "New" this time.
-                            $.post("{{ route('admin.notifications.markRead') }}", {
-                                _token: "{{ csrf_token() }}"
-                            }, function() {
-                                // remove badge visually
-                                $('.fa-bell').next('span.badge').remove();
-                            });
+                        });
+                    });
+
+                    // Clicking an unread one: take it off the count straight away (the link itself
+                    // marks it read on the server and opens it).
+                    $(document).on('click', '#notificationList a[data-unread="1"]', function() {
+                        const badge = $('.fa-bell').next('span.badge');
+                        if (badge.length) setNotificationCount(Math.max(0, (parseInt(badge.text(), 10) || 0) - 1));
+                        $(this).attr('data-unread', '0').removeClass('bn-unread').find('.bn-new').remove();
+                    });
+
+                    $('#markAllNotificationsRead').on('click', function() {
+                        $.post("{{ route('admin.notifications.markRead') }}", { _token: "{{ csrf_token() }}" }, function() {
+                            setNotificationCount(0);
+                            $('#notificationList .bn-unread').removeClass('bn-unread');
+                            $('#notificationList .bn-new').remove();
+                            $('#notificationList a[data-unread="1"]').attr('data-unread', '0');
                         });
                     });
                 </script>

@@ -38,7 +38,7 @@
             @endphp
 
             <li class="mb-3 border-bottom pb-2">
-                <a href="{{ route('admin.notifications.read', $noti->id) }}" style="text-decoration:none;color:inherit;">
+                <a href="{{ route('admin.notifications.read', $noti->id) }}" data-unread="1" style="text-decoration:none;color:inherit;">
                     <strong>
                         {{ $noti->order?->customer?->name ?? 'Unknown User' }}
 
@@ -72,7 +72,7 @@
 </div>
 @forelse ($vendorNotifications as $vn)
     @php [$icon, $fg, $bg] = $vendorIcons[$vn->type] ?? ['mdi-bell', '#334155', '#F1F5F9']; @endphp
-    <a href="{{ route('admin.vendor.notifications.open', $vn->id) }}" class="bn-item {{ $vn->is_read ? '' : 'bn-unread' }}">
+    <a href="{{ route('admin.vendor.notifications.open', $vn->id) }}" class="bn-item {{ $vn->is_read ? '' : 'bn-unread' }}" data-unread="{{ $vn->is_read ? 0 : 1 }}">
         <span class="bn-icon" style="background:{{ $bg }};color:{{ $fg }}"><i class="mdi {{ $icon }}"></i></span>
         <span style="flex:1;min-width:0">
             <strong style="font-size:14px">{{ $vn->title }}</strong>

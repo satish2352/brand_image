@@ -25,11 +25,21 @@
                 default                                               => ['mdi-pencil-outline', '#1E40AF', '#DBEAFE'],
             };
         };
+        // Each card opens the log filtered to what it counts (keeping the vendor / activity /
+        // media-code filters); the card matching the current filter is highlighted.
+        $keep = request()->except(['actor', 'from_date', 'to_date', 'page']);
+        $today = now()->toDateString();
+        $isToday = request('from_date') === $today && request('to_date') === $today;
+        $noScope = !request('actor') && !request('from_date') && !request('to_date');
         $cards = [
-            ['Activities', $summary['total'], 'mdi-history', '#00929c', '#E6F6F7', 'In the last ' . VendorActivityLog::RETENTION_MONTHS . ' months'],
-            ['By vendors', $summary['vendor'], 'mdi-storefront-outline', '#9A3412', '#FFEDD5', 'Changes made in the Vendor Panel'],
-            ['By Brand Adda', $summary['admin'], 'mdi-shield-account-outline', '#1E40AF', '#DBEAFE', 'Admin actions on vendor inventory'],
-            ['Today', $summary['today'], 'mdi-calendar-today', '#166534', '#DCFCE7', now()->format('d M Y')],
+            ['Activities', $summary['total'], 'mdi-history', '#00929c', '#E6F6F7', 'In the last ' . VendorActivityLog::RETENTION_MONTHS . ' months',
+                route('admin.vendor.activity', $keep), $noScope],
+            ['By vendors', $summary['vendor'], 'mdi-storefront-outline', '#9A3412', '#FFEDD5', 'Changes made in the Vendor Panel',
+                route('admin.vendor.activity', $keep + ['actor' => 'vendor']), request('actor') === 'vendor' && !request('from_date') && !request('to_date')],
+            ['By Brand Adda', $summary['admin'], 'mdi-shield-account-outline', '#1E40AF', '#DBEAFE', 'Admin actions on vendor inventory',
+                route('admin.vendor.activity', $keep + ['actor' => 'admin']), request('actor') === 'admin' && !request('from_date') && !request('to_date')],
+            ['Today', $summary['today'], 'mdi-calendar-today', '#166534', '#DCFCE7', now()->format('d M Y'),
+                route('admin.vendor.activity', $keep + ['from_date' => $today, 'to_date' => $today]), $isToday && !request('actor')],
         ];
     @endphp
 
@@ -38,6 +48,9 @@
         .al-card-header { background: #00929c; color: #fff; padding: 12px 20px; font-weight: 600; font-size: 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
         .al-muted { color: #6b7280; font-size: 13px; }
         .al-stat { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 12px; background: #fff; box-shadow: 0 8px 20px rgba(0, 0, 0, .06); height: 100%; }
+        .al-stat-link { color: inherit !important; text-decoration: none !important; border: 2px solid transparent; transition: border-color .15s, transform .15s; }
+        .al-stat-link:hover { border-color: var(--al-fg); transform: translateY(-1px); }
+        .al-stat-link.is-on { border-color: var(--al-fg); }
         .al-stat-icon { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 22px; flex: none; }
         .al-stat b { display: block; font-size: 24px; line-height: 1.1; color: #111827; }
         .al-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 4px; display: block; }
@@ -64,13 +77,14 @@
 
         {{-- ================= SUMMARY ================= --}}
         <div class="row">
-            @foreach ($cards as [$label, $value, $icon, $fg, $bg, $hint])
+            @foreach ($cards as [$label, $value, $icon, $fg, $bg, $hint, $href, $on])
                 <div class="col-md-6 col-xl-3 mb-3">
-                    <div class="al-stat">
+                    <a href="{{ $href }}#log" class="al-stat al-stat-link {{ $on ? 'is-on' : '' }}" style="--al-fg:{{ $fg }}" @if ($on) aria-current="page" @endif
+                        title="Show {{ strtolower($label) }}">
                         <span class="al-stat-icon" style="background:{{ $bg }};color:{{ $fg }}"><i class="mdi {{ $icon }}"></i></span>
                         <span><b>{{ number_format($value) }}</b><span style="font-weight:600">{{ $label }}</span>
                             <span class="al-muted d-block" style="font-size:12px">{{ $hint }}</span></span>
-                    </div>
+                    </a>
                 </div>
             @endforeach
         </div>
@@ -114,7 +128,7 @@
         </form>
 
         {{-- ================= LOG ================= --}}
-        <div class="al-card">
+        <div class="al-card" id="log">
             <div class="al-card-header">
                 <span>Activity</span>
                 <span style="font-weight:400;font-size:14px">{{ number_format($log->total()) }} {{ \Illuminate\Support\Str::plural('entry', $log->total()) }}{{ $filtered ? ' (filtered)' : '' }}</span>

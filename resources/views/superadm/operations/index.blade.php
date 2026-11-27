@@ -22,7 +22,7 @@
             </div>
             <form method="GET" action="{{ route('admin.vendor.operations') }}" class="ops-filters" role="search">
                 <input type="hidden" name="stage" value="{{ $stage }}">
-                <select name="vendor_id" aria-label="Vendor" onchange="this.form.submit()">
+                <select name="vendor_id" id="opsVendor" aria-label="Vendor" onchange="this.form.submit()">
                     <option value="">All vendors</option>
                     @foreach ($vendors as $v)<option value="{{ $v->id }}" @selected($vendorId === $v->id)>{{ $v->vendor_name }}</option>@endforeach
                 </select>
@@ -51,7 +51,31 @@
 @endsection
 
 @section('scripts')
+    {{-- Vendor filter: a searchable dropdown (type to find a vendor). --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .ops-filters .select2-container { min-width: 240px; }
+        .ops-filters .select2-container .select2-selection--single { height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; }
+        .ops-filters .select2-container .select2-selection--single .select2-selection__rendered { line-height: 36px; padding-left: 10px; font-size: 14px; }
+        .ops-filters .select2-container .select2-selection--single .select2-selection__arrow { height: 36px; }
+        .select2-dropdown { border-color: #CBD5E1; }
+        .select2-search--dropdown .select2-search__field { border-radius: 6px; padding: 6px 8px; }
+        .select2-results__option--highlighted[aria-selected], .select2-results__option--highlighted.select2-results__option--selectable { background: #00929c !important; }
+    </style>
     <script>
+        $(function () {
+            $('#opsVendor').select2({
+                width: 'style',
+                placeholder: 'All vendors',
+                language: { noResults: function () { return 'No vendor found'; } }
+            }); // picking a vendor fires the select's own change → onchange submits the filter
+            // Typing goes straight into the search box when the dropdown opens.
+            $('#opsVendor').on('select2:open', function () {
+                setTimeout(function () { const f = document.querySelector('.select2-container--open .select2-search__field'); if (f) f.focus(); }, 0);
+            });
+        });
+
         // "Share with User" asks first (the vendor panel does this through data-confirm too).
         document.addEventListener('submit', function (e) {
             const msg = e.target.getAttribute && e.target.getAttribute('data-confirm');
