@@ -225,6 +225,12 @@
                 <span>Vendor Activity Log</span>
             </a>
         </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.operations*') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.operations') }}">
+                <i class="mdi mdi-camera-outline"></i>
+                <span>Operations</span>
+            </a>
+        </li>
         <li class="nav-item {{ request()->routeIs('media.insights.usage') ? 'active' : '' }}">
             <a href="{{ route('media.insights.usage') }}">
                 <i class="mdi mdi-chart-donut"></i>

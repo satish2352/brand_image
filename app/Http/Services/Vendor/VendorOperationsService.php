@@ -20,6 +20,10 @@ use Illuminate\Validation\ValidationException;
  *
  *   Pending Media → Installation → Monitoring Pics → End Date Pics → Completed
  *
+ * Super Admin runs the workflow (uploads, shares, marks removal) for every
+ * vendor; the vendor panel shows the same screens read-only. Methods take a
+ * vendor id, or null for all vendors (Super Admin).
+ *
  * "Pending Media" is approved inventory that is Available with no booking
  * coming up. Every booking of the vendor's media (a PAID website order or an
  * ADMIN_BOOKED order from the existing Admin Booking screen) becomes one
@@ -44,18 +48,18 @@ class VendorOperationsService
         'completed'    => 'Completed / Media Remove',
     ];
 
-    /** Create an operation for every booking of this vendor's media that has none yet. */
-    public function syncBookings(int $vendorId): void
+    /** Create an operation for every booking of vendor media that has none yet (null = all vendors). */
+    public function syncBookings(?int $vendorId = null): void
     {
         $missing = DB::table('order_items as oi')
             ->join('orders as o', 'o.id', '=', 'oi.order_id')
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
             ->leftJoin('media_operations as op', 'op.order_item_id', '=', 'oi.id')
-            ->where('m.vendor_id', $vendorId)
+            ->when($vendorId, fn ($q) => $q->where('m.vendor_id', $vendorId), fn ($q) => $q->whereNotNull('m.vendor_id'))
             ->whereIn('o.payment_status', self::PAID_STATUSES)
             ->where('oi.is_deleted', 0)
             ->whereNull('op.id')
-            ->get(['oi.id as order_item_id', 'oi.order_id', 'oi.media_id', 'oi.to_date']);
+            ->get(['oi.id as order_item_id', 'oi.order_id', 'oi.media_id', 'oi.to_date', 'm.vendor_id']);
 
         foreach ($missing as $row) {
             // A booking that ended before this module existed has nothing left
@@ -66,7 +70,7 @@ class VendorOperationsService
             MediaOperation::firstOrCreate(
                 ['order_item_id' => $row->order_item_id],
                 [
-                    'vendor_id'    => $vendorId,
+                    'vendor_id'    => $row->vendor_id,
                     'media_id'     => $row->media_id,
                     'order_id'     => $row->order_id,
                     'stage'        => $ended ? 'completed' : 'installation',
@@ -86,8 +90,8 @@ class VendorOperationsService
         return $op->stage;
     }
 
-    /** All operations of the vendor with booking details, stage worked out. */
-    public function operations(int $vendorId)
+    /** Operations with booking details, stage worked out (one vendor, or null = all vendors). */
+    public function operations(?int $vendorId = null)
     {
         $this->syncBookings($vendorId);
 
@@ -97,10 +101,11 @@ class VendorOperationsService
             ->join('media_management as m', 'm.id', '=', 'op.media_id')
             ->leftJoin('website_users as u', 'u.id', '=', 'o.user_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
-            ->where('op.vendor_id', $vendorId)
+            ->leftJoin('vendors as v', 'v.id', '=', 'op.vendor_id')
+            ->when($vendorId, fn ($q) => $q->where('op.vendor_id', $vendorId))
             ->orderBy('oi.from_date', 'desc')
             ->get([
-                'op.*', 'o.order_no', 'oi.from_date', 'oi.to_date',
+                'op.*', 'o.order_no', 'oi.from_date', 'oi.to_date', 'v.vendor_name',
                 'm.media_title', 'm.hoarding_code', 'm.media_code', 'a.area_name',
                 'u.name as user_name', 'u.email as user_email', 'u.mobile_number as user_mobile',
             ])
@@ -110,15 +115,16 @@ class VendorOperationsService
             });
     }
 
-    /** Approved, available media with no booking from today on. */
-    public function pendingMedia(int $vendorId)
+    /** Approved, available vendor media with no booking from today on (null = all vendors). */
+    public function pendingMedia(?int $vendorId = null)
     {
         $today = now()->toDateString();
 
         $rows = DB::table('media_management as m')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('cities as cty', 'cty.id', '=', 'm.city_id')
-            ->where('m.vendor_id', $vendorId)
+            ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
+            ->when($vendorId, fn ($q) => $q->where('m.vendor_id', $vendorId), fn ($q) => $q->whereNotNull('m.vendor_id'))
             ->where('m.is_deleted', 0)
             ->where('m.approval_status', 'approved')
             ->where('m.is_available', 1)
@@ -129,13 +135,13 @@ class VendorOperationsService
                     ->where('b.to_date', '>=', $today);
             })
             ->orderBy('m.hoarding_code')
-            ->get(['m.id', 'm.media_title', 'm.hoarding_code', 'm.media_code', 'a.area_name', 'cty.city_name']);
+            ->get(['m.id', 'm.media_title', 'm.hoarding_code', 'm.media_code', 'a.area_name', 'cty.city_name', 'v.vendor_name']);
 
         return $rows;
     }
 
     /** Count per stage for the stage tabs and the dashboard. */
-    public function stageCounts(int $vendorId): array
+    public function stageCounts(?int $vendorId = null): array
     {
         $counts = array_fill_keys(self::STAGE_ORDER, 0);
         $counts['pending'] = $this->pendingMedia($vendorId)->count();
@@ -152,13 +158,14 @@ class VendorOperationsService
         return MediaOperation::where('id', $operationId)->where('vendor_id', $vendorId)->firstOrFail();
     }
 
-    /** The joined row for one operation (booking + media + user). */
-    public function detail(int $vendorId, int $operationId): ?object
+    /** The joined row for one operation (booking + media + user); null vendor = any vendor. */
+    public function detail(?int $vendorId, int $operationId): ?object
     {
         return $this->operations($vendorId)->firstWhere('id', $operationId);
     }
 
-    public function uploadPhoto(Vendor $vendor, MediaOperation $op, string $stage, string $shot, ?string $date, UploadedFile $file): MediaOperationPhoto
+    /** Photos are uploaded by Super Admin ($vendor null); the vendor id stays for older rows. */
+    public function uploadPhoto(?Vendor $vendor, MediaOperation $op, string $stage, string $shot, ?string $date, UploadedFile $file): MediaOperationPhoto
     {
         $date = $stage === 'monitoring' ? Carbon::parse($date)->toDateString() : null;
 
@@ -178,7 +185,7 @@ class VendorOperationsService
 
         if ($existing) {
             Storage::disk('public')->delete($existing->file);
-            $existing->update(['file' => $path, 'uploaded_by_vendor_id' => $vendor->id]);
+            $existing->update(['file' => $path, 'uploaded_by_vendor_id' => $vendor?->id]);
             $photo = $existing;
         } else {
             $photo = MediaOperationPhoto::create([
@@ -187,7 +194,7 @@ class VendorOperationsService
                 'shot_type'             => $shot,
                 'photo_date'            => $date,
                 'file'                  => $path,
-                'uploaded_by_vendor_id' => $vendor->id,
+                'uploaded_by_vendor_id' => $vendor?->id,
             ]);
         }
 

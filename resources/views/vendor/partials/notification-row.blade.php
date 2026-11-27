@@ -7,6 +7,12 @@
         'inventory_updated'  => ['fa-solid fa-pen', '#DBEAFE', '#1E40AF'],
         'booking_updated'    => ['fa-regular fa-calendar', '#DBEAFE', '#1E40AF'],
         'enquiry_received'   => ['fa-regular fa-envelope', '#FFEDD5', '#9A3412'],
+        // Operations: photos uploaded / shared and removal recorded by Brand Adda.
+        'installation_photos' => ['fa-solid fa-camera', '#FFEDD5', '#9A3412'],
+        'monitoring_photos'   => ['fa-solid fa-camera', '#FFEDD5', '#9A3412'],
+        'end_date_photos'     => ['fa-solid fa-camera', '#FFEDD5', '#9A3412'],
+        'photos_shared'       => ['fa-regular fa-paper-plane', '#DCFCE7', '#166534'],
+        'media_removed'       => ['fa-solid fa-flag-checkered', '#F1F5F9', '#334155'],
     ];
     [$nIcon, $nBg, $nFg] = $nIcons[$n->type] ?? ['fa-regular fa-bell', '#F1F5F9', '#334155'];
 @endphp

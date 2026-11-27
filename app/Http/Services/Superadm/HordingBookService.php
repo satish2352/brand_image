@@ -85,7 +85,7 @@ class HordingBookService
                     'booking_updated',
                     'New booking – ' . $media->display_code,
                     'Booked for ' . $request->signup_name . ' from ' . \Carbon\Carbon::parse($request->from_date)->format('d M Y')
-                        . ' to ' . \Carbon\Carbon::parse($request->to_date)->format('d M Y') . '. Installation photos are due from the start date.',
+                        . ' to ' . \Carbon\Carbon::parse($request->to_date)->format('d M Y') . '. Brand Adda will upload the installation photos from the start date; you can see them in Operations.',
                     route('vendor.operations', ['stage' => 'installation']),
                     $media->id,
                     $orderId

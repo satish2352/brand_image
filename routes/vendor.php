@@ -52,12 +52,10 @@ Route::prefix('vendor-panel')->name('vendor.')->group(function () {
         Route::post('media/{id}/availability', [Vendor\InventoryController::class, 'updateAvailability'])->whereNumber('id')->name('availability.update');
         Route::post('media/{id}/availability/{rangeId}/remove', [Vendor\InventoryController::class, 'removeRange'])->whereNumber(['id', 'rangeId'])->name('availability.range.remove');
 
-        // Bookings (read-only) and Operations
+        // Bookings and Operations: both read-only. Brand Adda (Super Admin, admin.vendor.operations)
+        // uploads and shares the operation photos; the vendor sees them here.
         Route::get('bookings', [Vendor\InventoryController::class, 'bookings'])->name('bookings');
         Route::get('operations', [Vendor\OperationsController::class, 'index'])->name('operations');
-        Route::post('operations/{id}/photo', [Vendor\OperationsController::class, 'uploadPhoto'])->whereNumber('id')->name('operations.photo');
-        Route::post('operations/{id}/share', [Vendor\OperationsController::class, 'share'])->whereNumber('id')->name('operations.share');
-        Route::post('operations/{id}/complete', [Vendor\OperationsController::class, 'complete'])->whereNumber('id')->name('operations.complete');
 
         // Reports
         Route::get('reports/utilisation', [Vendor\ReportController::class, 'utilisation'])->name('reports.utilisation');
@@ -95,6 +93,14 @@ Route::middleware('SuperAdmin')->prefix('admin-vendor')->name('admin.vendor.')->
     Route::post('inventory/remove', [VendorPortalController::class, 'unassign'])->name('inventory.remove');
 
     Route::get('activity', [VendorPortalController::class, 'activity'])->name('activity');
+
+    // Operations (PRD 2.8): Brand Adda uploads / shares the photos and records removal for every
+    // vendor; the vendor panel shows the same board read-only.
+    Route::get('operations', [\App\Http\Controllers\Superadm\OperationsController::class, 'index'])->name('operations');
+    Route::post('operations/{id}/photo', [\App\Http\Controllers\Superadm\OperationsController::class, 'uploadPhoto'])->whereNumber('id')->name('operations.photo');
+    Route::post('operations/{id}/share', [\App\Http\Controllers\Superadm\OperationsController::class, 'share'])->whereNumber('id')->name('operations.share');
+    Route::post('operations/{id}/complete', [\App\Http\Controllers\Superadm\OperationsController::class, 'complete'])->whereNumber('id')->name('operations.complete');
+
     Route::get('notifications', [VendorPortalController::class, 'notifications'])->name('notifications');
     Route::post('notifications/read-all', [VendorPortalController::class, 'readAllNotifications'])->name('notifications.read-all');
     Route::get('notifications/{id}/open', [VendorPortalController::class, 'openNotification'])->whereNumber('id')->name('notifications.open');

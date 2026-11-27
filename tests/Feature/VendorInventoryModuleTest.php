@@ -267,27 +267,39 @@ class VendorInventoryModuleTest extends TestCase
             'is_active' => 1, 'is_deleted' => 0, 'created_at' => now(),
         ]);
 
-        $this->asVendor()->get(route('vendor.operations'))->assertOk()->assertSee('Ops User');
+        // Super Admin runs Operations for every vendor.
+        $this->asAdmin()->get(route('admin.vendor.operations'))->assertOk()->assertSee('Ops User')->assertSee('Upload Photo');
         $op = MediaOperation::where('media_id', $media->id)->firstOrFail();
         $this->assertSame('installation', $op->stage);
+        $this->assertSame($this->vendor->id, (int) $op->vendor_id);
 
         // Sharing before all three shots are in is refused.
-        $this->asVendor()->post(route('vendor.operations.share', $op->id), ['stage' => 'installation'])->assertSessionHasErrors('share');
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertSessionHasErrors('share');
 
         foreach (['newspaper', 'long', 'close'] as $shot) {
-            $this->asVendor()->post(route('vendor.operations.photo', $op->id), [
+            $this->asAdmin()->post(route('admin.vendor.operations.photo', $op->id), [
                 'stage' => 'installation', 'shot_type' => $shot, 'photo' => UploadedFile::fake()->image($shot . '.jpg', 800, 600),
             ])->assertRedirect();
         }
 
-        $this->asVendor()->post(route('vendor.operations.share', $op->id), ['stage' => 'installation'])->assertSessionHas('success');
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertSessionHas('success');
         Mail::assertSent(OperationPhotosMail::class, fn ($m) => $m->hasTo('ops-user@example.test'));
         $this->assertSame('monitoring', $op->fresh()->stage);
 
         // Removal needs the end-date photos shared first.
-        $this->asVendor()->post(route('vendor.operations.complete', $op->id), ['confirm' => 1])->assertSessionHasErrors('complete');
+        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['confirm' => 1])->assertSessionHasErrors('complete');
 
-        $this->assertTrue(PanelNotification::forAdmin()->where('type', 'installation_photos')->exists());
+        // The vendor is told and sees the admin's photos, read-only (no upload / share controls or routes).
+        $this->assertTrue(PanelNotification::where('audience', 'vendor')->where('vendor_id', $this->vendor->id)->where('type', 'installation_photos')->exists());
+        $this->asVendor()->get(route('vendor.operations', ['stage' => 'monitoring', 'op' => $op->id]))->assertOk()
+            ->assertSee('Ops User')->assertSee('Installation photos')->assertSee('uploads the installation')
+            ->assertDontSee('Upload Photo')->assertDontSee('Share with User')->assertDontSee('Mark Media Removed');
+        $this->asVendor()->post('/vendor-panel/operations/' . $op->id . '/photo', [])->assertNotFound();
+
+        // A vendor (without the admin session) cannot reach the admin routes.
+        $this->flushSession();
+        $this->asVendor()->get(route('admin.vendor.operations'))->assertRedirect();
+        $this->asVendor()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertRedirect();
     }
 
     public function test_vendor_website_requires_otp_and_shows_only_live_media(): void
