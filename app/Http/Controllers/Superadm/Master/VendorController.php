@@ -38,6 +38,7 @@ class VendorController extends Controller
             'city_id'     => 'required|integer|exists:cities,id',
 
             'vendor_name' => 'required|string|max:255',
+            'company_name' => 'nullable|string|max:255',
             'vendor_code' => 'required|string|max:100',
             // 'mobile'      => 'required|digits:10',
             'mobile'      => ['required', 'regex:/^[6-9][0-9]{9}$/'],
@@ -80,6 +81,7 @@ class VendorController extends Controller
             'city_id'     => 'required|integer|exists:cities,id',
 
             'vendor_name' => 'required|string|max:255',
+            'company_name' => 'nullable|string|max:255',
             'vendor_code' => 'required|string|max:100',
             // 'mobile'      => 'required|digits:10',
             'mobile'      => ['required', 'regex:/^[6-9][0-9]{9}$/'],

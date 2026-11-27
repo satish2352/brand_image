@@ -49,10 +49,30 @@ class VendorBrandedExport implements FromArray, WithEvents, ShouldAutoSize, With
 
                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
                 $sheet->getStyle('A2')->getFont()->setItalic(true)->getColor()->setARGB('FF475569');
-                $sheet->getStyle("A4:{$lastCol}4")->getFont()->setBold(true)->getColor()->setARGB('FFFFFFFF');
-                $sheet->getStyle("A4:{$lastCol}4")->getFill()
-                    ->setFillType(Fill::FILL_SOLID)
-                    ->getStartColor()->setARGB('FF0F172A');
+
+                // The empty spacer row is not written, so the headings do not sit at a fixed
+                // row: find them. (A fixed "row 4" coloured the first data row instead.)
+                $headRow = 4;
+                for ($r = 1; $r <= 6; $r++) {
+                    if ($sheet->getCell("A{$r}")->getValue() === ($this->headings[0] ?? null)) {
+                        $headRow = $r;
+                        break;
+                    }
+                }
+
+                // Heading row only: bold white text on the dark brand background.
+                $head = $sheet->getStyle("A{$headRow}:{$lastCol}{$headRow}");
+                $head->getFont()->setBold(true)->getColor()->setARGB('FFFFFFFF');
+                $head->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF0F172A');
+
+                // Data rows: plain, no background.
+                $lastRow = $sheet->getHighestRow();
+                if ($lastRow > $headRow) {
+                    $data = $sheet->getStyle('A' . ($headRow + 1) . ":{$lastCol}{$lastRow}");
+                    $data->getFont()->setBold(false)->getColor()->setARGB('FF000000');
+                    $data->getFill()->setFillType(Fill::FILL_NONE);
+                }
+                $sheet->freezePane('A' . ($headRow + 1)); // headings stay visible while scrolling
             },
         ];
     }

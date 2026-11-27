@@ -328,7 +328,8 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{-- jQuery comes from superadm.layout.master. Loading a second copy here replaced it,
+     so Bootstrap bound to the new copy and the header bell's modal never loaded its list. --}}
 
 {{-- ===== Custom checkbox dropdowns for Highway & Landmark multi-select filters ===== --}}
 <style>

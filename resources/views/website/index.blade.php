@@ -509,7 +509,7 @@
                                 <div class="single-latest-news">
 
                                     {{-- <div class="latest-news-bg"
-                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
+                                    style="background-image:url('{{ \App\Support\MediaImageUrl::for($media->first_image) }}')"  class="card-img-fit">
                         </div> --}}
                                     @php
                                         $isBillboard = (int) $media->category_id === 1;
@@ -522,7 +522,7 @@
                                     @endphp
                                     <div class="latest-news-bg card-img-fit">
 
-                                        <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}"
+                                        <img src="{{ \App\Support\MediaImageUrl::for($media->first_image) }}"
                                             loading="lazy" decoding="async"
                                             alt="{{ $media->area_name ?? $media->category_name }}"
                                             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
@@ -585,7 +585,7 @@
                                                 <span>View on Map</span>
                                             </a>
                                             @if (!empty($media->panorama_image))
-                                                <a href="{{ url('./panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image)) }}"
+                                                <a href="{{ url('./panorama.html?img=' . urlencode(\App\Support\MediaImageUrl::for($media->panorama_image))) }}"
                                                     target="_blank"
                                                     class="text-muted d-inline-flex align-items-center gap-1">
 
@@ -708,7 +708,7 @@
                     <div class="col-lg-4 col-md-6 mb-5">
                         <div class="media-card-hording">
                             <img class="media-img"
-                                src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}"
+                                src="{{ \App\Support\MediaImageUrl::for($media->first_image) }}"
                                 loading="lazy" decoding="async"
                                 alt="{{ $media->area_name ?? $media->category_name }}"
                                 style="object-fit:cover;">

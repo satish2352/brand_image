@@ -14,7 +14,7 @@
         if ($date) {
             $rows['Photo date'] = \Carbon\Carbon::parse($date)->format('d M Y');
         }
-        $rows['Media owner'] = $vendor->vendor_name;
+        $rows['Media owner'] = $vendor->display_name;
     @endphp
 
     <h1 style="margin:0 0 6px;font-size:22px;line-height:1.3;color:#0F172A">{{ $title }}</h1>
@@ -40,6 +40,6 @@
         </tr>
     </table>
 
-    <p style="margin:0">Regards,<br><strong style="color:#0F172A">{{ $vendor->vendor_name }}</strong><br>
+    <p style="margin:0">Regards,<br><strong style="color:#0F172A">{{ $vendor->display_name }}</strong><br>
         <span style="font-size:13px;color:#64748B">via Brand Adda</span></p>
 @endsection

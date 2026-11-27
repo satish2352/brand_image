@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\HomeSlider;
 use App\Support\MasterCache;
 use App\Support\AdminSession;
-use App\Http\Services\RoadStar\RoadStarSyncService;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 
@@ -264,8 +263,22 @@ class HomeController extends Controller
                 ->where('oi.is_deleted', 0)
                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
                 ->select('oi.from_date', 'oi.to_date')
-                ->orderBy('oi.from_date')
                 ->get();
+
+            // Bookings and blocks added by the vendor or admin (media_booked_date) are
+            // booked too; the calendar used to show only paid orders.
+            $blocked = DB::table('media_booked_date')
+                ->where('media_id', $mediaId)
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->whereDate('to_date', '>=', now()->toDateString())
+                ->select('from_date', 'to_date')
+                ->get();
+
+            $orders = $orders->concat($blocked)
+                ->map(fn ($r) => (object) ['from_date' => substr((string) $r->from_date, 0, 10), 'to_date' => substr((string) $r->to_date, 0, 10)])
+                ->sortBy('from_date')
+                ->values();
 
             // MERGE OVERLAPPING RANGES
             $merged = [];
@@ -294,17 +307,7 @@ class HomeController extends Controller
 
             $bookedRanges = $merged;
 
-            // RoadStar audience: the saved row only (MySQL) — opening the page
-            // never calls RoadStar. A RoadStar problem must not break the page.
-            $roadstarAdmin = AdminSession::onSite() || AdminSession::onPanel();
-            try {
-                $roadstar = app(RoadStarSyncService::class)->forDisplay($mediaId);
-            } catch (Throwable $e) {
-                Log::warning('RoadStar audience unavailable', ['media_id' => $mediaId, 'message' => $e->getMessage()]);
-                $roadstar = ['found' => false];
-            }
-
-            return view('website.media-details', compact('media', 'bookedRanges', 'roadstar', 'roadstarAdmin'));
+            return view('website.media-details', compact('media', 'bookedRanges'));
         } catch (HttpExceptionInterface $e) {
 
             // abort(404) — the media simply doesn't exist (or is deleted).

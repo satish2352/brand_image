@@ -58,7 +58,7 @@
                     @endif
                 </div>
                 <div style="min-width:0">
-                    <div class="vp-vendor-name">{{ $vendor->vendor_name }}</div>
+                    <div class="vp-vendor-name">{{ $vendor->display_name }}</div>
                     <div class="vp-vendor-id">Vendor ID · {{ $vendor->vendor_code }}</div>
                 </div>
             </div>
@@ -99,13 +99,13 @@
                     <div class="vp-user">
                         <div class="vp-avatar">{{ $vendor->initials }}</div>
                         <div>
-                            <div style="font-size:14px;font-weight:700">{{ $vendor->vendor_name }}</div>
+                            <div style="font-size:14px;font-weight:700">{{ $vendor->display_name }}</div>
                             <div class="vp-muted" style="font-size:12px">Vendor Admin</div>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('vendor.logout') }}" style="margin:0">
+                    <form method="POST" action="{{ route('vendor.logout') }}" class="vp-logout" style="margin:0">
                         @csrf
-                        <button type="submit" class="vp-btn vp-btn-g">Logout</button>
+                        <button type="submit" class="vp-btn vp-btn-g" aria-label="Logout" title="Logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Logout</span></button>
                     </form>
                 </div>
             </header>
@@ -113,6 +113,9 @@
             <div class="vp-content">
                 @if (session('success'))
                     <div class="vp-alert vp-alert-success" role="status">{{ session('success') }}</div>
+                @endif
+                @if (session('info'))
+                    <div class="vp-alert vp-alert-info" role="status">{{ session('info') }}</div>
                 @endif
                 @if (session('error'))
                     <div class="vp-alert vp-alert-error" role="alert">{{ session('error') }}</div>

@@ -23,6 +23,7 @@ class ApiUsageLog extends Model
     public const QUOTA_EXCEEDED   = 'quota_exceeded';   // the provider refused (429)
     public const NOT_CONFIGURED   = 'not_configured';
     public const MISSING_LOCATION = 'missing_location';
+    public const DISABLED         = 'disabled';         // turned off by Super Admin
 
     protected $fillable = [
         'provider',

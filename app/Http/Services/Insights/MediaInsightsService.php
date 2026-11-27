@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Insights;
 
+use App\Support\ApiControl;
 use App\Models\ApiUsageLog;
 use App\Models\MediaInsight;
 use App\Models\PlaceResult;
@@ -73,13 +74,19 @@ class MediaInsightsService
         $p ??= $this->provider();
         $budget = $p->budget();
         $used = $this->usedThisPeriod($p);
+        $remaining = max(0, $budget['limit'] - $used);
+        // TomTom Places shares its plan with TomTom Traffic.
+        if ($p->name() === 'tomtom') {
+            $remaining = min($remaining, ApiControl::tomTomShared()['remaining']);
+        }
 
         return [
             'provider'   => $p->name(),
             'period'     => $budget['period'],
             'used'       => $used,
             'limit'      => $budget['limit'],
-            'remaining'  => max(0, $budget['limit'] - $used),
+            'remaining'  => $remaining,
+            'enabled'    => ApiControl::enabled($p->name()),
             'max_cost'   => $budget['max_cost'],
             'configured' => $p->isConfigured(),
             'paused'     => $this->isPaused($p),
@@ -91,6 +98,12 @@ class MediaInsightsService
         $q = $this->quota($p);
 
         return $q['configured'] && !$q['paused'] && $q['remaining'] >= $q['max_cost'];
+    }
+
+    /** Super Admin: lift the short pause that follows a 429 from the provider. */
+    public function clearPause(PlacesProvider $p): void
+    {
+        Cache::forget($this->pauseKey($p));
     }
 
     private function pauseKey(PlacesProvider $p): string
@@ -161,6 +174,15 @@ class MediaInsightsService
         }
 
         $key = $this->locationKey($provider, $media);
+
+        // 0. Switched off on the API Request Manager page: never send a request.
+        if (!ApiControl::enabled($provider->name())) {
+            $this->log($provider, $media, $key, ApiUsageLog::DISABLED, $adminId, $source);
+            $this->calculateAndStore($media, $this->savedLocation($provider, $media, allowStale: true), $provider);
+
+            return ['status' => ApiUsageLog::DISABLED,
+                'message' => ucfirst($provider->name()) . ' requests are turned off by Super Admin. Showing saved data.'];
+        }
 
         // 1. Fresh saved result for this location → no API call.
         if ($fresh = $this->savedLocation($provider, $media)) {
@@ -330,6 +352,8 @@ class MediaInsightsService
                     ->orWhereNull('mi.places_fetched_at')
                     ->orWhere('mi.places_provider', '!=', $provider)
                     ->orWhere('mi.places_expires_at', '<', $now)
+                    // A shorter cycle saved on the API Request Manager applies to old rows too.
+                    ->orWhere('mi.places_fetched_at', '<', $now->copy()->subDays(max(1, (int) config('services.' . $provider . '.cache_days', 90))))
                     ->orWhereRaw('ABS(mi.places_latitude - m.latitude) > 0.0000005')
                     ->orWhereRaw('ABS(mi.places_longitude - m.longitude) > 0.0000005');
             })

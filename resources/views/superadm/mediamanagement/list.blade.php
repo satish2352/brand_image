@@ -243,8 +243,8 @@
 
                                 <tbody>
                                     @forelse ($mediaList as $key => $media)
-                                        <tr>
-                                            <td>
+                                        <tr class="media-row-link" data-href="{{ route('media.viewdetails', base64_encode($media->id)) }}" title="Open details">
+                                            <td class="no-row-link">
                                                 <input type="checkbox" class="media-check media-select"
                                                     value="{{ base64_encode($media->id) }}">
                                             </td>
@@ -267,7 +267,7 @@
                                             </td>
                                             <td>{{ $media->vendor_name ?? '-' }}</td>
                                             <td>{{ $media->media_code ?? '-' }}</td>
-                                            <td>
+                                            <td class="no-row-link">
                                                 <label class="switch">
                                                     <input type="checkbox" class="toggle-status"
                                                         data-id="{{ base64_encode($media->id) }}"
@@ -275,7 +275,7 @@
                                                     <span class="slider"></span>
                                                 </label>
                                             </td>
-                                            <td class="d-flex">
+                                            <td class="d-flex no-row-link">
 
                                                 {{-- View Details --}}
                                                 <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
@@ -346,6 +346,24 @@
         </div>
         @section('scripts')
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <style>
+                .media-row-link { cursor: pointer; }
+                .media-row-link:hover > td { background: #f1f8f9; }
+                .media-row-link > td.no-row-link { cursor: default; }
+            </style>
+            <script>
+                // Clicking a media row opens its View Details page. The select checkbox,
+                // Active switch and action buttons keep their own behaviour; text selection
+                // does not navigate; Ctrl/Cmd or middle click opens a new tab.
+                $(document).on('click auxclick', 'tr.media-row-link', function(e) {
+                    if ($(e.target).closest('a, button, input, select, textarea, label, .no-row-link').length) return;
+                    if (window.getSelection && String(window.getSelection()).length) return;
+                    if (e.type === 'auxclick' && e.button !== 1) return;
+                    var url = this.dataset.href;
+                    if (e.ctrlKey || e.metaKey || e.button === 1) window.open(url, '_blank');
+                    else window.location.href = url;
+                });
+            </script>
             <script>
                 $(document).ready(function() {
 

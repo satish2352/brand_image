@@ -172,7 +172,7 @@
             <div class="col-lg-5 col-md-5 col-sm-5 px-0">
 
                 <div class="latest-news-bg">
-                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" class="media-img">
+                    <img src="{{ \App\Support\MediaImageUrl::for($media->first_image) ?: \App\Support\MediaImageUrl::placeholder() }}" class="media-img" alt="{{ $media->media_title }}" loading="lazy">
 
                     @if ($isNotAvailable)
                         <span class="media-badge not-available">Ask For Availability</span>
@@ -220,7 +220,7 @@
                         @if (!empty($media->panorama_image))
                             {{-- <a href="{{ asset('panorama.html') }}?img={{ urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image) }}"
                                 target="_blank" class="text-muted d-inline-flex align-items-center gap-1"> --}}
-                            <a href="{{ url('public/panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image)) }}"
+                            <a href="{{ url('public/panorama.html?img=' . urlencode(\App\Support\MediaImageUrl::for($media->panorama_image))) }}"
                                 target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
                                 <img src="{{ asset('assets/img/360view.png') }}" width="30">
                                 <span>360° View</span>

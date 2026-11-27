@@ -17,9 +17,9 @@
                 <h1 style="margin:0;font-size:26px;font-weight:800">Verify to view inventory</h1>
                 <p style="margin:8px 0 0;font-size:15px;line-height:1.6;color:#475569">
                     @if ($otpSent)
-                        We sent a 6-digit code to <strong style="color:#0F172A">{{ $maskedEmail }}</strong>. Enter it below to open {{ $vendor->vendor_name }}’s media and map.
+                        We sent a 6-digit code to <strong style="color:#0F172A">{{ $maskedEmail }}</strong>. Enter it below to open {{ $vendor->display_name }}’s media and map.
                     @else
-                        A one-time code will be sent to <strong style="color:#0F172A">{{ $maskedEmail }}</strong>, the email registered for {{ $vendor->vendor_name }}.
+                        A one-time code will be sent to <strong style="color:#0F172A">{{ $maskedEmail }}</strong>, the email registered for {{ $vendor->display_name }}.
                     @endif
                 </p>
             </div>

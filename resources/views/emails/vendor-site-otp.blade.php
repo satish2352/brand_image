@@ -1,12 +1,12 @@
 @extends('emails.layouts.brand')
 @section('title', 'Your verification code')
-@section('preheader', 'Your code to open the ' . $vendor->vendor_name . ' website is ' . $otp . '. Valid for ' . $minutes . ' minutes.')
+@section('preheader', 'Your code to open the ' . $vendor->display_name . ' website is ' . $otp . '. Valid for ' . $minutes . ' minutes.')
 
 @section('content')
     <h1 style="margin:0 0 6px;font-size:22px;line-height:1.3;color:#0F172A">Your verification code</h1>
-    <p style="margin:0 0 22px;color:#64748B;font-size:14px">{{ $vendor->vendor_name }} · Website access</p>
+    <p style="margin:0 0 22px;color:#64748B;font-size:14px">{{ $vendor->display_name }} · Website access</p>
 
-    <p style="margin:0 0 20px">Someone asked to open the <strong style="color:#0F172A">{{ $vendor->vendor_name }}</strong> website on Brand Adda.
+    <p style="margin:0 0 20px">Someone asked to open the <strong style="color:#0F172A">{{ $vendor->display_name }}</strong> website on Brand Adda.
         Enter this code on the verification screen to continue:</p>
 
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 20px">

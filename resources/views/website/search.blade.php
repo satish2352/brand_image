@@ -429,7 +429,7 @@
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            let mediaList = @json($mapMedia->values());
+            let mediaList = @json(\App\Support\MediaImageUrl::withUrls($mapMedia->values()));
 
             // Cluster group: overlapping / very-close pins collapse into one
             // numbered circle showing the TOTAL record count, and split apart
@@ -599,7 +599,7 @@
                             flex-direction:column;
                         ">
                             <div style="width:100%;height:100px;overflow:hidden;">
-                                <img src="{{ config('fileConstants.IMAGE_VIEW') }}/${m.first_image}"
+                                <img src="${m.first_image_url}"
                                      style="width:100%;height:100%;object-fit:cover;" />
                             </div>
                             <div style="padding:8px;display:flex;flex-direction:column;gap:4px;flex:1;">

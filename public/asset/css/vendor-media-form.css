@@ -44,6 +44,12 @@
 .vp-body .select2-container--default .select2-results__option--highlighted[aria-selected],
 .vp-body .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable { background: #F97316; color: #fff; }
 .vp-body #mediaForm .select2-selection__choice { background: #FFF7ED !important; border: 1px solid #FED7AA !important; color: #9A3412 !important; border-radius: 999px !important; }
+/* The shared admin form forces white chip text; on the light chip it vanished. */
+.vp-body #mediaForm .select2-selection__choice .select2-selection__choice__display { color: #9A3412 !important; }
+.vp-body #mediaForm .select2-selection__choice .select2-selection__choice__remove { color: #9A3412 !important; background: transparent !important; border-right-color: #FED7AA !important; }
+.vp-body #mediaForm .select2-selection__choice .select2-selection__choice__remove:hover { background: #FED7AA !important; color: #7C2D12 !important; }
+/* Edit Media also whitens the × glyph's own <span>, which hid it on the light chip. */
+.vp-body #mediaForm .select2-selection__choice .select2-selection__choice__remove span { color: inherit !important; }
 
 /* ---------- photos: file inputs as drop areas ---------- */
 .vp-body #mediaForm input[type="file"].form-control { min-height: 120px; padding: 40px 16px 16px; border: 2px dashed #CBD5E1; background: #F8FAFC
@@ -71,4 +77,12 @@
     .vmf-head, .vmf-body, .vmf-actions { padding-left: 16px; padding-right: 16px; }
     .vmf-actions .vmf-buttons { width: 100%; }
     .vp-body .vmf-actions .btn { flex: 1; justify-content: center; }
+}
+/* Phones: a short bar. The main button has its own row when there are three. */
+@media (max-width: 640px) {
+    .vmf-actions { gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+    .vmf-actions .vmf-note { display: none; }
+    .vmf-actions .vmf-buttons { flex-wrap: wrap; gap: 8px; }
+    .vp-body .vmf-actions .btn { flex: 1 1 40%; padding: 0 10px; white-space: nowrap; }
+    .vp-body .vmf-actions .btn:nth-child(3) { flex-basis: 100%; }
 }

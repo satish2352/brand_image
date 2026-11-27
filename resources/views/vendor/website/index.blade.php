@@ -9,7 +9,7 @@
 
 @section('content')
     <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:stretch">
-        <section class="vp-card vp-card-pad" style="flex:1 1 420px">
+        <section class="vp-card vp-card-pad" style="min-width:0;flex:1 1 420px">
             <h2 class="vp-h2" style="margin-bottom:4px">Branding</h2>
             <p class="vp-muted" style="margin:0 0 18px">Shown on your website, inventory exports and reports, with “Powered by Brand Adda”.</p>
             <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center">
@@ -35,15 +35,15 @@
             </div>
             <div style="margin-top:18px">
                 <span class="vp-label">Company Name</span>
-                <div class="vp-input" style="display:flex;align-items:center;background:#F8FAFC">{{ $vendor->vendor_name }}</div>
+                <div class="vp-input" style="display:flex;align-items:center;background:#F8FAFC">{{ $vendor->display_name }}</div>
                 <div class="vp-muted" style="font-size:12px;margin-top:6px">Managed by Brand Adda. Ask your account manager to change it.</div>
             </div>
         </section>
 
-        <section class="vp-card vp-card-pad" style="flex:1 1 420px;display:flex;flex-direction:column;gap:14px">
+        <section class="vp-card vp-card-pad" style="min-width:0;flex:1 1 420px;display:flex;flex-direction:column;gap:14px">
             <h2 class="vp-h2">Website Link</h2>
             <div style="display:flex;gap:10px;align-items:center">
-                <div id="siteUrl" class="vp-input" style="display:flex;align-items:center;background:#F8FAFC;font-weight:600;overflow:hidden">{{ $vendor->website_url }}</div>
+                <div id="siteUrl" class="vp-input" style="display:flex;align-items:center;background:#F8FAFC;font-weight:600;min-width:0;overflow-wrap:anywhere">{{ $vendor->website_url }}</div>
                 <button type="button" class="vp-btn vp-btn-n" onclick="navigator.clipboard.writeText(document.getElementById('siteUrl').innerText.trim()).then(()=>{this.innerText='Copied'})">Copy</button>
             </div>
             <div style="display:flex;align-items:center;gap:10px;font-size:14px;flex-wrap:wrap">

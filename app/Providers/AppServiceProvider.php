@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
+        // Saved API Request Manager settings (switches, daily limits, provider) over config / .env.
+        \App\Support\ApiControl::apply();
+
         // Media Location Insights: queued jobs (EnrichMediaInsightsJob) share one
         // request rate to the places provider. Geoapify's free plan allows 5
         // requests/second; the default of 4 leaves room for admin refreshes.
@@ -35,12 +38,6 @@ class AppServiceProvider extends ServiceProvider
                 'services.' . (config('services.insights.places_provider') === 'tomtom' ? 'tomtom' : 'geoapify') . '.requests_per_second',
                 4
             ))
-        ));
-
-        // RoadStar Audience API: queued SyncRoadStarSites jobs share one request
-        // rate. RoadStar documents no limit, so this is our own (default 30/min).
-        RateLimiter::for('roadstar-api', fn() => Limit::perMinute(
-            max(1, (int) config('services.roadstar.requests_per_minute', 30))
         ));
 
         /* ========================================

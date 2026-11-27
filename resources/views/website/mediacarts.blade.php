@@ -6,7 +6,7 @@
 
                 <div class="media-card">
 
-                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" class="img-fluid rounded"
+                    <img src="{{ \App\Support\MediaImageUrl::for($media->first_image) }}" class="img-fluid rounded"
                         style="height:150px;width:100%;object-fit:cover">
 
                     <div class="media-body">

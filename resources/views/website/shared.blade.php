@@ -95,7 +95,7 @@
 
     <script>
         (function () {
-            const points = @json($mapMedia);
+            const points = @json(\App\Support\MediaImageUrl::withUrls($mapMedia));
             const el = document.getElementById('sharedMap');
             if (!el || !points.length) return;
 
@@ -106,8 +106,7 @@
             }).addTo(map);
 
             const detailsBase = "{{ url('/media-details') }}";
-            const imageBase = "{{ config('fileConstants.IMAGE_VIEW') }}";
-            const bounds = [];
+                        const bounds = [];
 
             points.forEach(function (m) {
                 const lat = parseFloat(m.latitude);
@@ -124,7 +123,7 @@
                 const popup =
                     '<div style="min-width:170px;font-family:Montserrat,sans-serif;">' +
                     (m.first_image
-                        ? '<img src="' + imageBase + m.first_image +
+                        ? '<img src="' + m.first_image_url +
                           '" style="width:100%;height:90px;object-fit:cover;border-radius:8px;margin-bottom:6px;">'
                         : '') +
                     '<div style="font-weight:700;font-size:12px;color:#0F172A;">' + title + '</div>' +

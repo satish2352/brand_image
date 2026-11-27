@@ -56,7 +56,7 @@
                                     <div class="carousel-inner">
                                         @foreach ($images as $i => $img)
                                             <div class="carousel-item {{ $i == 0 ? 'active' : '' }}">
-                                                <img src="{{ config('fileConstants.IMAGE_VIEW') . trim($img) }}"
+                                                <img src="{{ \App\Support\MediaImageUrl::for(trim($img)) }}"
                                                     class="d-block w-100 rounded" style="height:360px; object-fit:cover;"
                                                     alt="Media Image">
                                             </div>

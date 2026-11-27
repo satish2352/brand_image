@@ -131,6 +131,7 @@
                     <table class="table al-table">
                         <thead>
                             <tr>
+                                <th style="width:60px">Sr. No.</th>
                                 <th style="width:150px">Date / Time</th>
                                 <th>Activity</th>
                                 <th>Vendor</th>
@@ -143,11 +144,12 @@
                             @foreach ($log as $l)
                                 @php [$icon, $fg, $bg] = $style($l->action); @endphp
                                 <tr>
+                                    <td class="al-muted">{{ $log->firstItem() + $loop->index }}</td>
                                     <td class="text-nowrap">
                                         {{ $l->created_at->format('d M Y') }}
                                         <div class="al-muted" style="font-size:12px">{{ $l->created_at->format('h:i A') }} · {{ $l->created_at->diffForHumans(null, true) }} ago</div>
                                     </td>
-                                    <td style="min-width:250px">
+                                    <td style="min-width:200px">
                                         <div class="d-flex align-items-center" style="gap:10px">
                                             <span class="al-icon" style="background:{{ $bg }};color:{{ $fg }}"><i class="mdi {{ $icon }}"></i></span>
                                             <strong style="font-size:14px">{{ $l->action }}</strong>
@@ -167,7 +169,7 @@
                                             <span class="al-muted">—</span>
                                         @endif
                                     </td>
-                                    <td style="min-width:240px">
+                                    <td style="min-width:220px">
                                         @forelse ($l->details ?? [] as $k => $v)
                                             <span class="al-chip"><b>{{ $k }}:</b> {{ is_array($v) ? implode(' → ', $v) : \Illuminate\Support\Str::limit((string) $v, 120) }}</span>
                                         @empty

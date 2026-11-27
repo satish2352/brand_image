@@ -217,3 +217,53 @@ textarea.vp-input { padding: 10px 12px; min-height: 90px; }
     .vp-top, .vp-content { padding-left: 16px; padding-right: 16px; }
     .vp-user > div:last-child { display: none; }
 }
+
+/* ---------- notification row ---------- */
+.vp-body a.vp-note, .vp-note { display: flex; gap: 14px; align-items: flex-start; padding: 12px; margin: 0 -12px; border-top: 1px solid #F1F5F9; color: #0F172A; text-decoration: none; }
+.vp-note.is-new { background: #FFFBF5; }
+.vp-body a.vp-note:hover { background: #FFF1E6; color: #0F172A; }
+.vp-note:focus-visible { outline: 3px solid #F97316; outline-offset: -3px; }
+
+/* ---------- shared pieces ---------- */
+/* Reset / Filter at the right end of the last row of filter fields. */
+.vp-grid-end { grid-column: -3 / -1; display: flex; gap: 10px; justify-content: flex-end; align-items: flex-end; }
+.vp-search { display: flex; gap: 8px; align-items: center; margin: 0; }
+.vp-search .vp-input { width: 280px; min-width: 0; }
+.vp-acts, .vp-selects { display: flex; flex-wrap: wrap; gap: 10px; }
+.vp-selects .vp-input { width: auto; min-height: 40px; }
+.vp-logout .fa-right-from-bracket { display: none; }
+
+/* ---------- phones ---------- */
+@media (max-width: 640px) {
+    .vp-top, .vp-content { padding-left: 14px; padding-right: 14px; }
+    .vp-content { padding-top: 18px; gap: 16px; }
+    .vp-card-pad { padding: 16px; }
+
+    /* One header row: menu, title, bell, logout. A page's own buttons go on a row below. */
+    .vp-top { padding-top: 12px; padding-bottom: 12px; gap: 10px; }
+    .vp-top > div:first-child { flex: 1 1 calc(100% - 116px); gap: 10px !important; }
+    .vp-title { font-size: 19px; line-height: 1.2; }
+    .vp-crumb { font-size: 12px; }
+    .vp-top-actions { display: contents; }
+    .vp-top-actions > * { order: 3; flex: 1 1 auto; }
+    .vp-top-actions > .vp-bell, .vp-top-actions > .vp-logout { order: 1; flex: none; }
+    .vp-top-actions > .vp-user { display: none; }
+    .vp-top-actions > form:not(.vp-logout) .vp-btn { width: 100%; }
+    .vp-logout .vp-btn { width: 44px; padding: 0; }
+    .vp-logout .vp-btn span { display: none; }
+    .vp-logout .fa-right-from-bracket { display: inline-block; }
+
+    /* Filters two a row; searches and buttons use the full width. */
+    .vp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .vp-grid .vp-input { padding: 0 8px; }
+    .vp-grid-end { grid-column: 1 / -1; }
+    .vp-grid-end .vp-btn, .vp-filter-actions .vp-btn { flex: 1; }
+    .vp-search { width: 100%; }
+    .vp-search .vp-input { width: 100% !important; flex: 1; }
+    .vp-acts { width: 100%; }
+    .vp-acts .vp-btn { flex: 1; padding: 0 10px; }
+    .vp-selects { width: 100%; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+    .vp-selects .vp-input { width: 100%; min-height: 44px; }
+    .vp-tabs { gap: 6px; }
+    .vp-body .vp-tab { padding: 0 12px; }
+}

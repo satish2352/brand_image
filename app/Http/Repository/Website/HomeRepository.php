@@ -62,6 +62,17 @@ class HomeRepository
             ->orderByRaw('FIELD(m.id, ' . implode(',', $ids) . ')')
             ->get();
     }
+    /**
+     * Matching rows for a vendor's own website: the same filters /search uses,
+     * limited to one vendor. Rows carry is_booked (for the date filter) and id.
+     */
+    public function vendorSiteMatches(int $vendorId, array $filters)
+    {
+        $filters['vendor_id'] = $vendorId; // set last: the caller cannot widen it
+
+        return $this->buildSearchQuery($filters)->get();
+    }
+
     private function buildSearchQuery(array $filters)
     {
         $query = DB::table('media_management as m')
@@ -150,6 +161,11 @@ class HomeRepository
 
 
         /* FILTERS */
+        // Vendor website (vendorSiteMatches): only that vendor's media.
+        if (!empty($filters['vendor_id'])) {
+            $query->where('m.vendor_id', (int) $filters['vendor_id']);
+        }
+
         if (!empty($filters['category_id'])) {
             $query->where('m.category_id', $filters['category_id']);
         }
@@ -352,7 +368,9 @@ END AS is_available_days
             $fromDate = $filters['from_date'];
             $toDate   = $filters['to_date'];
 
-            $query->addSelect(DB::raw("
+            // selectRaw, not addSelect(DB::raw(...)): DB::raw ignores bindings, which left
+            // these two ? to be filled by the WHERE values and broke the query.
+            $query->selectRaw("
             CASE
                 WHEN EXISTS (
                     SELECT 1 FROM media_booked_date mbd
@@ -364,7 +382,7 @@ END AS is_available_days
                 )
                 THEN 1 ELSE 0
             END AS is_booked
-        ", [$toDate, $fromDate]));
+        ", [$toDate, $fromDate]);
         } else {
 
             $query->addSelect(DB::raw("
@@ -374,6 +392,7 @@ END AS is_available_days
                     WHERE mbd.media_id = m.id
                     AND mbd.is_deleted = 0
                     AND mbd.is_active = 1
+                    AND mbd.from_date <= CURDATE()
                     AND mbd.to_date >= CURDATE()
                 )
                 THEN 1 ELSE 0

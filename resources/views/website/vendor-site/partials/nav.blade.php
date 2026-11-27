@@ -1,10 +1,15 @@
-{{-- Header links of the vendor website. $active: home | media | contact --}}
+{{-- Header menu of the vendor website. $active: home | media | map | contact --}}
 @php
     $home = route('vendor-site.show', $vendor->slug);
     $onHome = ($active ?? '') === 'home';
+    $onMap = ($active ?? '') === 'map';
+    $onContact = ($active ?? '') === 'contact';
 @endphp
-<a href="{{ $onHome ? '#inventory' : $home . '#inventory' }}" class="vs-link">Inventory</a>
-<a href="{{ $onHome ? '#map' : $home . '#map' }}" class="vs-link">Map</a>
-<a href="{{ route('vendor-site.contact', $vendor->slug) }}" class="vs-link"
-    @if (($active ?? '') === 'contact') aria-current="page" style="color:#C2410C;box-shadow:inset 0 -3px 0 #F97316" @endif>Contact</a>
-<span style="width:1px;height:32px;background:#E5E7EB;margin:0 8px" aria-hidden="true"></span>
+<a href="{{ $home }}" class="vs-link {{ $onHome ? 'is-active' : '' }}" @if ($onHome) aria-current="page" @endif>
+    <i class="fa-solid fa-house" aria-hidden="true"></i><span>Home</span></a>
+<a href="{{ route('vendor-site.map', $vendor->slug) }}" class="vs-link {{ $onMap ? 'is-active' : '' }}" @if ($onMap) aria-current="page" @endif>
+    <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i><span>Map</span></a>
+<a href="{{ route('vendor-site.contact', $vendor->slug) }}" class="vs-link {{ $onContact ? 'is-active' : '' }}" @if ($onContact) aria-current="page" @endif>
+    <i class="fa-regular fa-envelope" aria-hidden="true"></i><span>Contact</span></a>
+<a href="{{ route('vendor-site.contact', $vendor->slug) }}#enquiry" class="vs-cta">
+    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Enquire Now</span></a>

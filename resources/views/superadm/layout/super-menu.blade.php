@@ -152,6 +152,12 @@
                 </li>
             </ul>
         </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.inventory') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.inventory') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>Vendor Inventory &amp; Access</span>
+            </a>
+        </li>
         <li
             class="nav-item {{ request()->is('media/list') || request()->is('media/add') || request()->is('media/edit/*') ? 'active' : '' }}">
             <a href="{{ route('media.list') }}">
@@ -178,12 +184,6 @@
                 @if ($vpPending)<span class="badge badge-warning ml-1">{{ $vpPending }}</span>@endif
             </a>
         </li>
-        <li class="nav-item {{ request()->routeIs('admin.vendor.inventory') ? 'active' : '' }}">
-            <a href="{{ route('admin.vendor.inventory') }}">
-                <i class="mdi mdi-account-key"></i>
-                <span>Vendor Inventory &amp; Access</span>
-            </a>
-        </li>
         <li class="nav-item {{ request()->routeIs('admin.vendor.activity') ? 'active' : '' }}">
             <a href="{{ route('admin.vendor.activity') }}">
                 <i class="mdi mdi-history"></i>
@@ -193,7 +193,7 @@
         <li class="nav-item {{ request()->routeIs('media.insights.usage') ? 'active' : '' }}">
             <a href="{{ route('media.insights.usage') }}">
                 <i class="mdi mdi-chart-donut"></i>
-                <span>Insights API Usage</span>
+                <span>API Request Manager</span>
             </a>
         </li>
         <li class="nav-item {{ request()->routeIs('admin-booking.index') ? 'active' : '' }}">

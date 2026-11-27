@@ -294,7 +294,7 @@ class MediaController extends Controller
 
         $existing = MediaImage::where('media_id', $id)->where('is_deleted', 0)->count();
         if ($existing + count($request->file('images')) > 10) {
-            return back()->with('error', 'You can upload a maximum of 10 photos per media.');
+            return back()->withErrors(['images' => 'You can upload a maximum of 10 photos per media.']);
         }
 
         foreach ($request->file('images') as $image) {

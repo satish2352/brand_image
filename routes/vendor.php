@@ -108,6 +108,9 @@ Route::prefix('{vendorSlug}')->where(['vendorSlug' => '[a-z0-9]+(?:-[a-z0-9]+)*'
     Route::post('otp/send', [VendorSiteController::class, 'sendOtp'])->name('otp.send')->middleware('throttle:5,10');
     Route::post('otp/verify', [VendorSiteController::class, 'verifyOtp'])->name('otp.verify')->middleware('throttle:10,10');
     Route::get('media/{mediaId}', [VendorSiteController::class, 'media'])->whereNumber('mediaId')->name('media');
+    Route::get('map', [VendorSiteController::class, 'map'])->name('map');
+    // The map's filters: same search as /explore, limited to this vendor (JSON list of ids).
+    Route::get('map/search', [VendorSiteController::class, 'mapSearch'])->name('map.search')->middleware('throttle:120,1');
     Route::get('contact', [VendorSiteController::class, 'contact'])->name('contact');
     // Generous on attempts (fixing typos must not lock anyone out); sent
     // enquiries are limited separately in the controller.

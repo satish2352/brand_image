@@ -22,6 +22,7 @@ class Vendor extends Authenticatable
         'district_id',
         'city_id',
         'vendor_name',
+        'company_name',
         'vendor_code',
         'slug',
         'mobile',
@@ -70,10 +71,16 @@ class Vendor extends Authenticatable
         return $this->logo ? Storage::disk('public')->url($this->logo) : null;
     }
 
+    /** Name shown in the vendor panel: the company name, or the vendor name until one is set. */
+    public function getDisplayNameAttribute(): string
+    {
+        return trim((string) $this->company_name) ?: (string) $this->vendor_name;
+    }
+
     /** Two-letter monogram used when no logo has been uploaded. */
     public function getInitialsAttribute(): string
     {
-        $words = preg_split('/\s+/', trim((string) $this->vendor_name)) ?: [];
+        $words = preg_split('/\s+/', trim((string) $this->display_name)) ?: [];
         $letters = collect($words)->filter()->take(2)->map(fn ($w) => Str::upper(Str::substr($w, 0, 1)))->implode('');
 
         return $letters ?: 'V';

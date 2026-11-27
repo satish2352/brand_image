@@ -43,10 +43,10 @@
                         {{ $label }} <b>{{ $counts[$key ?: 'all'] }}</b></a>
                 @endforeach
             </nav>
-            <form method="GET" action="{{ route('vendor.bookings') }}" style="display:flex;gap:8px">
+            <form method="GET" action="{{ route('vendor.bookings') }}" class="vp-search">
                 @if ($status)<input type="hidden" name="status" value="{{ $status }}">@endif
                 <label for="bq" class="sr-only">Search bookings</label>
-                <input id="bq" type="search" name="q" class="vp-input" style="width:260px" placeholder="Booking no., hoarding code or customer" value="{{ request('q') }}">
+                <input id="bq" type="search" name="q" class="vp-input" placeholder="Booking no., hoarding code or customer" value="{{ request('q') }}">
                 <button class="vp-btn vp-btn-n">Search</button>
                 @if (request('q'))
                     <a href="{{ route('vendor.bookings', array_filter(['status' => $status])) }}" class="vp-btn vp-btn-g">Reset</a>

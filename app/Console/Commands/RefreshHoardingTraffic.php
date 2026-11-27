@@ -43,6 +43,10 @@ class RefreshHoardingTraffic extends Command
 
         $remaining = $traffic->remainingToday();
         $take = $this->option('limit') !== null ? min((int) $this->option('limit'), $remaining) : $remaining;
+        // Spread evenly (API Request Manager): about hoardings / refresh-days per day.
+        if ($this->option('limit') === null && ($room = \App\Support\ApiControl::scheduleRoom('traffic')) !== null) {
+            $take = min($take, $room);
+        }
         $due = $traffic->dueCount();
 
         $this->line(sprintf('TomTom traffic: %d/%d requests used today, %d due, fetching up to %d.',
@@ -52,7 +56,7 @@ class RefreshHoardingTraffic extends Command
             return self::SUCCESS;
         }
         if ($take <= 0) {
-            $this->warn('Daily request limit reached; the rest will be fetched on a later run.');
+            $this->warn('Daily limit or today\'s even share reached; the rest is fetched on a later run.');
             return self::SUCCESS;
         }
 
@@ -80,6 +84,11 @@ class RefreshHoardingTraffic extends Command
 
                 if (in_array($r['status'], ['not_found', 'invalid_location'], true)) {
                     continue;
+                }
+                if (in_array($r['status'], ['disabled', 'limit'], true)) {
+                    $this->warn($r['message']);
+                    $stopped = true;
+                    return false;
                 }
 
                 $done++;

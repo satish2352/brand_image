@@ -723,10 +723,7 @@ class MediaManagementController extends Controller
             abort(404);
         }
 
-        // RoadStar mapping + latest stored audience (MySQL only, no API call).
-        $roadstar = app(\App\Http\Services\RoadStar\RoadStarSyncService::class)->forDisplay((int) $id);
-
-        return view('superadm.mediamanagement.viewDetails', compact('media', 'roadstar'));
+        return view('superadm.mediamanagement.viewDetails', compact('media'));
     }
     public function deleteImage(Request $request)
     {

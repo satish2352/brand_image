@@ -7,14 +7,14 @@
     <section class="vp-card" style="min-width:0;overflow:hidden">
         <form method="GET" action="{{ route('vendor.activity') }}" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid #E5E7EB;margin:0">
             <div><h2 class="vp-h2">Activity Log</h2><div class="vp-muted" style="font-size:12px;margin-top:2px">Last {{ \App\Models\VendorActivityLog::RETENTION_MONTHS }} months</div></div>
-            <div style="display:flex;gap:10px">
+            <div class="vp-selects">
                 <label for="la" class="sr-only">Activity type</label>
-                <select id="la" name="action" class="vp-input" style="min-height:40px;width:auto" onchange="this.form.submit()">
+                <select id="la" name="action" class="vp-input" onchange="this.form.submit()">
                     <option value="">All activities</option>
                     @foreach ($actions as $a)<option value="{{ $a }}" @selected(request('action') === $a)>{{ $a }}</option>@endforeach
                 </select>
                 <label for="ld" class="sr-only">Period</label>
-                <select id="ld" name="days" class="vp-input" style="min-height:40px;width:auto" onchange="this.form.submit()">
+                <select id="ld" name="days" class="vp-input" onchange="this.form.submit()">
                     <option value="">All time</option>
                     @foreach ([7 => 'Last 7 days', 30 => 'Last 30 days', 90 => 'Last 90 days'] as $d => $l)<option value="{{ $d }}" @selected(request('days') == $d)>{{ $l }}</option>@endforeach
                 </select>

@@ -161,7 +161,7 @@ class ExploreController extends Controller
                 'highway_name'  => $m->highway_name,
                 'landmarks'     => $m->landmark_names,
                 'image'         => $m->first_image
-                    ? config('fileConstants.IMAGE_VIEW') . $m->first_image
+                    ? \App\Support\MediaImageUrl::for($m->first_image)
                     : null,
             ];
         })->values()->all();
@@ -209,8 +209,10 @@ class ExploreController extends Controller
      * here, because those are what the admin master repositories already call
      * on every write. A renamed city therefore clears this the moment it is
      * saved, instead of showing the old name until the hour is up.
+     *
+     * Public: the vendor website's map page lists the very same options.
      */
-    private function masters(): array
+    public function masters(): array
     {
         $remember = fn(string $key, callable $query) => Cache::remember($key, MasterCache::TTL, $query);
 

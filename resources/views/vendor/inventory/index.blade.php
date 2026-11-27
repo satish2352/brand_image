@@ -22,8 +22,8 @@
                 <h2 class="vp-h2" style="margin:0">Your media</h2>
                 <div class="vp-muted" style="font-size:13px;margin-top:2px">Filter your media, export it to Excel or add a new site.</div>
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:10px">
-                <a href="{{ route('vendor.inventory.export', request()->query()) }}" class="vp-btn vp-btn-g"><i class="fa-solid fa-download"></i>Export Excel</a>
+            <div class="vp-acts">
+                <a href="{{ route('vendor.inventory.export', request()->query()) }}" class="vp-btn vp-btn-g" id="invExport"><i class="fa-solid fa-download"></i>Export Excel</a>
                 <a href="{{ route('vendor.media.create') }}" class="vp-btn vp-btn-o"><i class="fa-solid fa-plus"></i>Add Media</a>
             </div>
         </div>
@@ -57,7 +57,7 @@
             <div><label class="vp-label" for="f-to">To</label><input id="f-to" type="date" name="to_date" class="vp-input" value="{{ $f['to_date'] ?? '' }}"></div>
             <div><label class="vp-label" for="f-sec">Sector Code</label><input id="f-sec" type="text" name="sector_code" class="vp-input" placeholder="e.g. HD000142" value="{{ $f['sector_code'] ?? '' }}"></div>
             {{-- Reset / Filter sit at the right end of the last row of fields, not on a line of their own. --}}
-            <div style="grid-column:-3 / -1;display:flex;gap:10px;justify-content:flex-end;align-items:flex-end">
+            <div class="vp-grid-end">
                 <a href="{{ route('vendor.inventory') }}" class="vp-btn vp-btn-g">Reset</a>
                 <button type="submit" class="vp-btn vp-btn-n">Filter</button>
             </div>
@@ -66,21 +66,24 @@
 
     <section class="vp-card" style="overflow:hidden">
         <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #E5E7EB">
-            <nav class="vp-tabs" aria-label="Approval status">
+            <nav class="vp-tabs" aria-label="Approval status" id="invTabs">
                 @foreach ($tabs as $key => [$label, $count])
                     <a class="vp-tab {{ ($f['approval'] ?? '') === $key ? 'active' : '' }}"
                         href="{{ route('vendor.inventory', array_merge(request()->except(['approval', 'page']), $key ? ['approval' => $key] : [])) }}">{{ $label }} · {{ $count }}</a>
                 @endforeach
             </nav>
-            <form method="GET" action="{{ route('vendor.inventory') }}" style="display:flex;gap:8px;align-items:center">
+            <form method="GET" action="{{ route('vendor.inventory') }}" class="vp-search" id="invSearch" role="search">
                 @foreach (request()->except(['q', 'page']) as $k => $v)
                     @if (is_string($v))<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
                 @endforeach
                 <label for="q" class="sr-only">Search inventory</label>
-                <input id="q" type="search" name="q" class="vp-input" style="width:260px" placeholder="Search title, area, code…" value="{{ $f['q'] ?? '' }}">
+                <input id="q" type="search" name="q" class="vp-input" autocomplete="off"
+                    placeholder="Search sector code, title, category, district…" title="Search by sector code, media code, title, category, state, district, city, area or address. Combine words, e.g. Hoardings Nashik." value="{{ $f['q'] ?? '' }}">
             </form>
         </div>
 
+        {{-- Swapped in place by the live search (server-side) below. --}}
+        <div id="invResults">
         <div class="vp-table-wrap">
             <table class="vp-table">
                 <thead>
@@ -105,7 +108,7 @@
                 <tbody>
                     @forelse ($media as $row)
                         @php $av = $row->availability; @endphp
-                        <tr>
+                        <tr class="vp-row-link" data-href="{{ route('vendor.media.show', $row->id) }}" title="Open details">
                             <td class="nowrap">{{ $media->firstItem() + $loop->index }}</td>
                             <td class="nowrap" style="font-weight:700">{{ $row->hoarding_code ?: '—' }}</td>
                             <td style="font-weight:600;min-width:180px">{{ $row->media_title }}</td>
@@ -148,7 +151,13 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="15" style="text-align:center;padding:40px;color:#475569">No media found. <a href="{{ route('vendor.media.create') }}">Add your first media</a>.</td></tr>
+                        <tr><td colspan="15" style="text-align:center;padding:40px;color:#475569">
+                            @if (trim($f['q'] ?? '') !== '')
+                                No media matches “{{ $f['q'] }}”. <a href="{{ route('vendor.inventory', request()->except(['q', 'page'])) }}">Clear search</a>
+                            @else
+                                No media found. <a href="{{ route('vendor.media.create') }}">Add your first media</a>.
+                            @endif
+                        </td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -156,7 +165,7 @@
 
         <div class="vp-pagination">
             <div style="display:flex;align-items:center;gap:12px" class="vp-muted">
-                <span>Showing {{ $media->firstItem() ?? 0 }}–{{ $media->lastItem() ?? 0 }} of {{ $media->total() }} media</span>
+                <span>Showing {{ $media->firstItem() ?? 0 }}–{{ $media->lastItem() ?? 0 }} of {{ $media->total() }} media · Page {{ $media->currentPage() }} of {{ max(1, $media->lastPage()) }}</span>
                 <form method="GET" action="{{ route('vendor.inventory') }}" style="margin:0;display:flex;gap:6px;align-items:center">
                     @foreach (request()->except(['per_page', 'page']) as $k => $v)
                         @if (is_string($v))<input type="hidden" name="{{ $k }}" value="{{ $v }}">@endif
@@ -167,15 +176,81 @@
                     </select>
                 </form>
             </div>
-            {{ $media->links('pagination::bootstrap-4') }}
+            @if ($media->hasPages())
+                {{ $media->onEachSide(1)->links('pagination::bootstrap-4') }}
+            @else
+                {{-- Laravel hides the pager on a single page; keep it visible (disabled) so paging is always clear. --}}
+                <nav aria-label="Pagination">
+                    <ul class="pagination" style="margin:0">
+                        <li class="page-item disabled" aria-disabled="true"><span class="page-link" aria-hidden="true">&lsaquo;</span></li>
+                        <li class="page-item active" aria-current="page"><span class="page-link">1</span></li>
+                        <li class="page-item disabled" aria-disabled="true"><span class="page-link" aria-hidden="true">&rsaquo;</span></li>
+                    </ul>
+                </nav>
+            @endif
         </div>
+        </div>{{-- /#invResults --}}
     </section>
 
     @include('vendor.inventory.partials.availability-modal')
 @endsection
 
 @section('scripts')
+    <style>
+        .vp-row-link { cursor: pointer; }
+        .vp-row-link:hover td { background: #FFF7ED; }
+    </style>
     <script>
+        // Live search: as the vendor types, ask the server for the matching page
+        // (same URL, same filters, page 1) and swap in the table, pager, tabs and export link.
+        (function () {
+            var form = document.getElementById('invSearch');
+            var input = document.getElementById('q');
+            if (!form || !input) return;
+            var timer = null, ctrl = null, last = input.value.trim();
+
+            function run() {
+                var term = input.value.trim();
+                if (term === last) return;
+                last = term;
+                var params = new URLSearchParams(new FormData(form));
+                params.delete('page');
+                if (!term) params.delete('q');
+                var url = form.action + (params.toString() ? '?' + params : '');
+
+                if (ctrl) ctrl.abort();
+                ctrl = new AbortController();
+                document.getElementById('invResults').style.opacity = '.55';
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: ctrl.signal, credentials: 'same-origin' })
+                    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+                    .then(function (html) {
+                        var doc = new DOMParser().parseFromString(html, 'text/html');
+                        ['invResults', 'invTabs', 'invExport'].forEach(function (id) {
+                            var fresh = doc.getElementById(id), cur = document.getElementById(id);
+                            if (fresh && cur) cur.replaceWith(fresh);
+                        });
+                        history.replaceState(null, '', url);
+                    })
+                    .catch(function (e) { if (e.name !== 'AbortError') window.location.href = url; }) // fall back to a normal load
+                    .finally(function () { var el = document.getElementById('invResults'); if (el) el.style.opacity = ''; });
+            }
+
+            input.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(run, 350); });
+            form.addEventListener('submit', function (e) { e.preventDefault(); clearTimeout(timer); last = null; run(); });
+        })();
+
+        // Clicking anywhere on a row opens that media's details page.
+        // Buttons, links, the Active switch and forms in the row keep their own action;
+        // Ctrl/Cmd-click or middle-click opens the details in a new tab.
+        $(document).on('click auxclick', 'tr.vp-row-link', function (e) {
+            if ($(e.target).closest('a, button, input, select, textarea, label, form').length) return;
+            if (window.getSelection && String(window.getSelection()).length) return; // user is selecting text
+            if (e.type === 'auxclick' && e.button !== 1) return;
+            const url = this.dataset.href;
+            if (e.ctrlKey || e.metaKey || e.button === 1) window.open(url, '_blank');
+            else window.location.href = url;
+        });
+
         // Town list follows the chosen district.
         $('#f-dis').on('change', function () {
             const d = this.value;

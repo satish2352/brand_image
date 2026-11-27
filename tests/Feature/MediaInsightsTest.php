@@ -436,7 +436,7 @@ class MediaInsightsTest extends TestCase
         $html = $this->withSession(['site_admin_id' => 1])
             ->getJson($this->url("/media-details/{$this->enc($id)}/insights"))->json('html');
         $this->assertStringContainsString('Refresh Insights', $html);
-        $this->assertStringContainsString('Powered by Geoapify', $html);
+        $this->assertStringNotContainsString('Powered by Geoapify', $html); // attribution line removed from the panel
         $this->assertStringContainsString('KTHM College', $html);
         $this->assertStringNotContainsString(self::GEO_KEY, $html);
     }

@@ -58,13 +58,7 @@ class MediaManagement extends Model
         'submitted_at',
         'reviewed_by',
         'reviewed_at',
-        // roadstar_* columns are deliberately not fillable: only
-        // RoadStarSyncService writes them, never a media form.
-    ];
-
-    protected $casts = [
-        'roadstar_last_synced_at'  => 'datetime',
-        'roadstar_last_attempt_at' => 'datetime',
+        // The old roadstar_* columns are unused (RoadStar was removed) and stay out of the form.
     ];
 
     /** Site code shown everywhere a single media item is named. */
@@ -115,22 +109,6 @@ class MediaManagement extends Model
     public function trafficData()
     {
         return $this->hasOne(HoardingTrafficData::class, 'media_id');
-    }
-
-    /**
-     * RoadStar audience, one row per synced period (refreshed every 15 days).
-     */
-    public function roadStarAudience()
-    {
-        return $this->hasMany(RoadStarAudienceData::class, 'media_id');
-    }
-
-    /**
-     * The most recently fetched RoadStar audience row.
-     */
-    public function latestRoadStarAudience()
-    {
-        return $this->hasOne(RoadStarAudienceData::class, 'media_id')->latestOfMany('fetched_at');
     }
 
     /**

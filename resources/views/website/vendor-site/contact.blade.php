@@ -1,5 +1,5 @@
 @extends('website.vendor-site.layout')
-@section('title', 'Contact · ' . $vendor->vendor_name)
+@section('title', 'Contact · ' . $vendor->display_name)
 @section('tagline', $totals['media'] . ' outdoor media sites')
 
 @section('nav')
@@ -32,6 +32,15 @@
             .vs-contact-actions { margin-left: 0; }
             .vs-contact-item + .vs-contact-item { border-left: 0; border-top: 1px solid #F1F5F9; }
         }
+        /* Call / WhatsApp / Email: round icon buttons with a tooltip. */
+        .vs-contact-actions { gap: 12px !important; }
+        .vs-icon-btn { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 21px; text-decoration: none;
+            color: #fff; transition: transform .15s, box-shadow .15s; }
+        .vs-icon-btn:hover { transform: translateY(-2px); color: #fff; }
+        .vs-icon-btn.is-call { background: #F97316; box-shadow: 0 8px 18px rgba(249,115,22,.3); }
+        .vs-icon-btn.is-wa { background: #16A34A; box-shadow: 0 8px 18px rgba(22,163,74,.3); font-size: 25px; }
+        .vs-icon-btn.is-mail { background: #0F172A; box-shadow: 0 8px 18px rgba(15,23,42,.25); }
+        .vs-icon-btn:focus-visible { outline: 3px solid #FDBA74; outline-offset: 3px; }
     </style>
 @endsection
 
@@ -39,7 +48,7 @@
     <section class="vs-page-hero">
         <div class="vs-wrap">
             <div style="font-size:13px;color:var(--vs-brand-muted)"><a href="{{ route('vendor-site.show', $vendor->slug) }}" style="color:var(--vs-brand-link);font-weight:700">Home</a> / Contact</div>
-            <h1 style="margin:10px 0 8px;font-size:40px;font-weight:800">Contact {{ $vendor->vendor_name }}</h1>
+            <h1 style="margin:10px 0 8px;font-size:40px;font-weight:800">Contact {{ $vendor->display_name }}</h1>
             <p style="margin:0;font-size:16px;color:var(--vs-brand-muted);max-width:560px">Ask about any of our {{ $totals['media'] }} sites, their availability or rates. We usually reply the same day.</p>
         </div>
     </section>
@@ -51,19 +60,19 @@
                     @if ($vendor->logo_url)<img src="{{ $vendor->logo_url }}" alt="">@else{{ $vendor->initials }}@endif
                 </span>
                 <div>
-                    <div style="font-size:22px;font-weight:800">{{ $vendor->vendor_name }}</div>
+                    <div style="font-size:22px;font-weight:800">{{ $vendor->display_name }}</div>
                     <div style="color:#475569;font-size:14px;margin-top:4px">Outdoor media · {{ $totals['media'] }} sites across {{ $totals['districts'] }} district{{ $totals['districts'] == 1 ? '' : 's' }}</div>
                 </div>
                 <div class="vs-contact-actions">
                     @if ($contact['tel'])
-                        <a href="tel:{{ $contact['tel'] }}" class="vs-btn vs-btn-o"><i class="fa-solid fa-phone"></i>Call</a>
+                        <a href="tel:{{ $contact['tel'] }}" class="vs-icon-btn is-call" title="Call {{ $vendor->display_name }}" aria-label="Call {{ $vendor->display_name }}"><i class="fa-solid fa-phone" aria-hidden="true"></i></a>
                     @endif
                     @if ($contact['whatsapp'])
-                        <a href="https://wa.me/{{ $contact['whatsapp'] }}?text={{ rawurlencode('Hi ' . $vendor->vendor_name . ', I saw your media on Brand Adda and would like to know more.') }}"
-                            target="_blank" rel="noopener" class="vs-btn" style="background:#16A34A;color:#fff"><i class="fa-brands fa-whatsapp"></i>WhatsApp</a>
+                        <a href="https://wa.me/{{ $contact['whatsapp'] }}?text={{ rawurlencode('Hi ' . $vendor->display_name . ', I saw your media on Brand Adda and would like to know more.') }}"
+                            target="_blank" rel="noopener" class="vs-icon-btn is-wa" title="Chat on WhatsApp" aria-label="Chat with {{ $vendor->display_name }} on WhatsApp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
                     @endif
                     @if ($contact['email'])
-                        <a href="mailto:{{ $contact['email'] }}?subject={{ rawurlencode('Media enquiry via Brand Adda') }}" class="vs-btn vs-btn-g"><i class="fa-regular fa-envelope"></i>Email</a>
+                        <a href="mailto:{{ $contact['email'] }}?subject={{ rawurlencode('Media enquiry via Brand Adda') }}" class="vs-icon-btn is-mail" title="Send an email" aria-label="Email {{ $vendor->display_name }}"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>
                     @endif
                 </div>
             </div>
@@ -98,14 +107,14 @@
         <section id="enquiry" class="vs-contact" style="margin-top:28px;scroll-margin-top:20px">
             <div style="padding:24px 28px;border-bottom:1px solid #F1F5F9">
                 <h2 style="margin:0;font-size:22px;font-weight:800">Send an enquiry</h2>
-                <p style="margin:6px 0 0;color:#475569;font-size:14px">Tell us what you need and {{ $vendor->vendor_name }} will get back to you.</p>
+                <p style="margin:6px 0 0;color:#475569;font-size:14px">Tell us what you need and {{ $vendor->display_name }} will get back to you.</p>
             </div>
 
             @if (session('enquiry_sent'))
                 <div style="padding:40px 28px;text-align:center">
                     <div style="width:64px;height:64px;margin:0 auto 14px;border-radius:999px;background:#DCFCE7;color:#166534;display:grid;place-items:center;font-size:28px"><i class="fa-solid fa-check"></i></div>
                     <h3 style="margin:0;font-size:20px;font-weight:800">Thank you! Your enquiry has been sent.</h3>
-                    <p style="margin:8px 0 18px;color:#475569">{{ $vendor->vendor_name }} will contact you soon on the phone or email you gave.</p>
+                    <p style="margin:8px 0 18px;color:#475569">{{ $vendor->display_name }} will contact you soon on the phone or email you gave.</p>
                     <a href="{{ route('vendor-site.contact', $vendor->slug) }}#enquiry" class="vs-btn vs-btn-g">Send another enquiry</a>
                 </div>
             @else
@@ -175,7 +184,7 @@
                         <textarea id="f-message" name="message" class="vs-input {{ $err('message') }}" rows="5" required minlength="10" maxlength="1000" data-rule="message"
                             aria-invalid="{{ $inv('message') }}" aria-describedby="e-message"
                             style="padding:12px;min-height:120px"
-                            placeholder="e.g. Looking for 2 hoardings near FC Road for 1 month from 1 Jan">{{ old('message') }}</textarea>
+                            placeholder="e.g. Looking for 2 hoardings near FC Road for 1 month from 1 Jan">{{ old('message', $draft) }}</textarea>
                         <div style="display:flex;justify-content:space-between;gap:12px">
                             <div class="vs-err" id="e-message" role="alert">@error('message'){{ $message }}@enderror</div>
                             <small style="color:#475569;white-space:nowrap;margin-top:6px"><span id="msgCount">0</span> / 1000</small>
@@ -183,7 +192,7 @@
                     </div>
 
                     <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
-                        <span style="font-size:12px;color:#475569">Your details are shared only with {{ $vendor->vendor_name }}.</span>
+                        <span style="font-size:12px;color:#475569">Your details are shared only with {{ $vendor->display_name }}.</span>
                         <button type="submit" class="vs-btn vs-btn-o" style="min-width:200px"><i class="fa-regular fa-paper-plane"></i>Send Enquiry</button>
                     </div>
                 </form>
@@ -192,7 +201,7 @@
 
         <div style="margin-top:28px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center">
             <a href="{{ route('vendor-site.show', $vendor->slug) }}#inventory" class="vs-btn vs-btn-n"><i class="fa-solid fa-table-cells-large"></i>Browse our inventory</a>
-            <a href="{{ route('vendor-site.show', $vendor->slug) }}#map" class="vs-btn vs-btn-g"><i class="fa-regular fa-map"></i>See sites on the map</a>
+            <a href="{{ route('vendor-site.map', $vendor->slug) }}" class="vs-btn vs-btn-g"><i class="fa-regular fa-map"></i>See sites on the map</a>
         </div>
     </main>
 @endsection

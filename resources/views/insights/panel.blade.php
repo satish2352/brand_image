@@ -33,7 +33,7 @@
         <div class="ins-note mt-0">
             Estimates and rule-based indicators to help compare locations — not measured audience data.
             @if ($insights['fetched_at'])
-                Nearby places: {{ $insights['source'] }}, fetched {{ $insights['fetched_at']->format('d M Y') }}@if ($insights['expired']) (due for refresh)@endif.
+                Nearby places updated {{ $insights['fetched_at']->format('d M Y') }}@if ($insights['expired']) (due for refresh)@endif.
             @endif
             @if ($insights['calculated_at'])
                 Last updated {{ $insights['calculated_at']->format('d M Y, h:i A') }}.
@@ -189,7 +189,7 @@
                 <button type="button" class="ins-link" id="insightsShowAll">Show all {{ count($places) }} places</button>
             @endif
             <div class="ins-note">
-                Source: {{ $p['landmarks']['note'] }}. Distances are straight-line from this media's coordinates.
+                Source: {{ str_replace('Geoapify Places (OpenStreetMap data)', 'OpenStreetMap data', $p['landmarks']['note']) }}. Distances are straight-line from this media's coordinates.
             </div>
         @endif
 
@@ -206,8 +206,5 @@
     @endforeach
 </div>
 
-@if (!empty($insights['attribution']))
-    <div class="ins-attribution">
-        <a href="{{ $insights['attribution']['url'] }}" target="_blank" rel="noopener">{{ $insights['attribution']['text'] }}</a>
-    </div>
-@endif
+{{-- The provider attribution line ("Powered by Geoapify") is not shown on request.
+     $insights['attribution'] still carries it if a provider's plan needs it back. --}}

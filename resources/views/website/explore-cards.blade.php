@@ -6,7 +6,7 @@
     @php
         $sqft = (float) $media->width * (float) $media->height;
         $img = $media->first_image
-            ? config('fileConstants.IMAGE_VIEW') . $media->first_image
+            ? \App\Support\MediaImageUrl::for($media->first_image)
             : asset('assets/img/no-image.png');
     @endphp
     <div class="explore-card" id="exp-card-{{ $media->id }}"

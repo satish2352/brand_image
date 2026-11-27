@@ -421,16 +421,16 @@
                                         {{-- MAIN IMAGE --}}
                                         <div class="cart-main-img  single-product-img" onmousemove="zoomImage(event, this)"
                                             onmouseleave="resetZoom(this)">
-                                            <img src="{{ $firstImage ? config('fileConstants.IMAGE_VIEW') . $firstImage->images : '' }}"
+                                            <img src="{{ $firstImage ? \App\Support\MediaImageUrl::for($firstImage->images) : '' }}"
                                                 class="main-cart-image">
                                         </div>
 
                                         {{-- THUMBNAILS BELOW --}}
                                         <div class="cart-thumbs-horizontal">
                                             @foreach ($item->images as $key => $img)
-                                                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
+                                                <img src="{{ \App\Support\MediaImageUrl::for($img->images) }}"
                                                     class="thumb-img {{ $key === 0 ? 'active' : '' }}  single-product-img"
-                                                    onclick="changeCartImage(this, '{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
+                                                    onclick="changeCartImage(this, '{{ \App\Support\MediaImageUrl::for($img->images) }}')">
                                             @endforeach
                                         </div>
 

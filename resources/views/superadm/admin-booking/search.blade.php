@@ -44,7 +44,7 @@
     </div>
 @endsection
 @section('scripts')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- jQuery is already loaded by superadm.layout.master; a second copy broke Bootstrap modals (header notifications). --}}
 
     <script>
         let page     = {{ $mediaList->currentPage() }};

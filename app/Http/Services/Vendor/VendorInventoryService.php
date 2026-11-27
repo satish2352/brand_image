@@ -75,22 +75,62 @@ class VendorInventoryService
         } elseif (!empty($filters['to_date'])) {
             $query->whereDate('m.created_at', '<=', $filters['to_date']);
         }
-        if (!empty($filters['sector_code'])) {
-            $query->where('m.hoarding_code', 'like', '%' . trim($filters['sector_code']) . '%');
+        if (trim((string) ($filters['sector_code'] ?? '')) !== '') {
+            $code = trim($filters['sector_code']);
+            $query->where(function ($q) use ($code) {
+                $q->where('m.hoarding_code', 'like', '%' . addcslashes($code, '\\%_') . '%');
+                $this->orCodeIgnoringZeros($q, $code);
+            });
         }
         if (!empty($filters['approval']) && isset(self::APPROVAL_LABELS[$filters['approval']])) {
             $query->where('m.approval_status', $filters['approval']);
         }
-        if (!empty($filters['q'])) {
-            $term = '%' . trim($filters['q']) . '%';
-            $query->where(function ($q) use ($term) {
-                $q->where('m.media_title', 'like', $term)
-                    ->orWhere('m.hoarding_code', 'like', $term)
-                    ->orWhere('m.media_code', 'like', $term)
-                    ->orWhere('a.area_name', 'like', $term)
-                    ->orWhere('cty.city_name', 'like', $term);
+        $raw = trim(preg_replace('/\s+/', ' ', (string) ($filters['q'] ?? '')));
+        if ($raw !== '') {
+            $words = array_slice(array_unique(explode(' ', $raw)), 0, 8);
+            $query->where(function ($q) use ($raw, $words) {
+                // The whole text in one field ("Mumbai Highway", "hd 42") ...
+                $q->where(fn ($w) => $this->matchAnyField($w, $raw));
+                // ... or every word somewhere, in any field ("Hoardings Nashik HD42").
+                if (count($words) > 1) {
+                    $q->orWhere(function ($all) use ($words) {
+                        foreach ($words as $word) {
+                            $all->where(fn ($w) => $this->matchAnyField($w, $word));
+                        }
+                    });
+                }
             });
         }
+    }
+
+    /** Searchable columns: sector code, media code, title, address, category and location. */
+    private const SEARCH_COLUMNS = [
+        'm.hoarding_code', 'm.media_code', 'm.media_title', 'm.address',
+        'c.category_name', 's.state_name', 'd.district_name', 'cty.city_name', 'a.area_name',
+    ];
+
+    private function matchAnyField($query, string $text): void
+    {
+        // Escape LIKE wildcards so "MAH_NAS" or "50%" match literally.
+        $like = '%' . addcslashes($text, '\\%_') . '%';
+        foreach (self::SEARCH_COLUMNS as $col) {
+            $query->orWhere($col, 'like', $like);
+        }
+        $this->orCodeIgnoringZeros($query, $text);
+    }
+
+    /**
+     * Hoarding codes are zero-padded (HD000042). Let "HD00042", "HD42", "hd 42"
+     * or just "42" find it too: same letters, same number, any count of leading zeros.
+     */
+    private function orCodeIgnoringZeros($query, string $term): void
+    {
+        if (!preg_match('/^([A-Za-z]*)[\s\-]*0*(\d{1,9})$/', $term, $m)) {
+            return;
+        }
+        // Only letters and digits reach the pattern, so it is safe to build.
+        $pattern = '^' . ($m[1] !== '' ? $m[1] : '[A-Za-z]*') . '0*' . $m[2] . '$';
+        $query->orWhereRaw('m.hoarding_code REGEXP ?', [$pattern]);
     }
 
     /** Sortable columns of the inventory table. */

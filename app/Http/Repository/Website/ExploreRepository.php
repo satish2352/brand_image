@@ -38,6 +38,17 @@ class ExploreRepository
             ->get();
     }
 
+    /**
+     * Ids of one vendor's media that match the Explore filters — the vendor
+     * website's map runs the very same search, limited to that vendor.
+     */
+    public function vendorMatchIds(int $vendorId, array $filters): array
+    {
+        $filters['vendor_id'] = $vendorId; // set last: the caller cannot widen it
+
+        return $this->buildSearchQuery($filters)->get()->pluck('id')->map(fn ($id) => (int) $id)->all();
+    }
+
     private function buildSearchQuery(array $filters)
     {
         $query = DB::table('media_management as m')
@@ -81,6 +92,11 @@ class ExploreRepository
                 DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
             ]);
+
+        // Vendor website map (vendorMatchIds): that vendor's media only.
+        if (!empty($filters['vendor_id'])) {
+            $query->where('m.vendor_id', (int) $filters['vendor_id']);
+        }
 
         /* ---------- LOCATION GROUPS (OR within / AND across) ---------- */
         $this->applyInFilter($query, 'm.state_id', $filters['state_id'] ?? null);

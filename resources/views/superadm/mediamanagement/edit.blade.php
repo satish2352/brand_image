@@ -473,6 +473,20 @@
                                 {{ $message }}
                             </div>
                         @enderror
+
+                        {{-- Current 360° image; replaced by a preview of a newly chosen file until Update is saved. --}}
+                        @php
+                            $panoUrl = !empty($media->panorama_image) ? \App\Support\MediaImageUrl::for($media->panorama_image) : null;
+                        @endphp
+                        <div id="panoramaPreviewBox" class="mt-2" @if (!$panoUrl) style="display:none" @endif
+                            data-current-src="{{ $panoUrl }}"
+                            data-current-view="{{ $panoUrl ? url('panorama.html') . '?img=' . urlencode($panoUrl) : '' }}">
+                            <div id="panoramaPreviewLabel" style="font-size:12px;font-weight:600;color:#475569;margin-bottom:4px">Current 360° image</div>
+                            <img id="panoramaPreview" src="{{ $panoUrl }}" alt="360° image preview"
+                                style="display:block;width:100%;max-width:320px;height:110px;object-fit:cover;border-radius:6px;border:1px solid #d9d9d9;background:#f1f5f9">
+                            <a id="panoramaViewLink" href="{{ $panoUrl ? url('panorama.html') . '?img=' . urlencode($panoUrl) : '#' }}" target="_blank" rel="noopener"
+                                style="display:inline-block;margin-top:4px;font-size:13px">View 360°</a>
+                        </div>
                     </div>
 
                 </div>
@@ -731,6 +745,34 @@
             });
             $('#panorama_image').on('change', function() {
                 $(this).valid(); // ✅ trigger validation immediately
+
+                // Preview: the newly chosen 360° image replaces the current one on screen;
+                // clearing the field shows the saved image again.
+                var box = document.getElementById('panoramaPreviewBox');
+                var img = document.getElementById('panoramaPreview');
+                var label = document.getElementById('panoramaPreviewLabel');
+                var link = document.getElementById('panoramaViewLink');
+                if (box.dataset.blob) { URL.revokeObjectURL(box.dataset.blob); delete box.dataset.blob; }
+
+                var file = this.files && this.files[0];
+                if (file && /^image\//.test(file.type)) {
+                    var blob = URL.createObjectURL(file);
+                    box.dataset.blob = blob;
+                    img.src = blob;
+                    label.textContent = 'New 360° image (saved when you click Update)';
+                    label.style.color = '#c2410c';
+                    link.style.display = 'none';
+                    box.style.display = '';
+                } else if (box.dataset.currentSrc) {
+                    img.src = box.dataset.currentSrc;
+                    label.textContent = 'Current 360° image';
+                    label.style.color = '#475569';
+                    link.href = box.dataset.currentView;
+                    link.style.display = '';
+                    box.style.display = '';
+                } else {
+                    box.style.display = 'none';
+                }
             });
         });
     </script>

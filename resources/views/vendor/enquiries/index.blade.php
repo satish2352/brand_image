@@ -31,10 +31,10 @@
                     class="vp-tab {{ (string) $status === (string) $key ? 'active' : '' }}">{{ $label }} · {{ $count }}</a>
             @endforeach
         </nav>
-        <form method="GET" action="{{ route('vendor.enquiries') }}" style="margin:0">
+        <form method="GET" action="{{ route('vendor.enquiries') }}" class="vp-search">
             @if ($status)<input type="hidden" name="status" value="{{ $status }}">@endif
             <label for="eq" class="sr-only">Search enquiries</label>
-            <input id="eq" type="search" name="q" value="{{ request('q') }}" class="vp-input" style="width:280px" placeholder="Search name, phone, email, message">
+            <input id="eq" type="search" name="q" value="{{ request('q') }}" class="vp-input" placeholder="Search name, phone, email, message">
         </form>
     </div>
 

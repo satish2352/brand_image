@@ -4,6 +4,7 @@
         <thead>
             <tr>
                 <th style="width:40px"><input type="checkbox" class="vi-check js-pick-all" aria-label="Select all" @disabled($rows->isEmpty())></th>
+                <th class="text-center" style="width:70px">Sr. No.</th>
                 <th>Code</th>
                 <th>Media Title</th>
                 <th>Location</th>
@@ -18,6 +19,7 @@
                 @endphp
                 <tr data-pick style="cursor:pointer">
                     <td><input type="checkbox" class="vi-check" name="media_ids[]" value="{{ $r->id }}" aria-label="Select {{ $r->hoarding_code ?: $r->media_title }}"></td>
+                    <td class="text-center vi-muted">{{ $loop->iteration }}</td>
                     <td class="text-nowrap">
                         <a href="{{ route('admin.vendor.approvals.show', $r->id) }}" title="Open details"><strong>{{ $r->hoarding_code ?: '—' }}</strong></a>
                     </td>
@@ -31,7 +33,7 @@
                     <td><span class="vi-badge {{ $approvalClass }}">{{ ucfirst($r->approval_status) }}</span></td>
                 </tr>
             @empty
-                <tr><td colspan="{{ $showVendor ? 6 : 5 }}" class="text-center vi-muted py-4">No media here.</td></tr>
+                <tr><td colspan="{{ $showVendor ? 7 : 6 }}" class="text-center vi-muted py-4">No media here.</td></tr>
             @endforelse
         </tbody>
     </table>

@@ -28,4 +28,30 @@ class MediaImageUrl
 
         return config('fileConstants.IMAGE_VIEW') . $file;
     }
+
+    /** Grey "No photo yet" tile for media without any photo (no file needed). */
+    public static function placeholder(): string
+    {
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">'
+            . '<rect width="400" height="300" fill="#F1F5F9"/>'
+            . '<text x="200" y="158" text-anchor="middle" font-family="Montserrat,Arial,sans-serif" font-size="20" fill="#94A3B8">No photo yet</text></svg>';
+
+        return 'data:image/svg+xml;charset=utf-8,' . rawurlencode($svg);
+    }
+
+    /**
+     * For data handed to JavaScript (map popups): each row as an array with
+     * `first_image_url` added, so the page does not glue IMAGE_VIEW + file itself.
+     */
+    public static function withUrls(iterable $rows, string $field = 'first_image', string $as = 'first_image_url'): array
+    {
+        $out = [];
+        foreach ($rows as $row) {
+            $item = is_array($row) ? $row : (method_exists($row, 'toArray') ? $row->toArray() : (array) $row);
+            $item[$as] = self::for($item[$field] ?? null);
+            $out[] = $item;
+        }
+
+        return $out;
+    }
 }

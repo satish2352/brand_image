@@ -2,6 +2,8 @@
 
 namespace App\Http\Services\Insights;
 
+use App\Models\ApiUsageLog;
+use App\Support\ApiControl;
 use App\Models\HoardingTrafficData;
 use App\Models\MediaManagement;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +44,7 @@ class HoardingTrafficService
      * @return array{status: string, message: string, http_status: ?int, record: ?HoardingTrafficData}
      *         status: success | failed | invalid_location | not_found
      */
-    public function fetchAndStore($hoarding): array
+    public function fetchAndStore($hoarding, string $source = 'scheduler', ?int $adminId = null): array
     {
         $media = $hoarding instanceof MediaManagement
             ? $hoarding
@@ -60,8 +62,20 @@ class HoardingTrafficService
 
         $lat = (float) $lat;
         $lng = (float) $lng;
+
+        // API Request Manager: switched off, or today's limit (own or the shared TomTom plan) reached.
+        if (!ApiControl::enabled('tomtom_traffic')) {
+            $this->log($media->id, ApiUsageLog::DISABLED, $source, $adminId);
+            return $this->outcome('disabled', 'TomTom Traffic requests are turned off by Super Admin.');
+        }
+        if ($this->remainingToday() <= 0) {
+            $this->log($media->id, ApiUsageLog::QUOTA_BLOCKED, $source, $adminId, ['error' => 'Daily TomTom limit reached.']);
+            return $this->outcome('limit', 'Today\'s TomTom limit is reached. The rest is fetched on a later day.');
+        }
+
         $result = $this->tomTom->getTrafficFlow($lat, $lng);
         $now = now();
+        $this->log($media->id, $result['ok'] ? ApiUsageLog::SUCCESS : ((int) $result['http_status'] === 429 ? ApiUsageLog::QUOTA_EXCEEDED : ApiUsageLog::FAILED), $source, $adminId, $result);
 
         $values = [
             'latitude'         => $lat,
@@ -141,6 +155,8 @@ class HoardingTrafficService
                 $q->whereNull('t.id')
                     ->orWhereNull('t.next_refresh_at')
                     ->orWhere('t.next_refresh_at', '<=', $now)
+                    // A shorter cycle saved on the API Request Manager applies to old rows too.
+                    ->orWhere('t.traffic_updated_at', '<', $now->copy()->subDays($this->refreshDays()))
                     ->orWhereRaw('ABS(t.latitude - m.latitude) > 0.0000005')
                     ->orWhereRaw('ABS(t.longitude - m.longitude) > 0.0000005');
             })
@@ -153,9 +169,10 @@ class HoardingTrafficService
     }
 
     /** Traffic requests already made today (success or not). */
+    /** Requests sent today, from the request log (every attempt counts, not each hoarding once). */
     public function usedToday(): int
     {
-        return HoardingTrafficData::where('last_attempt_at', '>=', now()->startOfDay())->count();
+        return ApiControl::usedToday('tomtom_traffic');
     }
 
     public function dailyLimit(): int
@@ -163,9 +180,33 @@ class HoardingTrafficService
         return max(0, (int) config('services.tomtom.traffic_daily_limit', 2000));
     }
 
+    /** Own daily limit, and never past the TomTom plan shared with TomTom Places. */
     public function remainingToday(): int
     {
-        return max(0, $this->dailyLimit() - $this->usedToday());
+        return max(0, min($this->dailyLimit() - $this->usedToday(), ApiControl::tomTomShared()['remaining']));
+    }
+
+    private function log(int $mediaId, string $status, string $source, ?int $adminId, array $res = []): void
+    {
+        try {
+            ApiUsageLog::create([
+                'provider'         => 'tomtom_traffic',
+                'media_id'         => $mediaId,
+                'query'            => 'flowSegmentData',
+                'status'           => $status,
+                'http_status'      => $res['http_status'] ?? null,
+                // TomTom bills every request it answered, whatever the answer.
+                'credits_consumed' => isset($res['http_status']) && $res['http_status'] ? 1 : 0,
+                'result_count'     => !empty($res['ok']) ? 1 : null,
+                'error_message'    => isset($res['error']) ? mb_substr(str_replace((string) config('services.tomtom.api_key'), '***', (string) $res['error']), 0, 500) : null,
+                'duration_ms'      => $res['duration_ms'] ?? null,
+                'source'           => $source,
+                'triggered_by'     => $adminId,
+                'requested_at'     => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Could not write traffic API usage log: ' . $e->getMessage());
+        }
     }
 
     public function batchSize(): int

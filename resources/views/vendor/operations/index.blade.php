@@ -4,7 +4,7 @@
 @section('heading', 'Operations')
 
 @section('actions')
-    <form method="GET" action="{{ route('vendor.operations') }}" style="margin:0">
+    <form method="GET" action="{{ route('vendor.operations') }}" class="vp-search">
         <input type="hidden" name="stage" value="{{ $stage }}">
         <label for="opq" class="sr-only">Search booking or hoarding code</label>
         <input id="opq" type="search" name="q" value="{{ request('q') }}" class="vp-input" style="width:300px" placeholder="Search booking no. or hoarding code">

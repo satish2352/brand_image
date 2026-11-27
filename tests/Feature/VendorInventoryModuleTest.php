@@ -299,6 +299,7 @@ class VendorInventoryModuleTest extends TestCase
         $site = route('vendor-site.show', $this->vendor->slug);
         $this->get($site)->assertOk()->assertSee('Verify to view inventory')->assertDontSee('Live Showcase Site');
         $this->get(route('vendor-site.contact', $this->vendor->slug))->assertRedirect($site);
+        $this->get(route('vendor-site.map', $this->vendor->slug))->assertRedirect($site);
 
         $this->post(route('vendor-site.otp.send', $this->vendor->slug))->assertSessionHas('success');
 
@@ -319,6 +320,22 @@ class VendorInventoryModuleTest extends TestCase
             ->assertDontSee('id="contact"', false)
             ->assertSee(route('vendor-site.contact', $this->vendor->slug));
 
+        // Separate Map page, linked from the menu: only this vendor's live sites.
+        $mapUrl = route('vendor-site.map', $this->vendor->slug);
+        $this->get($site)->assertSee('href="' . $mapUrl . '"', false);
+        $this->get($mapUrl)->assertOk()->assertSee('id="vmMap"', false)->assertSee('Live Showcase Site')
+            // The /explore filter groups (checkbox lists) and the status dropdown.
+            ->assertSee('name="category_id[]"', false)->assertSee('name="city_id[]"', false)->assertSee('Landmarks')
+            ->assertSee('All availability')->assertDontSee('class="vm-item"', false)
+            ->assertDontSee('Pending Hidden Site')->assertDontSee('Other Vendor Site');
+
+        // The map's search (same as /explore) returns only this vendor's live media.
+        $ids = $this->getJson(route('vendor-site.map.search', $this->vendor->slug) . '?q=Site')->assertOk()->json('ids');
+        $titles = \Illuminate\Support\Facades\DB::table('media_management')->whereIn('id', $ids)->pluck('media_title')->all();
+        $this->assertContains('Live Showcase Site', $titles);
+        $this->assertNotContains('Pending Hidden Site', $titles);
+        $this->assertNotContains('Other Vendor Site', $titles);
+
         // Separate Contact page with the vendor's details.
         $this->get(route('vendor-site.contact', $this->vendor->slug))->assertOk()
             ->assertSee('Contact Test Vendor Alpha')
@@ -326,7 +343,39 @@ class VendorInventoryModuleTest extends TestCase
             ->assertSee('tel:+919876543210', false)
             ->assertSee('https://wa.me/919876543210', false);
 
-        $this->get(route('vendor-site.media', [$this->vendor->slug, $live->id]))->assertOk()->assertSee('Live Showcase Site');
+        // The detail page carries the Location Insights panel, which loads for a website visitor
+        // without the admin refresh bar. (No provider call: fetch-on-view is off here.)
+        config(['services.insights.fetch_on_view' => false]);
+        $insightsUrl = route('media.insights.show', base64_encode((string) $live->id));
+        $this->get(route('vendor-site.media', [$this->vendor->slug, $live->id]))->assertOk()->assertSee('Live Showcase Site')
+            ->assertSee('id="media-insights"', false)->assertSee($insightsUrl, false)
+            ->assertSee('Enquire about this site')->assertSee('Available now')->assertSee('id="availability"', false);
+        // Dates picked in the calendar start the enquiry message; nonsense dates are ignored.
+        $contactUrl = fn (array $q) => route('vendor-site.contact', [$this->vendor->slug, 'media' => $live->id] + $q);
+        $this->get($contactUrl(['from' => '2027-01-05', 'to' => '2027-01-20']))->assertOk()
+            ->assertSee('I would like to book Live Showcase Site from 05 Jan 2027 to 20 Jan 2027.');
+        foreach ([['from' => '2027-01-20', 'to' => '2027-01-05'], ['from' => 'x', 'to' => '2027-99-99'], ['from' => ['a'], 'to' => '2027-01-05']] as $bad) {
+            $this->get($contactUrl($bad))->assertOk()->assertDontSee('I would like to book');
+        }
+        // A blocked site explains when it is free again, skipping a range that follows on directly,
+        // and other live sites of the same vendor (only) are suggested.
+        $busy = $this->makeMedia($this->vendor, ['media_title' => 'Busy Showcase Site']);
+        foreach ([[-2, 5, 'blocked'], [6, 9, 'booked']] as [$a, $b, $type]) {
+            \Illuminate\Support\Facades\DB::table('media_booked_date')->insert([
+                'media_id' => $busy->id, 'from_date' => now()->addDays($a)->toDateString(), 'to_date' => now()->addDays($b)->toDateString(),
+                'status_type' => $type, 'source' => 'vendor', 'vendor_id' => $this->vendor->id, 'is_active' => 1, 'is_deleted' => 0,
+                'created_at' => now(), 'updated_at' => now(),
+            ]);
+        }
+        $this->get(route('vendor-site.media', [$this->vendor->slug, $busy->id]))->assertOk()
+            ->assertSee('Not available till ' . now()->addDays(5)->format('d M Y'))
+            ->assertSee('Available from ' . now()->addDays(10)->format('d M Y'))
+            ->assertSee('id="booking_range"', false)->assertSee('"from":"' . now()->subDays(2)->toDateString() . '"', false)
+            ->assertSee('Live Showcase Site')->assertDontSee('Other Vendor Site')->assertDontSee('Pending Hidden Site');
+        $panel = $this->getJson($insightsUrl)->assertOk()->json('html');
+        $this->assertStringContainsString('Location Insights', $panel);
+        $this->assertStringNotContainsString('insightsRefreshBtn', $panel);
+        $this->assertStringNotContainsString('Geoapify', $panel);
 
         // Reset appears only once a filter is applied.
         $this->get($site)->assertDontSee('Clear all filters');
@@ -341,13 +390,13 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor()->get(route('vendor.media.show', $live->id))->assertOk()->assertSee('second.jpg', false);
         $this->get('/no-such-vendor-slug-xyz')->assertNotFound();
 
-        // Cards lazy-load 6 at a time: the page renders the first 6, an XHR for page 2 returns
+        // Cards lazy-load 8 at a time: the page renders the first 8, an XHR for page 2 returns
         // only the remaining cards (no layout), and a page past the end returns nothing.
-        for ($i = 1; $i <= 7; $i++) {
+        for ($i = 1; $i <= 8; $i++) {
             $this->makeMedia($this->vendor, ['media_title' => 'Lazy Card ' . $i]);
         }
         $cards = fn ($html) => substr_count($html, 'class="vs-item"');
-        $this->assertSame(6, $cards($this->get($site)->assertOk()->getContent()));
+        $this->assertSame(8, $cards($this->get($site)->assertOk()->getContent()));
         $xhr = ['X-Requested-With' => 'XMLHttpRequest'];
         $page2 = $this->get($site . '?page=2', $xhr)->assertOk()->getContent();
         $this->assertSame(2, $cards($page2));
@@ -483,6 +532,25 @@ class VendorInventoryModuleTest extends TestCase
         $this->asAdmin()->get($url . '&page=9')->assertRedirect();
     }
 
+    public function test_vendor_company_name_shows_in_master_and_vendor_panel(): void
+    {
+        // The admin form has the field, and a too-long value is rejected.
+        $this->asAdmin()->get(route('vendor.edit', base64_encode($this->vendor->id)))->assertOk()->assertSee('name="company_name"', false);
+        $this->asAdmin()->post(route('vendor.update', base64_encode($this->vendor->id)), ['company_name' => str_repeat('x', 256)])
+            ->assertSessionHasErrors('company_name');
+
+        $this->vendor->update(['company_name' => 'Alpha Outdoor Media Pvt Ltd']);
+        $this->asAdmin()->get(route('vendor.list'))->assertOk()->assertSee('Alpha Outdoor Media Pvt Ltd');
+        // The vendor panel shows the company name in place of the vendor name.
+        $this->asVendor()->get(route('vendor.dashboard'))->assertOk()
+            ->assertSee('Alpha Outdoor Media Pvt Ltd')->assertDontSee('>' . $this->vendor->vendor_name . '<', false);
+        // So does the vendor website (the signed-in vendor can open it without a code).
+        $this->asVendor()->get(route('vendor-site.show', $this->vendor->slug))->assertOk()
+            ->assertSee('<title>Alpha Outdoor Media Pvt Ltd · Powered by Brand Adda</title>', false)
+            ->assertDontSee($this->vendor->vendor_name);
+        $this->asVendor()->get(route('vendor-site.contact', $this->vendor->slug))->assertOk()->assertSee('Contact Alpha Outdoor Media Pvt Ltd');
+    }
+
     public function test_vendor_lists_are_paginated_on_the_server(): void
     {
         // Notifications: 15 per page, oldest on page 2, page past the end goes to the last page.
@@ -543,6 +611,23 @@ class VendorInventoryModuleTest extends TestCase
         $this->asAdmin()->post(route('admin.vendor.inventory.assign'), ['vendor_id' => $this->vendor->id, 'media_ids' => [$loose->id]])->assertSessionHas('success');
         $this->assertSame($this->vendor->id, (int) $loose->fresh()->vendor_id);
         $this->assertTrue(PanelNotification::forVendor($this->otherVendor->id)->where('type', 'inventory_removed')->exists());
+
+        // Opening a notification: marked read, then the page it is about (on today's address, not the
+        // stored one); media no longer in the inventory is explained; another vendor's is not found.
+        $mine = $this->makeMedia($this->vendor, ['media_title' => 'Notified Site']);
+        $note = fn (array $v) => PanelNotification::create($v + ['audience' => 'vendor', 'vendor_id' => $this->vendor->id, 'type' => 'media_approved', 'title' => 'Open me', 'is_read' => 0]);
+        $a = $note(['link' => 'https://old-address.test/app/vendor-panel/media/' . $mine->id, 'media_id' => $mine->id]);
+        $this->asVendor()->get(route('vendor.notifications'))->assertSee(route('vendor.notifications.open', $a->id), false);
+        $this->asVendor()->get(route('vendor.notifications.open', $a->id))->assertRedirect(route('vendor.media.show', $mine->id));
+        $this->assertTrue((bool) $a->fresh()->is_read);
+        $b = $note(['type' => 'enquiry_received', 'link' => route('vendor.enquiries', ['open' => 7])]);
+        $this->asVendor()->get(route('vendor.notifications.open', $b->id))->assertRedirect(route('vendor.enquiries', ['open' => 7]));
+        $mine->forceFill(['vendor_id' => $this->otherVendor->id])->save();
+        foreach ([$a, $note(['type' => 'inventory_removed', 'media_id' => $mine->id])] as $n) {
+            $this->asVendor()->get(route('vendor.notifications.open', $n->id))->assertRedirect(route('vendor.inventory'))->assertSessionHas('info');
+        }
+        $c = $note(['vendor_id' => $this->otherVendor->id]);
+        $this->asVendor()->get(route('vendor.notifications.open', $c->id))->assertNotFound();
         $this->asAdmin()->post(route('admin.vendor.inventory.remove'), ['vendor_id' => $this->vendor->id, 'media_ids' => [$loose->id]])->assertSessionHas('success');
         $this->assertNull($loose->fresh()->vendor_id);
 

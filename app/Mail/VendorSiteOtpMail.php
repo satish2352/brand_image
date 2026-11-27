@@ -15,7 +15,7 @@ class VendorSiteOtpMail extends Mailable
     public function build()
     {
         return $this->from(config('mail.from.address'), 'Brand Adda')
-            ->subject('Your verification code for ' . $this->vendor->vendor_name . ' on Brand Adda')
+            ->subject('Your verification code for ' . $this->vendor->display_name . ' on Brand Adda')
             ->view('emails.vendor-site-otp');
     }
 }

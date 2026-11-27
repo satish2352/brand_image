@@ -26,6 +26,7 @@ Schedule::command('model:prune', [
    The command queues no more than the day's remaining credits allow. */
 Schedule::command('insights:enrich')
     ->hourly()
+    ->when(fn () => \App\Support\ApiControl::autoRun('places'))
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -35,22 +36,9 @@ Schedule::command('insights:enrich')
    Capped by TOMTOM_TRAFFIC_DAILY_LIMIT. Runs in-process — no queue worker. */
 Schedule::command('refresh:hoarding-traffic')
     ->hourly()
+    ->when(fn () => \App\Support\ApiControl::autoRun('traffic'))
     ->withoutOverlapping()
     ->onOneServer();
-
-/* ============ ROADSTAR AUDIENCE ============
-   Once a day (weekdays only by default — the RoadStar test server is up
-   Mon–Fri 10:00–20:00). It only queues mapped hoardings whose last sync is
-   older than 15 days (or that were never synced), at most
-   ROADSTAR_MAX_PER_RUN per run; a worker for the "roadstar" queue sends them
-   ROADSTAR_BATCH_SIZE sites per request. */
-$roadStarSync = Schedule::command('roadstar:sync')
-    ->dailyAt((string) config('services.roadstar.schedule_at', '11:00'))
-    ->withoutOverlapping()
-    ->onOneServer();
-if (config('services.roadstar.schedule_weekdays_only', true)) {
-    $roadStarSync->weekdays();
-}
 
 /* Keep the API usage log bounded (see ApiUsageLog::prunable). */
 Schedule::command('model:prune', ['--model' => [\App\Models\ApiUsageLog::class]])

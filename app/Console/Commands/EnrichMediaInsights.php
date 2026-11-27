@@ -44,13 +44,19 @@ class EnrichMediaInsights extends Command
         // Worst case every one of them costs max_cost credits.
         $affordable = intdiv($quota['remaining'], max(1, $quota['max_cost']));
         $take = max(0, min($batch, $affordable));
+        // Spread evenly (API Request Manager): about hoardings / refresh-days per day.
+        $room = $this->option('limit') ? null : \App\Support\ApiControl::scheduleRoom('places');
+        if ($room !== null) {
+            $this->line("Spread evenly: {$room} more hoarding(s) allowed today.");
+            $take = min($take, $room);
+        }
 
         $this->line(sprintf('%s: %d/%d credits used this %s, %d remaining (≤%d per request).',
             ucfirst($quota['provider']), $quota['used'], $quota['limit'], $quota['period'],
             $quota['remaining'], $quota['max_cost']));
 
         if ($take === 0) {
-            $this->warn('Credit budget exhausted for this period; nothing queued.');
+            $this->warn('Nothing to fetch now: the daily limit or today\'s even share is used up.');
             return self::SUCCESS;
         }
 

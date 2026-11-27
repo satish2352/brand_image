@@ -192,7 +192,7 @@ class VendorPortalController extends Controller
             ->select(['m.id', 'm.hoarding_code', 'm.media_code', 'm.media_title', 'm.price', 'm.is_active', 'm.approval_status',
                 'v.vendor_name', 'c.category_name', 'cty.city_name', 'a.area_name']);
 
-        $assigned = $vendorId ? (clone $base)->where('m.vendor_id', $vendorId)->orderBy('m.hoarding_code')->get() : collect();
+        $assigned = $vendorId ? (clone $base)->where('m.vendor_id', $vendorId)->orderByDesc('m.id')->get() : collect();
 
         $summary = DB::table('vendors as v')
             ->leftJoin('media_management as m', function ($j) {
@@ -200,7 +200,7 @@ class VendorPortalController extends Controller
             })
             ->where('v.is_deleted', 0)
             ->groupBy('v.id', 'v.vendor_name', 'v.vendor_code', 'v.email', 'v.slug', 'v.credentials_sent_at', 'v.last_login_at', 'v.is_active')
-            ->orderBy('v.vendor_name')
+            ->orderByDesc('v.id')
             ->get([
                 'v.id', 'v.vendor_name', 'v.vendor_code', 'v.email', 'v.slug', 'v.credentials_sent_at', 'v.last_login_at', 'v.is_active',
                 DB::raw('COUNT(m.id) as total'),

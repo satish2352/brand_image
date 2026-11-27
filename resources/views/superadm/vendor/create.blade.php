@@ -50,6 +50,16 @@
                         </div>
 
                         <div class="mb-3">
+                            <label>Company Name</label>
+                            <input type="text" name="company_name" maxlength="255" placeholder="Registered company / firm name"
+                                class="form-control @error('company_name') is-invalid @enderror"
+                                value="{{ old('company_name', $vendor->company_name ?? '') }}">
+                            @error('company_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label>Vendor Code </label>
                             <input name="vendor_code" id="vendor_code"
                                 class="form-control @error('vendor_code') is-invalid @enderror"

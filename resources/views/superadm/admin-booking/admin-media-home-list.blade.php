@@ -117,7 +117,7 @@
           <div class="media-card h-100">
               {{-- IMAGE --}}
               <div class="media-img-wrap">
-                  <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" alt="">
+                  <img src="{{ \App\Support\MediaImageUrl::for($media->first_image) }}" alt="">
                   <!-- @if ($media->from_date && $media->to_date)
 <span class="status-badge booked">Booked</span>
 @else

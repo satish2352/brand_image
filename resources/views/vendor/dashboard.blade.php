@@ -31,6 +31,17 @@
         .vp-body a.db-chip:hover { color: #C2410C; border-color: #FDBA74; }
         .db-chip i { color: #F97316; }
         .db-hero-actions { display: flex; flex-wrap: wrap; gap: 10px; position: relative; z-index: 1; }
+        .db-hero-id { min-width: 0; } .db-hero-id > div:last-child { min-width: 0; }
+        .db-chip { min-width: 0; overflow-wrap: anywhere; }
+        @media (max-width: 640px) {
+            .db-hero { padding: 18px 16px; gap: 16px; }
+            .db-hero-id { align-items: flex-start; gap: 14px; }
+            .db-logo { width: 54px; height: 54px; border-radius: 14px; }
+            .db-name { font-size: 21px; }
+            .db-hero-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+            .db-hero-actions .vp-btn { padding: 0 8px; }
+            .db-hero-actions .vp-btn:first-child { grid-column: 1 / -1; }
+        }
 
         /* ---------- KPI cards ---------- */
         .db-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
@@ -135,14 +146,14 @@
             <div class="db-hero-id">
                 <div class="db-logo">
                     @if ($vendor->logo_url)
-                        <img src="{{ $vendor->logo_url }}" alt="{{ $vendor->vendor_name }} logo">
+                        <img src="{{ $vendor->logo_url }}" alt="{{ $vendor->display_name }} logo">
                     @else
                         {{ $vendor->initials }}
                     @endif
                 </div>
                 <div>
                     <div class="db-hello">{{ $greeting }} · {{ now()->format('l, d M Y') }}</div>
-                    <div class="db-name">{{ $vendor->vendor_name }}</div>
+                    <div class="db-name">{{ $vendor->display_name }}</div>
                     <div class="db-chips">
                         <span class="db-chip"><i class="fa-regular fa-id-badge"></i>{{ $vendor->vendor_code }}</span>
                         <a class="db-chip" href="{{ $vendor->website_url }}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i>{{ preg_replace('#^https?://#', '', $vendor->website_url) }}</a>
@@ -257,7 +268,7 @@
                             <div class="db-row-sub">{{ $u->hoarding_code ?: $u->media_code }} · <span class="vp-badge" style="background:{{ $u->bg }};color:{{ $u->fg }};padding:1px 8px">{{ $u->label }}</span> till {{ \Carbon\Carbon::parse($u->to_date)->format('d M Y') }}</div>
                         </div>
                         <div style="text-align:right;min-width:100px">
-                            <div style="font-size:11px;color:#64748B">Free from</div>
+                            <div style="font-size:11px;color:#64748B">Available from</div>
                             <div style="font-size:13px;font-weight:800;color:#15803D">{{ $u->available_from->format('d M Y') }}</div>
                         </div>
                     </div>

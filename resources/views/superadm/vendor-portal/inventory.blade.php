@@ -68,6 +68,7 @@
                 <table class="table table-hover vi-table">
                     <thead>
                         <tr>
+                            <th class="text-center" style="width:70px">Sr. No.</th>
                             <th>Vendor</th>
                             <th class="text-center">Media</th>
                             <th class="text-center">Pending</th>
@@ -78,6 +79,7 @@
                     <tbody>
                         @foreach ($summary as $s)
                             <tr class="{{ $vendorId === $s->id ? 'vi-selected-row' : '' }}">
+                                <td class="text-center vi-muted">{{ $loop->iteration }}</td>
                                 <td style="min-width:220px">
                                     <strong>{{ $s->vendor_name }}</strong>
                                     @unless ($s->is_active)<span class="vi-badge vi-rejected ml-1">Inactive</span>@endunless

@@ -26,6 +26,7 @@
                                     <th>Sr. No</th>
                                     <th>Vendor Code</th>
                                     <th>Vendor Name</th>
+                                    <th>Company Name</th>
                                     <th>Mobile</th>
                                     <th>Email</th>
                                     <th>City</th>
@@ -39,6 +40,7 @@
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ $vendor->vendor_code }}</td>
                                         <td>{{ $vendor->vendor_name }}</td>
+                                        <td>{{ $vendor->company_name ?: '—' }}</td>
                                         <td>{{ $vendor->mobile }}</td>
                                         <td>{{ $vendor->email }}</td>
                                         <td>{{ $vendor->city_name }}</td>

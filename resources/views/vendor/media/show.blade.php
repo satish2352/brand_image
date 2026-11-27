@@ -6,6 +6,15 @@
 @section('heading', $media->media_title ?: $media->display_code)
 
 @section('actions')
+    @php
+        // Back to the page the vendor came from (keeps list filters / page),
+        // unless that was another media page (e.g. Edit) — then the list.
+        $prev = url()->previous();
+        $backUrl = str_starts_with($prev, url('vendor-panel')) && ! str_contains($prev, '/vendor-panel/media/') && $prev !== url()->current()
+            ? $prev
+            : route('vendor.inventory');
+    @endphp
+    <a href="{{ $backUrl }}" class="vp-btn vp-btn-g"><i class="fa-solid fa-arrow-left"></i>Back</a>
     <a href="{{ route('vendor.media.edit', $media->id) }}" class="vp-btn vp-btn-g"><i class="fa-solid fa-pen"></i>Edit</a>
     @if ($media->approval_status === 'approved')
         <button type="button" class="vp-btn vp-btn-o js-availability" data-url="{{ route('vendor.availability.form', $media->id) }}"><i class="fa-regular fa-calendar"></i>Update Availability</button>
@@ -69,20 +78,51 @@
                             @csrf
                             <label class="vp-drop" style="height:120px;margin:0">
                                 <i class="fa-solid fa-arrow-up-from-bracket" style="font-size:20px"></i>Upload Photo
-                                <input type="file" name="images[]" accept="image/png,image/jpeg,image/webp" multiple class="sr-only" onchange="this.form.submit()">
+                                <input type="file" name="images[]" accept="image/png,image/jpeg,image/webp" multiple class="sr-only js-photo-upload">
                             </label>
                         </form>
                     @endif
                 </div>
+                {{-- Photo upload errors show here, under the photos, not in the page-top alert. --}}
+                @php
+                    $photoErrors = collect($errors->getMessages())
+                        ->filter(fn ($m, $k) => $k === 'images' || str_starts_with($k, 'images.'))
+                        ->flatten()->unique()->values();
+                @endphp
+                <div id="photoErrors" class="vp-field-error" role="alert" style="color:#B91C1C;font-size:13px;font-weight:600;margin-top:12px;{{ $photoErrors->isEmpty() ? 'display:none' : '' }}">
+                    @foreach ($photoErrors as $msg)<div><i class="fa-solid fa-circle-exclamation"></i> {{ $msg }}</div>@endforeach
+                </div>
+            </section>
+
+            {{-- 360° image (panorama_image), shown with the site's Pannellum viewer (public/panorama.html). --}}
+            @php
+                $panoramaUrl = $media->panorama_image ? \App\Support\MediaImageUrl::for($media->panorama_image) : null;
+                $panoramaViewer = $panoramaUrl ? url('panorama.html') . '?img=' . urlencode($panoramaUrl) : null;
+            @endphp
+            <section class="vp-card vp-card-pad">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+                    <h2 class="vp-h2" style="margin:0">360° Image</h2>
+                    @if ($panoramaViewer)
+                        <a href="{{ $panoramaViewer }}" target="_blank" rel="noopener" class="vp-btn vp-btn-g vp-btn-sm"><i class="fa-solid fa-expand"></i>Full screen</a>
+                    @endif
+                </div>
+                @if ($panoramaViewer)
+                    <iframe src="{{ $panoramaViewer }}" title="360° view of {{ $media->display_code }}" loading="lazy" allowfullscreen
+                        style="display:block;width:100%;height:340px;border:0;border-radius:12px;background:#0F172A"></iframe>
+                    <p class="vp-muted" style="margin:10px 0 0;font-size:13px">Drag to look around. To change it, <a href="{{ route('vendor.media.edit', $media->id) }}">edit this media</a>.</p>
+                @else
+                    <p class="vp-muted" style="margin:0">No 360° image yet. <a href="{{ route('vendor.media.edit', $media->id) }}">Add one</a> (image size must be less than 5 MB).</p>
+                @endif
             </section>
 
             <section class="vp-card vp-card-pad">
                 <h2 class="vp-h2" style="margin-bottom:16px">Media Details</h2>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px 24px">
                     @foreach ($rows as $k => $v)
-                        <div>
+                        <div style="min-width:0">
                             <div class="vp-muted" style="font-size:12px;font-weight:600">{{ $k }}</div>
-                            <div style="font-size:15px;font-weight:700;margin-top:4px">{{ $v }}</div>
+                            {{-- Long codes (MAH_NAS_..._01) have no spaces: let them break after _ or / instead of spilling into the next column. --}}
+                            <div style="font-size:15px;font-weight:700;margin-top:4px;overflow-wrap:anywhere">{!! preg_replace('~([_/])~', '$1<wbr>', e($v)) !!}</div>
                         </div>
                     @endforeach
                 </div>
@@ -141,4 +181,39 @@
     </div>
 
     @include('vendor.inventory.partials.availability-modal')
+@endsection
+
+{{-- If every error is a photo error it is already shown under Photos: skip the page-top alert. --}}
+@if ($errors->any() && collect($errors->keys())->every(fn ($k) => $k === 'images' || str_starts_with($k, 'images.')))
+    @section('form_errors_inline', '1')
+@endif
+
+@section('scripts')
+    <script>
+        // Check photo size / type before uploading, so the vendor sees the problem at once under Photos.
+        document.querySelectorAll('.js-photo-upload').forEach(function (input) {
+            input.addEventListener('change', function () {
+                var box = document.getElementById('photoErrors');
+                var maxBytes = 600 * 1024, okTypes = ['image/jpeg', 'image/png', 'image/webp'], msgs = [];
+                Array.prototype.forEach.call(input.files, function (f) {
+                    if (okTypes.indexOf(f.type) === -1) msgs.push(f.name + ': only WebP, JPG, JPEG, and PNG images are allowed.');
+                    else if (f.size > maxBytes) msgs.push(f.name + ' is ' + Math.round(f.size / 1024) + ' KB. Each image must be less than 600 KB.');
+                });
+                if (msgs.length) {
+                    box.innerHTML = '';
+                    msgs.forEach(function (m) {
+                        var d = document.createElement('div');
+                        d.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ';
+                        d.appendChild(document.createTextNode(m));
+                        box.appendChild(d);
+                    });
+                    box.style.display = '';
+                    input.value = ''; // let the same file be picked again after fixing it
+                    return;
+                }
+                box.style.display = 'none';
+                input.form.submit();
+            });
+        });
+    </script>
 @endsection
