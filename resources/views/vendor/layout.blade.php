@@ -119,10 +119,7 @@
                             </form>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('vendor.logout') }}" class="vp-logout" style="margin:0">
-                        @csrf
-                        <button type="submit" class="vp-btn vp-btn-g" aria-label="Logout" title="Logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Logout</span></button>
-                    </form>
+                    {{-- Logout lives in the account menu above (no separate button). --}}
                 </div>
             </header>
 

@@ -58,12 +58,12 @@
                 @endif
 
                 <div>
-                    <label class="vp-label" for="email">Email ID</label>
+                    <label class="vp-label" for="email">Email ID <span style="color:#B91C1C" aria-hidden="true">*</span></label>
                     <input id="email" name="email" type="email" class="vp-input" value="{{ old('email') }}" autocomplete="username" required autofocus>
                     @error('email')<div style="color:#B91C1C;font-size:13px;margin-top:6px">{{ $message }}</div>@enderror
                 </div>
                 <div>
-                    <label class="vp-label" for="password">Password</label>
+                    <label class="vp-label" for="password">Password <span style="color:#B91C1C" aria-hidden="true">*</span></label>
                     <div style="position:relative">
                         <input id="password" name="password" type="password" class="vp-input" style="padding-right:56px" autocomplete="current-password" required>
                         <button type="button" class="vl-eye" aria-label="Show password" onclick="const p=document.getElementById('password');p.type=p.type==='password'?'text':'password';this.setAttribute('aria-label',p.type==='password'?'Show password':'Hide password')">
