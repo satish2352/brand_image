@@ -124,6 +124,24 @@
     .ops-dates { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
     .ops-date-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--o-line); font-size: 12px; font-weight: 600; color: #334155 !important; text-decoration: none !important; background: #fff; }
     .ops-date-chip.is-on { border-color: var(--o-orange); background: #FFF7ED; color: #C2410C !important; }
+    /* Two columns on wide screens: bookings list + summary / status on the left, photos and actions on the right. */
+    @media (min-width: 992px) {
+        .ops-wrap { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 20px; }
+        .ops-wrap > .ops-list { grid-column: 1; grid-row: 1; max-width: none; }
+        .ops-wrap > .ops-summary { grid-column: 1; grid-row: 2; padding: 18px; }
+        .ops-wrap > .ops-main { grid-column: 2; grid-row: 1 / span 3; }
+        .ops-wrap > section:not(.ops-list):not(.ops-summary) { grid-column: 2; }
+        .ops-summary .ops-sum-title { font-size: 17px; }
+        .ops-summary .ops-facts { grid-template-columns: 1fr; gap: 12px; }
+        /* Status as a vertical list */
+        .ops-summary .ops-track { display: flex; flex-direction: column; }
+        .ops-summary .ops-track li { display: grid; grid-template-columns: 32px 1fr; column-gap: 12px; align-items: center; text-align: left; padding: 0 0 14px; }
+        .ops-summary .ops-track li:last-child { padding-bottom: 0; }
+        .ops-summary .ops-track li .ops-dot { margin: 0; grid-row: 1 / span 2; }
+        .ops-summary .ops-track li::before { left: 14px; top: -14px; width: 3px; height: 14px; }
+        .ops-summary .ops-track b { margin-top: 0; font-size: 13px; }
+        .ops-summary .ops-track small { grid-column: 2; }
+    }
     @media (max-width: 1100px) { .ops-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     @media (max-width: 700px) {
         .ops-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -155,10 +173,12 @@
             </div>
             <div class="vp-table-wrap">
                 <table class="vp-table">
-                    <thead><tr>@if ($showVendor)<th>Vendor</th>@endif<th>Hoarding Code</th><th>Media Title</th><th>Location</th><th>Action</th></tr></thead>
+                    <thead><tr><th style="width:70px">Sr. No.</th>@if ($showVendor)<th>Vendor</th>@endif<th>Hoarding Code</th><th>Media Title</th><th>Location</th><th>Action</th></tr></thead>
                     <tbody>
                         @forelse ($pendingMedia as $m)
                             <tr>
+                                {{-- Numbering continues across pages (page 2 starts at 21). --}}
+                                <td class="nowrap vp-muted">{{ ($pendingMedia instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator ? $pendingMedia->firstItem() : 1) + $loop->index }}</td>
                                 @if ($showVendor)<td class="nowrap">{{ $m->vendor_name ?: '—' }}</td>@endif
                                 <td class="nowrap" style="font-weight:700">{{ $m->hoarding_code ?: $m->media_code ?: '—' }}</td>
                                 <td>{{ $m->media_title }}</td>
@@ -166,7 +186,7 @@
                                 <td class="nowrap"><a href="{{ $mediaUrl($m->id) }}" class="vp-btn vp-btn-g vp-btn-sm">View</a></td>
                             </tr>
                         @empty
-                            <tr><td colspan="{{ $showVendor ? 5 : 4 }}" style="text-align:center;padding:40px;color:#475569">No pending media.</td></tr>
+                            <tr><td colspan="{{ $showVendor ? 6 : 5 }}" style="text-align:center;padding:40px;color:#475569">No pending media.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -250,55 +270,56 @@
                     $monitorDate = request('date') ?: (collect(array_keys($photos['monitoring'] ?? []))->sort()->last() ?? $monitorDate);
                     $openTab = array_key_exists((string) request('tab'), $photoStages) ? request('tab') : ($panelStage ?: (collect(array_keys($photoStages))->reverse()->first(fn ($s) => !empty($photos[$s])) ?? array_key_first($photoStages)));
                 @endphp
-                <div class="ops-main">
-                    {{-- ================= SUMMARY ================= --}}
-                    <section class="ops-card" aria-label="Booking summary">
-                        <div class="ops-sum-top">
-                            <div style="min-width:0">
-                                <div class="ops-sum-title">{{ $selected->media_title ?: ($selected->hoarding_code ?: $selected->media_code) }}</div>
-                                <div class="ops-sum-sub">{{ $selected->hoarding_code ?: $selected->media_code }}{{ $selected->area_name ? ' · ' . $selected->area_name : '' }} · Booking <strong style="color:#0F172A">{{ $selected->order_no }}</strong></div>
-                            </div>
-                            <span class="ops-pill" style="background:{{ $pillColour[0] }};color:{{ $pillColour[1] }}"><i class="{{ $stageInfo[$current][0] }}" aria-hidden="true"></i>{{ $stageLabels[$current] }}</span>
+                {{-- Left column: the booking's details and status, under the list. --}}
+                {{-- ================= SUMMARY ================= --}}
+                <section class="ops-card ops-summary" aria-label="Booking summary">
+                    <div class="ops-sum-top">
+                        <div style="min-width:0">
+                            <div class="ops-sum-title">{{ $selected->media_title ?: ($selected->hoarding_code ?: $selected->media_code) }}</div>
+                            <div class="ops-sum-sub">{{ $selected->hoarding_code ?: $selected->media_code }}{{ $selected->area_name ? ' · ' . $selected->area_name : '' }} · Booking <strong style="color:#0F172A">{{ $selected->order_no }}</strong></div>
                         </div>
-                        <div class="ops-facts">
-                            <div class="ops-fact"><i class="fa-regular fa-user" aria-hidden="true"></i><div>
-                                <span>Customer</span>
-                                @if ($noUser)
-                                    <b>{{ $selected->booked_by === 'admin' ? 'Booked by Brand Adda' : 'Booked by vendor' }}</b><span>No customer details</span>
-                                @else
-                                    <b>{{ $selected->user_name ?: '—' }}</b>
-                                    @if ($selected->user_mobile)<span><a href="tel:{{ $selected->user_mobile }}">{{ $selected->user_mobile }}</a></span>@endif
-                                    @if ($selected->user_email)<span><a href="mailto:{{ $selected->user_email }}">{{ $selected->user_email }}</a></span>@endif
-                                @endif
-                            </div></div>
-                            <div class="ops-fact"><i class="fa-regular fa-calendar" aria-hidden="true"></i><div>
-                                <span>Campaign</span>
-                                <b>{{ $fmt($selected->from_date) }} → {{ $fmt($selected->to_date) }}</b>
-                                <span>{{ $days }} {{ $days === 1 ? 'day' : 'days' }} · {{ $timing }}</span>
-                            </div></div>
-                            @if ($showVendor)
-                                <div class="ops-fact"><i class="fa-solid fa-store" aria-hidden="true"></i><div>
-                                    <span>Vendor</span><b>{{ $selected->vendor_name ?: '—' }}</b>
-                                </div></div>
+                        <span class="ops-pill" style="background:{{ $pillColour[0] }};color:{{ $pillColour[1] }}"><i class="{{ $stageInfo[$current][0] }}" aria-hidden="true"></i>{{ $stageLabels[$current] }}</span>
+                    </div>
+                    <div class="ops-facts">
+                        <div class="ops-fact"><i class="fa-regular fa-user" aria-hidden="true"></i><div>
+                            <span>Customer</span>
+                            @if ($noUser)
+                                <b>{{ $selected->booked_by === 'admin' ? 'Booked by Brand Adda' : 'Booked by vendor' }}</b><span>No customer details</span>
+                            @else
+                                <b>{{ $selected->user_name ?: '—' }}</b>
+                                @if ($selected->user_mobile)<span><a href="tel:{{ $selected->user_mobile }}">{{ $selected->user_mobile }}</a></span>@endif
+                                @if ($selected->user_email)<span><a href="mailto:{{ $selected->user_email }}">{{ $selected->user_email }}</a></span>@endif
                             @endif
-                        </div>
+                        </div></div>
+                        <div class="ops-fact"><i class="fa-regular fa-calendar" aria-hidden="true"></i><div>
+                            <span>Campaign</span>
+                            <b>{{ $fmt($selected->from_date) }} → {{ $fmt($selected->to_date) }}</b>
+                            <span>{{ $days }} {{ $days === 1 ? 'day' : 'days' }} · {{ $timing }}</span>
+                        </div></div>
+                        @if ($showVendor)
+                            <div class="ops-fact"><i class="fa-solid fa-store" aria-hidden="true"></i><div>
+                                <span>Vendor</span><b>{{ $selected->vendor_name ?: '—' }}</b>
+                            </div></div>
+                        @endif
+                    </div>
 
-                        {{-- Progress: ✓ done · orange = now · grey = upcoming --}}
-                        <ol class="ops-track" aria-label="Progress">
-                            @foreach ($stageLabels as $key => $label)
-                                @php
-                                    $i = $loop->index;
-                                    $state = $current === 'completed' || $i < $currentIndex ? 'done' : ($i === $currentIndex ? 'now' : 'upcoming');
-                                @endphp
-                                <li class="{{ $state }}" @if ($state === 'now') aria-current="step" @endif>
-                                    <span class="ops-dot">@if ($state === 'done')<i class="fa-solid fa-check" aria-hidden="true"></i>@else{{ $loop->iteration }}@endif</span>
-                                    <b>{{ $label }}</b>
-                                    <small>{{ $stepDate[$key] }}</small>
-                                </li>
-                            @endforeach
-                        </ol>
-                    </section>
+                    {{-- Progress: ✓ done · orange = now · grey = upcoming --}}
+                    <ol class="ops-track" aria-label="Progress">
+                        @foreach ($stageLabels as $key => $label)
+                            @php
+                                $i = $loop->index;
+                                $state = $current === 'completed' || $i < $currentIndex ? 'done' : ($i === $currentIndex ? 'now' : 'upcoming');
+                            @endphp
+                            <li class="{{ $state }}" @if ($state === 'now') aria-current="step" @endif>
+                                <span class="ops-dot">@if ($state === 'done')<i class="fa-solid fa-check" aria-hidden="true"></i>@else{{ $loop->iteration }}@endif</span>
+                                <b>{{ $label }}</b>
+                                <small>{{ $stepDate[$key] }}</small>
+                            </li>
+                        @endforeach
+                    </ol>
+                </section>
 
+                <div class="ops-main">
                     {{-- ================= WHAT'S HAPPENING NOW ================= --}}
                     @if ($now[0] !== '')
                     <div class="ops-now {{ $current === 'completed' ? 'done' : '' }}" role="status">

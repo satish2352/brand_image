@@ -400,7 +400,9 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertStringContainsString('PGT001', $first);
         $this->assertStringNotContainsString('PGT022', $first);           // only 20 rows on page 1
         $this->assertStringContainsString('page=2', $first);              // page links are rendered
-        $this->asAdmin()->get($url(['page' => 2]))->assertOk()->assertSee('PGT022')->assertDontSee('>PGT001<', false);
+        $this->assertStringContainsString('Sr. No.', $first);
+        $this->asAdmin()->get($url(['page' => 2]))->assertOk()->assertSee('PGT022')->assertDontSee('>PGT001<', false)
+            ->assertSee('<td class="nowrap vp-muted">21</td>', false); // numbering continues on page 2
         $this->asAdmin()->get($url(['q' => 'PGT015']))->assertOk()->assertSee('PGT015')->assertDontSee('PGT016'); // search on the server
     }
 
