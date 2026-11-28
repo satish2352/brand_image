@@ -51,6 +51,33 @@
         .am-plbox { background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 10px; padding: 12px 14px; height: 100%; }
         .am-plbox > span { display: block; font-size: 12px; color: #6b7280; } .am-plbox b { display: block; font-size: 26px; color: #111827; line-height: 1.2; } .am-plbox small { color: #6b7280; }
         .am-plbox.bad { background: #FEF2F2; border-color: #FECACA; } .am-plbox.bad b { color: #B91C1C; }
+        /* Today at a glance */
+        .am-glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+        .am-tile { border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .am-tile h6 { margin: 0; font-size: 15px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px; }
+        .am-tile h6 i { font-size: 20px; }
+        .am-tile p { margin: 0; font-size: 14px; color: #334155; line-height: 1.5; }
+        .am-tile .am-bar { height: 10px; }
+        .am-status { border-radius: 10px; padding: 12px 16px; font-size: 14px; margin-bottom: 16px; }
+        .am-status.ok { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+        .am-status.warn { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+        .am-status ul { margin: 6px 0 0; padding-left: 18px; }
+        .am-status li { margin-top: 3px; }
+        /* Folded sections */
+        details.am-more { background: #fff; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, .06); margin-bottom: 24px; }
+        details.am-more > summary { list-style: none; cursor: pointer; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: #111827; }
+        details.am-more > summary::-webkit-details-marker { display: none; }
+        details.am-more > summary small { font-weight: 400; color: #6b7280; font-size: 13px; }
+        details.am-more > summary .am-chev { color: #00929c; font-size: 13px; white-space: nowrap; }
+        details.am-more > summary .am-chev::after { content: ' ▾'; }
+        details.am-more[open] > summary .am-chev::after { content: ' ▴'; }
+        details.am-more[open] > summary .am-chev .am-show { display: none; }
+        details.am-more:not([open]) > summary .am-chev .am-hide { display: none; }
+        details.am-more > .am-more-body { padding: 0 20px 20px; }
+        details.am-sub { border: 1px solid #E5E7EB; border-radius: 10px; margin-top: 12px; }
+        details.am-sub > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; font-size: 14px; color: #111827; }
+        details.am-sub > div { padding: 0 14px 12px; }
+        @media (max-width: 991px) { .am-glance { grid-template-columns: 1fr; } }
         @media (max-width: 767px) { .am-stats { grid-template-columns: repeat(2, 1fr); } .am-run { grid-template-columns: 1fr 1fr; } .am-run > :first-child { grid-column: 1 / -1; } }
     </style>
 
@@ -67,7 +94,80 @@
         @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
         @if ($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
 
-        {{-- ================= TODAY, PER SERVICE ================= --}}
+        {{-- ================= TODAY AT A GLANCE (plain language) ================= --}}
+        @php
+            $byKey = collect($cards)->keyBy('key');
+            $pc = $byKey[$active];            // the service that gives nearby places
+            $tc = $byKey['tomtom_traffic'];
+            $autoNow = \App\Support\ApiControl::autoCycle($settings);
+            // The days the hourly runs use: Auto's, or the hand-set ones when Auto is off.
+            $placesDays  = $settings['auto_cycle'] ? $autoNow['places_days'] : $settings['places_cache_days'];
+            $trafficDays = $settings['auto_cycle'] ? $autoNow['traffic_days'] : $settings['traffic_refresh_days'];
+            $lastHourly = \App\Models\ApiUsageLog::whereIn('source', ['scheduler', 'job'])->max('requested_at');
+            $lastHourly = $lastHourly ? \Carbon\Carbon::parse($lastHourly) : null;
+            $hourlyWanted = $settings['places_auto'] || $settings['traffic_auto'];
+            $hourlyOk = !$hourlyWanted || ($lastHourly && $lastHourly->gt(now()->subHours(3)));
+            $pctOf = fn ($c) => $c['limit'] ? min(100, (int) round($c['used'] / $c['limit'] * 100)) : 100;
+            $issues = [];
+            if ($hourlyWanted && !$hourlyOk) {
+                $issues[] = 'Hourly updates are not running' . ($lastHourly ? ' (last run ' . $lastHourly->format('d M Y') . ')' : '') . '. The server needs the scheduler: a cron line that runs <code>php artisan schedule:run</code> every minute.';
+            }
+            foreach ([$pc, $tc] as $c) {
+                if (!$c['configured']) { $issues[] = e($c['name']) . ': the API key is not set.'; }
+                elseif (!$c['enabled']) { $issues[] = e($c['name']) . ' is switched off.'; }
+                elseif ($pctOf($c) >= 90) { $issues[] = e($c['name']) . ': ' . $pctOf($c) . '% of today\'s limit is used.'; }
+            }
+            if (!$autoNow['traffic_fits'] || $trafficDays > 30) {
+                $issues[] = 'Traffic is refreshed only every <b>' . $trafficDays . ' days</b> because the TomTom Traffic daily limit is ' . number_format($settings['tomtom_traffic_daily_limit']) . '. Raise it to about 2,000 in <b>Controls → Limits &amp; advanced settings</b>.';
+            }
+            if (!$autoNow['places_fits']) {
+                $issues[] = 'Too many hoardings for the places daily limit. Raise it, or ask for fewer places per hoarding.';
+            }
+        @endphp
+        <div class="am-card">
+            <div class="am-head">Today at a glance <span style="font-weight:400;font-size:13px">{{ now()->format('d M Y') }}</span></div>
+            <div class="am-body">
+                @if ($issues)
+                    <div class="am-status warn" role="status"><b><i class="mdi mdi-alert-outline"></i> Needs attention</b>
+                        <ul>@foreach ($issues as $i)<li>{!! $i !!}</li>@endforeach</ul></div>
+                @else
+                    <div class="am-status ok" role="status"><b><i class="mdi mdi-check-circle-outline"></i> All good.</b> Requests are within the free plans and the hourly updates are running.</div>
+                @endif
+                <div class="am-glance">
+                    <div class="am-tile">
+                        <h6><i class="mdi mdi-map-marker-radius" style="color:{{ $svcColour[$active] }}"></i> Nearby places</h6>
+                        <p><b>{{ number_format($pc['used']) }}</b> of {{ number_format($pc['limit']) }} {{ $active === 'geoapify' ? 'credits' : 'requests' }} used today ({{ $pc['name'] }}).</p>
+                        <div class="am-bar"><i style="width:{{ $pctOf($pc) }}%;background:{{ $pctOf($pc) >= 90 ? '#DC2626' : $svcColour[$active] }}"></i></div>
+                        <p class="am-muted"><b style="color:#111827">{{ number_format($coverage['places']) }}</b> of {{ number_format($coverage['media']) }} hoardings have places. Each is refreshed every <b style="color:#111827">{{ $placesDays }} {{ \Illuminate\Support\Str::plural('day', $placesDays) }}</b>{{ $settings['auto_cycle'] ? ' (Auto)' : '' }}.</p>
+                    </div>
+                    <div class="am-tile">
+                        <h6><i class="mdi mdi-car" style="color:{{ $svcColour['tomtom_traffic'] }}"></i> Traffic</h6>
+                        <p><b>{{ number_format($tc['used']) }}</b> of {{ number_format($tc['limit']) }} requests used today (TomTom).</p>
+                        <div class="am-bar"><i style="width:{{ $pctOf($tc) }}%;background:{{ $pctOf($tc) >= 90 ? '#DC2626' : $svcColour['tomtom_traffic'] }}"></i></div>
+                        <p class="am-muted"><b style="color:#111827">{{ number_format($coverage['traffic']) }}</b> of {{ number_format($coverage['media']) }} hoardings have traffic. Each is refreshed every <b style="color:#111827">{{ $trafficDays }} {{ \Illuminate\Support\Str::plural('day', $trafficDays) }}</b>{{ $settings['auto_cycle'] ? ' (Auto)' : '' }}.</p>
+                    </div>
+                    <div class="am-tile">
+                        <h6><i class="mdi mdi-clock-outline" style="color:#0F766E"></i> Hourly updates</h6>
+                        @if (!$hourlyWanted)
+                            <p>Switched off. Data is fetched only when a page is opened or from <b>Run now</b>.</p>
+                        @elseif ($hourlyOk)
+                            <p><b style="color:#166534">Running.</b> Last run {{ $lastHourly->diffForHumans() }}.</p>
+                        @else
+                            <p><b style="color:#B45309">Not running.</b> {{ $lastHourly ? 'Last run ' . $lastHourly->format('d M Y, h:i A') . '.' : 'No hourly run yet.' }}</p>
+                        @endif
+                        <p class="am-muted">Each day it fetches about <b style="color:#111827">{{ number_format($autoNow['places_per_day']) }}</b> hoardings for places and <b style="color:#111827">{{ number_format($autoNow['traffic_per_day']) }}</b> for traffic, keeping 20% of each limit free for page views.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ================= TODAY, PER SERVICE (details) ================= --}}
+        <details class="am-more">
+            <summary>
+                <span>Usage by service <small>· limits, success / saved / failed counts, last request</small></span>
+                <span class="am-chev"><span class="am-show">Show details</span><span class="am-hide">Hide details</span></span>
+            </summary>
+            <div class="am-more-body">
         <div class="row">
             @foreach ($cards as $c)
                 @php
@@ -146,12 +246,17 @@
                 </div>
             </div>
         </div>
+            </div>
+        </details>
 
         {{-- ================= PLANNER ================= --}}
         @php $pn = $plan['now']; @endphp
-        <div class="am-card" id="amPlanner">
-            <div class="am-head">Free plan planner <span style="font-weight:400;font-size:13px">How many hoardings the free requests can keep fresh</span></div>
-            <div class="am-body">
+        <details class="am-more" id="amPlanner">
+            <summary>
+                <span>Free plan planner <small>· try other hoarding counts (Auto already does this for today's count)</small></span>
+                <span class="am-chev"><span class="am-show">Show</span><span class="am-hide">Hide</span></span>
+            </summary>
+            <div class="am-more-body">
                 <div class="row">
                     <div class="col-lg-5 mb-3">
                         <div class="am-muted mb-2">Try a number of hoardings and a refresh cycle. Each hoarding is fetched once per cycle, about the same number every day.</div>
@@ -187,7 +292,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </details>
 
         <div class="row">
             {{-- ================= CONTROLS ================= --}}
@@ -216,6 +321,12 @@
                                 @endforeach
                             </div>
                             <div class="col-md-6">
+                                <div class="am-muted" style="font-size:13px">Places come from <b style="color:#111827">{{ $settings['places_provider'] === 'geoapify' ? 'Geoapify' : 'TomTom' }}</b>
+                                    ({{ $settings['geoapify_places'] }} places per hoarding). Daily limits: places {{ number_format($settings[$settings['places_provider'] === 'geoapify' ? 'geoapify_daily_limit' : 'tomtom_daily_limit']) }},
+                                    traffic {{ number_format($settings['tomtom_traffic_daily_limit']) }}.</div>
+                                <details class="am-sub" id="amAdvanced" @if ($errors->any()) open @endif>
+                                    <summary>Limits &amp; advanced settings</summary>
+                                    <div>
                                 <label class="am-label" for="pp">Places come from</label>
                                 <select id="pp" name="places_provider" class="form-control mb-3">
                                     <option value="geoapify" @selected($settings['places_provider'] === 'geoapify')>Geoapify</option>
@@ -238,27 +349,15 @@
                                     </div>
                                 @endforeach
                                 <span class="am-label mt-2">Reuse saved data</span>
-                                @php $autoCycle = \App\Support\ApiControl::autoCycle($settings); @endphp
                                 @if ($settings['auto_cycle'])
-                                    {{-- Auto: what the hourly runs use now; recalculated as the hoarding count changes. --}}
-                                    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#065F46">
-                                        <strong>Auto is on</strong> · {{ number_format($autoCycle['hoardings']) }} active hoardings<br>
-                                        Places every <strong>{{ $autoCycle['places_days'] }} {{ \Illuminate\Support\Str::plural('day', $autoCycle['places_days']) }}</strong>
-                                        (about {{ number_format($autoCycle['places_per_day']) }} hoardings, {{ number_format($autoCycle['places_units']) }} {{ $autoCycle['places_unit'] }} a day of {{ number_format($autoCycle['places_budget']) }})<br>
-                                        Traffic every <strong>{{ $autoCycle['traffic_days'] }} {{ \Illuminate\Support\Str::plural('day', $autoCycle['traffic_days']) }}</strong>
-                                        (about {{ number_format($autoCycle['traffic_per_day']) }} requests a day of {{ number_format($autoCycle['traffic_budget']) }})
-                                        @foreach (['places' => 'places', 'traffic' => 'traffic'] as $ak => $al)
-                                            @unless ($autoCycle[$ak . '_fits'])
-                                                <div style="margin-top:6px;padding:6px 8px;border-radius:6px;background:#FEF3C7;color:#92400E"><strong>Too many hoardings for the {{ $al }} daily limit.</strong> Even a 365-day cycle needs more than it allows; raise the {{ $ak === 'traffic' ? 'TomTom Traffic' : 'places' }} daily limit (the free plan allows up to {{ $ak === 'traffic' ? '2,500 shared' : ($autoCycle['places_unit'] === 'credits' ? '3,000' : '2,500 shared') }}).</div>
-                                            @endunless
-                                        @endforeach
-                                        <div style="font-size:11px;margin-top:4px">Uses up to 80% of each daily limit; 20% stays free for page views and Super Admin runs. More hoardings → longer cycle, automatically. Turn Auto off to set the days below by hand.</div>
-                                    </div>
+                                    <div class="am-muted" style="font-size:12px;margin-bottom:6px">Auto is on, so these two are only used if you turn Auto off.</div>
                                 @endif
                                 <div class="am-limit"><label for="pcd" style="margin:0;font-size:13px;color:#111827">Places, for (days)</label>
                                     <input id="pcd" name="places_cache_days" type="number" min="1" max="365" class="form-control" value="{{ old('places_cache_days', $settings['places_cache_days']) }}" required @if ($settings['auto_cycle']) title="Used when Auto is off" @endif></div>
                                 <div class="am-limit"><label for="trd" style="margin:0;font-size:13px;color:#111827">Traffic, refresh every (days)</label>
                                     <input id="trd" name="traffic_refresh_days" type="number" min="1" max="365" class="form-control" value="{{ old('traffic_refresh_days', $settings['traffic_refresh_days']) }}" required @if ($settings['auto_cycle']) title="Used when Auto is off" @endif></div>
+                                    </div>
+                                </details>
                             </div>
                         </div>
                         <div class="text-right mt-3"><button class="btn am-btn"><i class="mdi mdi-content-save"></i> Save Settings</button></div>
@@ -293,14 +392,7 @@
                         <p class="am-muted mb-0 mt-2" style="font-size:12px">At most {{ $runMax }} hoardings per run. Limits and switches still apply, and a fresh saved result costs nothing.</p>
                     </div>
                 </div>
-                <div class="am-card">
-                    <div class="am-head">Coverage</div>
-                    <div class="am-body">
-                        @foreach ([['Active media', $coverage['media']], ['With nearby places', $coverage['places']], ['With traffic', $coverage['traffic']]] as [$t, $v])
-                            <div class="am-row"><span style="font-size:14px">{{ $t }}</span><strong>{{ number_format($v) }}</strong></div>
-                        @endforeach
-                    </div>
-                </div>
+                {{-- Coverage now shows in Today at a glance. --}}
             </div>
         </div>
 

@@ -282,6 +282,9 @@ class VendorInventoryModuleTest extends TestCase
         $op = MediaOperation::where('media_id', $media->id)->firstOrFail();
         $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'installation', 'op' => $op->id]))->assertOk()
             ->assertSee('Upload Photo')->assertSee('Back to Installation list');
+        // Opened without a vendor filter, the vendor dropdown shows the booking's vendor.
+        $this->asAdmin()->get(route('admin.vendor.operations', ['stage' => 'installation', 'op' => $op->id]))->assertOk()
+            ->assertSee('<option value="' . $this->vendor->id . '" selected>', false);
         // Each table has its own search: by customer mobile, and no match shows a message (not the empty-stage hint).
         $inst = fn (array $q) => route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'installation'] + $q);
         $this->asAdmin()->get($inst([]))->assertSee('aria-label="Search bookings"', false);
@@ -322,6 +325,8 @@ class VendorInventoryModuleTest extends TestCase
             ->assertSessionHas('success');
         $this->assertCount($mailsBefore, Mail::sent(OperationPhotosMail::class));
         $this->assertSame(3, \App\Models\MediaOperationPhoto::where('operation_id', $op->id)->where('stage', 'monitoring')->whereNotNull('shared_at')->count());
+        // Step 3 (Monitoring Pics) is ticked once monitoring photos are shared, still showing the campaign end.
+        $this->asAdmin()->get($board)->assertSee('Shared ' . now()->format('d M Y') . ' · till ' . now()->addDays(30)->format('d M Y'));
         $this->assertTrue(VendorActivityLog::where('vendor_id', $this->vendor->id)->where('action', 'Photos Shared with User')->latest('id')->first()?->details !== null);
 
         // Shared photos can be shared again, with anyone: the button stays, the recipient can be changed.

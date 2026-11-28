@@ -24,7 +24,9 @@
                 <input type="hidden" name="stage" value="{{ $stage }}">
                 <select name="vendor_id" id="opsVendor" aria-label="Vendor" onchange="this.form.submit()">
                     <option value="">All vendors</option>
-                    @foreach ($vendors as $v)<option value="{{ $v->id }}" @selected($vendorId === $v->id)>{{ $v->vendor_name }}</option>@endforeach
+                    {{-- With a booking open, show that booking's vendor (unless a vendor is already filtered). --}}
+                    @php $shownVendor = $vendorId ?: (int) ($selected->vendor_id ?? 0); @endphp
+                    @foreach ($vendors as $v)<option value="{{ $v->id }}" @selected($shownVendor === $v->id)>{{ $v->vendor_name }}</option>@endforeach
                 </select>
                 @if (request('q')) {{-- keep the table search when the vendor changes --}}<input type="hidden" name="q" value="{{ request('q') }}">@endif
                 @if ($vendorId)

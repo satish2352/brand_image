@@ -255,10 +255,15 @@
                     $days = $from->diffInDays($to) + 1;
                     $timing = $today->lt($from) ? 'Starts in ' . $today->diffInDays($from) . ' day' . ($today->diffInDays($from) === 1 ? '' : 's')
                         : ($today->lte($to) ? $today->diffInDays($to) . ' day' . ($today->diffInDays($to) === 1 ? '' : 's') . ' left' : 'Ended');
+                    // Latest monitoring share: once a monitoring set is shared, step 3 shows a green tick
+                    // (more dates can still be added until the campaign ends).
+                    $monShared = collect($photos['monitoring'] ?? [])->flatten()->pluck('shared_at')->filter()->max();
                     $stepDate = [
                         'pending'      => 'Booked ' . $fmt($selected->created_at),
                         'installation' => $selected->installation_shared_at ? 'Shared ' . $fmt($selected->installation_shared_at) : 'Due ' . $fmt($selected->from_date),
-                        'monitoring'   => $current === 'monitoring' ? 'Till ' . $fmt($selected->to_date) : ($currentIndex > 2 ? 'Done' : 'Upcoming'),
+                        'monitoring'   => $monShared
+                            ? 'Shared ' . $fmt($monShared) . ($current === 'monitoring' ? ' · till ' . $fmt($selected->to_date) : '')
+                            : ($current === 'monitoring' ? 'Till ' . $fmt($selected->to_date) : ($currentIndex > 2 ? 'Done' : 'Upcoming')),
                         'end_date'     => $selected->end_date_shared_at ? 'Shared ' . $fmt($selected->end_date_shared_at) : 'Due ' . $fmt($selected->to_date),
                         'completed'    => $selected->completed_at ? $fmt($selected->completed_at) : 'Upcoming',
                     ];
@@ -329,6 +334,9 @@
                             @php
                                 $i = $loop->index;
                                 $state = $current === 'completed' || $i < $currentIndex ? 'done' : ($i === $currentIndex ? 'now' : 'upcoming');
+                                if ($key === 'monitoring' && $state === 'now' && $monShared) {
+                                    $state = 'done'; // monitoring photos shared: ticked, though the campaign is still running
+                                }
                             @endphp
                             <li class="{{ $state }}" @if ($state === 'now') aria-current="step" @endif>
                                 <span class="ops-dot">@if ($state === 'done')<i class="fa-solid fa-check" aria-hidden="true"></i>@else{{ $loop->iteration }}@endif</span>
