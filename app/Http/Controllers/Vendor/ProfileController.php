@@ -81,11 +81,16 @@ class ProfileController extends Controller
             return back()->withErrors(['current_password' => 'The current password is incorrect.']);
         }
 
-        $vendor->forceFill(['password' => Hash::make($request->password)])->save();
-        $request->session()->regenerate();
+        // A new remember token too, so a "Remember me" login made with the old password ends.
+        $vendor->forceFill(['password' => Hash::make($request->password), 'remember_token' => \Illuminate\Support\Str::random(60)])->save();
 
         VendorAudit::vendorDid($vendor, 'Password Changed');
 
-        return redirect()->route('vendor.password')->with('success', 'Your password has been changed.');
+        // Sign the vendor out: they log in again with the new password. Only the vendor guard,
+        // so a customer or admin signed in elsewhere in the same browser stays signed in.
+        auth('vendor')->logout();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('vendor.login')->with('success', 'Your password has been changed. Please log in with your new password.');
     }
 }

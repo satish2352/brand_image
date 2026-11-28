@@ -168,6 +168,12 @@
                                     <span class="vr-label">{{ $media->reviewer_name ? 'By ' . $media->reviewer_name . ' · ' : '' }}{{ $fmt($media->reviewed_at) }}</span>
                                 </p>
                                 <p class="vr-label mb-3">Live on the website and open for booking under {{ $media->vendor_name ?: 'its vendor' }}.</p>
+                            @elseif ($status === 'rejected')
+                                {{-- Rejected: no decision to make here; the vendor corrects and resubmits (→ Pending). --}}
+                                <p class="mb-3">
+                                    <span class="vr-badge vr-rejected">Rejected</span><br>
+                                    <span class="vr-label">{{ $media->reviewer_name ? 'By ' . $media->reviewer_name . ' · ' : '' }}{{ $fmt($media->reviewed_at) }}</span>
+                                </p>
                             @else
                                 <form method="POST" action="{{ route('admin.vendor.approvals.approve', $media->id) }}" class="mb-3 js-confirm"
                                     data-title="Approve {{ $code }}?" data-text="It will be published on the website and open for booking.">

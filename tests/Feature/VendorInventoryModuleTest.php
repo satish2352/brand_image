@@ -181,7 +181,7 @@ class VendorInventoryModuleTest extends TestCase
             'facing'          => 'North',
             'illumination_id' => $t->illumination_id,
             'address'         => 'Somewhere on FC Road',
-        ])->assertRedirect();
+        ])->assertRedirect(route('vendor.inventory'))->assertSessionHas('success'); // back to the media list
 
         $media = MediaManagement::where('media_title', 'Brand New Vendor Hoarding')->firstOrFail();
         $this->assertSame($this->vendor->id, (int) $media->vendor_id);
@@ -197,13 +197,20 @@ class VendorInventoryModuleTest extends TestCase
 
         // Reject needs a reason, then the vendor sees it.
         $this->asAdmin()->post(route('admin.vendor.approvals.reject', $media->id), ['reason' => ''])->assertSessionHasErrors('reason');
-        $this->asAdmin()->post(route('admin.vendor.approvals.reject', $media->id), ['reason' => 'Close shot is blurred'])->assertRedirect();
+        $this->asAdmin()->post(route('admin.vendor.approvals.reject', $media->id), ['reason' => 'Close shot is blurred'])
+            ->assertRedirect(route('admin.vendor.approvals', ['status' => 'rejected']));
         $this->assertSame('rejected', $media->fresh()->approval_status);
         $this->assertTrue(PanelNotification::forVendor($this->vendor->id)->where('type', 'media_rejected')->exists());
         $this->asVendor()->get(route('vendor.media.edit', $media->id))->assertOk()->assertSee('Close shot is blurred')->assertSee('Resubmit for Approval');
 
-        // Approve publishes it.
-        $this->asAdmin()->post(route('admin.vendor.approvals.approve', $media->id))->assertRedirect();
+        // A rejected record cannot be approved from the Rejected list; it stays out of Approved.
+        $this->asAdmin()->post(route('admin.vendor.approvals.approve', $media->id))->assertSessionHas('error');
+        $this->assertSame('rejected', $media->fresh()->approval_status);
+
+        // Once the vendor resubmits (back to Pending), approve publishes it and lands on the Approved tab.
+        $media->fresh()->forceFill(['approval_status' => 'pending'])->save();
+        $this->asAdmin()->post(route('admin.vendor.approvals.approve', $media->id))
+            ->assertRedirect(route('admin.vendor.approvals', ['status' => 'approved']));
         $fresh = $media->fresh();
         $this->assertSame('approved', $fresh->approval_status);
         $this->assertSame(1, (int) $fresh->is_active);
@@ -332,12 +339,14 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor()->post(route('vendor.password.update'), ['current_password' => 'Secret#123', 'password' => 'NewPass123', 'password_confirmation' => 'Other123'])
             ->assertSessionHasErrors('password');
 
+        // After the change the vendor is signed out and sent to the login page.
         $this->asVendor()->post(route('vendor.password.update'), ['current_password' => 'Secret#123', 'password' => 'NewPass123', 'password_confirmation' => 'NewPass123'])
-            ->assertRedirect(route('vendor.password'))->assertSessionHas('success');
+            ->assertRedirect(route('vendor.login'))->assertSessionHas('success');
         $this->assertTrue(Hash::check('NewPass123', $this->vendor->fresh()->password));
+        $this->assertGuest('vendor');
+        $this->get(route('vendor.dashboard'))->assertRedirect(route('vendor.login'));
 
         // The new password signs in; the old one no longer does.
-        auth('vendor')->logout();
         $this->post(route('vendor.login.submit'), ['email' => $this->vendor->email, 'password' => 'Secret#123'])->assertSessionHas('error');
         $this->post(route('vendor.login.submit'), ['email' => $this->vendor->email, 'password' => 'NewPass123'])->assertRedirect(route('vendor.dashboard'));
     }

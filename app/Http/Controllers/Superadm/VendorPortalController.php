@@ -119,6 +119,11 @@ class VendorPortalController extends Controller
         if ($media->approval_status === 'approved') {
             return back()->with('error', 'This media is already approved.');
         }
+        // A rejected submission is not approved from the Rejected list: the vendor corrects
+        // and resubmits it, which brings it back to Pending for a fresh review.
+        if ($media->approval_status === 'rejected') {
+            return back()->with('error', 'This media was rejected. It can be approved after the vendor corrects and resubmits it.');
+        }
 
         $media->forceFill([
             'approval_status'  => 'approved',
@@ -139,7 +144,8 @@ class VendorPortalController extends Controller
                 route('vendor.media.show', $media->id), $media->id);
         }
 
-        return redirect()->route('admin.vendor.approvals')->with('success', $media->display_code . ' approved and published.');
+        // To the tab the record is now in.
+        return redirect()->route('admin.vendor.approvals', ['status' => 'approved'])->with('success', $media->display_code . ' approved and published.');
     }
 
     public function reject(Request $request, int $id)
@@ -169,7 +175,7 @@ class VendorPortalController extends Controller
                 'Reason: ' . $data['reason'], route('vendor.media.edit', $media->id), $media->id);
         }
 
-        return redirect()->route('admin.vendor.approvals')->with('success', $media->display_code . ' rejected. The vendor has been notified.');
+        return redirect()->route('admin.vendor.approvals', ['status' => 'rejected'])->with('success', $media->display_code . ' rejected. The vendor has been notified.');
     }
 
     /* ---------------------- inventory assignment --------------------------- */

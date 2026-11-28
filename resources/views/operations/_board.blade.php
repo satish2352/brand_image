@@ -166,7 +166,7 @@
                         </div>
                     </a>
                 @empty
-                    <p class="vp-muted" style="padding:10px 12px;margin:0">Nothing in this stage.</p>
+                    <p class="vp-muted" style="padding:10px 12px;margin:0">No bookings in this stage right now.</p>
                 @endforelse
                 @if ($list->hasPages())
                     <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 4px">
@@ -428,6 +428,41 @@
                         @endforelse
                     </section>
                 </div>
+            @elseif ($list->total() === 0)
+                {{-- Empty stage: explain how bookings arrive here and what to do then. --}}
+                @php
+                    $hint = [
+                        'installation' => ['How bookings get here',
+                            'A booking appears here as soon as a hoarding is booked (website order, Admin Booking or the vendor\'s Update Availability).',
+                            $canEdit ? 'Then: upload the 3 installation photos (Newspaper, Long and Close shot) and click Share with User. The booking moves to Monitoring Pics.'
+                                     : 'Then: Brand Adda installs the flex and uploads the 3 installation photos. The booking moves to Monitoring Pics.'],
+                        'monitoring' => ['How bookings get here',
+                            'A booking moves here once its 3 installation photos are shared (Step 2 · Installation).',
+                            $canEdit ? 'Then: while the campaign runs, pick the date the customer asks for in the Monitoring tab, upload 3 photos and share them. Repeat for any date.'
+                                     : 'Then: while the campaign runs, Brand Adda adds monitoring photos for the dates the customer asks for.'],
+                        'end_date' => ['How bookings get here',
+                            'A booking in Monitoring Pics moves here automatically on its campaign end date.',
+                            $canEdit ? 'Then: upload the 3 end-date photos and share them, remove the flex, and click Mark Media Removed.'
+                                     : 'Then: Brand Adda uploads the end-date photos and removes the flex.'],
+                        'completed' => ['How bookings get here',
+                            'A booking moves here after its end-date photos are shared and the media is marked removed.',
+                            'All its photos stay here for reference.'],
+                    ][$stage] ?? null;
+                @endphp
+                <section class="ops-card" style="flex:999 1 560px">
+                    @if ($hint)
+                        <div style="display:flex;gap:14px;align-items:flex-start">
+                            <span class="ops-step-ico" style="background:#FFF7ED;color:#C2410C"><i class="{{ $stageInfo[$stage][0] }}" aria-hidden="true"></i></span>
+                            <div>
+                                <h3 style="margin-bottom:6px">{{ $stageLabels[$stage] }}: {{ strtolower($hint[0]) }}</h3>
+                                <p style="margin:0 0 8px;font-size:14px;color:#334155;line-height:1.55">{{ $hint[1] }}</p>
+                                <p style="margin:0;font-size:14px;color:#334155;line-height:1.55">{{ $hint[2] }}</p>
+                            </div>
+                        </div>
+                    @else
+                        <p class="vp-muted" style="margin:0">No bookings in this stage right now.</p>
+                    @endif
+                </section>
             @else
                 <section class="ops-card" style="flex:999 1 560px">
                     <p class="vp-muted" style="margin:0">Select a booking on the left to see its details and photos.</p>

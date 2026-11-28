@@ -121,8 +121,9 @@ class MediaController extends Controller
         VendorAudit::notifyAdmin('media_submitted', 'New media submitted for approval',
             $vendor->vendor_name . ' submitted ' . $code . ' · ' . $media->media_title . '.', route('admin.vendor.approvals.show', $media->id), $vendor->id, $media->id);
 
-        return redirect()->route('vendor.media.show', $media->id)
-            ->with('success', 'Media submitted. It will go live after Brand Adda approves it.');
+        // Back to the Media Management list, where the new media shows as Pending Approval.
+        return redirect()->route('vendor.inventory')
+            ->with('success', $code . ' submitted for approval. It will go live after Brand Adda approves it.');
     }
 
     public function show(int $id)
@@ -232,7 +233,8 @@ class MediaController extends Controller
             VendorAudit::notifyAdmin('media_submitted', 'Media resubmitted for approval',
                 $vendor->vendor_name . ' corrected and resubmitted ' . $code . '.', route('admin.vendor.approvals.show', $id), $vendor->id, $id);
 
-            return redirect()->route('vendor.media.show', $id)->with('success', 'Media resubmitted for approval.');
+            // Submitted for approval again: back to the list, like a new submission.
+            return redirect()->route('vendor.inventory')->with('success', $code . ' resubmitted for approval.');
         }
 
         return redirect()->route('vendor.media.show', $id)->with('success', 'Media updated.');
