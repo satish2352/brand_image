@@ -11,7 +11,8 @@
 
     {{-- Read-only: the workflow itself runs in Super Admin (admin.vendor.operations). --}}
     @include('operations._board', [
-        'routes'     => ['index' => 'vendor.operations'],
+        'routes'     => ['index' => 'vendor.operations', 'share' => 'vendor.operations.share'],
+        'canShare'   => true, // the vendor can send uploaded photos to the user
         'baseQuery'  => [],
         'canEdit'    => false,
         'showVendor' => false,

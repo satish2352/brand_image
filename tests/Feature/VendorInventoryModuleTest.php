@@ -350,8 +350,19 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertTrue(PanelNotification::where('audience', 'vendor')->where('vendor_id', $this->vendor->id)->where('type', 'installation_photos')->exists());
         $this->asVendor()->get(route('vendor.operations', ['stage' => 'monitoring', 'op' => $op->id]))->assertOk()
             ->assertSee('Ops User')->assertSee('Installation photos')->assertSee('uploads the installation')
-            ->assertDontSee('Upload Photo')->assertDontSee('Share with User')->assertDontSee('Mark Media Removed');
+            ->assertDontSee('Upload Photo')->assertDontSee('Mark as Completed')->assertSee('Share Again');
         $this->asVendor()->post('/vendor-panel/operations/' . $op->id . '/photo', [])->assertNotFound();
+
+        // ...but the vendor can send the uploaded photos to the user again (any email / WhatsApp number);
+        // re-sharing old installation photos never moves the booking back.
+        $this->asVendor()->post(route('vendor.operations.share', $op->id), ['stage' => 'installation', 'channel' => 'email', 'to_email' => 'client@example.test'])
+            ->assertSessionHas('success');
+        Mail::assertSent(OperationPhotosMail::class, fn ($m) => $m->hasTo('client@example.test'));
+        $this->assertSame('monitoring', $op->fresh()->stage);
+        $this->assertTrue(VendorActivityLog::where('vendor_id', $this->vendor->id)->where('action', 'Photos Shared with User')->exists());
+        $this->asVendor()->post(route('vendor.operations.share', $op->id), ['stage' => 'installation', 'channel' => 'whatsapp'])->assertSessionHasErrors('to_mobile');
+        $other = $this->makeMedia($this->otherVendor);
+        $this->asVendor()->post(route('vendor.operations.share', 999999), ['stage' => 'installation', 'channel' => 'email', 'to_email' => 'x@example.test'])->assertNotFound();
 
         // A vendor (without the admin session) cannot reach the admin routes.
         $this->flushSession();
@@ -705,6 +716,12 @@ class VendorInventoryModuleTest extends TestCase
             'name' => '  Priya   Shah ', 'email' => 'Priya@Example.test', 'mobile' => '+91 98765-43210', 'company' => 'Shah Foods',
             'city' => 'Pune', 'media_id' => $media->id, 'message' => 'Need this hoarding for January, please share rates.',
         ])->assertRedirect($contact)->assertSessionHas('enquiry_sent');
+
+        // The thank-you box links to a fresh page (?new=1) so "Send another enquiry" opens an empty form.
+        $thanks = $this->get($contact)->assertOk()->assertSee('Thank you! Your enquiry has been sent.')->getContent();
+        $this->assertStringContainsString('new=1#enquiry', $thanks);
+        $this->get($contact . '?new=1')->assertOk()->assertSee('id="enquiryForm"', false)->assertDontSee('Thank you! Your enquiry has been sent.')
+            ->assertDontSee('outdoor media sites'); // no count line under the logo
 
         $enquiry = \App\Models\VendorEnquiry::where('vendor_id', $this->vendor->id)->firstOrFail();
         $this->assertSame('new', $enquiry->status);

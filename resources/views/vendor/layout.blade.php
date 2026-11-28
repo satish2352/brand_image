@@ -124,13 +124,13 @@
             </header>
 
             <div class="vp-content">
-                @if (session('success'))
+                @if (session('success') && !session('ops_focus'))
                     <div class="vp-alert vp-alert-success" role="status">{{ session('success') }}</div>
                 @endif
                 @if (session('info'))
                     <div class="vp-alert vp-alert-info" role="status">{{ session('info') }}</div>
                 @endif
-                @if (session('error'))
+                @if (session('error') && !session('ops_focus'))
                     <div class="vp-alert vp-alert-error" role="alert">{{ session('error') }}</div>
                 @endif
                 @if ($errors->any() && !View::hasSection('form_errors_inline'))

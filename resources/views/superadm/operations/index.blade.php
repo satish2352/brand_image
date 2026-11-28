@@ -77,32 +77,11 @@
             });
         });
 
-        // "Share with User" asks first (the vendor panel does this through data-confirm too).
-        // Share menu: each Send button asks about the number / email typed next to it. WhatsApp also
-        // opens the ready-made chat in a new tab right on the click, while this page records the share.
+        // Forms marked data-confirm ask first (the share menu has its own handler in the board).
         document.addEventListener('submit', function (e) {
-            const btn = e.submitter;
-            if (btn && btn.dataset.confirmTpl) {
-                const field = e.target.querySelector('[name="' + btn.dataset.field + '"]');
-                const to = field ? field.value.trim() : '';
-                if (!to) { e.preventDefault(); alert(btn.dataset.field === 'to_mobile' ? 'Enter the mobile number.' : 'Enter the email address.'); if (field) field.focus(); return; }
-                if (btn.dataset.waText !== undefined) {
-                    let digits = to.replace(/\D+/g, '');
-                    if (digits.length === 10) digits = '91' + digits;
-                    if (digits.length < 10) { e.preventDefault(); alert('Enter a valid mobile number.'); return; }
-                    if (!window.confirm(btn.dataset.confirmTpl.replace('{to}', to))) { e.preventDefault(); return; }
-                    window.open('https://wa.me/' + digits + '?text=' + encodeURIComponent(btn.dataset.waText), '_blank', 'noopener');
-                    return;
-                }
-                if (!window.confirm(btn.dataset.confirmTpl.replace('{to}', to))) e.preventDefault();
-                return;
-            }
+            if (e.submitter && e.submitter.dataset.confirmTpl) return;
             const msg = e.target.getAttribute && e.target.getAttribute('data-confirm');
             if (msg && !window.confirm(msg)) e.preventDefault();
-        });
-        // Close an open Share menu on an outside click.
-        document.addEventListener('click', function (e) {
-            document.querySelectorAll('details.ops-sharemenu[open]').forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute('open'); });
         });
     </script>
 @endsection

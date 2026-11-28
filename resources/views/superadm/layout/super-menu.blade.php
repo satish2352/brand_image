@@ -63,6 +63,14 @@
         width: 26px;
     }
 
+    /* The theme (colors/blue.css) paints a hovered link teal and its icon teal too, so the
+       icon disappeared on hover: keep it white, like the selected item. */
+    .sidebar-nav #sidebarnav li > a:hover i,
+    .sidebar-nav #sidebarnav li > a:focus-visible i,
+    .sidebar-nav #sidebarnav > li.active > a > i {
+        color: #fff !important;
+    }
+
     .sidebar-nav #sidebarnav > li > a > span {
         white-space: normal;
         min-width: 0;

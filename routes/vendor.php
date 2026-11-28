@@ -62,6 +62,8 @@ Route::prefix('vendor-panel')->name('vendor.')->group(function () {
         // uploads and shares the operation photos; the vendor sees them here.
         Route::get('bookings', [Vendor\InventoryController::class, 'bookings'])->name('bookings');
         Route::get('operations', [Vendor\OperationsController::class, 'index'])->name('operations');
+        // The vendor may also send the uploaded photos to the user (WhatsApp / email); uploading stays with Brand Adda.
+        Route::post('operations/{id}/share', [Vendor\OperationsController::class, 'share'])->whereNumber('id')->name('operations.share');
 
         // Reports
         Route::get('reports/utilisation', [Vendor\ReportController::class, 'utilisation'])->name('reports.utilisation');

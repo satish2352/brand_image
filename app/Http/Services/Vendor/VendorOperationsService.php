@@ -318,10 +318,12 @@ class VendorOperationsService
 
         MediaOperationPhoto::whereIn('id', $photos->pluck('id'))->update(['shared_at' => now()]);
 
+        // Stage moves forward only: sharing older photos again (e.g. installation during
+        // Monitoring, or anything once Completed) never sends a booking back.
         if ($stage === 'installation') {
-            $op->update(['installation_shared_at' => now(), 'stage' => 'monitoring']);
+            $op->update(['installation_shared_at' => now()] + ($op->stage === 'installation' ? ['stage' => 'monitoring'] : []));
         } elseif ($stage === 'end_date') {
-            $op->update(['end_date_shared_at' => now(), 'stage' => 'end_date']);
+            $op->update(['end_date_shared_at' => now()] + (in_array($op->stage, ['installation', 'monitoring'], true) ? ['stage' => 'end_date'] : []));
         }
 
         return $photos->values()->all();

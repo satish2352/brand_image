@@ -1,6 +1,5 @@
 @extends('website.vendor-site.layout')
 @section('title', $vendor->display_name)
-@section('tagline', $totals['media'] . ' outdoor media sites')
 
 @section('nav')
     @include('website.vendor-site.partials.nav', ['active' => 'home'])

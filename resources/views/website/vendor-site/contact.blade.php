@@ -1,6 +1,5 @@
 @extends('website.vendor-site.layout')
 @section('title', 'Contact · ' . $vendor->display_name)
-@section('tagline', $totals['media'] . ' outdoor media sites')
 
 @section('nav')
     @include('website.vendor-site.partials.nav', ['active' => 'contact'])
@@ -115,7 +114,8 @@
                     <div style="width:64px;height:64px;margin:0 auto 14px;border-radius:999px;background:#DCFCE7;color:#166534;display:grid;place-items:center;font-size:28px"><i class="fa-solid fa-check"></i></div>
                     <h3 style="margin:0;font-size:20px;font-weight:800">Thank you! Your enquiry has been sent.</h3>
                     <p style="margin:8px 0 18px;color:#475569">{{ $vendor->display_name }} will contact you soon on the phone or email you gave.</p>
-                    <a href="{{ route('vendor-site.contact', $vendor->slug) }}#enquiry" class="vs-btn vs-btn-g">Send another enquiry</a>
+                    {{-- A new address (?new=1), so the browser reloads the page and shows an empty form; the same URL with only #enquiry would just scroll. --}}
+                    <a href="{{ route('vendor-site.contact', [$vendor->slug, 'new' => 1]) }}#enquiry" class="vs-btn vs-btn-g">Send another enquiry</a>
                 </div>
             @else
                 <form method="POST" action="{{ route('vendor-site.contact.submit', $vendor->slug) }}" id="enquiryForm" novalidate style="padding:24px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px">

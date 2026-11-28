@@ -15,6 +15,7 @@
 @php
     $fmt = fn($d) => $d ? \Carbon\Carbon::parse($d)->format('d M Y') : '—';
     $stageKeys = array_keys($stageLabels);
+    $canShare = $canShare ?? $canEdit; // the vendor shares uploaded photos too, without editing them
     $link = fn (array $q = []) => route($routes['index'], array_filter(array_merge($baseQuery, $q), fn ($v) => $v !== null && $v !== ''));
     // What each stage means, in one line, and its icon.
     $stageInfo = [
@@ -482,7 +483,7 @@
                                     <div class="ops-sharebar">
                                         <span>
                                             @if ($setShared)
-                                                <i class="fa-solid fa-circle-check" style="color:#16A34A"></i> {{ $noUser ? 'Photos saved.' : 'Shared with the user.' }} @if ($editable)<span class="vp-muted">Use Share Again to send them to anyone else.</span>@endif
+                                                <i class="fa-solid fa-circle-check" style="color:#16A34A"></i> {{ $noUser ? 'Photos saved.' : 'Shared with the user.' }} @if ($editable || $canShare)<span class="vp-muted">Use Share Again to send them to anyone else.</span>@endif
                                             @elseif ($editable && $noUser)
                                                 {{ count($set) }} of 3 uploaded · no user to email; saving moves the booking on.
                                             @elseif ($editable)
@@ -491,9 +492,9 @@
                                                 {{ count($set) }} of 3 uploaded · not shared with the user yet.
                                             @endif
                                         </span>
-                                        @if ($editable)
+                                        @if ($editable || ($canShare && count($set) === 3))
                                             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                                            @if ($noUser)
+                                            @if ($editable && $noUser)
                                                 <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0"
                                                     data-confirm="Save these photos and move the booking to the next stage?" data-confirm-button="Yes, save">
                                                     @csrf
@@ -545,7 +546,7 @@
                                                         </div>
                                                     </details>
                                                 </form>
-                                            @else
+                                            @elseif ($editable)
                                                 <button type="button" class="vp-btn vp-btn-o" disabled title="Upload all 3 photos to share"><i class="fa fa-share-nodes"></i>Share with User</button>
                                             @endif
                                             </div>
@@ -707,6 +708,29 @@
     // A failed upload / share comes back without the #ops-photos anchor: open the Photos section anyway.
     document.addEventListener('DOMContentLoaded', function () {
         if (document.querySelector('[data-ops-focus]')) document.getElementById('ops-photos').scrollIntoView();
+    });
+
+    // Share menu: each Send button asks about the number / email typed next to it. WhatsApp also
+    // opens the ready-made chat in a new tab right on the click, while the page records the share.
+    document.addEventListener('submit', function (e) {
+        const btn = e.submitter;
+        if (!btn || !btn.dataset.confirmTpl) return;
+        const field = e.target.querySelector('[name="' + btn.dataset.field + '"]');
+        const to = field ? field.value.trim() : '';
+        if (!to) { e.preventDefault(); alert(btn.dataset.field === 'to_mobile' ? 'Enter the mobile number.' : 'Enter the email address.'); if (field) field.focus(); return; }
+        if (btn.dataset.waText !== undefined) {
+            let digits = to.replace(/\D+/g, '');
+            if (digits.length === 10) digits = '91' + digits;
+            if (digits.length < 10) { e.preventDefault(); alert('Enter a valid mobile number.'); return; }
+            if (!window.confirm(btn.dataset.confirmTpl.replace('{to}', to))) { e.preventDefault(); return; }
+            window.open('https://wa.me/' + digits + '?text=' + encodeURIComponent(btn.dataset.waText), '_blank', 'noopener');
+            return;
+        }
+        if (!window.confirm(btn.dataset.confirmTpl.replace('{to}', to))) e.preventDefault();
+    });
+    // Close an open Share menu on an outside click.
+    document.addEventListener('click', function (e) {
+        document.querySelectorAll('details.ops-sharemenu[open]').forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute('open'); });
     });
 
     // Bookings table: a click anywhere on a row opens that booking.
