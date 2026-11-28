@@ -50,9 +50,10 @@ class OperationsController extends Controller
         }
 
         if ($term = trim((string) $request->q)) {
-            $operations = $operations->filter(fn ($op) => stripos(
-                $op->order_no . ' ' . $op->hoarding_code . ' ' . $op->media_title . ' ' . $op->user_name . ' ' . $op->vendor_name, $term
-            ) !== false);
+            $operations = $operations->filter(fn ($op) => stripos(implode(' ', [
+                $op->order_no, $op->hoarding_code, $op->media_code, $op->media_title, $op->area_name,
+                $op->user_name, $op->user_mobile, $op->user_email, $op->vendor_name ?? '',
+            ]), $term) !== false);
         }
 
         $all = $stage === 'pending' ? collect() : $operations->where('effective_stage', $stage)->values();
@@ -205,6 +206,12 @@ class OperationsController extends Controller
             'removal_note' => 'nullable|string|max:500',
         ], ['confirm.accepted' => 'Tick the box to confirm the flex / advertisement has been removed.']);
         $stageBefore = $this->ops->detail($op->vendor_id, $op->id)?->effective_stage ?? $op->stage;
+        // Completion is done from the End Date Pics stage only.
+        if ($stageBefore !== 'end_date') {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'complete' => $stageBefore === 'completed' ? 'This booking is already completed.' : 'A booking can be marked completed from the End Date Pics stage.',
+            ]);
+        }
 
         $this->ops->complete($vendor, $op, $data['removal_note'] ?? null);
 

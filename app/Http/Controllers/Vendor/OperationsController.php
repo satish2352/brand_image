@@ -38,7 +38,10 @@ class OperationsController extends Controller
         }
 
         if ($term = trim((string) $request->q)) {
-            $operations = $operations->filter(fn ($op) => stripos($op->order_no . ' ' . $op->hoarding_code . ' ' . $op->media_title . ' ' . $op->user_name, $term) !== false);
+            $operations = $operations->filter(fn ($op) => stripos(implode(' ', [
+                $op->order_no, $op->hoarding_code, $op->media_code, $op->media_title, $op->area_name,
+                $op->user_name, $op->user_mobile, $op->user_email, $op->vendor_name ?? '',
+            ]), $term) !== false);
         }
 
         $all = $stage === 'pending' ? collect() : $operations->where('effective_stage', $stage)->values();

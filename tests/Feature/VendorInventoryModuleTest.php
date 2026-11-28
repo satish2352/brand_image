@@ -282,6 +282,11 @@ class VendorInventoryModuleTest extends TestCase
         $op = MediaOperation::where('media_id', $media->id)->firstOrFail();
         $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'installation', 'op' => $op->id]))->assertOk()
             ->assertSee('Upload Photo')->assertSee('Back to Installation list');
+        // Each table has its own search: by customer mobile, and no match shows a message (not the empty-stage hint).
+        $inst = fn (array $q) => route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'installation'] + $q);
+        $this->asAdmin()->get($inst([]))->assertSee('aria-label="Search bookings"', false);
+        $this->asAdmin()->get($inst(['q' => '9000000000']))->assertOk()->assertSee('Ops User');
+        $this->asAdmin()->get($inst(['q' => 'no-such-booking-xyz']))->assertOk()->assertDontSee('Ops User')->assertSee('No bookings match');
         $this->assertSame('installation', $op->stage);
         $this->assertSame($this->vendor->id, (int) $op->vendor_id);
 
@@ -336,9 +341,9 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertTrue(\App\Models\MediaOperationPhoto::where('operation_id', $op->id)->where('stage', 'end_date')->exists());
         $this->assertSame('monitoring', $op->fresh()->stage); // still monitoring until the end-date photos are shared
 
-        // Mark as Completed is offered at any active stage; it needs the removal tick.
-        $this->asAdmin()->get($board)->assertSee('Mark as Completed')->assertSee('The end-date photos have not been shared yet');
-        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), [])->assertSessionHasErrors('confirm');
+        // Mark as Completed is only on End Date Pics: not offered (and refused) during Monitoring.
+        $this->asAdmin()->get($board)->assertDontSee('Mark as Completed');
+        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['confirm' => 1])->assertSessionHasErrors('complete');
         $this->assertSame('monitoring', $op->fresh()->stage);
 
         // The vendor is told and sees the admin's photos, read-only (no upload / share controls or routes).
@@ -353,9 +358,21 @@ class VendorInventoryModuleTest extends TestCase
         $this->asVendor()->get(route('admin.vendor.operations'))->assertRedirect();
         $this->asVendor()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertRedirect();
 
-        // Brand Adda marks it completed straight from Monitoring; it then shows under Completed, closed for changes.
+        // Sharing the 3 end-date photos moves it to End Date Pics, where Mark as Completed appears (needs the tick).
         $this->flushSession();
-        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['vendor_id' => $this->vendor->id, 'confirm' => 1, 'removal_note' => 'Removed early'])
+        foreach (['long', 'close'] as $shot) {
+            $this->asAdmin()->post(route('admin.vendor.operations.photo', $op->id), [
+                'stage' => 'end_date', 'shot_type' => $shot, 'photo' => UploadedFile::fake()->image($shot . '.jpg', 800, 600),
+            ])->assertRedirect();
+        }
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'end_date'])->assertSessionHas('success');
+        $this->assertSame('end_date', $op->fresh()->stage);
+        $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'end_date', 'op' => $op->id]))->assertOk()
+            ->assertSee('Mark as Completed');
+        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), [])->assertSessionHasErrors('confirm');
+
+        // Marked completed: it then shows under Completed, closed for changes.
+        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['vendor_id' => $this->vendor->id, 'confirm' => 1, 'removal_note' => 'Flex removed'])
             ->assertRedirect(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'completed', 'op' => $op->id]));
         $this->assertSame('completed', $op->fresh()->stage);
         $this->assertNotNull($op->fresh()->completed_at);
@@ -408,6 +425,8 @@ class VendorInventoryModuleTest extends TestCase
         $this->asAdmin()->get($url(['page' => 2]))->assertOk()->assertSee('PGT022')->assertDontSee('>PGT001<', false)
             ->assertSee('<td class="nowrap vp-muted">21</td>', false); // numbering continues on page 2
         $this->asAdmin()->get($url(['q' => 'PGT015']))->assertOk()->assertSee('PGT015')->assertDontSee('PGT016'); // search on the server
+        $this->assertStringContainsString('aria-label="Search pending media"', $first);
+        $this->asAdmin()->get($url(['q' => 'no-such-code-xyz']))->assertOk()->assertSee('No pending media matches');
     }
 
     public function test_vendor_profile_and_password_from_the_header_menu(): void

@@ -26,9 +26,8 @@
                     <option value="">All vendors</option>
                     @foreach ($vendors as $v)<option value="{{ $v->id }}" @selected($vendorId === $v->id)>{{ $v->vendor_name }}</option>@endforeach
                 </select>
-                <input type="search" name="q" value="{{ request('q') }}" placeholder="Search booking no., hoarding code, vendor" aria-label="Search operations">
-                <button class="btn btn-info"><i class="mdi mdi-magnify"></i> Search</button>
-                @if (request('q') || $vendorId)
+                @if (request('q')) {{-- keep the table search when the vendor changes --}}<input type="hidden" name="q" value="{{ request('q') }}">@endif
+                @if ($vendorId)
                     <a href="{{ route('admin.vendor.operations', ['stage' => $stage]) }}" class="btn btn-outline-secondary">Clear</a>
                 @endif
             </form>

@@ -124,6 +124,9 @@
     .ops-dates { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
     .ops-date-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--o-line); font-size: 12px; font-weight: 600; color: #334155 !important; text-decoration: none !important; background: #fff; }
     .ops-date-chip.is-on { border-color: var(--o-orange); background: #FFF7ED; color: #C2410C !important; }
+    .ops-thead { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #E5E7EB; }
+    .ops-tsearch { display: flex; gap: 8px; align-items: center; flex: 0 1 460px; min-width: 260px; margin: 0; }
+    .ops-tsearch .vp-input { min-height: 38px; flex: 1; min-width: 0; }
     .ops-back { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #C2410C !important; text-decoration: none !important; }
     .ops-back:hover { text-decoration: underline !important; }
     .ops-table .ops-row { cursor: pointer; }
@@ -172,9 +175,18 @@
     @if ($stage === 'pending')
         {{-- ================= PENDING MEDIA ================= --}}
         <section class="vp-card" style="overflow:hidden;margin-top:20px">
-            <div style="padding:16px 20px;border-bottom:1px solid #E5E7EB">
-                <h2 class="vp-h2">Pending Media</h2>
-                <div class="vp-muted" style="margin-top:4px">Approved media that is free, with no booking coming up. When it is booked, it moves to <strong>Installation</strong>.</div>
+            <div class="ops-thead">
+                <div>
+                    <h2 class="vp-h2">Pending Media</h2>
+                    <div class="vp-muted" style="margin-top:4px">Approved media that is free, with no booking coming up. When it is booked, it moves to <strong>Installation</strong>.</div>
+                </div>
+                <form method="GET" action="{{ route($routes['index']) }}" class="ops-tsearch" role="search">
+                    @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
+                    <input type="hidden" name="stage" value="{{ $stage }}">
+                    <input type="search" name="q" value="{{ request('q') }}" class="vp-input" placeholder="Search hoarding code, title, area, city{{ $showVendor ? ', vendor' : '' }}" aria-label="Search pending media">
+                    <button type="submit" class="vp-btn ops-share-btn" style="min-height:38px;padding:0 14px"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Search</button>
+                    @if (request('q'))<a href="{{ $link(['stage' => $stage]) }}" class="ops-back" style="font-size:13px">Clear</a>@endif
+                </form>
             </div>
             <div class="vp-table-wrap">
                 <table class="vp-table">
@@ -191,7 +203,7 @@
                                 <td class="nowrap"><a href="{{ $mediaUrl($m->id) }}" class="vp-btn vp-btn-g vp-btn-sm">View</a></td>
                             </tr>
                         @empty
-                            <tr><td colspan="{{ $showVendor ? 6 : 5 }}" style="text-align:center;padding:40px;color:#475569">No pending media.</td></tr>
+                            <tr><td colspan="{{ $showVendor ? 6 : 5 }}" style="text-align:center;padding:40px;color:#475569">{{ request('q') ? 'No pending media matches “' . request('q') . '”.' : 'No pending media.' }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -546,8 +558,8 @@
                     {{-- Completed with no photos on record: the banner above says so; no empty photo slots. --}}
                     @endif
 
-                    {{-- ================= MARK AS COMPLETED (admin, any active stage) ================= --}}
-                    @if ($canEdit && in_array($current, ['installation', 'monitoring', 'end_date'], true))
+                    {{-- ================= MARK AS COMPLETED (admin, End Date Pics stage only) ================= --}}
+                    @if ($canEdit && $current === 'end_date')
                         <section class="ops-card" id="ops-complete">
                             <h3 style="margin-bottom:6px">Mark as completed</h3>
                             @if ($selected->end_date_shared_at)
@@ -600,7 +612,7 @@
                         @endforelse
                     </section>
                 </div>
-            @elseif ($list->total() === 0)
+            @elseif ($list->total() === 0 && !request('q'))
                 {{-- Empty stage: explain how bookings arrive here and what to do then. --}}
                 @php
                     $hint = [
@@ -638,9 +650,18 @@
             @else
                 {{-- ================= BOOKINGS TABLE (stage page, nothing opened yet) ================= --}}
                 <section class="vp-card ops-full" style="overflow:hidden;flex:1 1 100%">
-                    <div style="padding:16px 20px;border-bottom:1px solid #E5E7EB">
-                        <h2 class="vp-h2">{{ $stageLabels[$stage] }} · {{ $list->total() }} {{ \Illuminate\Support\Str::plural('booking', $list->total()) }}</h2>
-                        <div class="vp-muted" style="margin-top:4px">Click a booking to open its details{{ $canEdit && $stage !== 'completed' ? ', upload photos and share them' : ' and photos' }}.</div>
+                    <div class="ops-thead">
+                        <div>
+                            <h2 class="vp-h2">{{ $stageLabels[$stage] }} · {{ $list->total() }} {{ \Illuminate\Support\Str::plural('booking', $list->total()) }}</h2>
+                            <div class="vp-muted" style="margin-top:4px">Click a booking to open its details{{ $canEdit && $stage !== 'completed' ? ', upload photos and share them' : ' and photos' }}.</div>
+                        </div>
+                        <form method="GET" action="{{ route($routes['index']) }}" class="ops-tsearch" role="search">
+                            @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
+                            <input type="hidden" name="stage" value="{{ $stage }}">
+                            <input type="search" name="q" value="{{ request('q') }}" class="vp-input" placeholder="Search booking no., hoarding, customer, mobile{{ $showVendor ? ', vendor' : '' }}" aria-label="Search bookings">
+                            <button type="submit" class="vp-btn ops-share-btn" style="min-height:38px;padding:0 14px"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Search</button>
+                            @if (request('q'))<a href="{{ $link(['stage' => $stage]) }}" class="ops-back" style="font-size:13px">Clear</a>@endif
+                        </form>
                     </div>
                     <div class="vp-table-wrap">
                         <table class="vp-table ops-table">
@@ -650,6 +671,9 @@
                                 <th>Action</th>
                             </tr></thead>
                             <tbody>
+                                @if (!$list->total())
+                                    <tr><td colspan="{{ $showVendor ? 7 : 6 }}" style="text-align:center;padding:40px;color:#475569">No bookings match “{{ request('q') }}”.</td></tr>
+                                @endif
                                 @foreach ($list as $op)
                                     @php $open = $link(['stage' => $stage, 'op' => $op->id, 'q' => request('q'), 'page' => $list->currentPage() > 1 ? $list->currentPage() : null]); @endphp
                                     <tr class="ops-row" data-href="{{ $open }}">
