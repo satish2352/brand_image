@@ -282,8 +282,15 @@
                     </div>
 
                     {{-- ================= PHOTOS (tab per stage) ================= --}}
-                    <section class="ops-card" aria-label="Photos">
+                    <section class="ops-card" id="ops-photos" aria-label="Photos" style="scroll-margin-top:90px">
                         <h3>Photos</h3>
+                        @if (session('ops_focus') && (session('success') || session('error')))
+                            {{-- After an upload / share the page opens here, so the result is shown here too. --}}
+                            <div class="alert {{ session('error') ? 'alert-danger' : 'alert-success' }}" role="status" style="margin:0 0 12px">{{ session('error') ?: session('success') }}</div>
+                        @endif
+                        @if ($errors->hasAny(['photo', 'photo_date', 'shot_type', 'share']))
+                            <div class="alert alert-danger" role="alert" data-ops-focus style="margin:0 0 12px">{{ $errors->first('photo') ?: $errors->first('photo_date') ?: $errors->first('shot_type') ?: $errors->first('share') }}</div>
+                        @endif
                         <div class="ops-tabs" role="tablist">
                             @foreach ($photoStages as $ps => $pl)
                                 @php
@@ -323,7 +330,7 @@
                                     @endphp
                                     @if ($editable)
                                         {{-- Add photos for any day the user asks for: pick the date, the 3 upload slots open below. --}}
-                                        <form method="GET" action="{{ route($routes['index']) }}" class="ops-addbar">
+                                        <form method="GET" action="{{ route($routes['index']) }}#ops-photos" class="ops-addbar">
                                             @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
                                             <input type="hidden" name="stage" value="{{ $stage }}"><input type="hidden" name="op" value="{{ $selected->id }}">
                                             <i class="fa fa-upload" aria-hidden="true" style="color:var(--o-orange)"></i>
@@ -346,7 +353,7 @@
                                         @if ($monDates)
                                             <span class="vp-muted" style="font-size:12px">Dates with photos:</span>
                                             @foreach ($monDates as $d)
-                                                <a href="{{ $link(['stage' => $stage, 'op' => $selected->id, 'date' => $d]) }}" class="ops-date-chip {{ $d === $monitorDate ? 'is-on' : '' }}">{{ $fmt($d) }}</a>
+                                                <a href="{{ $link(['stage' => $stage, 'op' => $selected->id, 'date' => $d]) }}#ops-photos" class="ops-date-chip {{ $d === $monitorDate ? 'is-on' : '' }}">{{ $fmt($d) }}</a>
                                             @endforeach
                                         @endif
                                     </div>
@@ -555,6 +562,11 @@
 </div>
 
 <script>
+    // A failed upload / share comes back without the #ops-photos anchor: open the Photos section anyway.
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.querySelector('[data-ops-focus]')) document.getElementById('ops-photos').scrollIntoView();
+    });
+
     // Photo tabs (Installation / Monitoring / End Date).
     document.addEventListener('click', function (e) {
         const tab = e.target.closest('.ops-tab');

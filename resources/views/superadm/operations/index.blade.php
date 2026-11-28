@@ -34,9 +34,11 @@
             </form>
         </div>
 
-        @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-        @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-        @if ($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
+        @unless (session('ops_focus')) {{-- after an upload / share the message is shown in the Photos section --}}
+            @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+            @if (session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+        @endunless
+        @if ($errors->any() && !$errors->hasAny(['photo', 'photo_date', 'shot_type', 'share']))<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
 
         <div class="ops-board">
             @include('operations._board', [

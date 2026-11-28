@@ -300,9 +300,12 @@ class VendorInventoryModuleTest extends TestCase
         $this->asAdmin()->get($board)->assertOk()->assertSee('Upload monitoring photos for')->assertSee('Add Photos');
         foreach (['newspaper', 'long', 'close'] as $shot) {
             $this->asAdmin()->post(route('admin.vendor.operations.photo', $op->id), [
+                'vendor_id' => $this->vendor->id, 'return_stage' => 'monitoring',
                 'stage' => 'monitoring', 'photo_date' => $day, 'shot_type' => $shot, 'photo' => UploadedFile::fake()->image($shot . '.jpg', 800, 600),
-            ])->assertRedirect();
+            ])->assertRedirect($board . '#ops-photos')->assertSessionHas('ops_focus'); // back to the Photos section
         }
+        $this->asAdmin()->withSession(['ops_focus' => true, 'success' => 'Close Shot uploaded.'])->get($board)
+            ->assertSee('id="ops-photos"', false)->assertSee('Close Shot uploaded.');
         $this->asAdmin()->get($board)->assertOk()->assertSee('https://wa.me/919000000000?text=', false)->assertSee('value="email"', false);
         $mailsBefore = count(Mail::sent(OperationPhotosMail::class));
         $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'monitoring', 'photo_date' => $day, 'channel' => 'whatsapp'])

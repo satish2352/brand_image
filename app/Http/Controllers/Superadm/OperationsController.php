@@ -129,7 +129,9 @@ class OperationsController extends Controller
             'stage'     => $request->input('return_stage', $data['stage']),
             'op'        => $op->id,
             'date'      => $data['photo_date'] ?? null,
-        ]))->with('success', MediaOperationPhoto::SHOTS[$data['shot_type']] . ' uploaded.');
+        ]))->withFragment('ops-photos') // back to the Photos section, not the top of the page
+            ->with('ops_focus', true)
+            ->with('success', MediaOperationPhoto::SHOTS[$data['shot_type']] . ' uploaded.');
     }
 
     public function share(Request $request, int $operationId)
@@ -174,7 +176,9 @@ class OperationsController extends Controller
             'vendor_id' => $request->input('vendor_id'),
             'stage'     => $op->fresh()->stage === 'monitoring' ? 'monitoring' : $next,
             'op'        => $op->id,
-        ]))->with('success', $whatsapp
+        ]))->withFragment('ops-photos')
+            ->with('ops_focus', true)
+            ->with('success', $whatsapp
             ? 'Photos marked as shared on WhatsApp with ' . $detail->user_mobile . '. Send the message in the WhatsApp tab that opened.'
             : ($emailed ? 'Photos emailed to ' . $detail->user_email . '.'
             : 'Photos saved and the booking moved on (this booking has no user email, so nothing was emailed).'));
