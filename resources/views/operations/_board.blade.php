@@ -98,6 +98,16 @@
     .ops-shot-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 12px; color: #475569; }
     .ops-shot .vp-drop { height: 160px; margin: 0; }
     .ops-sharebar { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 12px; background: #F8FAFC; font-size: 13px; color: #334155; }
+    .ops-sharemenu { position: relative; }
+    .ops-sharemenu > summary { list-style: none; cursor: pointer; }
+    .ops-sharemenu > summary::-webkit-details-marker { display: none; }
+    .ops-sharemenu-list { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 20; min-width: 240px; background: #fff; border: 1px solid var(--o-line); border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.15); padding: 6px; }
+    .ops-sharemenu-list button { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 9px 10px; font-weight: 700; font-size: 14px; color: #0F172A; cursor: pointer; }
+    .ops-sharemenu-list button i { font-size: 18px; width: 20px; text-align: center; }
+    .ops-sharemenu-list button small { display: block; font-weight: 400; font-size: 12px; color: #64748B; }
+    .ops-sharemenu-list button:hover:not(:disabled) { background: #FFF7ED; }
+    .ops-sharemenu-list button:disabled { opacity: .5; cursor: not-allowed; }
+    .ops-addbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 12px; padding: 10px 12px; border: 1px dashed var(--o-orange); border-radius: 10px; background: #FFF7ED; }
     .ops-dates { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
     .ops-date-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--o-line); font-size: 12px; font-weight: 600; color: #334155 !important; text-decoration: none !important; background: #fff; }
     .ops-date-chip.is-on { border-color: var(--o-orange); background: #FFF7ED; color: #C2410C !important; }
@@ -199,7 +209,7 @@
                     // "What's happening now", worded for whoever is looking.
                     $now = match ($current) {
                         'installation' => [$canEdit ? 'Upload the 3 installation photos' : 'Waiting for installation photos',
-                            $canEdit ? 'Install the flex from ' . $fmt($selected->from_date) . ', upload the Newspaper, Long and Close shots below, then ' . ($noUser ? 'click Save & Move On.' : 'click Share with User to email them to ' . ($selected->user_email ?: 'the user') . '.')
+                            $canEdit ? 'Install the flex from ' . $fmt($selected->from_date) . ', upload the Newspaper, Long and Close shots below, then ' . ($noUser ? 'click Save & Move On.' : 'click Share with User and send them on WhatsApp or by email.')
                                      : 'Brand Adda installs the flex from ' . $fmt($selected->from_date) . ' and uploads 3 installation photos here. You will be notified when they are added.'],
                         'monitoring' => ['Campaign is running till ' . $fmt($selected->to_date),
                             $canEdit ? 'When the user asks for proof, pick the date in the Monitoring tab, upload the 3 photos for that date and share them.'
@@ -302,17 +312,48 @@
                             <div id="ops-tab-{{ $ps }}" class="ops-tabpanel" role="tabpanel" @if ($openTab !== $ps) hidden @endif>
                                 @if ($ps === 'monitoring')
                                     {{-- Monitoring photos are taken per date the user asks for. --}}
-                                    <div class="ops-dates">
-                                        <form method="GET" action="{{ route($routes['index']) }}" style="display:flex;gap:8px;align-items:center;margin:0">
+                                    @php
+                                        $monDates = array_keys($photos['monitoring'] ?? []);
+                                        sort($monDates);
+                                        // Suggested date for a new upload: today, kept inside the campaign.
+                                        $suggestDate = $today->copy()->max($from)->min($to)->toDateString();
+                                        if (in_array($suggestDate, $monDates) && count($photos['monitoring'][$suggestDate] ?? []) === 3) {
+                                            $suggestDate = $monitorDate === $suggestDate ? '' : $suggestDate;
+                                        }
+                                    @endphp
+                                    @if ($editable)
+                                        {{-- Add photos for any day the user asks for: pick the date, the 3 upload slots open below. --}}
+                                        <form method="GET" action="{{ route($routes['index']) }}" class="ops-addbar">
                                             @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
                                             <input type="hidden" name="stage" value="{{ $stage }}"><input type="hidden" name="op" value="{{ $selected->id }}">
-                                            <label class="vp-muted" for="mdate" style="font-size:13px;margin:0">Date</label>
-                                            <input id="mdate" type="date" name="date" class="vp-input" style="width:auto;min-height:36px" value="{{ $monitorDate }}"
-                                                min="{{ $from->toDateString() }}" max="{{ $to->toDateString() }}" onchange="this.form.submit()">
+                                            <i class="fa fa-upload" aria-hidden="true" style="color:var(--o-orange)"></i>
+                                            <label for="mdate" style="margin:0;font-weight:700;font-size:13px">Upload monitoring photos for</label>
+                                            <input id="mdate" type="date" name="date" class="vp-input" required style="width:auto;min-height:36px" value="{{ $suggestDate }}"
+                                                min="{{ $from->toDateString() }}" max="{{ $to->toDateString() }}">
+                                            <button type="submit" class="vp-btn vp-btn-primary" style="min-height:36px"><i class="fa fa-plus"></i>Add Photos</button>
                                         </form>
-                                        @foreach (array_keys($photos['monitoring'] ?? []) as $d)
-                                            <a href="{{ $link(['stage' => $stage, 'op' => $selected->id, 'date' => $d]) }}" class="ops-date-chip {{ $d === $monitorDate ? 'is-on' : '' }}">{{ $fmt($d) }}</a>
-                                        @endforeach
+                                    @endif
+                                    <div class="ops-dates">
+                                        @if (!$editable)
+                                            <form method="GET" action="{{ route($routes['index']) }}" style="display:flex;gap:8px;align-items:center;margin:0">
+                                                @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
+                                                <input type="hidden" name="stage" value="{{ $stage }}"><input type="hidden" name="op" value="{{ $selected->id }}">
+                                                <label class="vp-muted" for="mdate" style="font-size:13px;margin:0">Date</label>
+                                                <input id="mdate" type="date" name="date" class="vp-input" style="width:auto;min-height:36px" value="{{ $monitorDate }}"
+                                                    min="{{ $from->toDateString() }}" max="{{ $to->toDateString() }}" onchange="this.form.submit()">
+                                            </form>
+                                        @endif
+                                        @if ($monDates)
+                                            <span class="vp-muted" style="font-size:12px">Dates with photos:</span>
+                                            @foreach ($monDates as $d)
+                                                <a href="{{ $link(['stage' => $stage, 'op' => $selected->id, 'date' => $d]) }}" class="ops-date-chip {{ $d === $monitorDate ? 'is-on' : '' }}">{{ $fmt($d) }}</a>
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                    <div style="font-size:13px;font-weight:700;margin-bottom:10px">Photos for {{ $fmt($monitorDate) }}
+                                        @if ($editable && count($set) === 3)
+                                            <span class="vp-muted" style="font-weight:400"> · all 3 uploaded. For another day, pick the date above and click Add Photos.</span>
+                                        @endif
                                     </div>
                                 @endif
 
@@ -356,24 +397,65 @@
                                     <div class="ops-sharebar">
                                         <span>
                                             @if ($setShared)
-                                                <i class="fa-solid fa-circle-check" style="color:#16A34A"></i> {!! $noUser ? 'Photos saved.' : 'Shared with <strong>' . e($selected->user_email) . '</strong>.' !!}
+                                                <i class="fa-solid fa-circle-check" style="color:#16A34A"></i> {{ $noUser ? 'Photos saved.' : 'Shared with the user.' }}
                                             @elseif ($editable && $noUser)
                                                 {{ count($set) }} of 3 uploaded · no user to email; saving moves the booking on.
                                             @elseif ($editable)
-                                                {{ count($set) }} of 3 uploaded · will be emailed to <strong>{{ $selected->user_email ?: 'the user' }}</strong>.
+                                                {{ count($set) }} of 3 uploaded · share them with <strong>{{ $selected->user_name ?: 'the user' }}</strong> on WhatsApp or by email.
                                             @else
                                                 {{ count($set) }} of 3 uploaded · not shared with the user yet.
                                             @endif
                                         </span>
-                                        @if ($editable)
+                                        @if ($editable && $noUser)
                                             <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0"
-                                                data-confirm="{{ $noUser ? 'Save these photos and move the booking to the next stage?' : 'Email these photos to ' . $selected->user_email . '?' }}" data-confirm-button="{{ $noUser ? 'Yes, save' : 'Yes, share' }}">
+                                                data-confirm="Save these photos and move the booking to the next stage?" data-confirm-button="Yes, save">
                                                 @csrf
                                                 @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
                                                 <input type="hidden" name="stage" value="{{ $ps }}">
                                                 @if ($ps === 'monitoring')<input type="hidden" name="photo_date" value="{{ $monitorDate }}">@endif
-                                                <button type="submit" class="vp-btn vp-btn-o" @disabled(count($set) < 3 || $setShared)>
-                                                    @if ($noUser)<i class="fa fa-check"></i>Save &amp; Move On @else<i class="fa fa-envelope"></i>Share with User @endif</button>
+                                                <button type="submit" class="vp-btn vp-btn-o" @disabled(count($set) < 3 || $setShared)><i class="fa fa-check"></i>Save &amp; Move On</button>
+                                            </form>
+                                        @elseif ($editable)
+                                            @php
+                                                // WhatsApp: a ready-made message with the 3 photo links, opened in WhatsApp (web or app)
+                                                // for the user's mobile. Indian 10-digit numbers get the 91 country code.
+                                                $waDigits = preg_replace('/\D+/', '', (string) $selected->user_mobile);
+                                                if (strlen($waDigits) === 10) { $waDigits = '91' . $waDigits; }
+                                                $waText = 'Hello ' . ($selected->user_name ?: 'there') . ",\n\n"
+                                                    . $pl . ' photos' . ($ps === 'monitoring' ? ' for ' . $fmt($monitorDate) : '')
+                                                    . ' of ' . trim(($selected->media_title ?: '') . ' (' . ($selected->media_code ?: $selected->hoarding_code) . ')')
+                                                    . ($selected->order_no ? ', booking ' . $selected->order_no : '') . ":\n";
+                                                foreach ($shots as $shotKey => $shotLabel) {
+                                                    if (isset($set[$shotKey])) { $waText .= "\n" . $shotLabel . ': ' . $set[$shotKey]->url; }
+                                                }
+                                                $waText .= "\n\nThank you,\nBrand Adda";
+                                                $waUrl = $waDigits ? 'https://wa.me/' . $waDigits . '?text=' . rawurlencode($waText) : null;
+                                                $canShare = count($set) === 3 && !$setShared;
+                                            @endphp
+                                            <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0" class="ops-shareform">
+                                                @csrf
+                                                @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
+                                                <input type="hidden" name="stage" value="{{ $ps }}">
+                                                @if ($ps === 'monitoring')<input type="hidden" name="photo_date" value="{{ $monitorDate }}">@endif
+                                                @if ($canShare)
+                                                    <details class="ops-sharemenu">
+                                                        <summary class="vp-btn vp-btn-o"><i class="fa fa-share-nodes"></i>Share with User <i class="fa fa-caret-down" aria-hidden="true"></i></summary>
+                                                        <div class="ops-sharemenu-list">
+                                                            <button type="submit" name="channel" value="whatsapp" @disabled(!$waUrl)
+                                                                data-confirm="Mark these photos as shared and open WhatsApp to send them to {{ $selected->user_mobile }}?" data-wa="{{ $waUrl }}">
+                                                                <i class="fa-brands fa-whatsapp" style="color:#16A34A"></i>
+                                                                <span>WhatsApp<small>{{ $waUrl ? $selected->user_mobile : 'No mobile number' }}</small></span>
+                                                            </button>
+                                                            <button type="submit" name="channel" value="email" @disabled(!$selected->user_email)
+                                                                data-confirm="Email these photos to {{ $selected->user_email }}?">
+                                                                <i class="fa fa-envelope" style="color:#C2410C"></i>
+                                                                <span>Email<small>{{ $selected->user_email ?: 'No email address' }}</small></span>
+                                                            </button>
+                                                        </div>
+                                                    </details>
+                                                @else
+                                                    <button type="button" class="vp-btn vp-btn-o" disabled><i class="fa fa-share-nodes"></i>Share with User</button>
+                                                @endif
                                             </form>
                                         @endif
                                     </div>

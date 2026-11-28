@@ -77,9 +77,18 @@
         });
 
         // "Share with User" asks first (the vendor panel does this through data-confirm too).
+        // In the Share menu each choice (WhatsApp / Email) carries its own question; WhatsApp also
+        // opens the ready-made chat in a new tab right on the click, while this page records the share.
         document.addEventListener('submit', function (e) {
-            const msg = e.target.getAttribute && e.target.getAttribute('data-confirm');
-            if (msg && !window.confirm(msg)) e.preventDefault();
+            const by = e.submitter && e.submitter.hasAttribute('data-confirm') ? e.submitter : e.target;
+            const msg = by.getAttribute && by.getAttribute('data-confirm');
+            if (msg && !window.confirm(msg)) { e.preventDefault(); return; }
+            const wa = e.submitter && e.submitter.getAttribute('data-wa');
+            if (wa) window.open(wa, '_blank', 'noopener');
+        });
+        // Close an open Share menu on an outside click.
+        document.addEventListener('click', function (e) {
+            document.querySelectorAll('details.ops-sharemenu[open]').forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute('open'); });
         });
     </script>
 @endsection

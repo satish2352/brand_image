@@ -294,6 +294,23 @@ class VendorInventoryModuleTest extends TestCase
         Mail::assertSent(OperationPhotosMail::class, fn ($m) => $m->hasTo('ops-user@example.test'));
         $this->assertSame('monitoring', $op->fresh()->stage);
 
+        // Monitoring photos for a date the user asks for, shared on WhatsApp: no email, photos marked shared.
+        $day = now()->addDays(3)->toDateString();
+        $board = route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'monitoring', 'op' => $op->id, 'date' => $day]);
+        $this->asAdmin()->get($board)->assertOk()->assertSee('Upload monitoring photos for')->assertSee('Add Photos');
+        foreach (['newspaper', 'long', 'close'] as $shot) {
+            $this->asAdmin()->post(route('admin.vendor.operations.photo', $op->id), [
+                'stage' => 'monitoring', 'photo_date' => $day, 'shot_type' => $shot, 'photo' => UploadedFile::fake()->image($shot . '.jpg', 800, 600),
+            ])->assertRedirect();
+        }
+        $this->asAdmin()->get($board)->assertOk()->assertSee('https://wa.me/919000000000?text=', false)->assertSee('value="email"', false);
+        $mailsBefore = count(Mail::sent(OperationPhotosMail::class));
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'monitoring', 'photo_date' => $day, 'channel' => 'whatsapp'])
+            ->assertSessionHas('success');
+        $this->assertCount($mailsBefore, Mail::sent(OperationPhotosMail::class));
+        $this->assertSame(3, \App\Models\MediaOperationPhoto::where('operation_id', $op->id)->where('stage', 'monitoring')->whereNotNull('shared_at')->count());
+        $this->assertTrue(VendorActivityLog::where('vendor_id', $this->vendor->id)->where('action', 'Photos Shared with User')->latest('id')->first()?->details !== null);
+
         // Removal needs the end-date photos shared first.
         $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['confirm' => 1])->assertSessionHasErrors('complete');
 

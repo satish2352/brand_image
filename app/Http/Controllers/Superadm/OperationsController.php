@@ -140,10 +140,12 @@ class OperationsController extends Controller
         $data = $request->validate([
             'stage'      => 'required|in:installation,monitoring,end_date',
             'photo_date' => 'required_if:stage,monitoring|nullable|date',
+            'channel'    => 'nullable|in:email,whatsapp',
         ]);
+        $channel = $data['channel'] ?? 'email';
 
         try {
-            $this->ops->share($vendor, $op, $data['stage'], $data['photo_date'] ?? null);
+            $this->ops->share($vendor, $op, $data['stage'], $data['photo_date'] ?? null, $channel);
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -152,14 +154,16 @@ class OperationsController extends Controller
         }
 
         $detail = $this->ops->detail($op->vendor_id, $op->id);
-        $emailed = !empty($detail->user_email); // a vendor / admin booked-date booking has no user to email
-        VendorAudit::adminDid($op->vendor_id, $emailed ? 'Photos Shared with User' : 'Photos Recorded', [
+        $whatsapp = $channel === 'whatsapp' && !empty($detail->user_mobile);
+        $emailed  = !$whatsapp && !empty($detail->user_email); // a vendor / admin booked-date booking has no user to email
+        $shared   = $whatsapp || $emailed;
+        VendorAudit::adminDid($op->vendor_id, $shared ? 'Photos Shared with User' : 'Photos Recorded', [
             'Booking number' => $detail->order_no,
             'Stage'          => VendorOperationsService::STAGE_LABELS[$data['stage']],
-            'Sent to'        => $emailed ? $detail->user_email : 'No user email (vendor booking)',
+            'Sent to'        => $whatsapp ? 'WhatsApp ' . $detail->user_mobile : ($emailed ? $detail->user_email : 'No user email (vendor booking)'),
         ], $op->media, $op->order_id);
         VendorAudit::notifyVendor($op->vendor_id, 'photos_shared',
-            VendorOperationsService::STAGE_LABELS[$data['stage']] . ($emailed ? ' photos shared with the user' : ' photos recorded by Brand Adda'),
+            VendorOperationsService::STAGE_LABELS[$data['stage']] . ($shared ? ' photos shared with the user' : ' photos recorded by Brand Adda'),
             $detail->order_no . ' · ' . $op->media->display_code,
             route('vendor.operations', ['stage' => $op->fresh()->stage === 'monitoring' ? 'monitoring' : $data['stage'], 'op' => $op->id]),
             $op->media_id, $op->order_id);
@@ -170,9 +174,10 @@ class OperationsController extends Controller
             'vendor_id' => $request->input('vendor_id'),
             'stage'     => $op->fresh()->stage === 'monitoring' ? 'monitoring' : $next,
             'op'        => $op->id,
-        ]))->with('success', $emailed
-            ? 'Photos emailed to ' . $detail->user_email . '.'
-            : 'Photos saved and the booking moved on (this booking has no user email, so nothing was emailed).');
+        ]))->with('success', $whatsapp
+            ? 'Photos marked as shared on WhatsApp with ' . $detail->user_mobile . '. Send the message in the WhatsApp tab that opened.'
+            : ($emailed ? 'Photos emailed to ' . $detail->user_email . '.'
+            : 'Photos saved and the booking moved on (this booking has no user email, so nothing was emailed).'));
     }
 
     public function complete(Request $request, int $operationId)

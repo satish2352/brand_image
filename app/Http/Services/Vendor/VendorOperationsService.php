@@ -252,12 +252,19 @@ class VendorOperationsService
      * A booking the vendor / admin entered as booked dates has no user to email:
      * its photos are recorded as done and the operation moves on all the same.
      */
-    public function share(Vendor $vendor, MediaOperation $op, string $stage, ?string $date): array
+    /**
+     * $channel: 'email' mails the photos to the user; 'whatsapp' only records the share
+     * (Brand Adda sends the WhatsApp message from its own phone / WhatsApp Web).
+     */
+    public function share(Vendor $vendor, MediaOperation $op, string $stage, ?string $date, string $channel = 'email'): array
     {
         $detail = $this->detail($vendor->id, $op->id);
         $noUser = $detail && empty($detail->user_email) && $op->booked_date_id;
 
-        if (!$detail || (empty($detail->user_email) && !$noUser)) {
+        if ($channel === 'whatsapp' && !$noUser && empty($detail?->user_mobile)) {
+            throw ValidationException::withMessages(['share' => 'This booking has no user mobile number to WhatsApp the photos to.']);
+        }
+        if ($channel === 'email' && !$noUser && empty($detail?->user_email)) {
             throw ValidationException::withMessages(['share' => 'This booking has no user email to share photos with.']);
         }
 
@@ -276,7 +283,7 @@ class VendorOperationsService
             ]);
         }
 
-        if (!$noUser) {
+        if (!$noUser && $channel === 'email') {
             Mail::to($detail->user_email)->send(new OperationPhotosMail($vendor, $detail, $stage, $date, $photos->values()->all()));
         }
 
