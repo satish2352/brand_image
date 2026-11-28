@@ -20,11 +20,11 @@
 <a href="{{ route('vendor.notifications.open', $n->id) }}" class="vp-note {{ $n->is_read ? '' : 'is-new' }}">
     <span style="width:36px;height:36px;flex:none;border-radius:10px;display:grid;place-items:center;background:{{ $nBg }};color:{{ $nFg }}"><i class="{{ $nIcon }}" aria-hidden="true"></i></span>
     <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:700">
+        <div class="vp-note-title">
             {{ $n->title }}
-            @unless ($n->is_read)<span class="vp-badge vp-badge-pending" style="margin-left:6px;font-size:10px;padding:2px 8px">New</span>@endunless
+            @unless ($n->is_read)<span class="vp-badge" style="margin-left:6px;font-size:10px;padding:2px 8px;background:#C2410C;color:#fff">Unread</span>@endunless
         </div>
-        @if ($n->message)<div style="font-size:13px;color:#334155;margin-top:2px;line-height:1.5">{{ $n->message }}</div>@endif
+        @if ($n->message)<div class="vp-note-msg">{{ $n->message }}</div>@endif
     </div>
     <span class="vp-muted" style="font-size:12px;white-space:nowrap">{{ $n->created_at->diffForHumans() }}</span>
 </a>

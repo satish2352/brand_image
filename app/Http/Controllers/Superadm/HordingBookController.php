@@ -154,6 +154,17 @@ class HordingBookController extends Controller
             'grand_total'  => 'required|numeric|min:0',
         ]);
 
+        // A vendor's pending or rejected media cannot be booked.
+        $bookable = DB::table('media_management')
+            ->where('id', (int) base64_decode((string) $request->media_id))
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->where(fn ($q) => $q->whereNull('approval_status')->orWhere('approval_status', 'approved'))
+            ->exists();
+        if (!$bookable) {
+            return back()->withInput()->with('error', 'This media is not available for booking (it is inactive or not approved).');
+        }
+
         try {
             $service->handleAdminBooking($request);
 

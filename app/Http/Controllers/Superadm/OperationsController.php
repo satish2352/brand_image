@@ -126,9 +126,10 @@ class OperationsController extends Controller
 
         return redirect()->route('admin.vendor.operations', array_filter([
             'vendor_id' => $request->input('vendor_id'),
-            'stage'     => $request->input('return_stage', $data['stage']),
+            'stage'     => $returnStage = $request->input('return_stage', $data['stage']),
             'op'        => $op->id,
             'date'      => $data['photo_date'] ?? null,
+            'tab'       => $data['stage'] !== $returnStage ? $data['stage'] : null, // e.g. End Date photos added during Monitoring
         ]))->withFragment('ops-photos') // back to the Photos section, not the top of the page
             ->with('ops_focus', true)
             ->with('success', MediaOperationPhoto::SHOTS[$data['shot_type']] . ' uploaded.');

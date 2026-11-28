@@ -224,7 +224,7 @@
                     $photoStages = ['installation' => 'Installation', 'monitoring' => 'Monitoring', 'end_date' => 'End Date'];
                     // Monitoring date shown: the one asked for (?date=), else the latest date that has photos, else today.
                     $monitorDate = request('date') ?: (collect(array_keys($photos['monitoring'] ?? []))->sort()->last() ?? $monitorDate);
-                    $openTab = $panelStage ?: (collect(array_keys($photoStages))->reverse()->first(fn ($s) => !empty($photos[$s])) ?? 'installation');
+                    $openTab = in_array(request('tab'), ['installation', 'monitoring', 'end_date'], true) ? request('tab') : ($panelStage ?: (collect(array_keys($photoStages))->reverse()->first(fn ($s) => !empty($photos[$s])) ?? 'installation'));
                 @endphp
                 <div class="ops-main">
                     {{-- ================= SUMMARY ================= --}}
@@ -311,7 +311,9 @@
 
                         @foreach ($photoStages as $ps => $pl)
                             @php
-                                $editable = $canEdit && $ps === $panelStage; // only the current stage can be changed
+                                // Only the current stage can be changed. End-date photos can also be added while the campaign
+                                // is running (Monitoring), e.g. when the flex comes down early or the end date is near.
+                                $editable = $canEdit && ($ps === $panelStage || ($ps === 'end_date' && $panelStage === 'monitoring'));
                                 $dateKey = $ps === 'monitoring' ? $monitorDate : '_';
                                 $set = $photos[$ps][$dateKey] ?? [];
                                 $setShared = count($set) === 3 && collect($set)->every(fn ($p) => $p->shared_at);
@@ -361,6 +363,12 @@
                                         @if ($editable && count($set) === 3)
                                             <span class="vp-muted" style="font-weight:400"> · all 3 uploaded. For another day, pick the date above and click Add Photos.</span>
                                         @endif
+                                    </div>
+                                @endif
+                                @if ($ps === 'end_date' && $editable && $panelStage === 'monitoring')
+                                    <div class="vp-muted" style="font-size:13px;margin-bottom:10px;padding:8px 10px;background:#FEF3C7;border-radius:8px;color:#92400E">
+                                        <i class="fa-solid fa-circle-info"></i> The campaign runs till <strong>{{ $fmt($selected->to_date) }}</strong>.
+                                        You can upload the end-date photos now; sharing them ends Monitoring and moves the booking to End Date Pics.
                                     </div>
                                 @endif
 

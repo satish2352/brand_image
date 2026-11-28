@@ -314,6 +314,15 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertSame(3, \App\Models\MediaOperationPhoto::where('operation_id', $op->id)->where('stage', 'monitoring')->whereNotNull('shared_at')->count());
         $this->assertTrue(VendorActivityLog::where('vendor_id', $this->vendor->id)->where('action', 'Photos Shared with User')->latest('id')->first()?->details !== null);
 
+        // End-date photos can be added while the campaign is still running; the page comes back to that tab.
+        $this->asAdmin()->get($board)->assertSee('You can upload the end-date photos now');
+        $this->asAdmin()->post(route('admin.vendor.operations.photo', $op->id), [
+            'vendor_id' => $this->vendor->id, 'return_stage' => 'monitoring',
+            'stage' => 'end_date', 'shot_type' => 'newspaper', 'photo' => UploadedFile::fake()->image('end.jpg', 800, 600),
+        ])->assertRedirect(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'monitoring', 'op' => $op->id, 'tab' => 'end_date']) . '#ops-photos');
+        $this->assertTrue(\App\Models\MediaOperationPhoto::where('operation_id', $op->id)->where('stage', 'end_date')->exists());
+        $this->assertSame('monitoring', $op->fresh()->stage); // still monitoring until the end-date photos are shared
+
         // Removal needs the end-date photos shared first.
         $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['confirm' => 1])->assertSessionHasErrors('complete');
 

@@ -40,6 +40,9 @@ class HordingBookRepository
 
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
+            // Only approved media can be booked: a vendor's pending or rejected submission never shows here,
+            // even if it was left switched on. (Brand Adda's own media is approved / has no status.)
+            ->where(fn ($q) => $q->whereNull('m.approval_status')->orWhere('m.approval_status', 'approved'))
 
             ->select([
                 'm.id',
@@ -299,6 +302,7 @@ class HordingBookRepository
             ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)
+            ->where(fn ($q) => $q->whereNull('m.approval_status')->orWhere('m.approval_status', 'approved'))
             ->select([
                 'm.*',
                 'ct.category_name',

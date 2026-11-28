@@ -226,8 +226,16 @@ textarea.vp-input { padding: 10px 12px; min-height: 90px; }
 
 /* ---------- notification row ---------- */
 .vp-body a.vp-note, .vp-note { display: flex; gap: 14px; align-items: flex-start; padding: 12px; margin: 0 -12px; border-top: 1px solid #F1F5F9; color: #0F172A; text-decoration: none; }
-.vp-note.is-new { background: #FFFBF5; }
-.vp-body a.vp-note:hover { background: #FFF1E6; color: #0F172A; }
+/* Unread: tinted background + orange bar on the left, so it stands out from read rows at a glance. */
+.vp-note { border-left: 4px solid transparent; }
+.vp-note.is-new { background: #FFEDD5; border-left-color: #F97316; }
+.vp-note.is-new + .vp-note.is-new { border-top-color: #FED7AA; }
+.vp-note-title { font-size: 14px; font-weight: 800; color: #0F172A; }
+.vp-note-msg { font-size: 13px; color: #334155; margin-top: 2px; line-height: 1.5; }
+.vp-note:not(.is-new) .vp-note-title { font-weight: 500; color: #334155; }
+.vp-note:not(.is-new) .vp-note-msg { color: #64748B; }
+.vp-body a.vp-note:hover { background: #F8FAFC; color: #0F172A; }
+.vp-body a.vp-note.is-new:hover { background: #FED7AA; }
 .vp-note:focus-visible { outline: 3px solid #F97316; outline-offset: -3px; }
 
 /* ---------- shared pieces ---------- */
