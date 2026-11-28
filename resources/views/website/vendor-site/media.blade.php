@@ -143,9 +143,33 @@
             .md-bar .go { display: flex; gap: 8px; }
         }
 
-        /* Location Insights, shown for buyers: the shared design (insights/assets), minus the admin bar
-           and the tiles that have no data. */
+        /* Location Insights, shown for buyers: only what is known, no technical columns. This site
+           has no Bootstrap, so the few helper classes the shared panel uses are defined here. */
+        #media-insights h4 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+        #media-insights .ins-note { color: #475569; font-size: 13px; line-height: 1.5; }
+        #media-insights .d-flex { display: flex; } #media-insights .flex-wrap { flex-wrap: wrap; }
+        #media-insights .justify-content-between { justify-content: space-between; } #media-insights .align-items-start { align-items: flex-start; }
+        #media-insights .mb-3 { margin-bottom: 18px; } #media-insights .mb-1 { margin-bottom: 4px; } #media-insights .mt-3 { margin-top: 16px; } #media-insights .mt-0 { margin-top: 0; }
+        #media-insights .d-inline { display: inline; } #media-insights .d-none { display: none; }
+        #media-insights .table-responsive { overflow: auto; max-height: 420px; } #media-insights th { text-align: left; } #media-insights .text-end { text-align: right; } #media-insights .text-nowrap { white-space: nowrap; }
+        #media-insights .ins-grid { display: flex; flex-wrap: wrap; gap: 0 14px; margin-bottom: -14px; }
+        #media-insights .ins-grid::after { content: ''; order: 1; flex: 0 0 100%; }
+        #media-insights .ins-tile { flex: 1 1 220px; margin-bottom: 14px; border-radius: 14px; padding: 18px; order: 1; }
         #media-insights .ins-tile:has(> .ins-value--na):not(.ins-tile--wide) { display: none; }
+        #media-insights .ins-tile:has(.ins-sector) { order: 2; flex: 5 1 320px; display: flex; flex-direction: column; }
+        #media-insights .ins-tile:has(.ins-sector) .ins-sector { flex: 1; }
+        #media-insights .ins-tile--wide { order: 3; flex: 8 1 420px; }
+        /* Six landmarks until "Show all" is pressed. */
+        #media-insights .ins-tile--wide:has(#insightsShowAll) tbody tr:nth-child(n+7) { display: none; }
+        #media-insights .ins-tile--wide > .ins-label > .ins-badge { display: none; }
+        #media-insights .ins-label { font-size: 14px; color: #0F172A; }
+        #media-insights .ins-value { font-size: 28px; font-weight: 800; }
+        #media-insights .ins-value--na { font-size: 16px; color: #475569; }
+        #media-insights .ins-badge { font-size: 12px; } #media-insights .ins-badge--na { color: #475569; } #media-insights .ins-badge--est { color: #9A3412; }
+        #media-insights .ins-sector { font-size: 14px; padding: 8px 0; border-top: 1px solid #F1F5F9; }
+        #media-insights .ins-table { font-size: 14px; }
+        #media-insights .ins-table th, #media-insights .ins-table td { padding: 10px 8px; border-bottom: 1px solid #F1F5F9; }
+        #media-insights .ins-link { color: #C2410C; cursor: pointer; min-height: 44px; font-size: 14px; }
         #media-insights .ins-admin { display: none !important; }
     </style>
 @endsection
