@@ -101,7 +101,18 @@
     .ops-sharemenu { position: relative; }
     .ops-sharemenu > summary { list-style: none; cursor: pointer; }
     .ops-sharemenu > summary::-webkit-details-marker { display: none; }
-    .ops-sharemenu-list { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 20; min-width: 240px; background: #fff; border: 1px solid var(--o-line); border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.15); padding: 6px; }
+    .ops-sharemenu-list { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 20; min-width: 320px; max-width: calc(100vw - 40px); background: #fff; border: 1px solid var(--o-line); border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.15); padding: 6px; }
+    .ops-share-btn { min-height: 40px; background: #F97316; color: #0F172A; font-weight: 700; border: 1px solid #F97316; }
+    .ops-share-btn:hover { background: #EA580C; border-color: #EA580C; }
+    .ops-share-btn.is-again { background: #fff; color: #C2410C; }
+    .ops-share-btn.is-again:hover { background: #FFF7ED; }
+    .ops-share-row { padding: 6px 4px; }
+    .ops-share-row + .ops-share-row { border-top: 1px solid var(--o-line); }
+    .ops-share-row label { display: flex; gap: 8px; align-items: center; font-weight: 700; font-size: 13px; margin: 0 0 6px; }
+    .ops-share-input { display: flex; gap: 6px; }
+    .ops-share-input .vp-input { min-height: 36px; flex: 1; min-width: 0; }
+    .ops-sharemenu-list .ops-share-input button { width: auto; flex: none; justify-content: center; background: #F97316; border: 1px solid #F97316; color: #0F172A; padding: 6px 16px; }
+    .ops-sharemenu-list .ops-share-input button:hover { background: #EA580C; }
     .ops-sharemenu-list button { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 9px 10px; font-weight: 700; font-size: 14px; color: #0F172A; cursor: pointer; }
     .ops-sharemenu-list button i { font-size: 18px; width: 20px; text-align: center; }
     .ops-sharemenu-list button small { display: block; font-weight: 400; font-size: 12px; color: #64748B; }
@@ -217,14 +228,19 @@
                         'end_date' => [$canEdit ? 'Upload the end-date photos, then remove the flex' : 'Campaign ended — end-date photos next',
                             $canEdit ? 'Upload the 3 end-date photos and share them. After that, remove the flex and click Mark Media Removed.'
                                      : 'Brand Adda uploads the end-date photos and then removes the flex. The booking then moves to Completed.'],
-                        'completed' => ['All done', 'The flex was removed on ' . $fmt($selected->completed_at) . '. All photos are kept below.'],
+                        'completed' => ['Completed · media removed', 'The flex was removed on ' . $fmt($selected->completed_at) . '. The hoarding is free for new bookings.'
+                            . (collect(['installation', 'monitoring', 'end_date'])->contains(fn ($st) => !empty($photos[$st])) ? ' The photos taken are kept below.' : ' No photos were recorded for this booking.')],
                         default => ['', ''],
                     };
                     // Photo tab to open first: the current stage, or the last one with photos once completed.
                     $photoStages = ['installation' => 'Installation', 'monitoring' => 'Monitoring', 'end_date' => 'End Date'];
+                    // A completed booking is closed: show only the stages that have photos, no empty slots.
+                    if ($current === 'completed') {
+                        $photoStages = array_filter($photoStages, fn ($label, $st) => !empty($photos[$st]), ARRAY_FILTER_USE_BOTH);
+                    }
                     // Monitoring date shown: the one asked for (?date=), else the latest date that has photos, else today.
                     $monitorDate = request('date') ?: (collect(array_keys($photos['monitoring'] ?? []))->sort()->last() ?? $monitorDate);
-                    $openTab = in_array(request('tab'), ['installation', 'monitoring', 'end_date'], true) ? request('tab') : ($panelStage ?: (collect(array_keys($photoStages))->reverse()->first(fn ($s) => !empty($photos[$s])) ?? 'installation'));
+                    $openTab = array_key_exists((string) request('tab'), $photoStages) ? request('tab') : ($panelStage ?: (collect(array_keys($photoStages))->reverse()->first(fn ($s) => !empty($photos[$s])) ?? array_key_first($photoStages)));
                 @endphp
                 <div class="ops-main">
                     {{-- ================= SUMMARY ================= --}}
@@ -282,6 +298,7 @@
                     </div>
 
                     {{-- ================= PHOTOS (tab per stage) ================= --}}
+                    @if ($photoStages)
                     <section class="ops-card" id="ops-photos" aria-label="Photos" style="scroll-margin-top:90px">
                         <h3>Photos</h3>
                         @if (session('ops_focus') && (session('success') || session('error')))
@@ -412,7 +429,7 @@
                                     <div class="ops-sharebar">
                                         <span>
                                             @if ($setShared)
-                                                <i class="fa-solid fa-circle-check" style="color:#16A34A"></i> {{ $noUser ? 'Photos saved.' : 'Shared with the user.' }}
+                                                <i class="fa-solid fa-circle-check" style="color:#16A34A"></i> {{ $noUser ? 'Photos saved.' : 'Shared with the user.' }} @if ($editable)<span class="vp-muted">Use Share Again to send them to anyone else.</span>@endif
                                             @elseif ($editable && $noUser)
                                                 {{ count($set) }} of 3 uploaded · no user to email; saving moves the booking on.
                                             @elseif ($editable)
@@ -421,21 +438,21 @@
                                                 {{ count($set) }} of 3 uploaded · not shared with the user yet.
                                             @endif
                                         </span>
-                                        @if ($editable && $noUser)
-                                            <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0"
-                                                data-confirm="Save these photos and move the booking to the next stage?" data-confirm-button="Yes, save">
-                                                @csrf
-                                                @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
-                                                <input type="hidden" name="stage" value="{{ $ps }}">
-                                                @if ($ps === 'monitoring')<input type="hidden" name="photo_date" value="{{ $monitorDate }}">@endif
-                                                <button type="submit" class="vp-btn vp-btn-o" @disabled(count($set) < 3 || $setShared)><i class="fa fa-check"></i>Save &amp; Move On</button>
-                                            </form>
-                                        @elseif ($editable)
+                                        @if ($editable)
+                                            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                                            @if ($noUser)
+                                                <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0"
+                                                    data-confirm="Save these photos and move the booking to the next stage?" data-confirm-button="Yes, save">
+                                                    @csrf
+                                                    @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
+                                                    <input type="hidden" name="stage" value="{{ $ps }}">
+                                                    @if ($ps === 'monitoring')<input type="hidden" name="photo_date" value="{{ $monitorDate }}">@endif
+                                                    <button type="submit" class="vp-btn vp-btn-o" @disabled(count($set) < 3 || $setShared)><i class="fa fa-check"></i>Save &amp; Move On</button>
+                                                </form>
+                                            @endif
                                             @php
-                                                // WhatsApp: a ready-made message with the 3 photo links, opened in WhatsApp (web or app)
-                                                // for the user's mobile. Indian 10-digit numbers get the 91 country code.
-                                                $waDigits = preg_replace('/\D+/', '', (string) $selected->user_mobile);
-                                                if (strlen($waDigits) === 10) { $waDigits = '91' . $waDigits; }
+                                                // WhatsApp: a ready-made message with the 3 photo links; the number is taken from the
+                                                // field when Send is clicked (10-digit Indian numbers get the 91 code).
                                                 $waText = 'Hello ' . ($selected->user_name ?: 'there') . ",\n\n"
                                                     . $pl . ' photos' . ($ps === 'monitoring' ? ' for ' . $fmt($monitorDate) : '')
                                                     . ' of ' . trim(($selected->media_title ?: '') . ' (' . ($selected->media_code ?: $selected->hoarding_code) . ')')
@@ -444,40 +461,49 @@
                                                     if (isset($set[$shotKey])) { $waText .= "\n" . $shotLabel . ': ' . $set[$shotKey]->url; }
                                                 }
                                                 $waText .= "\n\nThank you,\nBrand Adda";
-                                                $waUrl = $waDigits ? 'https://wa.me/' . $waDigits . '?text=' . rawurlencode($waText) : null;
-                                                $canShare = count($set) === 3 && !$setShared;
                                             @endphp
-                                            <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0" class="ops-shareform">
-                                                @csrf
-                                                @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
-                                                <input type="hidden" name="stage" value="{{ $ps }}">
-                                                @if ($ps === 'monitoring')<input type="hidden" name="photo_date" value="{{ $monitorDate }}">@endif
-                                                @if ($canShare)
+                                            @if (count($set) === 3)
+                                                {{-- Always available once the 3 photos are in: share with the user, other people, or again. --}}
+                                                <form method="POST" action="{{ route($routes['share'], $selected->id) }}" style="margin:0" class="ops-shareform">
+                                                    @csrf
+                                                    @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
+                                                    <input type="hidden" name="stage" value="{{ $ps }}">
+                                                    @if ($ps === 'monitoring')<input type="hidden" name="photo_date" value="{{ $monitorDate }}">@endif
                                                     <details class="ops-sharemenu">
-                                                        <summary class="vp-btn vp-btn-o"><i class="fa fa-share-nodes"></i>Share with User <i class="fa fa-caret-down" aria-hidden="true"></i></summary>
+                                                        <summary class="vp-btn ops-share-btn {{ $setShared ? 'is-again' : '' }}"><i class="fa fa-share-nodes"></i>{{ $setShared ? 'Share Again' : 'Share with User' }} <i class="fa fa-caret-down" aria-hidden="true"></i></summary>
                                                         <div class="ops-sharemenu-list">
-                                                            <button type="submit" name="channel" value="whatsapp" @disabled(!$waUrl)
-                                                                data-confirm="Mark these photos as shared and open WhatsApp to send them to {{ $selected->user_mobile }}?" data-wa="{{ $waUrl }}">
-                                                                <i class="fa-brands fa-whatsapp" style="color:#16A34A"></i>
-                                                                <span>WhatsApp<small>{{ $waUrl ? $selected->user_mobile : 'No mobile number' }}</small></span>
-                                                            </button>
-                                                            <button type="submit" name="channel" value="email" @disabled(!$selected->user_email)
-                                                                data-confirm="Email these photos to {{ $selected->user_email }}?">
-                                                                <i class="fa fa-envelope" style="color:#C2410C"></i>
-                                                                <span>Email<small>{{ $selected->user_email ?: 'No email address' }}</small></span>
-                                                            </button>
+                                                            <div class="ops-share-row">
+                                                                <label for="wa-{{ $ps }}"><i class="fa-brands fa-whatsapp" style="color:#16A34A"></i> WhatsApp</label>
+                                                                <div class="ops-share-input">
+                                                                    <input id="wa-{{ $ps }}" type="tel" name="to_mobile" class="vp-input" value="{{ $selected->user_mobile }}" placeholder="Mobile number" inputmode="tel" autocomplete="off">
+                                                                    <button type="submit" name="channel" value="whatsapp" data-wa-text="{{ $waText }}"
+                                                                        data-confirm-tpl="Mark these photos as shared and open WhatsApp to send them to {to}?" data-field="to_mobile">Send</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="ops-share-row">
+                                                                <label for="em-{{ $ps }}"><i class="fa fa-envelope" style="color:#C2410C"></i> Email</label>
+                                                                <div class="ops-share-input">
+                                                                    <input id="em-{{ $ps }}" type="email" name="to_email" class="vp-input" value="{{ $selected->user_email }}" placeholder="Email address" autocomplete="off">
+                                                                    <button type="submit" name="channel" value="email"
+                                                                        data-confirm-tpl="Email these photos to {to}?" data-field="to_email">Send</button>
+                                                                </div>
+                                                            </div>
+                                                            <p class="vp-muted" style="font-size:12px;margin:6px 2px 0">Change the number or email to share with someone else. You can share as many times as you need.</p>
                                                         </div>
                                                     </details>
-                                                @else
-                                                    <button type="button" class="vp-btn vp-btn-o" disabled><i class="fa fa-share-nodes"></i>Share with User</button>
-                                                @endif
-                                            </form>
+                                                </form>
+                                            @else
+                                                <button type="button" class="vp-btn vp-btn-o" disabled title="Upload all 3 photos to share"><i class="fa fa-share-nodes"></i>Share with User</button>
+                                            @endif
+                                            </div>
                                         @endif
                                     </div>
                                 @endif
                             </div>
                         @endforeach
                     </section>
+                    {{-- Completed with no photos on record: the banner above says so; no empty photo slots. --}}
+                    @endif
 
                     {{-- ================= REMOVAL (admin, after end-date photos) ================= --}}
                     @if ($canEdit && $current === 'end_date' && $selected->end_date_shared_at)

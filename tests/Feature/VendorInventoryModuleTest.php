@@ -306,13 +306,22 @@ class VendorInventoryModuleTest extends TestCase
         }
         $this->asAdmin()->withSession(['ops_focus' => true, 'success' => 'Close Shot uploaded.'])->get($board)
             ->assertSee('id="ops-photos"', false)->assertSee('Close Shot uploaded.');
-        $this->asAdmin()->get($board)->assertOk()->assertSee('https://wa.me/919000000000?text=', false)->assertSee('value="email"', false);
+        $this->asAdmin()->get($board)->assertOk()->assertSee('Share with User')
+            ->assertSee('name="to_mobile" class="vp-input" value="9000000000"', false)->assertSee('value="ops-user@example.test"', false);
         $mailsBefore = count(Mail::sent(OperationPhotosMail::class));
-        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'monitoring', 'photo_date' => $day, 'channel' => 'whatsapp'])
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'monitoring', 'photo_date' => $day, 'channel' => 'whatsapp', 'to_mobile' => '9000000000'])
             ->assertSessionHas('success');
         $this->assertCount($mailsBefore, Mail::sent(OperationPhotosMail::class));
         $this->assertSame(3, \App\Models\MediaOperationPhoto::where('operation_id', $op->id)->where('stage', 'monitoring')->whereNotNull('shared_at')->count());
         $this->assertTrue(VendorActivityLog::where('vendor_id', $this->vendor->id)->where('action', 'Photos Shared with User')->latest('id')->first()?->details !== null);
+
+        // Shared photos can be shared again, with anyone: the button stays, the recipient can be changed.
+        $this->asAdmin()->get($board)->assertSee('Share Again');
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'monitoring', 'photo_date' => $day, 'channel' => 'email', 'to_email' => 'agency@example.test'])
+            ->assertSessionHas('success');
+        Mail::assertSent(OperationPhotosMail::class, fn ($m) => $m->hasTo('agency@example.test'));
+        $this->asAdmin()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'monitoring', 'photo_date' => $day, 'channel' => 'email', 'to_email' => 'not-an-email'])
+            ->assertSessionHasErrors('to_email');
 
         // End-date photos can be added while the campaign is still running; the page comes back to that tab.
         $this->asAdmin()->get($board)->assertSee('You can upload the end-date photos now');

@@ -253,19 +253,25 @@ class VendorOperationsService
      * its photos are recorded as done and the operation moves on all the same.
      */
     /**
-     * $channel: 'email' mails the photos to the user; 'whatsapp' only records the share
-     * (Brand Adda sends the WhatsApp message from its own phone / WhatsApp Web).
+     * $channel: 'email' mails the photos; 'whatsapp' only records the share (Brand Adda sends the
+     * WhatsApp message from its own phone / WhatsApp Web). $to is the email / mobile actually used:
+     * the booking user's by default, or any other person Brand Adda types in. Photos can be shared
+     * again as often as needed (to more people, or the same person again).
      */
-    public function share(Vendor $vendor, MediaOperation $op, string $stage, ?string $date, string $channel = 'email'): array
+    public function share(Vendor $vendor, MediaOperation $op, string $stage, ?string $date, string $channel = 'email', ?string $to = null): array
     {
         $detail = $this->detail($vendor->id, $op->id);
-        $noUser = $detail && empty($detail->user_email) && $op->booked_date_id;
-
-        if ($channel === 'whatsapp' && !$noUser && empty($detail?->user_mobile)) {
-            throw ValidationException::withMessages(['share' => 'This booking has no user mobile number to WhatsApp the photos to.']);
+        if (!$detail) {
+            throw ValidationException::withMessages(['share' => 'Booking not found.']);
         }
-        if ($channel === 'email' && !$noUser && empty($detail?->user_email)) {
-            throw ValidationException::withMessages(['share' => 'This booking has no user email to share photos with.']);
+        $noUser = empty($detail->user_email) && $op->booked_date_id;
+        $to = trim((string) ($to ?: ($channel === 'whatsapp' ? $detail->user_mobile : $detail->user_email)));
+
+        if ($channel === 'whatsapp' && $to === '' && !$noUser) {
+            throw ValidationException::withMessages(['share' => 'Enter the mobile number to WhatsApp the photos to.']);
+        }
+        if ($channel === 'email' && $to === '' && !$noUser) {
+            throw ValidationException::withMessages(['share' => 'Enter the email address to send the photos to.']);
         }
 
         $date = $stage === 'monitoring' ? Carbon::parse($date)->toDateString() : null;
@@ -283,8 +289,8 @@ class VendorOperationsService
             ]);
         }
 
-        if (!$noUser && $channel === 'email') {
-            Mail::to($detail->user_email)->send(new OperationPhotosMail($vendor, $detail, $stage, $date, $photos->values()->all()));
+        if ($channel === 'email' && $to !== '') {
+            Mail::to($to)->send(new OperationPhotosMail($vendor, $detail, $stage, $date, $photos->values()->all()));
         }
 
         MediaOperationPhoto::whereIn('id', $photos->pluck('id'))->update(['shared_at' => now()]);

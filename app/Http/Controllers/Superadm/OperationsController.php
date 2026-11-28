@@ -144,11 +144,19 @@ class OperationsController extends Controller
             'stage'      => 'required|in:installation,monitoring,end_date',
             'photo_date' => 'required_if:stage,monitoring|nullable|date',
             'channel'    => 'nullable|in:email,whatsapp',
+            // Any recipient: the booking user's details are pre-filled, Brand Adda may change them.
+            'to_email'   => 'nullable|required_if:channel,email|email|max:255',
+            'to_mobile'  => ['nullable', 'required_if:channel,whatsapp', 'regex:/^\+?[0-9 ()-]{10,18}$/'],
+        ], [
+            'to_email.required_if'  => 'Enter the email address to send the photos to.',
+            'to_mobile.required_if' => 'Enter the mobile number to WhatsApp the photos to.',
+            'to_mobile.regex'       => 'Enter a valid mobile number.',
         ]);
         $channel = $data['channel'] ?? 'email';
+        $to = $channel === 'whatsapp' ? ($data['to_mobile'] ?? null) : ($data['to_email'] ?? null);
 
         try {
-            $this->ops->share($vendor, $op, $data['stage'], $data['photo_date'] ?? null, $channel);
+            $this->ops->share($vendor, $op, $data['stage'], $data['photo_date'] ?? null, $channel, $to);
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -156,14 +164,15 @@ class OperationsController extends Controller
             return back()->with('error', 'The email could not be sent. Check the mail settings and try again.');
         }
 
-        $detail = $this->ops->detail($op->vendor_id, $op->id);
-        $whatsapp = $channel === 'whatsapp' && !empty($detail->user_mobile);
-        $emailed  = !$whatsapp && !empty($detail->user_email); // a vendor / admin booked-date booking has no user to email
+        $detail   = $this->ops->detail($op->vendor_id, $op->id);
+        $sentTo   = $to ?: ($channel === 'whatsapp' ? $detail->user_mobile : $detail->user_email);
+        $whatsapp = $channel === 'whatsapp' && $sentTo;
+        $emailed  = $channel === 'email' && $sentTo; // a vendor / admin booked-date booking may have no one to email
         $shared   = $whatsapp || $emailed;
         VendorAudit::adminDid($op->vendor_id, $shared ? 'Photos Shared with User' : 'Photos Recorded', [
             'Booking number' => $detail->order_no,
             'Stage'          => VendorOperationsService::STAGE_LABELS[$data['stage']],
-            'Sent to'        => $whatsapp ? 'WhatsApp ' . $detail->user_mobile : ($emailed ? $detail->user_email : 'No user email (vendor booking)'),
+            'Sent to'        => $whatsapp ? 'WhatsApp ' . $sentTo : ($emailed ? $sentTo : 'No user email (vendor booking)'),
         ], $op->media, $op->order_id);
         VendorAudit::notifyVendor($op->vendor_id, 'photos_shared',
             VendorOperationsService::STAGE_LABELS[$data['stage']] . ($shared ? ' photos shared with the user' : ' photos recorded by Brand Adda'),
@@ -177,12 +186,13 @@ class OperationsController extends Controller
             'vendor_id' => $request->input('vendor_id'),
             'stage'     => $op->fresh()->stage === 'monitoring' ? 'monitoring' : $next,
             'op'        => $op->id,
+            'date'      => $data['stage'] === 'monitoring' ? ($data['photo_date'] ?? null) : null, // stay on the shared date
         ]))->withFragment('ops-photos')
             ->with('ops_focus', true)
             ->with('success', $whatsapp
-            ? 'Photos marked as shared on WhatsApp with ' . $detail->user_mobile . '. Send the message in the WhatsApp tab that opened.'
-            : ($emailed ? 'Photos emailed to ' . $detail->user_email . '.'
-            : 'Photos saved and the booking moved on (this booking has no user email, so nothing was emailed).'));
+                ? 'Photos marked as shared on WhatsApp with ' . $sentTo . '. Send the message in the WhatsApp tab that opened. You can share them again with anyone.'
+                : ($emailed ? 'Photos emailed to ' . $sentTo . '. You can share them again with anyone.'
+                : 'Photos saved and the booking moved on (this booking has no user email, so nothing was emailed).'));
     }
 
     public function complete(Request $request, int $operationId)
