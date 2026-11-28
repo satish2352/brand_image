@@ -39,7 +39,7 @@ class OperationsController extends Controller
 
         $operations = $this->ops->operations($vendorId);
         $counts = array_fill_keys(VendorOperationsService::STAGE_ORDER, 0);
-        $counts['pending'] = $this->ops->pendingMedia($vendorId)->count();
+        $counts['pending'] = $this->ops->pendingMediaQuery($vendorId)->count();
         foreach ($operations as $op) {
             $counts[$op->effective_stage]++;
         }
@@ -80,7 +80,7 @@ class OperationsController extends Controller
             'stageLabels'  => VendorOperationsService::STAGE_LABELS,
             'counts'       => $counts,
             'list'         => $list,
-            'pendingMedia' => $stage === 'pending' ? $this->ops->pendingMedia($vendorId) : collect(),
+            'pendingMedia' => $stage === 'pending' ? $this->ops->pendingMediaPage($vendorId, $request->q) : collect(), // server-side pages
             'selected'     => $selected,
             'photos'       => $photos,
             'shots'        => MediaOperationPhoto::SHOTS,

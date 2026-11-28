@@ -389,6 +389,21 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertSame(1, (int) $past->fresh()->is_deleted);
     }
 
+    public function test_pending_media_list_is_paginated_on_the_server(): void
+    {
+        for ($i = 1; $i <= 22; $i++) {
+            $this->makeMedia($this->vendor, ['hoarding_code' => sprintf('PGT%03d', $i)]);
+        }
+        $url = fn (array $q = []) => route('admin.vendor.operations', ['stage' => 'pending', 'vendor_id' => $this->vendor->id] + $q);
+
+        $first = $this->asAdmin()->get($url())->assertOk()->getContent();
+        $this->assertStringContainsString('PGT001', $first);
+        $this->assertStringNotContainsString('PGT022', $first);           // only 20 rows on page 1
+        $this->assertStringContainsString('page=2', $first);              // page links are rendered
+        $this->asAdmin()->get($url(['page' => 2]))->assertOk()->assertSee('PGT022')->assertDontSee('>PGT001<', false);
+        $this->asAdmin()->get($url(['q' => 'PGT015']))->assertOk()->assertSee('PGT015')->assertDontSee('PGT016'); // search on the server
+    }
+
     public function test_vendor_profile_and_password_from_the_header_menu(): void
     {
         // Header menu links to both pages.

@@ -160,11 +160,16 @@ class VendorOperationsService
     }
 
     /** Approved, available vendor media with no booking from today on (null = all vendors). */
-    public function pendingMedia(?int $vendorId = null)
+    /**
+     * Pending Media query: approved, free media with no booking coming up. Built as a query so the
+     * list can be paginated on the server and counted without loading every row.
+     */
+    public function pendingMediaQuery(?int $vendorId = null, ?string $term = null)
     {
         $today = now()->toDateString();
+        $term  = trim((string) $term);
 
-        $rows = DB::table('media_management as m')
+        return DB::table('media_management as m')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
             ->leftJoin('cities as cty', 'cty.id', '=', 'm.city_id')
             ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
@@ -178,17 +183,35 @@ class VendorOperationsService
                     ->where('b.is_active', 1)->where('b.is_deleted', 0)
                     ->where('b.to_date', '>=', $today);
             })
-            ->orderBy('m.hoarding_code')
-            ->get(['m.id', 'm.media_title', 'm.hoarding_code', 'm.media_code', 'a.area_name', 'cty.city_name', 'v.vendor_name']);
+            ->when($term !== '', fn ($q) => $q->where(fn ($w) => $w
+                ->where('m.hoarding_code', 'like', "%{$term}%")
+                ->orWhere('m.media_code', 'like', "%{$term}%")
+                ->orWhere('m.media_title', 'like', "%{$term}%")
+                ->orWhere('a.area_name', 'like', "%{$term}%")
+                ->orWhere('cty.city_name', 'like', "%{$term}%")
+                ->orWhere('v.vendor_name', 'like', "%{$term}%")));
+    }
 
-        return $rows;
+    /** All pending media (kept for callers that need the full list). */
+    public function pendingMedia(?int $vendorId = null)
+    {
+        return $this->pendingMediaQuery($vendorId)->orderBy('m.hoarding_code')
+            ->get(['m.id', 'm.media_title', 'm.hoarding_code', 'm.media_code', 'a.area_name', 'cty.city_name', 'v.vendor_name']);
+    }
+
+    /** One page of pending media (server-side pagination), searchable with ?q=. */
+    public function pendingMediaPage(?int $vendorId = null, ?string $term = null, int $perPage = 20)
+    {
+        return $this->pendingMediaQuery($vendorId, $term)->orderBy('m.hoarding_code')
+            ->paginate($perPage, ['m.id', 'm.media_title', 'm.hoarding_code', 'm.media_code', 'a.area_name', 'cty.city_name', 'v.vendor_name'])
+            ->withQueryString();
     }
 
     /** Count per stage for the stage tabs and the dashboard. */
     public function stageCounts(?int $vendorId = null): array
     {
         $counts = array_fill_keys(self::STAGE_ORDER, 0);
-        $counts['pending'] = $this->pendingMedia($vendorId)->count();
+        $counts['pending'] = $this->pendingMediaQuery($vendorId)->count();
 
         foreach ($this->operations($vendorId) as $op) {
             $counts[$op->effective_stage]++;

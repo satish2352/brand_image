@@ -171,6 +171,12 @@
                     </tbody>
                 </table>
             </div>
+            @if ($pendingMedia instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator && $pendingMedia->total())
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid #E5E7EB">
+                    <span class="vp-muted" style="font-size:13px">Showing {{ $pendingMedia->firstItem() }}–{{ $pendingMedia->lastItem() }} of {{ $pendingMedia->total() }}</span>
+                    @if ($pendingMedia->hasPages()){{ $pendingMedia->onEachSide(1)->links('pagination::bootstrap-4') }}@endif
+                </div>
+            @endif
         </section>
     @else
         <div class="ops-wrap">
@@ -227,9 +233,9 @@
                         'monitoring' => ['Campaign is running till ' . $fmt($selected->to_date),
                             $canEdit ? 'When the user asks for proof, pick the date in the Monitoring tab, upload the 3 photos for that date and share them.'
                                      : 'Brand Adda adds monitoring photos for the dates the user asks for. They appear in the Monitoring tab.'],
-                        'end_date' => [$canEdit ? 'Upload the end-date photos, then remove the flex' : 'Campaign ended — end-date photos next',
-                            $canEdit ? 'Upload the 3 end-date photos and share them. After that, remove the flex and click Mark Media Removed.'
-                                     : 'Brand Adda uploads the end-date photos and then removes the flex. The booking then moves to Completed.'],
+                        // Brand Adda: no banner here (the photos and the Mark as Completed card say what to do).
+                        'end_date' => $canEdit ? ['', ''] : ['Campaign ended — end-date photos next',
+                            'Brand Adda uploads the end-date photos and then removes the flex. The booking then moves to Completed.'],
                         'completed' => ['Completed · media removed', 'The flex was removed on ' . $fmt($selected->completed_at) . '. The hoarding is free for new bookings.'
                             . (collect(['installation', 'monitoring', 'end_date'])->contains(fn ($st) => !empty($photos[$st])) ? ' The photos taken are kept below.' : ' No photos were recorded for this booking.')],
                         default => ['', ''],
@@ -294,10 +300,12 @@
                     </section>
 
                     {{-- ================= WHAT'S HAPPENING NOW ================= --}}
+                    @if ($now[0] !== '')
                     <div class="ops-now {{ $current === 'completed' ? 'done' : '' }}" role="status">
                         <i class="{{ $current === 'completed' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-info' }}" aria-hidden="true"></i>
                         <div><b>{{ $now[0] }}</b><p>{{ $now[1] }}</p></div>
                     </div>
+                    @endif
 
                     {{-- ================= PHOTOS (tab per stage) ================= --}}
                     @if ($photoStages)
