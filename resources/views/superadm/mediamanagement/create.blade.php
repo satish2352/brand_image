@@ -994,13 +994,20 @@
                         required: true
                     },
 
+                    // Not for Bus Shelter: it hides Width/Height and sizes each panel
+                    // instead. (ignore: [] checks hidden fields too, so an unconditional
+                    // rule here silently blocked the Submit for a shelter.)
                     width: {
-                        required: true,
+                        required: function() {
+                            return $('.dimension-field').first().is(':visible');
+                        },
                         number: true,
                         min: 0.1
                     },
                     height: {
-                        required: true,
+                        required: function() {
+                            return $('.dimension-field').first().is(':visible');
+                        },
                         number: true,
                         min: 0.1
                     },
