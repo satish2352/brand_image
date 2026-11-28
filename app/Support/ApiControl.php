@@ -48,6 +48,9 @@ class ApiControl
      */
     public const AUTO_RESERVE = 0.2;
 
+    /** Auto refreshes each hoarding at most this often unless the page says otherwise (once a week). */
+    public const AUTO_MIN_DAYS = 7;
+
     /** Places asked from Geoapify per hoarding; every 20 cost 1 credit. */
     public const PLACES_CHOICES = [20, 40, 60, 80, 100];
 
@@ -72,6 +75,9 @@ class ApiControl
             'spread_evenly'        => Setting::getBool('api_spread_evenly', true),
             // Auto: refresh days follow the number of active hoardings (see autoCycle()).
             'auto_cycle'           => Setting::getBool('api_auto_cycle', true),
+            // Auto never refreshes more often than this (a week by default), even when the free
+            // limits would allow it; with many hoardings the worked-out cycle is longer anyway.
+            'auto_min_days'        => self::int('api_auto_min_days', self::AUTO_MIN_DAYS, 1),
         ];
     }
 
@@ -217,8 +223,9 @@ class ApiControl
             $unit = 'requests';
         }
 
+        $minDays = max(1, (int) ($s['auto_min_days'] ?? 1));
         $days = fn (int $hoardingsPerDayBudget) => $hoardingsPerDayBudget > 0
-            ? min(365, max(1, (int) ceil($h * 1.1 / $hoardingsPerDayBudget)))
+            ? min(365, max($minDays, (int) ceil($h * 1.1 / $hoardingsPerDayBudget)))
             : 365;
         $placesDays  = $days(intdiv($placesBudget, $cost));
         $trafficDays = $days($trafficBudget);

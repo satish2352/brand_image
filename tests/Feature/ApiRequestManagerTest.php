@@ -298,6 +298,31 @@ class ApiRequestManagerTest extends TestCase
         $this->assertSame(12, (int) config('services.geoapify.cache_days'));
     }
 
+    public function test_auto_refreshes_at_most_once_a_week_on_the_free_plans(): void
+    {
+        $s = array_merge(ApiControl::settings(), ['places_provider' => 'geoapify', 'geoapify_places' => 20, 'geoapify_daily_limit' => 2500,
+            'tomtom_traffic_daily_limit' => 2000, 'tomtom_plan_daily_limit' => 2500, 'auto_min_days' => 7]);
+
+        // 4,601 hoardings would fit in 3 days (places) / 4 days (traffic), but Auto waits a week.
+        $now = ApiControl::autoCycle($s, 4601);
+        $this->assertSame(7, $now['places_days']);
+        $this->assertSame(7, $now['traffic_days']);
+        $this->assertSame(658, $now['places_per_day']);                 // 4,601 / 7, one credit each: far under 3,000 free
+        $this->assertTrue($now['places_fits'] && $now['traffic_fits']);
+
+        // Many hoardings: the free limits need more than a week, so the cycle grows by itself.
+        $big = ApiControl::autoCycle($s, 20000);
+        $this->assertSame(11, $big['places_days']);
+        $this->assertSame(14, $big['traffic_days']);
+        $this->assertLessThanOrEqual(2000, $big['places_units']);
+
+        // Saved from the page: every 10 days instead.
+        $this->asAdmin()->post(route('media.insights.usage.save'), $this->defaults(['auto_cycle' => 1, 'auto_min_days' => 10, 'geoapify_places' => 20]))
+            ->assertRedirect();
+        $this->assertSame(10, ApiControl::settings()['auto_min_days']);
+        $this->assertGreaterThanOrEqual(10, (int) config('services.geoapify.cache_days'));
+    }
+
     public function test_shorter_cycle_makes_older_data_due(): void
     {
         $this->fakeTomTom();

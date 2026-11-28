@@ -143,12 +143,15 @@ class InsightsUsageController extends Controller
             'tomtom_plan_daily_limit'    => "required|integer|min:0|max:$max",
             'places_cache_days'          => 'required|integer|min:1|max:365',
             'traffic_refresh_days'       => 'required|integer|min:1|max:365',
+            'auto_min_days'              => 'nullable|integer|min:1|max:90',
             'geoapify_places'            => 'required|integer|in:' . implode(',', ApiControl::PLACES_CHOICES),
         ], [], [
             'geoapify_daily_limit' => 'Geoapify daily limit', 'tomtom_daily_limit' => 'TomTom Places daily limit',
             'tomtom_traffic_daily_limit' => 'TomTom Traffic daily limit', 'tomtom_plan_daily_limit' => 'TomTom plan per day',
             'places_cache_days' => 'reuse places for', 'traffic_refresh_days' => 'refresh traffic every',
+            'auto_min_days' => 'refresh at most every',
         ]);
+        $data['auto_min_days'] = (int) ($data['auto_min_days'] ?? ApiControl::AUTO_MIN_DAYS);
         foreach (['geoapify_enabled', 'tomtom_enabled', 'tomtom_traffic_enabled', 'places_auto', 'traffic_auto', 'fetch_on_view', 'spread_evenly', 'auto_cycle'] as $k) {
             $data[$k] = $request->boolean($k);
         }

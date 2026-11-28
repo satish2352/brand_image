@@ -312,7 +312,7 @@
                                     ['traffic_auto', 'Hourly traffic run', 'Fetches traffic for due hoardings every hour.'],
                                     ['fetch_on_view', 'Fetch when a page is opened', 'A hoarding with no places yet is fetched when someone opens it.'],
                                     ['spread_evenly', 'Spread evenly over the cycle', 'Hourly runs fetch about hoardings ÷ refresh days each day, not everything at once.'],
-                                    ['auto_cycle', 'Auto refresh days', 'Sets the refresh days from the number of active hoardings, so the hourly runs stay inside the free plans as hoardings are added.'],
+                                    ['auto_cycle', 'Auto refresh days', 'Refreshes each hoarding once a week (or the days set under Limits & advanced settings), and less often by itself when there are too many hoardings for the free limits.'],
                                 ] as [$k, $t, $help])
                                     <div class="am-row">
                                         <div><strong>{{ $t }}</strong><div class="am-muted">{{ $help }}</div></div>
@@ -349,8 +349,11 @@
                                     </div>
                                 @endforeach
                                 <span class="am-label mt-2">Reuse saved data</span>
+                                <div class="am-limit"><label for="amd" style="margin:0;font-size:13px;color:#111827">Auto: refresh at most every (days)
+                                    <div class="am-muted" style="font-size:11px">7 = once a week. Auto makes it longer by itself when there are too many hoardings for the free limits.</div></label>
+                                    <input id="amd" name="auto_min_days" type="number" min="1" max="90" class="form-control" value="{{ old('auto_min_days', $settings['auto_min_days']) }}" required></div>
                                 @if ($settings['auto_cycle'])
-                                    <div class="am-muted" style="font-size:12px;margin-bottom:6px">Auto is on, so these two are only used if you turn Auto off.</div>
+                                    <div class="am-muted" style="font-size:12px;margin-bottom:6px">Auto is on, so the two below are only used if you turn Auto off.</div>
                                 @endif
                                 <div class="am-limit"><label for="pcd" style="margin:0;font-size:13px;color:#111827">Places, for (days)</label>
                                     <input id="pcd" name="places_cache_days" type="number" min="1" max="365" class="form-control" value="{{ old('places_cache_days', $settings['places_cache_days']) }}" required @if ($settings['auto_cycle']) title="Used when Auto is off" @endif></div>
