@@ -124,6 +124,10 @@
     .ops-dates { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
     .ops-date-chip { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--o-line); font-size: 12px; font-weight: 600; color: #334155 !important; text-decoration: none !important; background: #fff; }
     .ops-date-chip.is-on { border-color: var(--o-orange); background: #FFF7ED; color: #C2410C !important; }
+    .ops-back { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #C2410C !important; text-decoration: none !important; }
+    .ops-back:hover { text-decoration: underline !important; }
+    .ops-table .ops-row { cursor: pointer; }
+    .ops-table .ops-row:hover td { background: #FFF7ED; }
     /* Two columns on wide screens: bookings list + summary / status on the left, photos and actions on the right. */
     @media (min-width: 992px) {
         .ops-wrap { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 20px; }
@@ -131,6 +135,7 @@
         .ops-wrap > .ops-summary { grid-column: 1; grid-row: 2; padding: 18px; }
         .ops-wrap > .ops-main { grid-column: 2; grid-row: 1 / span 3; }
         .ops-wrap > section:not(.ops-list):not(.ops-summary) { grid-column: 2; }
+        .ops-wrap > section.ops-full { grid-column: 1 / -1 !important; } /* table / empty-stage note: full width */
         .ops-summary .ops-sum-title { font-size: 17px; }
         .ops-summary .ops-facts { grid-template-columns: 1fr; gap: 12px; }
         /* Status as a vertical list */
@@ -200,7 +205,8 @@
         </section>
     @else
         <div class="ops-wrap">
-            {{-- ================= BOOKINGS IN THIS STAGE ================= --}}
+            {{-- ================= BOOKINGS IN THIS STAGE (side list, on a booking's page) ================= --}}
+            @if ($selected)
             <section class="ops-list" aria-label="Bookings in {{ $stageLabels[$stage] }}">
                 <div class="ops-list-head">{{ $stageLabels[$stage] }} · {{ $list->total() }} {{ \Illuminate\Support\Str::plural('booking', $list->total()) }}</div>
                 @forelse ($list as $op)
@@ -224,6 +230,7 @@
                     </div>
                 @endif
             </section>
+            @endif
 
             @if ($selected)
                 @php
@@ -320,6 +327,9 @@
                 </section>
 
                 <div class="ops-main">
+                    <a href="{{ $link(['stage' => $stage, 'q' => request('q'), 'page' => $list->currentPage() > 1 ? $list->currentPage() : null]) }}" class="ops-back">
+                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to {{ $stageLabels[$stage] }} list
+                    </a>
                     {{-- ================= WHAT'S HAPPENING NOW ================= --}}
                     @if ($now[0] !== '')
                     <div class="ops-now {{ $current === 'completed' ? 'done' : '' }}" role="status">
@@ -611,7 +621,7 @@
                             'All its photos stay here for reference.'],
                     ][$stage] ?? null;
                 @endphp
-                <section class="ops-card" style="flex:999 1 560px">
+                <section class="ops-card ops-full" style="flex:999 1 560px">
                     @if ($hint)
                         <div style="display:flex;gap:14px;align-items:flex-start">
                             <span class="ops-step-ico" style="background:#FFF7ED;color:#C2410C"><i class="{{ $stageInfo[$stage][0] }}" aria-hidden="true"></i></span>
@@ -626,8 +636,43 @@
                     @endif
                 </section>
             @else
-                <section class="ops-card" style="flex:999 1 560px">
-                    <p class="vp-muted" style="margin:0">Select a booking on the left to see its details and photos.</p>
+                {{-- ================= BOOKINGS TABLE (stage page, nothing opened yet) ================= --}}
+                <section class="vp-card ops-full" style="overflow:hidden;flex:1 1 100%">
+                    <div style="padding:16px 20px;border-bottom:1px solid #E5E7EB">
+                        <h2 class="vp-h2">{{ $stageLabels[$stage] }} · {{ $list->total() }} {{ \Illuminate\Support\Str::plural('booking', $list->total()) }}</h2>
+                        <div class="vp-muted" style="margin-top:4px">Click a booking to open its details{{ $canEdit && $stage !== 'completed' ? ', upload photos and share them' : ' and photos' }}.</div>
+                    </div>
+                    <div class="vp-table-wrap">
+                        <table class="vp-table ops-table">
+                            <thead><tr>
+                                <th style="width:70px">Sr. No.</th><th>Hoarding</th><th>Booking No.</th><th>Campaign</th><th>Customer</th>
+                                @if ($showVendor)<th>Vendor</th>@endif
+                                <th>Action</th>
+                            </tr></thead>
+                            <tbody>
+                                @foreach ($list as $op)
+                                    @php $open = $link(['stage' => $stage, 'op' => $op->id, 'q' => request('q'), 'page' => $list->currentPage() > 1 ? $list->currentPage() : null]); @endphp
+                                    <tr class="ops-row" data-href="{{ $open }}">
+                                        <td class="nowrap vp-muted">{{ $list->firstItem() + $loop->index }}</td>
+                                        <td><a href="{{ $open }}" style="font-weight:700;color:#0F172A">{{ $op->media_title ?: ($op->hoarding_code ?: $op->media_code) }}</a>
+                                            <div class="vp-muted" style="font-size:12px">{{ $op->hoarding_code ?: $op->media_code }}{{ $op->area_name ? ' · ' . $op->area_name : '' }}</div></td>
+                                        <td class="nowrap">{{ $op->order_no ?: '—' }}</td>
+                                        <td class="nowrap">{{ $fmt($op->from_date) }} – {{ $fmt($op->to_date) }}</td>
+                                        <td>{{ $op->user_name ?: ($op->booked_by === 'admin' ? 'Booked by Brand Adda' : ($op->booked_by ? 'Booked by vendor' : '—')) }}
+                                            @if ($op->user_mobile)<div class="vp-muted" style="font-size:12px">{{ $op->user_mobile }}</div>@endif</td>
+                                        @if ($showVendor)<td>{{ $op->vendor_name ?: '—' }}</td>@endif
+                                        <td class="nowrap"><a href="{{ $open }}" class="vp-btn ops-share-btn" style="min-height:34px;padding:0 14px;font-size:13px">Open <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    @if ($list->total())
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid #E5E7EB">
+                            <span class="vp-muted" style="font-size:13px">Showing {{ $list->firstItem() }}–{{ $list->lastItem() }} of {{ $list->total() }}</span>
+                            @if ($list->hasPages()){{ $list->onEachSide(1)->links('pagination::bootstrap-4') }}@endif
+                        </div>
+                    @endif
                 </section>
             @endif
         </div>
@@ -638,6 +683,12 @@
     // A failed upload / share comes back without the #ops-photos anchor: open the Photos section anyway.
     document.addEventListener('DOMContentLoaded', function () {
         if (document.querySelector('[data-ops-focus]')) document.getElementById('ops-photos').scrollIntoView();
+    });
+
+    // Bookings table: a click anywhere on a row opens that booking.
+    document.addEventListener('click', function (e) {
+        const row = e.target.closest('.ops-row');
+        if (row && !e.target.closest('a, button')) window.location = row.dataset.href;
     });
 
     // Photo tabs (Installation / Monitoring / End Date).

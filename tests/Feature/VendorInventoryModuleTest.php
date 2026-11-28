@@ -276,8 +276,12 @@ class VendorInventoryModuleTest extends TestCase
 
         // Super Admin runs Operations for every vendor.
         // (Filtered to this vendor: the list holds every vendor's bookings.)
-        $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id]))->assertOk()->assertSee('Ops User')->assertSee('Upload Photo');
+        // The stage opens as a table of bookings; clicking one opens its page with the photo slots.
+        $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id]))->assertOk()
+            ->assertSee('Ops User')->assertSee('Sr. No.')->assertSee('Open')->assertDontSee('Upload Photo');
         $op = MediaOperation::where('media_id', $media->id)->firstOrFail();
+        $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'installation', 'op' => $op->id]))->assertOk()
+            ->assertSee('Upload Photo')->assertSee('Back to Installation list');
         $this->assertSame('installation', $op->stage);
         $this->assertSame($this->vendor->id, (int) $op->vendor_id);
 
