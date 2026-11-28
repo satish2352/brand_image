@@ -1,166 +1,82 @@
 <?php
 
-
 namespace App\Exports;
 
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CampaignExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    ShouldAutoSize,
-    WithEvents
+/**
+ * The quotation sheet for a saved campaign: its booked sites with the days and
+ * amount the customer chose. Layout lives in QuotationExport.
+ *
+ * $userId limits it to that customer's campaign (the website); null skips the
+ * check for the admin panel, which may export anyone's.
+ */
+class CampaignExport extends QuotationExport
 {
-    protected int $userId;
+    protected ?int $userId;
     protected int $campaignId;
-    protected int $srNo = 0;
+    protected ?object $campaign = null;
 
-    // Grand total accumulator
-    protected float $grandTotal = 0;
-
-
-    protected float $grandGst   = 0;   // ADD THIS
-    protected float $grandFinal = 0;   // ADD THIS
-
-
-    public function __construct(int $userId, int $campaignId)
+    public function __construct(?int $userId, int $campaignId)
     {
         $this->userId     = $userId;
         $this->campaignId = $campaignId;
     }
 
-    public function collection()
+    protected function campaign(): ?object
     {
-        return DB::table('cart_items as ci')
-            ->join('campaign as c', 'c.id', '=', 'ci.campaign_id')
-            ->join('media_management as m', 'm.id', '=', 'ci.media_id')
-            ->leftJoin('areas as ar', 'ar.id', '=', 'm.area_id')
-            ->leftJoin('districts as d', 'd.id', '=', 'ar.district_id')
-            ->leftJoin('cities as ct', 'ct.id', '=', 'ar.city_id')
-            ->leftJoin('states as s', 's.id', '=', 'ar.state_id')
-            ->where('c.user_id', $this->userId)
+        return $this->campaign ??= DB::table('campaign')
+            ->where('id', $this->campaignId)
+            ->when($this->userId !== null, fn ($q) => $q->where('user_id', $this->userId))
+            ->first();
+    }
+
+    protected function quotationName(): string
+    {
+        return $this->campaign()->campaign_name ?? 'Campaign';
+    }
+
+    protected function quotationNumber(): string
+    {
+        return now()->format('y') . '/ ' . $this->campaignId;
+    }
+
+    protected function rows(): Collection
+    {
+        if (!$this->campaign()) {
+            return collect();
+        }
+
+        return self::mediaQuery()
+            ->join('cart_items as ci', 'ci.media_id', '=', 'm.id')
+            ->addSelect('ci.from_date', 'ci.to_date', 'ci.total_days', 'ci.per_day_price', 'ci.total_price')
             ->where('ci.campaign_id', $this->campaignId)
-            ->where('ci.is_active', 1)
-            ->where('ci.is_deleted', 0)
-            ->select(
-                'd.district_name as district_name',
-                'ct.city_name as city_name',
-                'm.media_code',
-                'ar.area_name',
-                'm.width',
-                'm.height',
-                'm.price as monthly_price',
-                'ci.per_day_price',
-                'ci.total_days',
-                'ci.total_price'
-            )
+            ->where('ci.cart_type', 'CAMPAIGN')
             ->orderBy('ci.id')
-            ->get();
-    }
-    public function map($row): array
-    {
-        $this->srNo++;
+            ->get()
+            ->map(function ($row) {
+                $row->days = $this->days($row);
 
-        $totalSqft = ($row->width ?? 0) * ($row->height ?? 0);
+                $row->amount = !empty($row->total_price)
+                    ? (float) $row->total_price
+                    : (float) ($row->per_day_price ?? 0) * $row->days;
 
-        $amount = $row->total_price ?? 0;
-        $gst    = round($amount * 0.18, 2);
-        $final  = $amount + $gst;
-
-        // accumulate totals
-        $this->grandTotal += $amount;
-        $this->grandGst   += $gst;
-        $this->grandFinal += $final;
-
-        return [
-            $this->srNo,
-            $row->district_name ?? '-',
-            $row->city_name ?? '-',
-            $row->media_code ?? '-',
-            $row->area_name ?? '-',
-            $row->width ?? 0,
-            $row->height ?? 0,
-            $totalSqft,
-            number_format($row->monthly_price, 2),
-            number_format($row->per_day_price, 2),
-            $row->total_days ?? 0,
-            number_format($amount, 2),
-            number_format($gst, 2),     // NEW
-            number_format($final, 2),   // NEW
-        ];
-    }
-    public function headings(): array
-    {
-        return [
-            'Sr No',
-            'District',
-            'Town',
-            'Site Code',
-            'Location',
-            'Width',
-            'Height',
-            'Total Sqft',
-            'Monthly Price (₹)',
-            'Per Day Price (₹)',
-            'Total Days',
-            // 'Amount (₹)',
-            'Total Amount (₹)',
-            'GST 18% (₹)',        // NEW
-            'Final Amount (₹)',   // NEW
-        ];
+                return $row;
+            });
     }
 
-    public function styles(Worksheet $sheet)
+    private function days(object $row): int
     {
-        return [
-            1 => [
-                'font' => [
-                    'bold' => true,
-                ],
-                'fill' => [
-                    'fillType' => 'solid',
-                    'startColor' => ['rgb' => 'FFD966'],
-                ],
-                'alignment' => [
-                    'horizontal' => 'center',
-                    'vertical'   => 'center',
-                ],
-            ],
-        ];
-    }
-    public function registerEvents(): array
-    {
-        return [
-            AfterSheet::class => function (AfterSheet $event) {
+        if (!empty($row->total_days)) {
+            return (int) $row->total_days;
+        }
 
-                $lastDataRow = $this->srNo + 1;
-                $totalRow    = $lastDataRow + 1;
+        if (!empty($row->from_date) && !empty($row->to_date)) {
+            return Carbon::parse($row->from_date)->diffInDays(Carbon::parse($row->to_date)) + 1;
+        }
 
-                $event->sheet->setCellValue('A' . $totalRow, 'GRAND TOTAL');
-
-                // merge till Total Days column
-                $event->sheet->mergeCells("A{$totalRow}:K{$totalRow}");
-
-                // totals
-                $event->sheet->setCellValue('L' . $totalRow, number_format($this->grandTotal, 2));
-                $event->sheet->setCellValue('M' . $totalRow, number_format($this->grandGst, 2));
-                $event->sheet->setCellValue('N' . $totalRow, number_format($this->grandFinal, 2));
-
-                $event->sheet->getStyle("A{$totalRow}:N{$totalRow}")
-                    ->applyFromArray([
-                        'font' => ['bold' => true],
-                    ]);
-            },
-        ];
+        return 0;
     }
 }

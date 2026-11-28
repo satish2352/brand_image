@@ -68,6 +68,7 @@ class CampaignRepository
             ->leftJoin('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
             ->leftJoin('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->select(
                 'ci.id as cart_item_id',
                 'c.id as campaign_id',
@@ -85,7 +86,10 @@ class CampaignRepository
                 'm.facing',
                 'm.width',
                 'm.height',
-                'a.area_name'
+                'a.area_name',
+                'm.hoarding_code',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names')
             )
             ->where('c.user_id', $userId)
             ->where('ci.cart_type', 'CAMPAIGN')
@@ -106,6 +110,7 @@ class CampaignRepository
             ->join('cart_items as ci', 'ci.campaign_id', '=', 'c.id')
             ->join('media_management as m', 'm.id', '=', 'ci.media_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->where('c.user_id', $userId)
             ->where('ci.cart_type', 'CAMPAIGN')
             ->where('ci.status', 'ACTIVE');
@@ -128,7 +133,10 @@ class CampaignRepository
             'm.facing',
             'm.width',
             'm.height',
-            'a.area_name'
+            'a.area_name',
+            'm.hoarding_code',
+            'hw.highway_name',
+            DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names')
         );
     }
     public function getOpenCampaigns($userId, $request)

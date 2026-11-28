@@ -7,7 +7,7 @@ use App\Http\Services\Superadm\CampaingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\AdminCampaignExport;
+use App\Exports\CampaignExport;
 use Carbon\Carbon;
 use App\Http\Controllers\Website\CampaignController as WebsiteCampaignController;
 
@@ -133,8 +133,9 @@ class CampaingController extends Controller
 	{
 		$campaignId = base64_decode($campaignId);
 
+		// Same quotation sheet the customer gets; null = no owner check.
 		return Excel::download(
-			new AdminCampaignExport($campaignId),
+			new CampaignExport(null, (int) $campaignId),
 			'admin_campaign_' . $campaignId . '.xlsx'
 		);
 	}

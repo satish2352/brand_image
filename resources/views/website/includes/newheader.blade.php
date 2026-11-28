@@ -10,12 +10,12 @@
         height: 50px;
         text-align: center;
         font-size: 22px;
-        border: 1px solid #ccc;
+        border: 1px solid #E5E7EB;
         border-radius: 6px;
     }
 
     .otp-box:focus {
-        border-color: #000;
+        border-color: #0F172A;
         outline: none;
     }
 
@@ -23,7 +23,7 @@
         width: 55px;
         height: 46px;
         padding: 0;
-        background: #f28123;
+        background: #F97316;
         border-radius: 6px;
         justify-content: center;
         gap: 5px;
@@ -41,103 +41,10 @@
         margin-right: 2px;
     }
 
-    /* Profile dropdown fixes */
-    .user-menu-v2 {
-        min-width: 210px !important;
-        padding: 0 !important;
-        border-radius: 12px !important;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-        border: 1px solid #eee !important;
-    }
-
-    .user-menu-v2 .user-info {
-        display: block;
-        padding: 14px 16px 10px;
-        background: #f9f9f9;
-        border-bottom: 1px solid #eee;
-    }
-
-    .user-menu-v2 .user-info strong {
-        display: block;
-        font-size: 14px;
-        color: #222;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .user-menu-v2 .user-info span {
-        display: block;
-        font-size: 12px;
-        color: #888;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .user-menu-v2 .menu-actions {
-        display: block;
-        padding: 6px 0;
-    }
-
-    .menu-btn {
-        display: flex !important;
-        align-items: center;
-        gap: 9px;
-        padding: 9px 16px !important;
-        font-size: 13.5px !important;
-        font-weight: 500;
-        color: #333 !important;
-        text-decoration: none !important;
-        white-space: nowrap !important;
-        transition: background 0.15s;
-        width: 100%;
-        margin: 4px 10px !important;
-    }
-
-    .menu-btn:hover {
-        background: #fff5ec;
-        color: #f28123 !important;
-    }
-
-    .menu-btn i {
-        font-size: 15px;
-        color: #f28123;
-        flex-shrink: 0;
-    }
-
-    .menu-btn.active {
-        background: #f28123 !important;
-        color: #fff !important;
-        margin: 4px 10px;
-        border-radius: 8px;
-        width: calc(100% - 20px);
-        padding: 9px 14px !important;
-    }
-
-    .menu-btn.active i {
-        color: #fff;
-    }
-
-    .menu-btn.active:hover {
-        background: #d96e10 !important;
-    }
-
-    .menu-btn.logout {
-        color: #dc3545 !important;
-        border-top: 1px solid #eee;
-        margin-top: 4px;
-    }
-
-    .menu-btn.logout i {
-        color: #dc3545;
-    }
-
-    .menu-btn.logout:hover {
-        background: #fff0f1;
-        color: #b02a37 !important;
-    }
+    {{-- The user dropdown is styled in website_css/style.css. It used to be
+         duplicated here as well, with !important on nearly every line, and the
+         two copies fought: the inline set won and reinstated the old fixed
+         widths and margins. One source only. --}}
 </style>
 
 <!--PreLoader-->
@@ -157,7 +64,7 @@
                     <!-- logo -->
                     <div class="site-logo">
                         <a href="{{ url('/') }}">
-                            <img src="{{ asset('asset/images/website/logo.png') }}" alt="Brand_Image_Logo">
+                            <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda">
                         </a>
                     </div>
                     <!-- logo -->
@@ -167,6 +74,13 @@
                         <ul>
                             <li class="{{ request()->is('/') ? 'active' : '' }}"><a href="{{ url('/') }}">Home</a>
                             </li>
+                            {{-- Hidden while the visitor is on a shared shortlist: the
+                                 Map route sends them back anyway, so offering it would
+                                 just be a link that bounces. --}}
+                            @unless (session()->has('shared_link_token') && !site_admin())
+                                <li class="{{ request()->routeIs('website.explore') ? 'active' : '' }}"><a
+                                        href="{{ route('website.explore') }}">Map</a></li>
+                            @endunless
                             <li class="{{ request()->routeIs('website.about') ? 'active' : '' }}"><a
                                     href="{{ route('website.about') }}">About Us</a></li>
                             <li class="{{ request()->is('contact-us') ? 'active' : '' }}"><a
@@ -175,6 +89,76 @@
                     </nav>
 
                     <div class="header-icons new-header-icons">
+                        {{-- Admin mode. Signing in through "Login via Admin" leaves no
+                             other trace on the public site — the customer avatar is
+                             tied to the website guard, not to this — so without a
+                             marker a team member cannot tell whether the Select ticks
+                             are missing because they are logged out or because this
+                             page does not carry them. It is also the only way back
+                             out that does not take a customer session down with it. --}}
+                        @if (site_admin())
+                            {{-- Same markup and the same .user-menu-v2 rules as the
+                                 customer account menu beside it, rather than plain
+                                 Bootstrap .dropdown-item: several theme rules reach
+                                 header links through the surrounding header, and a row
+                                 that does not declare its own background takes whichever
+                                 lands last — which turned every row into an orange block
+                                 with the label lost inside it. Those rules already win
+                                 that fight; .admin-menu-v2 only re-colours what should
+                                 read as staff rather than customer. --}}
+                            <div class="dropdown user-dropdown admin-mode-wrap">
+
+                                <button class="btn admin-mode-pill" data-bs-toggle="dropdown"
+                                    aria-label="Admin mode menu" title="Signed in as Brand Adda staff">
+                                    <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+                                    <span class="admin-mode-label">Admin</span>
+                                    <i class="bi bi-caret-down-fill admin-mode-caret" aria-hidden="true"></i>
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end user-menu-v2 admin-menu-v2">
+
+                                    <li class="user-info">
+                                        <span class="user-info-avatar admin-info-avatar" aria-hidden="true">
+                                            <i class="bi bi-shield-lock-fill"></i>
+                                        </span>
+                                        <div class="user-info-text">
+                                            <strong>{{ site_admin('name') }}</strong>
+                                            {{-- Truncated rather than wrapped, so one long
+                                                 address cannot widen the card; the full one
+                                                 is on the title. --}}
+                                            <span title="{{ site_admin('email') }}">{{ site_admin('email') }}</span>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <a href="{{ route('dashboard') }}" class="menu-btn active">
+                                            <i class="bi bi-speedometer2" aria-hidden="true"></i>
+                                            Admin Panel
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a href="{{ route('website.search.view') }}" class="menu-btn">
+                                            <i class="bi bi-link-45deg" aria-hidden="true"></i>
+                                            Shortlist &amp; Share
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <hr class="menu-sep">
+                                    </li>
+
+                                    <li>
+                                        <a href="{{ route('website.admin.logout') }}" class="menu-btn logout">
+                                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                            Exit admin mode
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        @endif
+
                         @auth('website')
                             <a href="{{ route('cart.index') }}" class="btn cart-page new-btn-light position-relative">
                                 <i class="bi bi-cart3 "></i>
@@ -212,46 +196,48 @@
                                         alt="User">
                                 </button>
 
-                                <!-- SUPER ATTRACTIVE DROPDOWN -->
+                                <!-- USER MENU -->
                                 <ul class="dropdown-menu dropdown-menu-end user-menu-v2">
 
                                     <!-- USER INFO -->
                                     <li class="user-info">
-                                        <strong>{{ Auth::guard('website')->user()->name }}</strong>
-                                        <span>{{ Auth::guard('website')->user()->email }}</span>
+                                        <img src="{{ asset('asset/images/website/user.png') }}"
+                                            class="user-info-avatar" alt="">
+                                        <div class="user-info-text">
+                                            <strong>{{ Auth::guard('website')->user()->name }}</strong>
+                                            {{-- The full address is on the title, since a long one is
+                                                 truncated rather than allowed to wrap the card. --}}
+                                            <span title="{{ Auth::guard('website')->user()->email }}">
+                                                {{ Auth::guard('website')->user()->email }}
+                                            </span>
+                                        </div>
                                     </li>
 
                                     <!-- ACTIONS -->
-                                    <li class="menu-actions">
+                                    <li>
                                         <a href="{{ route('dashboard.home') }}" class="menu-btn active">
-                                            <i class="bi bi-speedometer2"></i>
+                                            <i class="bi bi-speedometer2" aria-hidden="true"></i>
                                             Dashboard
                                         </a>
                                     </li>
-                                    <li class="menu-actions">
-                                        <a href="{{ route('website.profile.view') }}" class="menu-btn"
-                                            style="width: 175px !important; margin :5px 10px 5px 10px">
-                                            <i class="bi bi-speedometer2"></i>
+
+                                    <li>
+                                        <a href="{{ route('website.profile.view') }}" class="menu-btn">
+                                            <i class="bi bi-person" aria-hidden="true"></i>
                                             Profile
                                         </a>
                                     </li>
-                                    {{-- <a href="{{ route('website.profile.edit') }}" class="menu-btn">
-                                            <i class="bi bi-pencil-square"></i>
-                                            Edit Profile
-                                        </a>
 
-                                        <a href="{{ route('website.profile.change-password') }}" class="menu-btn">
-                                            <i class="bi bi-shield-lock"></i>
-                                            Change Password
-                                        </a> --}}
+                                    <li>
+                                        <hr class="menu-sep">
+                                    </li>
 
-                                    <li class="menu-actions">
+                                    <li>
                                         <a href="{{ route('website.logout') }}" class="menu-btn logout">
-                                            <i class="bi bi-box-arrow-right"></i>
+                                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                                             Logout
                                         </a>
                                     </li>
-
 
                                 </ul>
 
@@ -294,21 +280,21 @@
 
                                     <div class="mb-3">
                                         <label>Email Address *</label>
-                                        <input type="email" name="login_email" class="form-control">
+                                        <input type="email" name="login_email" class="form-control" placeholder="Enter your email address">
                                     </div>
 
                                     <div class="mb-3">
                                         <label>Password *</label>
                                         <div class="password-wrapper">
                                             <input type="password" name="login_password"
-                                                class="form-control password-field">
+                                                class="form-control password-field" placeholder="Enter your password">
                                             <i class="bi bi-eye-slash password-toggle"></i>
                                         </div>
                                     </div>
 
                                     <!-- Google reCAPTCHA -->
                                     <div class="col-md-12 mt-3">
-                                        <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                                        <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
 
                                         @error('g-recaptcha-response')
                                             <span class="text-danger" style="font-size:14px;">
@@ -331,6 +317,69 @@
                                         Don't have an account?
                                         <a onclick="showSignup()">Sign Up</a>
                                     </div>
+
+                                    {{-- Brand Adda staff. Separated by a rule and worded
+                                         plainly rather than hidden: a customer who clicks
+                                         it finds a box their credentials do not open. --}}
+                                    <div class="auth-staff-switch">
+                                        <a onclick="showAdminLogin()">
+                                            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                                            Login via Admin
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- ADMIN / TEAM LOGIN FORM -->
+                            {{-- The same credentials as the admin panel, entered here so a
+                                 team member can shortlist and share hoardings from /search
+                                 without a detour through /login and the dashboard. The
+                                 route behind it verifies the captcha server-side and is
+                                 rate limited; see Superadm\LoginController. --}}
+                            <div id="adminLoginArea" style="display:none;">
+
+                                <h4 class="auth-title">Team Login</h4>
+                                <p class="auth-note">
+                                    Use your Brand Adda admin panel credentials. This signs you in
+                                    with full admin access on this browser.
+                                </p>
+
+                                <form method="POST" id="adminLoginForm" novalidate>
+                                    @csrf
+
+                                    <div class="mb-3">
+                                        <label>Admin Email *</label>
+                                        <input type="email" name="admin_email" class="form-control"
+                                            placeholder="Enter your admin email" autocomplete="username">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Password *</label>
+                                        <div class="password-wrapper">
+                                            <input type="password" name="admin_password"
+                                                class="form-control password-field"
+                                                placeholder="Enter your password" autocomplete="current-password">
+                                            <i class="bi bi-eye-slash password-toggle"></i>
+                                        </div>
+                                    </div>
+
+                                    {{-- Not .g-recaptcha: that class is auto-rendered by the
+                                         API on load, which hands back no widget id, and with
+                                         two widgets on the page grecaptcha.getResponse() would
+                                         keep answering for the first one. Rendered explicitly
+                                         below so this form can read its own. --}}
+                                    <div class="col-md-12 mt-3">
+                                        <div id="adminCaptchaBox"></div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-dark w-100 mt-3">
+                                        Login as Admin
+                                    </button>
+
+                                    <div class="auth-switch mt-3">
+                                        Not staff?
+                                        <a onclick="showLogin()">Customer login</a>
+                                    </div>
                                 </form>
                             </div>
 
@@ -338,51 +387,69 @@
                             <div id="signupArea" style="display:none;">
 
                                 <h4 class="auth-title">Create Your Account</h4>
-
-                                <form id="signupForm" novalidate>
+                                {{-- One field per row. .auth-grid is what gives the submit
+                                     and the footer line their explicit full-width span. --}}
+                                <form id="signupForm" class="auth-grid" novalidate>
                                     @csrf
 
                                     <div class="mb-3">
-                                        <label>Full Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="signup_name" class="form-control">
+                                        <label>Full Name <span class="text-danger req-star">*</span></label>
+                                        <input type="text" name="signup_name" class="form-control" placeholder="Enter your full name">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Email Id <span class="text-danger">*</span></label>
-                                        <input type="email" name="signup_email" id="signupEmail" class="form-control">
+                                        <label>Email Id <span class="text-danger req-star">*</span></label>
+                                        <input type="email" name="signup_email" id="signupEmail" class="form-control" placeholder="Enter your email address">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Mobile Number <span class="text-danger">*</span></label>
+                                        <label>Mobile Number <span class="text-danger req-star">*</span></label>
                                         <input type="text" name="signup_mobile_number" class="form-control"
-                                            maxlength="10" inputmode="numeric" autocomplete="off">
+                                            maxlength="10" inputmode="numeric" autocomplete="off" placeholder="10-digit mobile number">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Organisation (optional)</label>
-                                        <input type="text" name="signup_organisation" class="form-control">
+                                        <label>City <span class="text-danger req-star">*</span></label>
+                                        <input type="text" name="signup_city" class="form-control" maxlength="120"
+                                            placeholder="e.g. Nashik">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>Company Name (optional)</label>
+                                        <input type="text" name="signup_organisation" class="form-control" placeholder="Company or agency name">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>User Type <span class="text-danger req-star">*</span></label>
+                                        <select name="signup_user_type" class="form-select">
+                                            <option value="">Select user type</option>
+                                            @foreach (\App\Models\WebsiteUser::USER_TYPES as $type)
+                                                <option value="{{ $type }}">{{ $type }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
                                     <div class="mb-3">
                                         <label>GST (optional)</label>
-                                        <input type="text" name="signup_gst" maxlength="15" class="form-control">
+                                        <input type="text" name="signup_gst" maxlength="15" class="form-control" placeholder="15-character GST number">
                                     </div>
 
                                     <div class="mb-3">
-                                        <label>Password <span class="text-danger">*</span></label>
+                                        <label>Password <span class="text-danger req-star">*</span></label>
                                         <div class="password-wrapper">
                                             <input type="password" name="signup_password"
-                                                class="form-control password-field">
+                                                class="form-control password-field" placeholder="Create a password">
                                             <i class="bi bi-eye-slash password-toggle"></i>
                                         </div>
                                     </div>
 
                                     <!-- VERIFY ACCOUNT BUTTON -->
-                                    <button type="button" class="btn btn-dark w-100" id="sendOtpBtn">
+                                    {{-- auth-grid-full: spans both columns. --}}
+                                    <button type="button" class="btn btn-dark w-100 auth-grid-full" id="sendOtpBtn">
                                         Verify Account
                                     </button>
 
-                                    <div class="auth-switch mt-3">
+                                    <div class="auth-switch mt-3 auth-grid-full">
                                         Already have an account?
                                         <a onclick="showLogin()">Login</a>
                                     </div>
@@ -405,7 +472,7 @@
                                 </div> --}}
 
                                 <div class="mb-2">
-                                    <label>Enter OTP <span class="text-danger">*</span></label>
+                                    <label>Enter OTP <span class="text-danger req-star">*</span></label>
 
                                     <div class="otp-box-wrapper">
                                         <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
@@ -451,12 +518,38 @@
     <script>
         function showSignup() {
             document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('adminLoginArea').style.display = 'none';
             document.getElementById('signupArea').style.display = 'block';
         }
 
         function showLogin() {
             document.getElementById('signupArea').style.display = 'none';
+            document.getElementById('adminLoginArea').style.display = 'none';
             document.getElementById('loginArea').style.display = 'block';
+        }
+
+        // The admin captcha is rendered explicitly, and only once: reCAPTCHA
+        // refuses to render into a container it already owns, and the pane is
+        // shown and hidden as often as the visitor likes.
+        var biAdminCaptchaId = null;
+
+        function showAdminLogin() {
+            document.getElementById('loginArea').style.display = 'none';
+            document.getElementById('signupArea').style.display = 'none';
+            document.getElementById('adminLoginArea').style.display = 'block';
+
+            if (biAdminCaptchaId !== null) return;
+
+            // api.js is loaded async, so it may not be here yet on a fast click.
+            (function renderWhenReady(attempt) {
+                if (window.grecaptcha && typeof grecaptcha.render === 'function') {
+                    biAdminCaptchaId = grecaptcha.render('adminCaptchaBox', {
+                        sitekey: "{{ config('services.recaptcha.site') }}"
+                    });
+                } else if (attempt < 40) {
+                    setTimeout(function () { renderWhenReady(attempt + 1); }, 150);
+                }
+            })(0);
         }
 
         $(document).on("click", ".password-toggle", function() {
@@ -501,11 +594,13 @@
 
             window.showSignup = function() {
                 $("#loginArea").hide();
+                $("#adminLoginArea").hide();
                 $("#signupArea").show();
             };
 
             window.showLogin = function() {
                 $("#signupArea").hide();
+                $("#adminLoginArea").hide();
                 $("#loginArea").show();
             };
 
@@ -526,7 +621,12 @@
                 e.preventDefault();
 
                 let valid = true;
-                $("#loginForm .text-danger").remove();
+                // :not(.req-star) is load-bearing. The required-field asterisks
+                // are .text-danger spans living inside these same forms, so a
+                // blanket remove() deleted every one of them the first time a
+                // field was validated — the form lost its asterisks and never
+                // got them back until the page was reloaded.
+                $("#loginForm .text-danger:not(.req-star)").remove();
 
                 function error(el, msg) {
                     el.after(`<span class="text-danger">${msg}</span>`);
@@ -616,12 +716,123 @@
                 });
             });
 
+            /* ================= ADMIN / TEAM LOGIN ================= */
+            $("#adminLoginForm").on("submit", function(e) {
+                e.preventDefault();
+
+                let valid = true;
+                // Messages only; the asterisks stay. @see the note on #loginForm.
+                $("#adminLoginForm .text-danger:not(.req-star)").remove();
+
+                function error(el, msg) {
+                    el.after(`<span class="text-danger">${msg}</span>`);
+                    valid = false;
+                }
+
+                const email = $('[name="admin_email"]');
+                const pass = $('[name="admin_password"]');
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+                if (!email.val()) {
+                    error(email, "Email is required");
+                } else if (!emailRegex.test(email.val())) {
+                    error(email, "Enter valid email address");
+                }
+
+                if (!pass.val()) {
+                    error(pass, "Password is required");
+                }
+
+                // Same localhost exemption the customer login uses, so a dev
+                // box with no keys configured can still sign in. The server
+                // verifies for real wherever the feature is switched on, which
+                // is what actually decides this.
+                if (window.location.hostname !== 'localhost' &&
+                    biAdminCaptchaId !== null &&
+                    grecaptcha.getResponse(biAdminCaptchaId).length === 0) {
+                    $("#adminCaptchaBox").after(
+                        `<span class="text-danger d-block mt-1">Please verify that you are not a robot</span>`
+                    );
+                    valid = false;
+                }
+
+                if (!valid) return;
+
+                showLoader();
+
+                $.ajax({
+                    url: "{{ route('website.admin.login') }}",
+                    method: "POST",
+                    data: $(this).serialize(),
+
+                    success: function(res) {
+                        hideLoader();
+
+                        if (res.status) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Admin access enabled',
+                                text: res.message +
+                                    ' You can now shortlist hoardings and generate shareable links.',
+                                confirmButtonText: 'Continue'
+                            }).then(() => {
+                                // Reload rather than just closing the modal: the
+                                // Select ticks, the Share bar and the dropped
+                                // search timer are all rendered server-side, and
+                                // none of them exist on the page as it stands.
+                                window.location.reload();
+                            });
+                        } else {
+                            // The captcha is single-use — a rejected attempt
+                            // must not be retried against a spent token.
+                            if (biAdminCaptchaId !== null) grecaptcha.reset(biAdminCaptchaId);
+
+                            $("#adminLoginForm").prepend(
+                                `<div class="text-danger mb-2">${res.message}</div>`
+                            );
+                        }
+                    },
+
+                    error: function(xhr) {
+                        hideLoader();
+                        if (biAdminCaptchaId !== null) grecaptcha.reset(biAdminCaptchaId);
+
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            $.each(errors, function(field, msg) {
+                                $(`#adminLoginForm [name="${field}"]`)
+                                    .after(`<span class="text-danger">${msg[0]}</span>`);
+                            });
+                        } else if (xhr.status === 429) {
+                            // The route is throttled tighter than the customer
+                            // login; say so rather than showing "went wrong".
+                            Swal.fire("Too many attempts",
+                                "Please wait a minute and try again.", "warning");
+                        } else {
+                            Swal.fire("Oops!", "Something went wrong. Please try again!", "error");
+                        }
+                    }
+                });
+            });
 
 
             /* ---------------- SIGNUP ---------------- */
             let otpTime = 120; // ⏱ 2 minutes
             let otpInterval = null;
             let resendLocked = false;
+
+            /**
+             * Hand the Resend button back to the visitor.
+             *
+             * The click handler locks it before the request goes out, and the
+             * lock is normally lifted by the countdown reaching zero. If the
+             * request itself fails there is no countdown running to do that, so
+             * without this the button stays disabled until the modal is closed.
+             */
+            function releaseResend() {
+                resendLocked = false;
+                $("#resendOtpBtn").removeClass("d-none").prop("disabled", false);
+            }
             /* ================= OTP TIMER ================= */
             function validateOtp() {
                 const otp = $("#otpInput").val();
@@ -686,7 +897,8 @@
                 e.preventDefault();
 
                 let valid = true;
-                $("#signupForm .text-danger").remove();
+                // Messages only; the asterisks stay. @see the note on #loginForm.
+                $("#signupForm .text-danger:not(.req-star)").remove();
 
                 function error(el, msg) {
                     el.after(`<span class="text-danger">${msg}</span>`);
@@ -698,6 +910,8 @@
                 const mobile = $('[name="signup_mobile_number"]');
                 const pass = $('[name="signup_password"]');
                 const gst = $('[name="signup_gst"]');
+                const city = $('[name="signup_city"]');
+                const userType = $('[name="signup_user_type"]');
 
                 // FULL NAME
                 if (!name.val()) {
@@ -720,6 +934,16 @@
                     error(mobile, "10 digits only & must start with 6, 7, 8 or 9");
                 }
 
+                // CITY — free text, so presence is the only sensible check.
+                if (!city.val() || !city.val().trim()) {
+                    error(city, "City is required");
+                }
+
+                // USER TYPE
+                if (!userType.val()) {
+                    error(userType, "Please select a user type");
+                }
+
                 // PASSWORD
                 if (!pass.val()) {
                     error(pass, "Password is required");
@@ -735,7 +959,34 @@
 
                 // VALID → AJAX CALL
                 showLoader();
+                submitSignup(false);
+            });
 
+            /* Fetches the session's current CSRF token and writes it back into
+               the page, then runs `done`.
+
+               @csrf stamps the token in when the page is rendered, so a page
+               left open while something else in this browser logs in or out is
+               holding one the session has moved past — and the only thing the
+               visitor sees is a 419. Rather than making them retype the whole
+               registration form, pick up the live token and go again. */
+            function withFreshCsrf(done) {
+                $.get("{{ route('csrf.token') }}")
+                    .done(function(res) {
+                        $('meta[name="csrf-token"]').attr('content', res.token);
+                        $('input[name="_token"]').val(res.token);
+                        done();
+                    })
+                    .fail(function() {
+                        hideLoader();
+                        Swal.fire("Session expired",
+                            "Please refresh the page and try again.", "warning");
+                    });
+            }
+
+            /* `retried` guards against looping: one refresh-and-resend is a
+               stale token, a second 419 is something else. */
+            function submitSignup(retried) {
                 $.ajax({
                     url: "{{ route('website.signup') }}",
                     method: "POST",
@@ -748,10 +999,26 @@
                             $("#otpArea").fadeIn();
                             $("#otpEmail").val($("#signupEmail").val());
                             startOtpTimer();
+                        } else {
+                            // The controller answers "already registered",
+                            // "deleted by admin" and the like as a normal 200
+                            // carrying status:false. Without this the form just
+                            // sat there and the visitor was told nothing.
+                            Swal.fire("Could not sign up", res.message ||
+                                "Something went wrong. Please try again.", "warning");
                         }
                     },
 
                     error: function(xhr) {
+                        // A stale CSRF token. Refresh it and resend once — the
+                        // loader stays up, and the form keeps what was typed.
+                        if (xhr.status === 419 && !retried) {
+                            withFreshCsrf(function() {
+                                submitSignup(true);
+                            });
+                            return;
+                        }
+
                         hideLoader();
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
@@ -760,10 +1027,21 @@
                                     .after(
                                         `<span class="text-danger">${msg[0]}</span>`);
                             });
+                        } else if (xhr.status === 419) {
+                            Swal.fire("Session expired",
+                                "Please refresh the page and try again.", "warning");
+                        } else {
+                            // Anything else — a 503 because the OTP mail could
+                            // not go out, or a genuine server error. Previously
+                            // the loader vanished and nothing happened at all,
+                            // so the button looked simply broken.
+                            Swal.fire("Could not sign up",
+                                (xhr.responseJSON && xhr.responseJSON.message) ||
+                                "Something went wrong. Please try again.", "error");
                         }
                     }
                 });
-            });
+            }
 
             /* ================= VERIFY OTP ================= */
             $("#verifyOtpBtn").click(function() {
@@ -830,11 +1108,36 @@
                         email: $("#otpEmail").val() // editable email
                     },
 
-                    success: function() {
+                    success: function(res) {
                         hideLoader();
+
+                        // A 200 can still carry status:false ("Email not
+                        // registered"). This used to announce "New OTP has been
+                        // sent" regardless, and restart the timer on an OTP that
+                        // was never sent.
+                        if (res && res.status === false) {
+                            releaseResend();
+                            $("#otpError").text(res.message ||
+                                "Could not resend the code. Please try again.");
+                            return;
+                        }
+
                         clearOtpInputs(); // CLEAR OLD OTP
                         startOtpTimer(); // restart 2 min
                         showOtpSuccessMessage(); // show success msg
+                    },
+
+                    // There was no error callback here at all, so a failed
+                    // resend left the global loader spinning and the button
+                    // disabled for good — the visitor was stranded on the OTP
+                    // screen with no way forward and nothing explaining why.
+                    error: function(xhr) {
+                        hideLoader();
+                        releaseResend();
+                        $("#otpError").text(
+                            (xhr.responseJSON && xhr.responseJSON.message) ||
+                            "Could not resend the code. Please try again."
+                        );
                     }
                 });
             });

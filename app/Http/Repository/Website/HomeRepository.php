@@ -6,9 +6,13 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Support\RadiusRange;
 
 class HomeRepository
 {
+    /* Distances (metres) the Nearby Landmark filter offers. */
+    public const NEARBY_DISTANCES = [500, 1000, 2000, 3000, 5000];
+
     public function searchMedia(array $filters)
     {
         return $this->buildSearchQuery($filters)
@@ -28,6 +32,47 @@ class HomeRepository
             ->get();
     }
 
+
+    /**
+     * The hoardings on a shared link, in the order the team shortlisted them.
+     *
+     * Not paginated: a shortlist is a handful of rows the client is meant to
+     * see all of at once, and the page plots the same set on its map.
+     *
+     * $filters is the client's own narrowing — Area, Area Type, Highway,
+     * Landmarks, dates, size, radius, budget — coming off the filter card on
+     * the shared page. It runs through the very same builder /search uses,
+     * with media_ids pinned on top, so no filter can widen the set past the
+     * ids stored on the link.
+     */
+    public function getMediaByIds(array $ids, array $filters = [])
+    {
+        if (empty($ids)) {
+            return collect();
+        }
+
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+
+        // Set last, never merged from the caller's array: the shortlist is the
+        // hard boundary of this page and nothing posted may replace it.
+        $filters['media_ids'] = $ids;
+
+        // FIELD() keeps the team's own ordering, which whereIn does not.
+        return $this->buildSearchQuery($filters)
+            ->orderByRaw('FIELD(m.id, ' . implode(',', $ids) . ')')
+            ->get();
+    }
+    /**
+     * Matching rows for a vendor's own website: the same filters /search uses,
+     * limited to one vendor. Rows carry is_booked (for the date filter) and id.
+     */
+    public function vendorSiteMatches(int $vendorId, array $filters)
+    {
+        $filters['vendor_id'] = $vendorId; // set last: the caller cannot widen it
+
+        return $this->buildSearchQuery($filters)->get();
+    }
+
     private function buildSearchQuery(array $filters)
     {
         $query = DB::table('media_management as m')
@@ -37,6 +82,7 @@ class HomeRepository
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->leftJoin(DB::raw('
             (SELECT media_id, MIN(images) AS first_image
              FROM media_images
@@ -50,6 +96,7 @@ class HomeRepository
 
             ->select([
                 'm.id',
+                'm.hoarding_code',
                 'm.media_title',
                 'm.price',
                 'm.category_id',
@@ -57,6 +104,12 @@ class HomeRepository
                 'm.longitude',
                 'm.width',
                 'm.height',
+                // Panel-sized media (a Bus Shelter's Front / Back / Side) have no
+                // single width x height — area_auto is the total the panels add
+                // up to, and the only size figure those records have. Already
+                // filtered on by the size slider; selected so the card can
+                // print it instead of "0.00 x 0.00 ft".
+                'm.area_auto',
                 'm.facing',
                 // 'm.video_link',
                 'ct.category_name',
@@ -65,9 +118,12 @@ class HomeRepository
                 'd.district_name as district_name',
                 'city.city_name as city_name',
                 'at.areatype_name as area_type_name',
+                'hw.highway_name',
                 'a.common_stdiciar_name as common_area_name',
                 'm.panorama_image',
+                'm.is_available',
                 'mi.first_image',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price')
 
 
@@ -105,14 +161,39 @@ class HomeRepository
 
 
         /* FILTERS */
+        // Vendor website (vendorSiteMatches): only that vendor's media.
+        if (!empty($filters['vendor_id'])) {
+            $query->where('m.vendor_id', (int) $filters['vendor_id']);
+        }
+
         if (!empty($filters['category_id'])) {
             $query->where('m.category_id', $filters['category_id']);
         }
 
 
-        if (!empty($filters['radius_id']) && $centerLat && $centerLng) {
+        // The Radius slider posts free-form km, so pin both ends to the range
+        // the slider actually offers — otherwise a hand-crafted request could
+        // ask for a 10,000 km radius and, via the city rule below, search
+        // everything. A max of 0 is the off position: no radius filter.
+        //
+        // radius_id is the single value the slider posted before it grew a
+        // second handle; still read as the max so an old link or a saved
+        // session filter keeps working.
+        $radiusKm = RadiusRange::clamp($filters['max_radius'] ?? $filters['radius_id'] ?? null);
+        $radiusFromKm = RadiusRange::clamp($filters['min_radius'] ?? null);
 
-            $radiusKm = (float)$filters['radius_id'];
+        // A min above the max is a nonsense band that would return nothing at
+        // all; treat it as "from there outwards" rather than silently empty.
+        if ($radiusFromKm > $radiusKm) {
+            $radiusFromKm = 0.0;
+        }
+
+        // Tracks whether the distance filter really made it into the query. A
+        // radius asked for on a city with no lat/lng silently does nothing, and
+        // the city rule below must not drop its own filter on that basis.
+        $radiusApplied = false;
+
+        if ($radiusKm > 0 && $centerLat && $centerLng) {
 
             $query->whereNotNull('m.latitude')
                 ->whereNotNull('m.longitude');
@@ -130,13 +211,35 @@ class HomeRepository
                 ->having('distance', '<=', $radiusKm)
                 ->orderBy('distance', 'asc');
 
+            // The inner edge of the band. Only when asked for: a min of 0 is
+            // the whole circle, and adding the clause anyway would drop media
+            // sitting exactly on the centre point.
+            if ($radiusFromKm > 0) {
+                $query->having('distance', '>=', $radiusFromKm);
+            }
+
+            $radiusApplied = true;
+
             Log::info(' Radius Filter Applied', [
                 'center_lat' => $centerLat,
                 'center_lng' => $centerLng,
+                'radius_from_km' => $radiusFromKm,
                 'radius_km'  => $radiusKm
             ]);
         }
 
+
+        // Sector Code, matched as "contains" and case-insensitively: the code
+        // is the one thing a buyer is handed on a proposal, and a substring is
+        // what makes it useful — "BS" lists every bus shelter, "000034" finds
+        // HD000034 whichever prefix it carries.
+        //
+        // addcslashes so the LIKE wildcards are literal: a pasted % would
+        // otherwise match the entire inventory rather than nothing.
+        if (!empty($filters['hoarding_code'])) {
+            $code = addcslashes(trim((string) $filters['hoarding_code']), '%_\\');
+            $query->where('m.hoarding_code', 'like', '%' . $code . '%');
+        }
 
         if (!empty($filters['areatype_id'])) {
             $query->where('m.areatype_id', $filters['areatype_id']);
@@ -149,7 +252,8 @@ class HomeRepository
         if (!empty($filters['district_id'])) {
             $query->where('m.district_id', $filters['district_id']);
         }
-        if (!empty($filters['city_id']) && empty($filters['radius_id'])) {
+        // Only widen past the city when the distance filter actually replaced it.
+        if (!empty($filters['city_id']) && !$radiusApplied) {
             $query->where('m.city_id', $filters['city_id']);
         }
         // if (!empty($filters['city_id'])) {
@@ -159,6 +263,47 @@ class HomeRepository
         if (!empty($filters['area_id'])) {
             $query->where('m.area_id', $filters['area_id']);
         }
+
+        /* HIGHWAY FILTER (single or multiple → OR logic) */
+        if (!empty($filters['highway_id'])) {
+            $query->whereIn('m.highway_id', (array) $filters['highway_id']);
+        }
+
+        /* LANDMARK FILTER (multiple → OR logic via pivot) */
+        if (!empty($filters['landmark_ids'])) {
+            $landmarkIds = array_filter((array) $filters['landmark_ids']);
+            if (!empty($landmarkIds)) {
+                $query->whereExists(function ($q) use ($landmarkIds) {
+                    $q->select(DB::raw(1))
+                        ->from('media_landmark as ml')
+                        ->whereColumn('ml.media_id', 'm.id')
+                        ->whereIn('ml.landmark_id', $landmarkIds);
+                });
+            }
+        }
+
+        /* NEARBY LANDMARK FILTER
+           Hoardings within nearby_distance metres of a place picked from the
+           nearby-places data. Straight-line distance on our own coordinates,
+           so any distance works without another API request. The town filter
+           above still applies. */
+        if (!empty($filters['nearby_place'])
+            && preg_match('/^(-?\d{1,3}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)$/', trim($filters['nearby_place']), $pt)) {
+
+            $placeLat = (float) $pt[1];
+            $placeLng = (float) $pt[2];
+            $meters   = in_array((int) ($filters['nearby_distance'] ?? 0), self::NEARBY_DISTANCES, true)
+                ? (int) $filters['nearby_distance']
+                : 1000;
+
+            $query->whereNotNull('m.latitude')
+                ->whereNotNull('m.longitude')
+                ->whereRaw('(6371000 * ACOS(LEAST(1,
+                    COS(RADIANS(?)) * COS(RADIANS(m.latitude)) * COS(RADIANS(m.longitude) - RADIANS(?))
+                    + SIN(RADIANS(?)) * SIN(RADIANS(m.latitude))
+                ))) <= ?', [$placeLat, $placeLng, $placeLat, $meters]);
+        }
+
         /* SIZE FILTER */
         if (!empty($filters['size_id'])) {
 
@@ -223,7 +368,9 @@ END AS is_available_days
             $fromDate = $filters['from_date'];
             $toDate   = $filters['to_date'];
 
-            $query->addSelect(DB::raw("
+            // selectRaw, not addSelect(DB::raw(...)): DB::raw ignores bindings, which left
+            // these two ? to be filled by the WHERE values and broke the query.
+            $query->selectRaw("
             CASE
                 WHEN EXISTS (
                     SELECT 1 FROM media_booked_date mbd
@@ -235,7 +382,7 @@ END AS is_available_days
                 )
                 THEN 1 ELSE 0
             END AS is_booked
-        ", [$toDate, $fromDate]));
+        ", [$toDate, $fromDate]);
         } else {
 
             $query->addSelect(DB::raw("
@@ -245,6 +392,7 @@ END AS is_available_days
                     WHERE mbd.media_id = m.id
                     AND mbd.is_deleted = 0
                     AND mbd.is_active = 1
+                    AND mbd.from_date <= CURDATE()
                     AND mbd.to_date >= CURDATE()
                 )
                 THEN 1 ELSE 0
@@ -272,12 +420,25 @@ END AS is_available_days
         // if (isset($filters['max_area']) && $filters['max_area'] !== '') {
         //     $query->whereRaw('(m.width * m.height) <= ?', [$filters['max_area']]);
         // }
+
+        /* ──────────────────────────────
+         SHARED LINK: an explicit shortlist
+         The /shared/{token} page reuses this whole builder so its cards carry
+         the same first_image, landmark_names and is_booked as the search
+         results do; it just narrows the set to the ids on the link.
+         ───────────────────────────────*/
+        if (!empty($filters['media_ids'])) {
+            $query->whereIn('m.id', array_map('intval', (array) $filters['media_ids']));
+        }
+
+        // area_auto is stored as VARCHAR, so cast to a number to avoid
+        // lexicographic comparison (e.g. '60000' wrongly > '120000').
         if (!empty($filters['min_area'])) {
-            $query->where('m.area_auto', '>=', $filters['min_area']);
+            $query->whereRaw('CAST(m.area_auto AS DECIMAL(15,2)) >= ?', [(float) $filters['min_area']]);
         }
 
         if (!empty($filters['max_area'])) {
-            $query->where('m.area_auto', '<=', $filters['max_area']);
+            $query->whereRaw('CAST(m.area_auto AS DECIMAL(15,2)) <= ?', [(float) $filters['max_area']]);
         }
 
 
@@ -346,6 +507,17 @@ END AS is_available_days
                 ->where('is_deleted', 0)
                 ->where('is_active', 1)
                 ->get();
+
+            // The panels a Bus Shelter carries — Front, Back, Side — each with
+            // its own width and height. Empty for every other category, which
+            // is measured by one face. FIELD() keeps the display order the Add
+            // form uses rather than insertion order.
+            $media->panels = DB::table('media_location_sizes')
+                ->where('media_id', $mediaId)
+                ->whereNotNull('width')
+                ->whereNotNull('height')
+                ->orderByRaw("FIELD(position, 'front', 'back', 'side')")
+                ->get(['position', 'width', 'height', 'quantity']);
         }
 
         return $media;

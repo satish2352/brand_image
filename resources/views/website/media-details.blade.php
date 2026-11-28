@@ -1,6 +1,8 @@
 @extends('website.layout')
 
-@section('title', $media->media_title)
+{{-- Same pairing the heading and the result cards use: the media's own title,
+     then the area — never the bare category name. --}}
+@section('title', trim(($media->media_title ?: $media->category_name) . ' ' . ($media->area_name ?? '')))
 
 @section('content')
 
@@ -12,7 +14,7 @@
         /* Disable hover color change for disabled dates */
         .flatpickr-day.flatpickr-disabled,
         .flatpickr-day.flatpickr-disabled:hover {
-            color: #979393 !important;
+            color: #0F172A !important;
             /* keep same disabled color */
             background: transparent !important;
             cursor: not-allowed;
@@ -23,16 +25,16 @@
         }
 
         .calendar-wrapper {
-            border: 1px solid #eee;
+            border: 1px solid #E5E7EB;
             border-radius: 8px;
             padding: 10px;
-            background: #fafafa;
+            background: #FFFFFF;
         }
 
         .price {
             font-size: 22px;
             font-weight: 700;
-            color: #f28123;
+            color: #F97316;
         }
 
         .media-info p {
@@ -45,11 +47,11 @@
             padding: 12px 18px;
             font-size: 16px;
             font-weight: 600;
-            color: #fff;
-            background: linear-gradient(135deg, #f28123, #ff9f43);
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #F97316, #F97316);
             border: none;
             border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(242, 129, 35, 0.35);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
@@ -59,8 +61,8 @@
 
         /* Hover */
         .add-to-cart-btn:hover {
-            background: linear-gradient(135deg, #e06b0c, #ff851b);
-            box-shadow: 0 6px 18px rgba(242, 129, 35, 0.45);
+            background: linear-gradient(135deg, #F97316, #F97316);
+            box-shadow: 0 6px 18px rgba(249, 115, 22, 0.45);
             transform: translateY(-1px);
         }
 
@@ -71,14 +73,14 @@
 
         /* Disabled state (optional future use) */
         .add-to-cart-btn:disabled {
-            background: #ccc;
+            background: #E5E7EB;
             cursor: not-allowed;
             box-shadow: none;
         }
 
         .flatpickr-day.booked-date {
-            background: #dc3545 !important;
-            color: #fff !important;
+            background: #F97316 !important;
+            color: #FFFFFF !important;
             border-radius: 5%;
             overflow: visible !important;
 
@@ -91,8 +93,8 @@
             height: 15px;
             line-height: 15px;
             /* aligns text */
-            background: #000;
-            color: #fff;
+            background: #0F172A;
+            color: #FFFFFF;
             padding: 0 6px;
             font-size: 8px;
             border-radius: 3px;
@@ -110,8 +112,8 @@
             left: 50%;
             height: 15px;
             line-height: 15px;
-            background: #2a8aff;
-            color: #fff;
+            background: #0F172A;
+            color: #FFFFFF;
             padding: 0 6px;
             font-size: 8px;
             border-radius: 3px;
@@ -128,8 +130,8 @@
         .flatpickr-day.inRange,
         .flatpickr-day.startRange,
         .flatpickr-day.endRange {
-            background: #f28123 !important;
-            color: #fff !important;
+            background: #F97316 !important;
+            color: #FFFFFF !important;
         }
 
 
@@ -150,13 +152,13 @@
             width: 100%;
             height: 70px;
             object-fit: cover;
-            border: 1px solid #ddd;
+            border: 1px solid #E5E7EB;
             border-radius: 4px;
             cursor: pointer;
         }
 
         .media-thumbs img.active {
-            border: 2px solid #f28123;
+            border: 2px solid #F97316;
         }
 
         /* ===== IMAGE GALLERY ===== */
@@ -193,7 +195,7 @@
         }
 
         .media-thumbs-bottom::-webkit-scrollbar-thumb {
-            background: #ccc;
+            background: #E5E7EB;
             border-radius: 10px;
         }
 
@@ -212,7 +214,7 @@
         }
 
         .thumb-img.active {
-            border-color: #f28123;
+            border-color: #F97316;
         }
 
         /* Mobile */
@@ -236,56 +238,62 @@
         .price {
             font-size: 18px;
             font-weight: 700;
-            color: #f28123;
+            color: #F97316;
         }
 
         .per-day {
             font-size: 14px;
-            color: #666;
+            color: #0F172A;
         }
 
         .add-to-cart-btn:disabled {
-            background: #ddd;
-            color: #888;
+            background: #E5E7EB;
+            color: #0F172A;
         }
 
         .add-to-cart-btn:not(:disabled) {
-            background: linear-gradient(135deg, #f28123, #ff9f43);
+            background: linear-gradient(135deg, #F97316, #F97316);
             cursor: pointer;
         }
 
         .details-contact-us:hover {
-            color: #fff;
+            color: #FFFFFF;
         }
     </style>
     @php
         $width = (float) $media->width;
         $height = (float) $media->height;
-        $sqft = $width * $height;
         $isBillboard = (int) $media->category_id === 1;
 
-        // category table
-        $CATEGORY = [
-            'HOARDING' => 1,
-            'WALL' => 2, // Digital Wall Painting / Wall Painting
-            'AIRPORT' => 3,
-            'TRANSIT' => 4,
-            'OFFICE' => 5,
-            'WRAP' => 6,
-            'MALL' => 7,
-            'OTHER' => 8,
-        ];
+        $panels = collect($media->panels ?? []);
+
+        // A Bus Shelter is measured panel by panel, so width and height are
+        // null on the record and printing them read "0.00 x 0.00 ft". Its size
+        // is area_auto, the total its panels add up to.
+        $hasFaceSize = $width > 0 && $height > 0;
+        $sqft = $hasFaceSize ? $width * $height : (float) ($media->area_auto ?? 0);
+
+        /* Which category this is, read off its NAME rather than its id.
+
+           There was a $CATEGORY map of hardcoded ids here and it had drifted
+           from the table: it called id 5 'OFFICE' when id 5 is Bus Shelter, so
+           every bus shelter rendered the office branding fields — "Building
+           Name: -" and "Branding Type: -" — and none of its own. Ids are the
+           admin's to change; the name is what the rest of the app matches on
+           (@see MediaCode, MediaManagementController), so match it here too. */
+        $catSlug = \Illuminate\Support\Str::slug($media->category_name ?? '');
+        $isCat = fn(string $fragment) => str_contains($catSlug, $fragment);
     @endphp
     <div class="container-fluid about-banner-img g-0">
         <div class="row">
             <!-- Desktop Image -->
             <div class="col-md-12 d-none d-md-block">
-                <img src="{{ asset('assets/img/viewdetail2.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/media_desk.png') }}" alt="Media banner" class="img-fluid w-100">
             </div>
 
             <!-- Mobile Image -->
             <div class="col-md-12 d-block d-md-none">
-                <img src="{{ asset('assets/img/mobilviewdetail(1).png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/media_mobile.png') }}" alt="Media banner" class="img-fluid w-100">
             </div>
         </div>
     </div>
@@ -304,15 +312,15 @@
                             @endphp
                             <div class="media-main mb-3" onmousemove="zoomMedia(event,this)" onmouseleave="resetZoom(this)">
                                 <img class="main-media-image" id="mainMediaImage"
-                                    src="{{ $mainImage ? config('fileConstants.IMAGE_VIEW') . $mainImage->images : asset('assets/img/no-image.jpg') }}">
+                                    src="{{ $mainImage ? \App\Support\MediaImageUrl::for($mainImage->images) : asset('assets/img/no-image.jpg') }}">
                             </div>
                             {{-- THUMBNAILS --}}
                             @if ($media->images->count())
                                 <div class="media-thumbs-bottom">
                                     @foreach ($media->images as $k => $img)
-                                        <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}"
+                                        <img src="{{ \App\Support\MediaImageUrl::for($img->images) }}"
                                             class="thumb-img {{ $k == 0 ? 'active' : '' }}"
-                                            onclick="changeMediaImage(this,'{{ config('fileConstants.IMAGE_VIEW') . $img->images }}')">
+                                            onclick="changeMediaImage(this,'{{ \App\Support\MediaImageUrl::for($img->images) }}')">
                                     @endforeach
                                 </div>
                             @else
@@ -326,8 +334,18 @@
                         <div class="card shadow-sm border-0 p-4">
 
                             <h3 class="fw-bold mb-2 detail-title">
-                                {{ ucwords($media->media_title) }} {{ ucwords($media->area_name) }}
+                                {{ ucwords($media->media_title ?: $media->category_name ?? '') }}
+                                {{ ucwords($media->area_name ?? '') }}
                             </h3>
+
+                            @if (!empty($media->hoarding_code))
+                                <p class="mb-2">
+                                    <span class="badge"
+                                        style="background:#F97316;color:#FFFFFF;font-size:13px;font-weight:600;letter-spacing:.5px;">
+                                        {{ $media->hoarding_code }}
+                                    </span>
+                                </p>
+                            @endif
 
                             <p class="text-muted mb-2">
                                 <i class="fas fa-map-marker-alt text-danger"></i>
@@ -357,20 +375,82 @@
                                     </div>
                                 @endif
 
-                                <div class="col-6 mb-2">
-                                    <strong>Size:</strong>
-                                    {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
-                                </div>
+                                @if ($hasFaceSize)
+                                    <div class="col-6 mb-2">
+                                        <strong>Size:</strong>
+                                        {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
+                                    </div>
+                                @endif
 
-                                <div class="col-6 mb-2">
-                                    <strong>Total Area:</strong>
-                                    {{ number_format($sqft, 2) }} SQFT
-                                </div>
+                                {{-- Panelled media carry their total in the table
+                                     below, so it is not also stated here. --}}
+                                @if ($panels->isEmpty())
+                                    <div class="col-6 mb-2">
+                                        <strong>Total Area:</strong>
+                                        {{ number_format($sqft, 2) }} SQFT
+                                    </div>
+                                @endif
+
+                                {{-- BUS SHELTER — a table rather than a run-on line.
+                                     Three panels, each with a size, a count and the
+                                     area it contributes, is a small grid of numbers;
+                                     strung inline it wrapped mid-panel and the total
+                                     above could not be followed back to its parts. --}}
+                                @if ($panels->isNotEmpty())
+                                    <div class="col-12 mb-2">
+                                        <strong class="d-block mb-2">Panel Sizes</strong>
+
+                                        <div class="table-responsive">
+                                            <table class="panel-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Panel</th>
+                                                        <th>Size (ft)</th>
+                                                        <th class="text-center">Qty</th>
+                                                        <th class="text-end">Area (sq ft)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php $panelTotalQty = 0; @endphp
+                                                    @foreach ($panels as $panel)
+                                                        @php
+                                                            // Rows written before the quantity column
+                                                            // existed carry none and each stand for a
+                                                            // single board.
+                                                            $qty  = max(1, (int) ($panel->quantity ?? 1));
+                                                            $face = (float) $panel->width * (float) $panel->height;
+                                                            $panelTotalQty += $qty;
+                                                        @endphp
+                                                        <tr>
+                                                            <td>{{ \App\Models\MediaLocationSize::POSITIONS[$panel->position] ?? ucfirst($panel->position) }}</td>
+                                                            <td>{{ number_format((float) $panel->width, 2) }} × {{ number_format((float) $panel->height, 2) }}</td>
+                                                            <td class="text-center">{{ $qty }}</td>
+                                                            <td class="text-end">{{ number_format($face * $qty, 2) }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="2">Total</td>
+                                                        <td class="text-center">{{ $panelTotalQty }}</td>
+                                                        <td class="text-end">{{ number_format($sqft, 2) }}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if ($isCat('bus-shelter') && !empty($media->illumination_name))
+                                    <div class="col-6 mb-2">
+                                        <strong>Illumination:</strong> {{ $media->illumination_name }}
+                                    </div>
+                                @endif
 
                                 {{-- ================= CATEGORY SPECIFIC FIELDS ================= --}}
 
                                 {{-- WALL PAINTING --}}
-                                @if ($media->category_id === $CATEGORY['WALL'])
+                                @if ($isCat('wall-painting'))
                                     @if (!empty($media->address))
                                         <div class="col-12 mb-2">
                                             <strong>Address:</strong> {{ $media->address }}
@@ -379,7 +459,7 @@
                                 @endif
 
                                 {{-- AIRPORT BRANDING --}}
-                                @if ($media->category_id === $CATEGORY['AIRPORT'])
+                                @if ($isCat('airport'))
                                     <div class="col-6 mb-2">
                                         <strong>Airport:</strong> {{ $media->airport_name ?? '-' }}
                                     </div>
@@ -392,7 +472,7 @@
                                 @endif
 
                                 {{-- TRANSIT MEDIA --}}
-                                @if ($media->category_id === $CATEGORY['TRANSIT'])
+                                @if ($isCat('transit') || $isCat('transmit'))
                                     <div class="col-6 mb-2">
                                         <strong>Transit Type:</strong> {{ $media->transit_type ?? '-' }}
                                     </div>
@@ -404,8 +484,11 @@
                                     </div>
                                 @endif
 
-                                {{-- OFFICE BRANDING --}}
-                                @if ($media->category_id === $CATEGORY['OFFICE'])
+                                {{-- OFFICE BRANDING — matched on the name like the rest.
+                                     This used to test id 5, which is Bus Shelter, so it was
+                                     the block putting "Building Name: -" and
+                                     "Branding Type: -" on every shelter. --}}
+                                @if ($isCat('office'))
                                     <div class="col-6 mb-2">
                                         <strong>Building Name:</strong> {{ $media->building_name ?? '-' }}
                                     </div>
@@ -415,7 +498,7 @@
                                 @endif
 
                                 {{-- WALL WRAP --}}
-                                @if ($media->category_id === $CATEGORY['WRAP'])
+                                @if ($isCat('wall-wrap'))
                                     @if (!empty($media->address))
                                         <div class="col-12 mb-2">
                                             <strong>Location:</strong> {{ $media->address }}
@@ -424,7 +507,7 @@
                                 @endif
 
                                 {{-- WALL WRAP --}}
-                                @if ($media->category_id === $CATEGORY['MALL'])
+                                @if ($isCat('mall'))
                                     <div class="d-flex row">
                                         <div class="col-6 mb-2">
                                             <strong>Mall Name:</strong> {{ $media->mall_name }}
@@ -453,7 +536,13 @@
 
 
 
-                            @if ((int) $media->category_id === 1)
+                            @if (isset($media->is_available) && (int) $media->is_available === 0)
+                                {{-- Flagged Not Available from the admin Media List: no calendar, no booking. --}}
+                                <div class="alert alert-danger mb-0 mt-2">
+                                    <i class="fas fa-ban"></i>
+                                    <strong>Ask For Availability</strong> — please contact us to check availability for this media.
+                                </div>
+                            @elseif ((int) $media->category_id === 1)
                                 {{-- CALENDAR --}}
                                 <h6 class="fw-bold mt-1">Select Booking Dates</h6>
 
@@ -499,7 +588,22 @@
 
                 </div>
             </div>
+
+            {{-- LOCATION INSIGHTS — loaded by AJAX from media.insights.show for this
+                 hoarding's ID. Its nearby places are fetched once (first view,
+                 within the credit budget) and then served from the database. --}}
+            <div class="container mt-4">
+                <div class="card shadow-sm border-0 p-4 insights-card" id="media-insights"
+                    data-url="{{ route('media.insights.show', base64_encode($media->id)) }}">
+                    <div class="ins-loading" role="status">
+                        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                        Loading location insights…
+                    </div>
+                </div>
+            </div>
         </div>
+
+        @include('insights.assets')
         <script>
             function changeMediaImage(el, src) {
                 document.getElementById('mainMediaImage').src = src;
@@ -539,6 +643,9 @@
                 let bookedRanges = @json($bookedRanges ?? []);
 
                 const form = document.getElementById('addToCartForm');
+
+                // No booking form: non-billboard media, or flagged Not Available.
+                if (!form) return;
 
                 const fromInput = document.getElementById('from_date');
                 const toInput = document.getElementById('to_date');

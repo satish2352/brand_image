@@ -8,7 +8,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use App\Models\CartItem;
+use App\Support\MasterCache;
+use App\Support\RadiusRange;
 use Illuminate\Pagination\Paginator;
+use App\Http\Services\Website\SearchSessionService;
+use App\Listeners\StartSearchSessionOnLogin;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,6 +26,42 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
+        // Saved API Request Manager settings (switches, daily limits, provider) over config / .env.
+        \App\Support\ApiControl::apply();
+
+        // Media Location Insights: queued jobs (EnrichMediaInsightsJob) share one
+        // request rate to the places provider. Geoapify's free plan allows 5
+        // requests/second; the default of 4 leaves room for admin refreshes.
+        // Held to the request rate of whichever provider is active.
+        RateLimiter::for('places-api', fn() => Limit::perSecond(
+            max(1, (int) config(
+                'services.' . (config('services.insights.places_provider') === 'tomtom' ? 'tomtom' : 'geoapify') . '.requests_per_second',
+                4
+            ))
+        ));
+
+        /* ========================================
+            SEARCH ACCESS WINDOW
+            Opened on the Login event rather than in the auth controllers:
+            password login, OTP registration and Google all raise it, so one
+            listener covers every way in.
+        ======================================== */
+        Event::listen(Login::class, StartSearchSessionOnLogin::class);
+
+        /* ========================================
+            SEARCH SESSION STATE (WEBSITE VIEWS)
+            The countdown component needs the same numbers the middleware
+            decides on, so it is resolved once here rather than in each
+            controller that renders a page.
+        ======================================== */
+        View::composer('website.*', function ($view) {
+            $view->with(
+                'searchAccess',
+                app(SearchSessionService::class)->state(request())
+            );
+        });
+
+
         /* ========================================
             CART COUNT (AVAILABLE ON ALL VIEWS)
         ======================================== */
@@ -25,17 +69,22 @@ class AppServiceProvider extends ServiceProvider
             $cartCount = 0;
 
             if (Auth::guard('website')->check()) {
-                $userId    = Auth::guard('website')->id();
-                $cacheKey  = "cart_count_user_{$userId}";
-
-                $cartCount = Cache::remember($cacheKey, 120, function () use ($userId) {
-                    return CartItem::where('user_id', $userId)
-                        ->where('is_deleted', 0)
-                        ->where('is_active', 1)
-                        ->where('cart_type', 'NORMAL')
-                        ->where('status', 'ACTIVE')
-                        ->count();
-                });
+                // Counted live, not cached for 120s as it once was.
+                //
+                // The cache had to be forgotten by every write, and two of them
+                // never did: placing an order (CheckoutController) and turning
+                // the cart into a campaign (CampaignRepository) both empty the
+                // NORMAL cart with a mass update, which fires no model events
+                // and cleared nothing — so the badge kept claiming an item the
+                // cart page could not show. cart_items is indexed on user_id
+                // and holds one row per item a person is considering, so the
+                // count the cache was avoiding is cheaper than being wrong.
+                $cartCount = CartItem::where('user_id', Auth::guard('website')->id())
+                    ->where('is_deleted', 0)
+                    ->where('is_active', 1)
+                    ->where('cart_type', 'NORMAL')
+                    ->where('status', 'ACTIVE')
+                    ->count();
             }
 
             $view->with('cartCount', $cartCount);
@@ -46,7 +95,7 @@ class AppServiceProvider extends ServiceProvider
         ======================================== */
         View::composer('website.search-form', function ($view) {
 
-            $categories = Cache::remember('search_form_categories', 3600, fn() =>
+            $categories = Cache::remember(MasterCache::CATEGORIES, MasterCache::TTL, fn() =>
                 DB::table('category')
                     ->where('is_active', 1)
                     ->where('is_deleted', 0)
@@ -62,15 +111,32 @@ class AppServiceProvider extends ServiceProvider
                     ->get()
             );
 
-            $radiusList = Cache::remember('search_form_radius', 86400, fn() =>
-                DB::table('radius_master')
+            $radiusList = RadiusRange::options();
+
+            $highways = Cache::remember(MasterCache::HIGHWAYS, MasterCache::TTL, fn() =>
+                DB::table('highway')
                     ->where('is_active', 1)
                     ->where('is_deleted', 0)
-                    ->orderBy('radius')
+                    ->orderBy('highway_name')
                     ->get()
             );
 
-            $view->with(compact('categories', 'states', 'radiusList'));
+            $landmarks = Cache::remember(MasterCache::LANDMARKS, MasterCache::TTL, fn() =>
+                DB::table('landmark')
+                    ->where('is_active', 1)
+                    ->where('is_deleted', 0)
+                    ->orderBy('landmark_name')
+                    ->get()
+            );
+
+            // Bounds for the Radius slider - same ceiling the backend clamps to.
+            $radiusMin = RadiusRange::MIN;
+            $radiusMax = RadiusRange::max();
+
+            $view->with(compact(
+                'categories', 'states', 'radiusList', 'highways', 'landmarks',
+                'radiusMin', 'radiusMax'
+            ));
         });
 
         /* ========================================
@@ -78,7 +144,7 @@ class AppServiceProvider extends ServiceProvider
         ======================================== */
         View::composer('superadm.admin-booking.search-form', function ($view) {
 
-            $firstCategoryName = Cache::remember('admin_first_category', 3600, fn() =>
+            $firstCategoryName = Cache::remember(MasterCache::FIRST_CATEGORY, MasterCache::TTL, fn() =>
                 DB::table('category')
                     ->where('is_active', 1)
                     ->where('is_deleted', 0)
@@ -94,13 +160,7 @@ class AppServiceProvider extends ServiceProvider
                     ->get()
             );
 
-            $radiusList = Cache::remember('search_form_radius', 86400, fn() =>
-                DB::table('radius_master')
-                    ->where('is_active', 1)
-                    ->where('is_deleted', 0)
-                    ->orderBy('radius')
-                    ->get()
-            );
+            $radiusList = RadiusRange::options();
 
             $view->with(compact('firstCategoryName', 'states', 'radiusList'));
         });

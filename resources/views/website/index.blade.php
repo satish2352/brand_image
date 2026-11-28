@@ -1,9 +1,9 @@
 <style>
     .media-card-hording {
-        background: #fff;
+        background: #FFFFFF;
         border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
     }
 
     /* IMAGE TOP */
@@ -74,57 +74,152 @@
         }
     }
 </style>
-@if ($sliders->count())
+{{-- ================= HERO =================
+     The admin-managed slider is the full-bleed background; the headline,
+     copy and calls to action sit over it. --}}
+<section class="bi-hero">
 
-    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+    <div class="bi-hero-bg">
+        @if ($sliders->count())
 
-        <div class="carousel-inner">
+            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
 
-            @foreach ($sliders as $key => $slider)
-                <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
+                <div class="carousel-inner">
 
-                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
-                        class="d-block w-100 carousel-img"
-                        data-desktop="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
-                        data-mobile="{{ config('fileConstants.IMAGE_VIEW') . $slider->mobile_image }}"
-                        alt="Home Slider {{ $key + 1 }}">
+                    @foreach ($sliders as $key => $slider)
+                        <div class="carousel-item {{ $key === 0 ? 'active' : '' }}">
+
+                            <img src="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
+                                class="d-block w-100 carousel-img"
+                                loading="{{ $key === 0 ? 'eager' : 'lazy' }}" decoding="async"
+                                data-desktop="{{ config('fileConstants.IMAGE_VIEW') . $slider->desktop_image }}"
+                                data-mobile="{{ config('fileConstants.IMAGE_VIEW') . $slider->mobile_image }}"
+                                alt="Home Slider {{ $key + 1 }}">
+
+                        </div>
+                    @endforeach
 
                 </div>
-            @endforeach
 
-        </div>
+                {{-- CONTROLS --}}
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                    data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
 
-        {{-- CONTROLS --}}
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
-            data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                    data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
 
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
-            data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </button>
-
-    </div>
-@else
-    {{-- NO SLIDER IMAGE --}}
-    <div class="d-flex align-items-center justify-content-center"
-        style="height: calc(100vh - 90px); background:#f5f5f5;">
-
-        <div class="text-center">
-            <i class="bi bi-image text-muted" style="font-size:60px;"></i>
-            <h4 class="mt-3 text-muted">No image uploaded</h4>
-            <p class="text-muted">Please upload home slider images from admin panel</p>
-        </div>
-
+            </div>
+        @else
+            {{-- No slider uploaded yet — the hero still reads correctly on a
+                 plain brand-dark background instead of collapsing. --}}
+            <div class="bi-hero-fallback"></div>
+        @endif
     </div>
 
-@endif
+    <div class="bi-hero-inner">
+        <div class="container">
 
+            <h1 class="bi-hero-title" data-aos="fade-up">
+                <span class="bi-hero-line1">Maharashtra's Outdoor </span>
+                <span class="bi-hero-line2">Media Paltform</span>
+            </h1>
 
+            <p class="bi-hero-sub" data-aos="fade-up" data-aos-delay="100">
+              Brand Adda is a technology-driven OOH media platform that 
+              fragmented outdoor advertising inventory onto one searchable ecosystem
+            </p>
+
+            <div class="bi-hero-actions" data-aos="fade-up" data-aos-delay="200">
+                <a href="{{ route('website.explore') }}" class="bi-hero-btn bi-hero-btn-solid">
+                    <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                    <span>Explore the Map</span>
+                </a>
+                <a href="#mediaSearch" class="bi-hero-btn bi-hero-btn-ghost">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <span>Search Media</span>
+                </a>
+            </div>
+
+            {{-- The real map page, framed under the buttons the way the reference
+                 floats its product shot. ?embed=1 drops the site header inside
+                 the frame.
+
+                 This is a whole second page — its own Laravel render, its own
+                 copy of the stylesheets, Leaflet, and a marker for every active
+                 hoarding — so when it loads matters as much as what it loads.
+                 loading="lazy" was not enough: the panel sits roughly one screen
+                 down, well inside the distance at which the browser decides a
+                 lazy frame is "about to be needed" and fetches it anyway, so it
+                 was competing with the hero image for bandwidth on every visit.
+
+                 Holding the URL in data-src instead means nothing is requested
+                 until the panel is genuinely scrolled to, and then only once. --}}
+            {{-- The panel frames the Map page, so it is dropped whenever that
+                 page is closed to this visitor: a shared-shortlist client, or
+                 anyone whose access window has run out. Otherwise the frame
+                 just loads the blocked notice inside the hero. --}}
+            @php
+                $mapClosed = (session()->has('shared_link_token') && !site_admin())
+                    || (isset($searchAccess) && $searchAccess['allowed'] === false);
+            @endphp
+            @unless ($mapClosed)
+                <div class="bi-hero-panel" data-aos="fade-up" data-aos-delay="300">
+                    <iframe class="bi-hero-frame" data-src="{{ route('website.explore') }}?embed=1"
+                        title="Explore available outdoor media on the map" loading="lazy"></iframe>
+                </div>
+            @endunless
+
+        </div>
+    </div>
+</section>
+
+{{-- Loads the framed map page the moment its panel actually comes into view.
+     Deliberately not deferred to a separate file: it has to be able to start
+     the load before the rest of the page's JavaScript has finished arriving. --}}
+<script>
+    (function () {
+        var frame = document.querySelector('.bi-hero-frame[data-src]');
+        if (!frame) return;
+
+        function load() {
+            var src = frame.getAttribute('data-src');
+            if (!src) return;
+            frame.removeAttribute('data-src');
+            frame.src = src;
+        }
+
+        // No IntersectionObserver (old browsers) — fall back to loading it once
+        // the rest of the page has finished, which is still later than the
+        // browser's own lazy heuristic was firing.
+        if (!('IntersectionObserver' in window)) {
+            window.addEventListener('load', load);
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                observer.disconnect();
+                load();
+            });
+        }, {
+            // A small margin so the map has a moment to draw before it is
+            // properly on screen, without pre-loading it from the top of the page.
+            rootMargin: '200px 0px'
+        });
+
+        observer.observe(frame);
+    })();
+</script>
 
 <!-- FEATURES SECTION -->
-<div class="list-section pt-80 pb-80">
+{{-- Lifted so it overlaps the bottom of the hero, the way the reference floats
+     its panel over the artwork. --}}
+<div class="list-section bi-float-panel pt-80 pb-80">
     <div class="container">
 
         <div class="row d-flex justify-content-center">
@@ -137,7 +232,7 @@
                     </div>
                     <div class="content">
                         <h3>Wide Media Reach</h3>
-                        <p>Extensive outdoor media coverage <br>across prime locations in India.</p>
+                        <p>Extensive outdoor media coverage <br>across prime locations in Maharashtra.</p>
                     </div>
                 </div>
             </div>
@@ -175,7 +270,114 @@
 <!-- END FEATURES SECTION -->
 
 <!-- Search Bar Section -->
-@include('website.search-form')
+{{-- id is the target of the hero's "Search Media" button; it lives here rather
+     than in the shared partial, which the /search page also renders. --}}
+<div id="mediaSearch">
+    @php
+        $onSharedShortlist = session()->has('shared_link_token') && !site_admin();
+
+        // The access window has closed. The form would only ever bounce off the
+        // middleware, so the panel that replaces it carries the message and the
+        // way forward instead. $searchAccess comes from the view composer.
+        $accessClosed = isset($searchAccess) && $searchAccess['allowed'] === false;
+        $previewEnded = $accessClosed && ($searchAccess['reason'] ?? null) === 'preview_expired';
+
+        // Signed in, trial already spent, and nothing ran out just now: they
+        // came back rather than timed out. The session was consumed once and
+        // does not reopen by returning, so they get the account experience
+        // instead of an expiry notice.
+        //
+        // Same test the expiry modal uses, and it has to stay that way: a
+        // window that closed minutes ago puts the modal up on every page, and
+        // this panel greeting them with "Welcome back" underneath it would
+        // have the page saying two different things at once.
+        $returningUser = $accessClosed
+            && !$previewEnded
+            && ($searchAccess['trial_used'] ?? false)
+            && !($searchAccess['just_ended'] ?? false)
+            && !session()->has('search_session_expired');
+
+        $accountName = optional(auth('website')->user())->name;
+    @endphp
+
+    @if ($onSharedShortlist)
+        {{-- A visitor on a shared shortlist gets a way back to it instead of the
+             filters: the search results are closed to them, so a form that only
+             ever bounces would be a dead end. --}}
+        <div class="container shared-cta">
+            <div class="bi-media-empty">
+                <i class="bi bi-collection" aria-hidden="true"></i>
+                <h4>Your shortlist is ready</h4>
+                <p>
+                    Our team has shortlisted hoardings for your requirement. Open your
+                    shortlist to review them and add the ones you want to your cart.
+                </p>
+                <a href="{{ route('shared.link.show', session('shared_link_token')) }}"
+                    class="bi-media-empty-btn">
+                    View my shortlist
+                </a>
+            </div>
+        </div>
+    @elseif ($accessClosed)
+        <div class="container shared-cta">
+            <div class="bi-media-empty">
+
+                @if ($previewEnded)
+                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    <h4>Your free preview has ended.</h4>
+                    <p>Please Login / Register to continue.</p>
+                    <div class="sa-modal-actions">
+                        <button type="button" class="sa-btn sa-btn-primary" data-sa-close
+                            data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
+                        <button type="button" class="sa-btn sa-btn-ghost" data-sa-close
+                            data-bs-toggle="modal" data-bs-target="#authModal"
+                            onclick="if (window.showSignup) showSignup();">Register</button>
+                    </div>
+                @elseif ($returningUser)
+                    {{-- A user coming back after their trial was spent — days
+                         ago, perhaps. "Your session has ended" would be a
+                         puzzle: nothing ended today. They are simply an
+                         account holder without search access. --}}
+                    <i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>
+                    <h4>Welcome back{{ $accountName ? ', ' . $accountName : '' }}!</h4>
+                    <p>
+                        Your search session has already been used. Our team can take it
+                        from here — check on what you have sent us, or tell us about a
+                        new campaign.
+                    </p>
+                    <div class="sa-modal-actions">
+                        <a href="{{ route('website.requirement.mine') }}" class="sa-btn sa-btn-ghost">
+                            <i class="bi bi-clipboard-check" aria-hidden="true"></i> My Requirements
+                        </a>
+                        <a href="{{ route('website.requirement.create') }}" class="sa-btn sa-btn-primary">
+                            <i class="bi bi-plus-lg" aria-hidden="true"></i> Share New Requirement
+                        </a>
+                        <a href="tel:{{ config('portal_access.contact_phone') }}" class="sa-btn sa-btn-ghost">
+                            <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                            Contact Brand Adda Team
+                        </a>
+                    </div>
+                @else
+                    <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    <h4>Your search session has ended.</h4>
+                    <p>Our team can take it from here — call us, or send us your requirement.</p>
+                    <div class="sa-modal-actions">
+                        <a href="tel:{{ config('portal_access.contact_phone') }}" class="sa-btn sa-btn-ghost">
+                            <i class="bi bi-telephone-fill" aria-hidden="true"></i>
+                            {{ config('portal_access.contact_phone') }}
+                        </a>
+                        <a href="{{ route('website.requirement.create', ['from' => 'expired']) }}"
+                            class="sa-btn sa-btn-primary">
+                            <i class="bi bi-pencil-square" aria-hidden="true"></i> Share Your Requirement
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @else
+        @include('website.search-form')
+    @endif
+</div>
 <!-- end Bar Section -->
 <!-- SERVICES SECTION -->
 <section class="services-section">
@@ -192,71 +394,83 @@
         </div>
 
 
+        @php
+            // One definition per card, in display order. Icons stay on the
+            // bootstrap-icons set the layout already loads.
+            $services = [
+                [
+                    'title' => 'Traditional OOH',
+                    'desc' => 'Billboards, hoardings, and unipoles across prime locations.',
+                    'icon' => 'bi-display',
+                    'image' => 'traditional_ooh.webp',
+                ],
+                [
+                    'title' => 'Digital Displays',
+                    'desc' => 'LED screens and digital billboards with dynamic content.',
+                    'icon' => 'bi-layers',
+                    'image' => 'digital_displays.webp',
+                ],
+                [
+                    'title' => 'Wall Painting',
+                    'desc' => 'Large-scale wall murals and paintings for lasting impressions.',
+                    'icon' => 'bi-brush',
+                    'image' => 'wall_painting.webp',
+                ],
+                [
+                    'title' => 'Mall Media',
+                    'desc' => 'Strategic placements in shopping malls to reach consumers.',
+                    'icon' => 'bi-shop',
+                    'image' => 'mall_media.webp',
+                ],
+                [
+                    'title' => 'Office Branding',
+                    'desc' => 'Corporate signage and office branding solutions.',
+                    'icon' => 'bi-building',
+                    'image' => 'office_branding.webp',
+                ],
+                [
+                    'title' => 'Transit Media',
+                    'desc' => 'Bus, metro, and auto advertising for mobile exposure.',
+                    'icon' => 'bi-train-front',
+                    'image' => 'transit_media.webp',
+                ],
+                [
+                    'title' => 'Airport Branding',
+                    'desc' => 'Premium airport advertising targeting affluent travelers.',
+                    'icon' => 'bi-airplane',
+                    'image' => 'airport_branding.webp',
+                ],
+                [
+                    'title' => 'Wall Wraps',
+                    'desc' => 'Full building wraps and facade branding for landmarks.',
+                    'icon' => 'bi-palette',
+                    'image' => 'wall_wraps.webp',
+                ],
+            ];
+        @endphp
+
         <div class="row g-4">
 
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon"><i class="bi bi-display"></i></div>
-                    <h4>Traditional OOH</h4>
-                    <p>Billboards, hoardings, and unipoles across prime locations.</p>
-                </div>
-            </div>
+            @foreach ($services as $service)
+                <div class="col-lg-3 col-md-6">
+                    <div class="service-card">
 
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon"><i class="bi bi-layers"></i></div>
-                    <h4>Digital Displays</h4>
-                    <p>LED screens and digital billboards with dynamic content.</p>
-                </div>
-            </div>
+                        {{-- Decorative: the copy beside it already names the service,
+                             so the photo is hidden from screen readers and its alt
+                             is left empty. --}}
+                        <div class="service-media" aria-hidden="true">
+                            <img src="{{ asset('assets/img/' . $service['image']) }}" alt=""
+                                loading="lazy" decoding="async" width="1536" height="1024">
+                        </div>
 
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon highlight"><i class="bi bi-brush"></i></div>
-                    <h4>Wall Painting</h4>
-                    <p>Large-scale wall murals and paintings for lasting impressions.</p>
+                        <div class="service-icon"><i class="bi {{ $service['icon'] }}"></i></div>
+                        {{-- Escaped first, then the FIRST space becomes a break, so every
+                             title reads as two lines regardless of how wide it would fit. --}}
+                        <h4>{!! preg_replace('/ /', ' <br>', e($service['title']), 1) !!}</h4>
+                        <!-- <p>{{ $service['desc'] }}</p> -->
+                    </div>
                 </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon"><i class="bi bi-shop"></i></div>
-                    <h4>Mall Media</h4>
-                    <p>Strategic placements in shopping malls to reach consumers.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon"><i class="bi bi-building"></i></div>
-                    <h4>Office Branding</h4>
-                    <p>Corporate signage and office branding solutions.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon"><i class="bi bi-train-front"></i></div>
-                    <h4>Transit Media</h4>
-                    <p>Bus, metro, and auto advertising for mobile exposure.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon"><i class="bi bi-airplane"></i></div>
-                    <h4>Airport Branding</h4>
-                    <p>Premium airport advertising targeting affluent travelers.</p>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon"><i class="bi bi-palette"></i></div>
-                    <h4>Wall Wraps</h4>
-                    <p>Full building wraps and facade branding for landmarks.</p>
-                </div>
-            </div>
+            @endforeach
 
         </div>
     </div>
@@ -269,7 +483,10 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="section-title hording-section-title">
-                    <h3><span class="orange-text">Hoardings / Billboards</h3>
+                    <span class="bi-eyebrow">Premium Inventory</span>
+                    {{-- the span was left unclosed here, which handed the rest of the
+                         document to it until the browser repaired it --}}
+                    <h3 class="bi-section-title">Hoardings / <span class="accent">Billboards</span></h3>
                     <p>Turn busy roads into powerful brand touchpoints with premium hoardings and billboard solutions.
                     </p>
                 </div>
@@ -280,15 +497,6 @@
 
         <div class="hoarding-slider-wrapper position-relative">
 
-            <!-- Custom Navigation -->
-            <div class="custom-swiper-nav">
-                <div class="swiper-btn swiper-btn-prev">
-                    <i class="fas fa-chevron-left"></i>
-                </div>
-                <div class="swiper-btn swiper-btn-next">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-            </div>
             <div class="swiper hoarding-slider mb-4">
                 <div class="swiper-wrapper">
 
@@ -301,20 +509,29 @@
                                 <div class="single-latest-news">
 
                                     {{-- <div class="latest-news-bg"
-                                    style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"  class="card-img-fit">
+                                    style="background-image:url('{{ \App\Support\MediaImageUrl::for($media->first_image) }}')"  class="card-img-fit">
                         </div> --}}
                                     @php
                                         $isBillboard = (int) $media->category_id === 1;
                                         $isBooked = (int) ($media->is_booked ?? 0);
+                                        // Flagged "Not Available" by the admin: shown, but never bookable.
+                                        $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
                                         $width = (float) ($media->width ?? 0);
                                         $height = (float) ($media->height ?? 0);
                                         $sqft = $width * $height;
                                     @endphp
-                                    <div class="latest-news-bg"
-                                        style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')"
-                                        class="card-img-fit">
+                                    <div class="latest-news-bg card-img-fit">
 
-                                        @if ($isBooked === 1)
+                                        <img src="{{ \App\Support\MediaImageUrl::for($media->first_image) }}"
+                                            loading="lazy" decoding="async"
+                                            alt="{{ $media->area_name ?? $media->category_name }}"
+                                            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+
+                                        @if ($isNotAvailable)
+
+                                            <span class="media-badge not-available">Ask For Availability</span>
+
+                                        @elseif ($isBooked === 1)
                                             <span class="media-badge booked">Booked</span>
                                         @else
                                             <span class="media-badge available">Available</span>
@@ -324,10 +541,12 @@
 
                                     <div class="news-text-box">
 
-                                        {{-- <h3>{{ $media->media_title ?? $media->category_name }}</h3> --}}
+                                        {{-- <h3>{{ $media->media_title ?: $media->category_name }}</h3> --}}
                                         <h3 style="font-size: 21px;">
                                             <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                                                {{ \Illuminate\Support\Str::limit(($media->area_name ?? $media->category_name) . ' ' . $media->facing, 25, '...') }}
+                                                {{-- Same pairing the search result cards use: the media's own
+                                                     title, falling back to its category, then the area. --}}
+                                                {{ \Illuminate\Support\Str::limit(ucfirst($media->media_title ?: $media->category_name) . ' ' . $media->area_name, 25, '...') }}
                                             </a>
                                         </h3>
 
@@ -366,7 +585,7 @@
                                                 <span>View on Map</span>
                                             </a>
                                             @if (!empty($media->panorama_image))
-                                                <a href="{{ url('./panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image)) }}"
+                                                <a href="{{ url('./panorama.html?img=' . urlencode(\App\Support\MediaImageUrl::for($media->panorama_image))) }}"
                                                     target="_blank"
                                                     class="text-muted d-inline-flex align-items-center gap-1">
 
@@ -379,13 +598,15 @@
                                         @php
                                             $isBillboard = (int) $media->category_id === 1;
                                             $isBooked = (int) ($media->is_booked ?? 0);
+                                            // Flagged "Not Available" by the admin: shown, but never bookable.
+                                            $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
                                         @endphp
 
                                         <div class="card-actions">
 
                                             {{-- ================= BILLBOARDS ================= --}}
                                             @if ($isBillboard)
-                                                @if ($isBooked === 0)
+                                                @if ($isBooked === 0 && !$isNotAvailable)
                                                     {{-- READ MORE --}}
                                                     <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
                                                         class="card-btn read">
@@ -431,7 +652,21 @@
                     @endforeach
                 </div>
             </div>
-            <!-- Arrows -->
+
+            {{-- Slider controls: prev/next on the right, sitting under the
+                 cards. The autoplay toggle and the progress dots used to sit
+                 on the left of this bar. --}}
+            <div class="bi-slider-bar">
+
+                <div class="bi-slider-group">
+                    <button type="button" class="swiper-btn swiper-btn-prev" aria-label="Previous slide">
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="swiper-btn swiper-btn-next" aria-label="Next slide">
+                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -445,16 +680,25 @@
         <div class="row">
             <div class="col-lg-8 offset-lg-2 text-center">
                 <div class="section-title">
-                    <h3><span class="orange-text">Other Media</h3>
+                    <span class="bi-eyebrow">Beyond Billboards</span>
+                    <h3 class="bi-section-title">Other <span class="accent">Media</span></h3>
                     <p>Extend your brand reach with strategic non-traditional media that captures attention in everyday
                         environments.</p>
                 </div>
             </div>
         </div>
-        {{-- ================= OTHER MEDIA SECTION ================= --}}
+        {{-- ================= OTHER MEDIA SECTION =================
+             Billboards have their own slider above, so they are filtered out
+             here first: the list can arrive non-empty and still leave this row
+             with nothing in it, which @forelse alone would not catch. --}}
+        @php
+            $otherMediaList = collect($otherMedia)->reject(
+                fn($m) => $m->category_name === 'Hoardings/Billboards',
+            );
+        @endphp
         <div class="row">
 
-            @foreach ($otherMedia as $media)
+            @forelse ($otherMediaList as $media)
                 @if ($media->category_name !== 'Hoardings/Billboards')
                     @php
                         $width = (float) ($media->width ?? 0);
@@ -463,13 +707,15 @@
                     @endphp
                     <div class="col-lg-4 col-md-6 mb-5">
                         <div class="media-card-hording">
-                            <div class="media-img"
-                                style="background-image:url('{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}')">
-                            </div>
+                            <img class="media-img"
+                                src="{{ \App\Support\MediaImageUrl::for($media->first_image) }}"
+                                loading="lazy" decoding="async"
+                                alt="{{ $media->area_name ?? $media->category_name }}"
+                                style="object-fit:cover;">
                             <div class="media-content">
                                 <h3 style="font-size: 21px;">
                                     <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
-                                        style="color: black">
+                                        style="color: #0F172A">
                                         {{ $media->area_name ?? $media->category_name }} {{ $media->facing }}
                                     </a>
                                 </h3>
@@ -503,13 +749,15 @@
                                 @php
                                     $isBillboard = (int) $media->category_id === 1;
                                     $isBooked = (int) ($media->is_booked ?? 0);
+                                    // Flagged "Not Available" by the admin: shown, but never bookable.
+                                    $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
                                 @endphp
 
                                 <div class="card-actions">
 
                                     {{-- ================= BILLBOARDS ================= --}}
                                     @if ($isBillboard)
-                                        @if ($isBooked === 0)
+                                        @if ($isBooked === 0 && !$isNotAvailable)
                                             {{-- READ MORE --}}
                                             <a href="{{ route('website.media-details', base64_encode($media->id)) }}"
                                                 class="card-btn read">
@@ -557,86 +805,136 @@
                     </div>
 
                 @endif
-            @endforeach
+            @empty
+                {{-- Nothing to show. The heading above promises a row of cards,
+                     so an empty section reads as a page that failed to load
+                     rather than as a catalogue that is still being filled. --}}
+                <div class="col-12">
+                    <div class="bi-media-empty">
+                        <i class="bi bi-collection" aria-hidden="true"></i>
+                        <h4>No other media listed yet</h4>
+                        <p>
+                            We are adding transit, mall, airport and wall media to the
+                            platform. Tell us what you are looking for and our team will
+                            source it for you.
+                        </p>
+                    </div>
+                </div>
+            @endforelse
         </div>
 
     </div>
 </div>
 
 <!-- PROCESS SECTION -->
-<section class="work-process-section">
+<!-- JOURNEY SECTION -->
+<section class="journey-section">
     <div class="container">
 
-
-        <div class="process-header text-center">
-            <span class="process-subtitle">OUR PROCESS</span>
-            <h2 class="process-title">How We <span>Work</span></h2>
-            <p class="process-desc">
-                A seamless 6-step process to take your outdoor advertising
-                from concept to city-wide visibility.
+        <div class="journey-header" data-aos="fade-up">
+            <span class="bi-eyebrow">How It Works</span>
+            <h2 class="journey-title">Our <span class="accent">Long-Term</span> Journey</h2>
+            <!-- <span class="journey-rule" aria-hidden="true"></span> -->
+            <p class="journey-desc">
+                From discovery to impact &mdash; a seamless journey for your OOH success.
             </p>
         </div>
 
-        <!-- Process Timeline -->
-        <div class="process-timeline justify-content-center align-items-center">
+        {{-- An ordered list: these are six numbered steps, and the arrows between
+             them are decoration drawn by CSS rather than markup. --}}
+        <ol class="journey-steps">
 
-            <div class="timeline-line"></div>
+                <li class="journey-step" data-aos="fade-up" data-aos-delay="100">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
+                    <div class="journey-icon">
+                        {{-- The step number is drawn into the artwork, so it is not
+                             repeated as markup — only as the label a screen reader
+                             hears, which would otherwise lose the ordering. --}}
+                        <img src="{{ asset('assets/img/journey/discover.webp') }}" alt="Step 01"
+                            decoding="async" width="256" height="256">
+                    </div>
+                    <h4>Discover</h4>
+                    <p>Explore the right OOH opportunities across locations.</p>
+                </li>
 
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-search"></i>
-                    <span class="step-no">01</span>
-                </div>
-                <h4>Search</h4>
-                <p>Browse our extensive inventory of outdoor media locations across India.</p>
-            </div>
+                <li class="journey-step" data-aos="fade-up" data-aos-delay="200">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
+                    <div class="journey-icon">
+                        {{-- The step number is drawn into the artwork, so it is not
+                             repeated as markup — only as the label a screen reader
+                             hears, which would otherwise lose the ordering. --}}
+                        <img src="{{ asset('assets/img/journey/plan.webp') }}" alt="Step 02"
+                            decoding="async" width="256" height="256">
+                    </div>
+                    <h4>Plan</h4>
+                    <p>Create targeted campaigns that fit your goals.</p>
+                </li>
 
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-file-earmark-text"></i>
-                    <span class="step-no">02</span>
-                </div>
-                <h4>Make Plan</h4>
-                <p>Create a customized media plan based on your target audience and budget.</p>
-            </div>
+                <li class="journey-step" data-aos="fade-up" data-aos-delay="300">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
+                    <div class="journey-icon">
+                        {{-- The step number is drawn into the artwork, so it is not
+                             repeated as markup — only as the label a screen reader
+                             hears, which would otherwise lose the ordering. --}}
+                        <img src="{{ asset('assets/img/journey/availability.webp') }}" alt="Step 03"
+                            decoding="async" width="256" height="256">
+                    </div>
+                    <h4>Check Availability</h4>
+                    <p>Get real-time inventory and availability.</p>
+                </li>
 
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-calendar-check"></i>
-                    <span class="step-no">03</span>
-                </div>
-                <h4>Book</h4>
-                <p>Reserve your preferred locations and timeframes with easy booking.</p>
-            </div>
+                <li class="journey-step" data-aos="fade-up" data-aos-delay="400">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
+                    <div class="journey-icon">
+                        {{-- The step number is drawn into the artwork, so it is not
+                             repeated as markup — only as the label a screen reader
+                             hears, which would otherwise lose the ordering. --}}
+                        <img src="{{ asset('assets/img/journey/book.webp') }}" alt="Step 04"
+                            decoding="async" width="256" height="256">
+                    </div>
+                    <h4>Book</h4>
+                    <p>Secure your preferred spaces with ease.</p>
+                </li>
 
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-check-circle"></i>
-                    <span class="step-no">04</span>
-                </div>
-                <h4>Approval</h4>
-                <p>Get quick approvals and clearances for your campaign materials.</p>
-            </div>
+                <li class="journey-step" data-aos="fade-up" data-aos-delay="500">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
+                    <div class="journey-icon">
+                        {{-- The step number is drawn into the artwork, so it is not
+                             repeated as markup — only as the label a screen reader
+                             hears, which would otherwise lose the ordering. --}}
+                        <img src="{{ asset('assets/img/journey/execute.webp') }}" alt="Step 05"
+                            decoding="async" width="256" height="256">
+                    </div>
+                    <h4>Execute</h4>
+                    <p>Bring your campaign to life with on-ground excellence.</p>
+                </li>
 
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-credit-card"></i>
-                    <span class="step-no">05</span>
-                </div>
-                <h4>Pay</h4>
-                <p>Secure and flexible payment options for your convenience.</p>
-            </div>
+                <li class="journey-step" data-aos="fade-up" data-aos-delay="600">
+                    {{-- The glowing dot that runs up the arrow into this step. Pure
+                         decoration, and the first step has no arrow before it. --}}
+                    <span class="journey-spark" aria-hidden="true"></span>
+                    <div class="journey-icon">
+                        {{-- The step number is drawn into the artwork, so it is not
+                             repeated as markup — only as the label a screen reader
+                             hears, which would otherwise lose the ordering. --}}
+                        <img src="{{ asset('assets/img/journey/report.webp') }}" alt="Step 06"
+                            decoding="async" width="256" height="256">
+                    </div>
+                    <h4>Report</h4>
+                    <p>Measure performance and see real impact.</p>
+                </li>
 
-            <div class="process-step">
-                <div class="process-circle">
-                    <i class="bi bi-rocket-takeoff"></i>
-                    <span class="step-no">06</span>
-                </div>
-                <h4>Go Live</h4>
-                <p>Watch your brand come to life across premium outdoor locations.</p>
-            </div>
-
-        </div>
+        </ol>
     </div>
 </section>
 
@@ -649,20 +947,21 @@
                 <span class="about-subtitle">ABOUT US</span>
 
                 <h2 class="about-title">
-                    Business Has Only Two Functions:
-                    <span>Marketing & Innovation</span>
+                    Powering the Future of 
+                    <span>Outdoor Advertising</span>
                 </h2>
 
                 <p>
-                    Brand Image Media Pvt Ltd is a highly skilled and dynamic advertising agency that specializes in
-                    assisting clients in reaching their target audiences through innovative and customized solutions.
-                    With our team of experienced professionals, we take great pride in our ability to comprehend your
-                    specific needs and offer creative services that can truly make a difference. </p>
+                   Brand Adda is a technology-driven OOH media platform that brings fragmented outdoor 
+                   advertising inventory onto one searchable ecosystem, helping brands and agencies 
+                   discover, plan and execute campaigns faster, more efficiently and with greater 
+                   transparency.  </p>
 
-                <p>With over 12 years of valuable experience in the field of Printing, Branding, Advertising, and
-                    Events, we have gained extensive knowledge and expertise in executing successful campaigns. Our
-                    agency, Brand Image Advertising, has been recognized with prestigious awards for our compelling
-                    advertising campaigns ...</p>
+                <p>Brand Adda is being built to create a connected OOH ecosystem where 
+                   brands, agencies, media owners and local OOH partners can discover opportunities, 
+                   plan campaigns and grow their business through one technology-driven platform. Our 
+                   objective is to make outdoor media more accessible, efficiently planned and better 
+                   utilized across urban, semi-urban and rural markets....</p>
 
                 <a href="{{ route('website.about') }}" class="about-btn">Know More</a>
             </div>
@@ -670,28 +969,20 @@
             <div class="col-lg-5 ms-lg-5">
                 <div class="stats-grid">
 
-                    <div class="stat-card">
-                        <i class="bi bi-award"></i>
-                        <h3 class="counter" data-target="12">0</h3>
-                        <span>Years Experience</span>
+                    <div class="stat-card stat-card-years">
+                        <span class="visually-hidden">12+ Years Experience</span>
                     </div>
 
-                    <div class="stat-card">
-                        <i class="bi bi-people"></i>
-                        <h3 class="counter" data-target="300">0</h3>
-                        <span>Happy Clients</span>
+                    <div class="stat-card stat-card-clients">
+                        <span class="visually-hidden">300+ Happy Clients</span>
                     </div>
 
-                    <div class="stat-card">
-                        <i class="bi bi-geo-alt"></i>
-                        <h3 class="counter" data-target="50">0</h3>
-                        <span>Cities Covered</span>
+                    <div class="stat-card stat-card-cities">
+                        <span class="visually-hidden">50+ Cities Covered</span>
                     </div>
 
-                    <div class="stat-card">
-                        <i class="bi bi-stars"></i>
-                        <h3 class="counter" data-target="500">0</h3>
-                        <span>Campaigns</span>
+                    <div class="stat-card stat-card-campaigns">
+                        <span class="visually-hidden">500+ Campaigns</span>
                     </div>
 
                 </div>
@@ -706,6 +997,8 @@
     <div class="container">
         <div class="cta-box text-center">
 
+            <span class="bi-eyebrow">Let's Talk</span>
+
             <h2>
                 Ready to Amplify Your <br>
                 <span>Brand Presence?</span>
@@ -717,11 +1010,13 @@
             </p>
 
             <div class="cta-actions">
-                <a href="{{ url('/contact-us') }}" class="btn-cta primary">
+                <a href="{{ url('/contact-us') }}" class="btn-cta primary" data-aos="fade-up" data-aos-delay="100" data-aos-duration="700"
+                    data-aos-easing="ease-out-cubic">
                     Get Free Quote <i class="bi bi-arrow-right"></i>
                 </a>
 
-                <a href="tel:+9177700 09506" class="btn-cta outline">
+                <a href="tel:+917770018173" class="btn-cta outline" data-aos="fade-up" data-aos-delay="220" data-aos-duration="700"
+                    data-aos-easing="ease-out-cubic">
                     <i class="bi bi-telephone"></i> Call Us Now
                 </a>
             </div>
@@ -732,8 +1027,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
-        new Swiper(".hoarding-slider", {
-            slidesPerView: 4,
+        const hoardingSwiper = new Swiper(".hoarding-slider", {
+            slidesPerView: 3,
             spaceBetween: 20,
             loop: true,
             centeredSlides: false,
@@ -741,6 +1036,17 @@
             navigation: {
                 nextEl: ".swiper-btn-next",
                 prevEl: ".swiper-btn-prev",
+            },
+
+            pagination: {
+                el: ".hoarding-pagination",
+                clickable: true,
+            },
+
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
             },
 
             breakpoints: {
@@ -754,13 +1060,35 @@
                     slidesPerView: 3
                 },
                 992: {
-                    slidesPerView: 4
+                    slidesPerView: 3
                 },
                 1200: {
-                    slidesPerView: 4
+                    slidesPerView: 3
                 }
             }
         });
+
+        // Autoplay toggle. Icon and aria-pressed track the real Swiper state
+        // rather than a separate flag, so they cannot drift out of sync.
+        const playBtn = document.getElementById('hoardingPlay');
+
+        if (playBtn && hoardingSwiper.autoplay) {
+            playBtn.addEventListener('click', function() {
+                const running = hoardingSwiper.autoplay.running;
+
+                if (running) {
+                    hoardingSwiper.autoplay.stop();
+                } else {
+                    hoardingSwiper.autoplay.start();
+                }
+
+                const nowRunning = hoardingSwiper.autoplay.running;
+                playBtn.setAttribute('aria-pressed', nowRunning ? 'true' : 'false');
+                playBtn.setAttribute('aria-label',
+                    nowRunning ? 'Pause automatic sliding' : 'Start automatic sliding');
+                playBtn.querySelector('i').className = nowRunning ? 'fas fa-pause' : 'fas fa-play';
+            });
+        }
 
     });
 </script>

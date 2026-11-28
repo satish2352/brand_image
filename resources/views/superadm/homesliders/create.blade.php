@@ -11,7 +11,7 @@
 
                 {{-- DESKTOP IMAGE --}}
                 <div class="mb-3">
-                    <label>Desktop Image (2000 × 600) <span class="text-danger">*</span></label>
+                    <label>Desktop Image (2560 × 1700) <span class="text-danger">*</span></label>
                     <input type="file" id="desktop_image" name="desktop_image"
                         class="form-control @error('desktop_image') is-invalid @enderror">
                     <div id="desktop_error" class="text-danger mt-1"></div>
@@ -23,7 +23,7 @@
 
                 {{-- MOBILE IMAGE --}}
                 <div class="mb-3">
-                    <label>Mobile Image (2000 × 900) <span class="text-danger">*</span></label>
+                    <label>Mobile Image (1080 × 2280) <span class="text-danger">*</span></label>
                     <input type="file" id="mobile_image" name="mobile_image"
                         class="form-control @error('mobile_image') is-invalid @enderror">
                     <div id="mobile_error" class="text-danger mt-1"></div>
@@ -60,8 +60,8 @@
                     return false;
                 }
 
-                // size (1MB)
-                if (file.size > 1024 * 1024) {
+                // size (2MB)
+                if (file.size > 2 * 1024 * 1024) {
                     errorBox.text(options.sizeError);
                     input.value = '';
                     return false;
@@ -83,22 +83,22 @@
             // Desktop change
             $('#desktop_image').on('change', function() {
                 validateImage(this, {
-                    width: 2000,
-                    height: 600,
+                    width: 2560,
+                    height: 1700,
                     error: '#desktop_error',
-                    sizeError: 'Desktop image size must be less than 1 MB',
-                    dimensionError: 'Desktop image size must be exactly 2000 x 600 pixels'
+                    sizeError: 'Desktop image size must be less than 2 MB',
+                    dimensionError: 'Desktop image size must be exactly 2560 x 1700 pixels'
                 });
             });
 
             // Mobile change
             $('#mobile_image').on('change', function() {
                 validateImage(this, {
-                    width: 2000,
-                    height: 900,
+                    width: 1080,
+                    height: 2280,
                     error: '#mobile_error',
-                    sizeError: 'Mobile image size must be less than 1 MB',
-                    dimensionError: 'Mobile image size must be exactly 2000 x 900 pixels'
+                    sizeError: 'Mobile image size must be less than 2 MB',
+                    dimensionError: 'Mobile image size must be exactly 1080 x 2280 pixels'
                 });
             });
 

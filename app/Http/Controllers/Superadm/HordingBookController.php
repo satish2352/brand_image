@@ -38,7 +38,10 @@ class HordingBookController extends Controller
     ')
             ->first();
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange', 'areaTypes'));
+        $highways = DB::table('highway')->where('is_active', 1)->where('is_deleted', 0)->orderBy('highway_name')->get();
+        $landmarks = DB::table('landmark')->where('is_active', 1)->where('is_deleted', 0)->orderBy('landmark_name')->get();
+
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange', 'areaTypes', 'highways', 'landmarks'));
     }
 
     public function search(Request $request)
@@ -60,7 +63,9 @@ class HordingBookController extends Controller
             'available_days',
             'size_id',
             'min_area',   // ADD THIS
-            'max_area'    // ADD THIS
+            'max_area',   // ADD THIS
+            'highway_id',     // Highway filter (single/multiple)
+            'landmark_ids'    // Landmark filter (multiple)
         ]);
 
         $mediaData = $this->homeService->searchMedia($filters);
@@ -100,8 +105,10 @@ class HordingBookController extends Controller
             ])->render();
         }
 
+        $highways = DB::table('highway')->where('is_active', 1)->where('is_deleted', 0)->orderBy('highway_name')->get();
+        $landmarks = DB::table('landmark')->where('is_active', 1)->where('is_deleted', 0)->orderBy('landmark_name')->get();
 
-        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange', 'areaTypes'));
+        return view('superadm.admin-booking.search', compact('mediaList', 'filters', 'totalCount', 'sizes', 'areaRange', 'areaTypes', 'highways', 'landmarks'));
     }
     public function getMediaDetailsAdmin($mediaId)
     {
@@ -146,6 +153,17 @@ class HordingBookController extends Controller
             'gst_amount'   => 'required|numeric|min:0',
             'grand_total'  => 'required|numeric|min:0',
         ]);
+
+        // A vendor's pending or rejected media cannot be booked.
+        $bookable = DB::table('media_management')
+            ->where('id', (int) base64_decode((string) $request->media_id))
+            ->where('is_deleted', 0)
+            ->where('is_active', 1)
+            ->where(fn ($q) => $q->whereNull('approval_status')->orWhere('approval_status', 'approved'))
+            ->exists();
+        if (!$bookable) {
+            return back()->withInput()->with('error', 'This media is not available for booking (it is inactive or not approved).');
+        }
 
         try {
             $service->handleAdminBooking($request);

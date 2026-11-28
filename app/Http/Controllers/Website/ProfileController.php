@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Support\AdminSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -72,10 +73,10 @@ class ProfileController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
 
-        // Logout after password change
+        // Logout after password change — the new password applies to the
+        // website account only, so admin mode in this browser stays as it was.
         Auth::guard('website')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        AdminSession::invalidateKeepingAdmin($request);
 
         return redirect()->route('website.home')
             ->with('password_changed', 'Password changed successfully. Please log in with your new password.');

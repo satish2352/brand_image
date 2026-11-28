@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
+use App\Support\SessionFixation;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\WebsiteUser;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,7 @@ class GoogleAuthController extends Controller
         );
 
         Auth::guard('website')->login($user);
-        request()->session()->regenerate();
+        SessionFixation::protect(request());
         request()->session()->forget('order_id'); // clear stale order from any previous session
 
         return redirect()->route('dashboard.home');

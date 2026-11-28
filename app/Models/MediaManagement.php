@@ -44,19 +44,83 @@ class MediaManagement extends Model
         'area_auto',
         'radius_id',
         'areatype_id',
+        'highway_id',
+        'hoarding_code',
         // 'video_link',
         'panorama_image',
         'is_active',
+        'is_available',
         'is_deleted',
+        // Vendor Inventory module: vendor submissions wait for approval.
+        'approval_status',
+        'rejection_reason',
+        'submitted_by_vendor_id',
+        'submitted_at',
+        'reviewed_by',
+        'reviewed_at',
+        // The old roadstar_* columns are unused (RoadStar was removed) and stay out of the form.
     ];
+
+    /** Site code shown everywhere a single media item is named. */
+    public function getDisplayCodeAttribute(): string
+    {
+        return $this->hoarding_code ?: ($this->media_code ?: '#' . $this->id);
+    }
 
     public function images()
     {
         return $this->hasMany(MediaImage::class, 'media_id');
     }
 
+    /**
+     * Per-panel dimensions (Bus Shelter's Front / Back / Side). Empty for
+     * categories that are a single Width x Height.
+     */
+    public function locationSizes()
+    {
+        return $this->hasMany(MediaLocationSize::class, 'media_id');
+    }
+
+    /**
+     * The panels keyed by position, so a form or a details page can ask for
+     * `$media->locationSizesByPosition['front']` without a lookup loop.
+     */
+    public function getLocationSizesByPositionAttribute()
+    {
+        return $this->locationSizes->keyBy('position');
+    }
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    /**
+     * Highway this hoarding belongs to (one highway per hoarding).
+     */
+    public function highway()
+    {
+        return $this->belongsTo(Highway::class, 'highway_id');
+    }
+
+    /**
+     * Stored TomTom Traffic Flow (refreshed every 15 days by the scheduler).
+     */
+    public function trafficData()
+    {
+        return $this->hasOne(HoardingTrafficData::class, 'media_id');
+    }
+
+    /**
+     * Landmarks tagged on this hoarding (many-to-many).
+     */
+    public function landmarks()
+    {
+        return $this->belongsToMany(
+            Landmark::class,
+            'media_landmark',
+            'media_id',
+            'landmark_id'
+        )->withTimestamps();
     }
 }

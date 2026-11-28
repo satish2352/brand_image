@@ -45,6 +45,12 @@ return [
             'driver' => 'session',
             'provider' => 'website_users',
         ],
+
+        /* ================= VENDOR PANEL ================= */
+        'vendor' => [
+            'driver' => 'session',
+            'provider' => 'vendors',
+        ],
     ],
 
     /*
@@ -74,6 +80,12 @@ return [
         'website_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\WebsiteUser::class,
+        ],
+
+        /* VENDOR PANEL ACCOUNTS */
+        'vendors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Vendor::class,
         ],
     ],
 

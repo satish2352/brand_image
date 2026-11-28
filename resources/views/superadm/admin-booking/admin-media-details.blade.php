@@ -259,6 +259,12 @@
                                 {{ $media->vendor_name }}</div>
                             <div class="col-6 mb-2"><strong class="font-weight-admin">Vendor Code:</strong>
                                 {{ $media->vendor_code }}</div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Hoarding Code:</strong>
+                                {{ $media->hoarding_code ?? '-' }}</div>
+                            <div class="col-6 mb-2"><strong class="font-weight-admin">Highway:</strong>
+                                {{ $media->highway_name ?? '-' }}</div>
+                            <div class="col-12 mb-2"><strong class="font-weight-admin">Landmarks:</strong>
+                                {{ $media->landmark_names ?? '-' }}</div>
                             <div class="col-6 mb-2">
                                 <strong class="font-weight-admin">Size:</strong>
                                 {{ number_format($width, 2) }} × {{ number_format($height, 2) }} ft

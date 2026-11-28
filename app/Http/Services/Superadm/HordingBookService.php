@@ -75,6 +75,22 @@ class HordingBookService
                 $request->from_date,
                 $request->to_date
             );
+
+            // Vendor Inventory module: the media's vendor hears about the booking,
+            // which also starts its Installation stage in Operations.
+            $media = \App\Models\MediaManagement::find(base64_decode($request->media_id));
+            if ($media && $media->vendor_id) {
+                \App\Support\VendorAudit::notifyVendor(
+                    $media->vendor_id,
+                    'booking_updated',
+                    'New booking – ' . $media->display_code,
+                    'Booked for ' . $request->signup_name . ' from ' . \Carbon\Carbon::parse($request->from_date)->format('d M Y')
+                        . ' to ' . \Carbon\Carbon::parse($request->to_date)->format('d M Y') . '. Brand Adda will upload the installation photos from the start date; you can see them in Operations.',
+                    route('vendor.operations', ['stage' => 'installation']),
+                    $media->id,
+                    $orderId
+                );
+            }
         });
 
         return true;

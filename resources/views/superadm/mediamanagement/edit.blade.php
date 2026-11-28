@@ -1,4 +1,4 @@
-@extends('superadm.layout.master')
+@extends($formLayout ?? 'superadm.layout.master')
 
 @section('styles')
     <style>
@@ -11,6 +11,9 @@
                                                                                                                                             display: none;
                                                                                                                                         } */
         #wallWrap,
+        #hoardingExtra,
+        #illuminationField,
+        #busShelterSection,
         #radiusSection {
             display: none;
         }
@@ -20,9 +23,12 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
-            <h4 class="mb-4">Edit Media</h4>
+            <h4 class="mb-4">{{ $formTitle ?? 'Edit Media' }}</h4>
+            @if (!empty($formIntro))
+                @include($formIntro)
+            @endif
 
-            <form method="POST" action="{{ route('media.update', $encodedId) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ $formAction ?? route('media.update', $encodedId) }}" enctype="multipart/form-data">
                 @csrf
                 {{-- <input type="hidden"
                     id="category_slug"
@@ -33,11 +39,6 @@
                 @endphp
 
                 <input type="hidden" id="category_slug" value="{{ $slug }}">
-
-                {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
-                <input type="hidden" name="state_id" id="state_id" value="{{ $media->state_id }}">
-                <input type="hidden" name="city_id" id="city_id" value="{{ $media->city_id }}">
-                {{-- <input type="hidden" name="city_id" value="{{ $media->city_id }}"> --}}
 
                 {{-- category disabled → keep value --}}
                 <input type="hidden" name="category_id" value="{{ $media->category_id }}">
@@ -56,23 +57,11 @@
                             @endforeach
                         </select>
                     </div>
-                    {{-- AREA --}}
-                    <div class="col-md-4 mb-3">
-                        <label>Area <span class="text-danger">*</span></label>
-                        {{-- <select name="area_id" class="form-control @error('area_id') is-invalid @enderror"> --}}
-
-                        <select name="area_id" id="area_id" class="form-control @error('area_id') is-invalid @enderror">
-                            @foreach ($areas as $area)
-                                <option value="{{ $area->id }}"
-                                    {{ old('area_id', $media->area_id) == $area->id ? 'selected' : '' }}>
-                                    {{ $area->common_stdiciar_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('area_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @if (!empty($lockedVendor))
+                        {{-- Vendor panel: the signed-in vendor, fixed. The server
+                             ignores any posted vendor_id there anyway. --}}
+                        <input type="hidden" name="vendor_id" id="vendor_id" value="{{ $lockedVendor->id }}">
+                    @else
                     <div class="col-md-4 mb-3">
                         <label>Vendor <span class="text-danger">*</span></label>
                         <select name="vendor_id" id="vendor_id"
@@ -92,10 +81,99 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    @endif
+                    @include('superadm.mediamanagement.partials.location-fields', ['fields' => ['state_id']])
+                </div>
+
+                <div class="row">
+                    @include('superadm.mediamanagement.partials.location-fields', [
+                        'fields' => ['district_id', 'city_id', 'area_id'],
+                    ])
+                </div>
+
+                {{-- ========== HOARDING CODE / HIGHWAY / LANDMARKS (Hoardings only) ========== --}}
+                <div id="hoardingExtra">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Highway</label>
+                            <select name="highway_id" id="highway_id"
+                                class="form-control @error('highway_id') is-invalid @enderror">
+                                <option value="">Select Highway</option>
+                                @foreach ($highways as $hw)
+                                    <option value="{{ $hw->id }}"
+                                        {{ old('highway_id', $media->highway_id ?? '') == $hw->id ? 'selected' : '' }}>
+                                        {{ $hw->highway_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('highway_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Landmarks <small class="text-muted">(select one or more)</small></label>
+                            <select name="landmark_ids[]" id="landmark_ids" multiple
+                                class="form-control landmark-select @error('landmark_ids') is-invalid @enderror">
+                                @foreach ($landmarks as $lm)
+                                    <option value="{{ $lm->id }}"
+                                        {{ collect(old('landmark_ids', $selectedLandmarks ?? []))->contains($lm->id) ? 'selected' : '' }}>
+                                        {{ $lm->landmark_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('landmark_ids')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ============ MEDIA TITLE (every category) ============ --}}
+                {{-- Outside #billboardsId on purpose: the website shows
+                     "Media Title + Area" as a site's name, so every category
+                     needs one, not just Hoardings. --}}
+                {{-- Latitude / Longitude sit here rather than down with Width and
+                     Height: they follow on from State → District → City → Area,
+                     and they fill this line for every category so Media Title is
+                     never left on a line of its own. --}}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Media Title <span class="text-danger">*</span></label>
+                        <input type="text" name="media_title" value="{{ old('media_title', $media->media_title) }}"
+                            class="form-control @error('media_title') is-invalid @enderror">
+                        @error('media_title')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Latitude <span class="text-danger">*</span></label>
+                        <input type="text" name="latitude" value="{{ old('latitude', $media->latitude) }}"
+                            class="form-control @error('latitude') is-invalid @enderror">
+                        @error('latitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Longitude <span class="text-danger">*</span></label>
+                        <input type="text" name="longitude" value="{{ old('longitude', $media->longitude) }}"
+                            class="form-control @error('longitude') is-invalid @enderror">
+                        @error('longitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
                 {{-- ================= BILLBOARD ================= --}}
                 <div class="row" id="billboardsId">
+                    <div class="col-md-4 mb-3">
+                        <label>Hoarding Code</label>
+                        {{-- editable so existing hoardings (added before auto-codes) can get/fix a code --}}
+                        <input type="text" name="hoarding_code" class="form-control"
+                            value="{{ old('hoarding_code', $media->hoarding_code ?? '') }}"
+                            placeholder="Auto-generated if left blank" @if (!empty($lockedVendor)) readonly @endif>
+                    </div>
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
 
@@ -108,14 +186,6 @@
                             value="{{ old('media_code', $media->media_code) }}">
                     </div>
 
-                    <div class="col-md-4 mb-3">
-                        <label>Media Title <span class="text-danger">*</span></label>
-                        <input type="text" name="media_title" value="{{ old('media_title', $media->media_title) }}"
-                            class="form-control @error('media_title') is-invalid @enderror">
-                        @error('media_title')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-4 mb-3">
                         <label>Facing <span class="text-danger">*</span></label>
                         <input type="text" name="facing" class="form-control @error('facing') is-invalid @enderror"
@@ -147,24 +217,64 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-4 mb-3">
-                        <label>Illumination <span class="text-danger">*</span></label>
-                        <select name="illumination_id" class="form-control @error('illumination_id') is-invalid @enderror">
-                            @foreach ($illuminations as $ill)
-                                <option value="{{ $ill->id }}"
-                                    {{ old('illumination_id', $media->illumination_id) == $ill->id ? 'selected' : '' }}>
-                                    {{ $ill->illumination_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-8 mb-3">
                         <label>Address <span class="text-danger">*</span></label>
                         <textarea name="address" class="form-control @error('address') is-invalid @enderror">{{ old('address', $media->address) }}</textarea>
                         @error('address')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
+
+                {{-- ================= BUS SHELTER ================= --}}
+                {{-- A shelter advertises on separate panels instead of one face,
+                     so it replaces Width/Height with a size per panel. --}}
+                @php $panels = $locationSizes ?? collect(); @endphp
+                <div class="row" id="busShelterSection">
+                    <div class="col-12 mb-2">
+                        <label class="fw-bold mb-0">Location Size (ft)</label>
+                        <div class="text-muted small">
+                            Enter the panels this shelter carries — width × height, then how many
+                            boards of that size. Leave a panel blank if it has none.
+                        </div>
+                    </div>
+
+                    @foreach (\App\Models\MediaLocationSize::POSITIONS as $position => $label)
+                        <div class="col-md-4 mb-3">
+                            <label>{{ $label }}</label>
+                            <div class="d-flex align-items-center">
+                                <input type="number" step="0.01" min="0"
+                                    name="location_sizes[{{ $position }}][width]"
+                                    value="{{ old('location_sizes.' . $position . '.width', optional($panels->get($position))->width) }}"
+                                    placeholder="Width"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.width') is-invalid @enderror">
+                                <span class="mx-2 text-muted">&times;</span>
+                                <input type="number" step="0.01" min="0"
+                                    name="location_sizes[{{ $position }}][height]"
+                                    value="{{ old('location_sizes.' . $position . '.height', optional($panels->get($position))->height) }}"
+                                    placeholder="Height"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.height') is-invalid @enderror">
+                                <span class="mx-2 text-muted">—</span>
+                                {{-- How many boards of this size sit at this
+                                     position. Blank means one. --}}
+                                <input type="number" step="1" min="1" max="99"
+                                    name="location_sizes[{{ $position }}][quantity]"
+                                    value="{{ old('location_sizes.' . $position . '.quantity', optional($panels->get($position))->quantity) }}"
+                                    placeholder="Qty" style="max-width:78px"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.quantity') is-invalid @enderror">
+                            </div>
+                            @error('location_sizes.' . $position . '.width')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('location_sizes.' . $position . '.height')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endforeach
+
+                    @error('location_sizes')
+                        <div class="col-12"><div class="text-danger small">{{ $message }}</div></div>
+                    @enderror
                 </div>
                 {{-- ================= MALL MEDIA ================= --}}
                 <div class="row" id="mallMedia">
@@ -296,7 +406,9 @@
 
                 {{-- ================= COMMON ================= --}}
                 <div class="row">
-                    <div class="col-md-3 mb-3">
+                    {{-- Hidden for Bus Shelter, which sizes each panel separately
+                         in #busShelterSection instead of having one face. --}}
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Width <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="width" name="width"
                             value="{{ old('width', $media->width) }}"
@@ -306,7 +418,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Height <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" id="height" name="height"
                             value="{{ old('height', $media->height) }}"
@@ -316,20 +428,24 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <label>Latitude <span class="text-danger">*</span></label>
-                        <input type="text" name="latitude" value="{{ old('latitude', $media->latitude) }}"
-                            class="form-control @error('latitude') is-invalid @enderror">
-                        @error('latitude')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-3 mb-3">
-                        <label>Longitude <span class="text-danger">*</span></label>
-                        <input type="text" name="longitude" value="{{ old('longitude', $media->longitude) }}"
-                            class="form-control @error('longitude') is-invalid @enderror">
-                        @error('longitude')
+                    {{-- Illumination is shared by more than one category (Hoardings
+                         and Bus Shelter), so it is its own toggleable column rather
+                         than part of a single category's section — two selects with
+                         the same name would both post and fight over the value.
+                         It sits in this line so it is never left on one of its own. --}}
+                    <div class="col-md-4 mb-3" id="illuminationField">
+                        <label>Illumination <span class="text-danger">*</span></label>
+                        <select name="illumination_id" id="illumination_id"
+                            class="form-control @error('illumination_id') is-invalid @enderror">
+                            <option value="">Select</option>
+                            @foreach ($illuminations as $ill)
+                                <option value="{{ $ill->id }}"
+                                    {{ old('illumination_id', $media->illumination_id) == $ill->id ? 'selected' : '' }}>
+                                    {{ $ill->illumination_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('illumination_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -357,12 +473,26 @@
                                 {{ $message }}
                             </div>
                         @enderror
+
+                        {{-- Current 360° image; replaced by a preview of a newly chosen file until Update is saved. --}}
+                        @php
+                            $panoUrl = !empty($media->panorama_image) ? \App\Support\MediaImageUrl::for($media->panorama_image) : null;
+                        @endphp
+                        <div id="panoramaPreviewBox" class="mt-2" @if (!$panoUrl) style="display:none" @endif
+                            data-current-src="{{ $panoUrl }}"
+                            data-current-view="{{ $panoUrl ? url('panorama.html') . '?img=' . urlencode($panoUrl) : '' }}">
+                            <div id="panoramaPreviewLabel" style="font-size:12px;font-weight:600;color:#475569;margin-bottom:4px">Current 360° image</div>
+                            <img id="panoramaPreview" src="{{ $panoUrl }}" alt="360° image preview"
+                                style="display:block;width:100%;max-width:320px;height:110px;object-fit:cover;border-radius:6px;border:1px solid #d9d9d9;background:#f1f5f9">
+                            <a id="panoramaViewLink" href="{{ $panoUrl ? url('panorama.html') . '?img=' . urlencode($panoUrl) : '#' }}" target="_blank" rel="noopener"
+                                style="display:inline-block;margin-top:4px;font-size:13px">View 360°</a>
+                        </div>
                     </div>
 
                 </div>
                 {{-- ================= WALL WRAP ================= --}}
                 <div class="row" id="wallWrap">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area (sq.ft) <span class="text-danger">*</span></label>
                         {{-- <input type="text" id="area_auto" name="area_auto"
                             value="{{ old('area_auto', $media->area_auto) }}" class="form-control" readonly> --}}
@@ -372,8 +502,11 @@
                 </div>
 
                 <div class="text-end">
-                    <a href="{{ route('media.list') }}" class="btn btn-secondary me-2">Cancel</a>
-                    <button class="btn btn-success">Update Media</button>
+                    <a href="{{ $cancelUrl ?? route('media.list') }}" class="btn btn-secondary me-2">Cancel</a>
+                    @if (!empty($extraSubmit))
+                        <button class="btn btn-secondary me-2" name="{{ $extraSubmit[0] }}" value="1">{{ $extraSubmit[1] }}</button>
+                    @endif
+                    <button class="btn btn-success">{{ $submitLabel ?? 'Update Media' }}</button>
                 </div>
 
             </form>
@@ -382,6 +515,179 @@
 @section('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+    {{-- Select2 for landmark multi-select --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        /* Make Select2 match the existing Bootstrap form-control dropdowns */
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-container--default .select2-selection--multiple {
+            position: relative;
+            /* match the height + rounding of the sibling .form-control inputs */
+            min-height: calc(1.5em + 0.75rem + 2px);
+            border: 1px solid #d9d9d9;
+            border-radius: 0.25rem;
+            padding: 2px 30px 2px 12px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            background-color: #fff;
+        }
+        /* placeholder / typed text — same size + vertical centring as the other fields */
+        .select2-container--default .select2-selection--multiple .select2-search__field {
+            font-size: 1rem;
+            height: calc(1.5em + 0.75rem - 2px);
+            line-height: calc(1.5em + 0.75rem - 2px);
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        /* native-style dropdown caret on the right */
+        .select2-container--default .select2-selection--multiple::after {
+            content: "";
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            width: 7px;
+            height: 7px;
+            border: solid #6c757d;
+            border-width: 0 2px 2px 0;
+            transform: translateY(-70%) rotate(45deg);
+            pointer-events: none;
+        }
+        .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
+            color: #6c757d;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15);
+            outline: 0;
+        }
+        /* selected value "chips" — clean rounded pills (label first, × after) */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            display: inline-flex !important;
+            align-items: center;
+            background-color: #f28123 !important;
+            border: none !important;
+            color: #fff !important;
+            border-radius: 16px !important;
+            padding: 4px 6px 4px 14px !important;
+            margin: 3px 3px !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            font-weight: 600 !important;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+            order: 1;
+            padding: 0 !important;
+            color: #fff !important;
+        }
+        /* the × remove button — a clean white cross in a soft circle, AFTER the label */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            order: 2;
+            position: static !important;
+            /* override select2's absolute positioning that overlaps the text */
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            transform: none !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin: 0 0 0 7px !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .25) !important;
+            color: #fff !important;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove span {
+            color: #fff !important;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background: rgba(255, 255, 255, .45) !important;
+            color: #fff !important;
+        }
+        /* dropdown option highlight in theme colour */
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #f28123;
+        }
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #fde3cf;
+            color: #b95e16;
+            font-weight: 600;
+        }
+        /* clear ✓ marker so the user can tell what's already selected,
+           and that clicking it again will remove it */
+        .select2-container--default .select2-results__option[aria-selected=true]::after {
+            content: "\2713";
+            float: right;
+            color: #f28123;
+            font-weight: 700;
+        }
+        .select2-container--default .select2-results__option[aria-selected=true]:hover::after {
+            content: "\2715";
+            font-size: 12px;
+            color: #d96f15;
+        }
+        .select2-container--default .select2-search--inline .select2-search__field {
+            margin-top: 0;
+        }
+        .select2-container .select2-selection--multiple .select2-selection__rendered {
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+    <script>
+        $(function() {
+            $('.landmark-select').select2({
+                placeholder: 'Select landmarks',
+                // no allowClear: its "clear all" × overlapped the dropdown caret;
+                // each chip has its own × to deselect individually instead.
+                allowClear: false,
+                width: '100%'
+            });
+
+            /* Location and Vendor are long lists — every area in a city,
+               every vendor on the platform — so all get a type-ahead.
+               Select2 fires a native change, so the cascade handlers in
+               partials/location-script keep working untouched. The Add
+               form does the same; the shared look lives in satish.css. */
+            $('.location-select, select#vendor_id').select2({
+                width: '100%',
+                placeholder: function () { return $(this).find('option:first').text(); },
+                // Always show the search box, however short the list is.
+                // Select2 hides it below a threshold by default, which meant
+                // Vendor — three active ones today — had no way to type into
+                // it while Area did. Same control, same behaviour, and the
+                // vendor list only grows.
+                minimumResultsForSearch: 0
+            });
+        });
+    </script>
+
+    @include('superadm.mediamanagement.partials.location-script', [
+        'selected' => [
+            'state'    => old('state_id', $media->state_id),
+            'district' => old('district_id', $media->district_id),
+            'city'     => old('city_id', $media->city_id),
+            'area'     => old('area_id', $media->area_id),
+        ],
+    ])
 
     <script>
         $(document).ready(function() {
@@ -439,6 +745,34 @@
             });
             $('#panorama_image').on('change', function() {
                 $(this).valid(); // ✅ trigger validation immediately
+
+                // Preview: the newly chosen 360° image replaces the current one on screen;
+                // clearing the field shows the saved image again.
+                var box = document.getElementById('panoramaPreviewBox');
+                var img = document.getElementById('panoramaPreview');
+                var label = document.getElementById('panoramaPreviewLabel');
+                var link = document.getElementById('panoramaViewLink');
+                if (box.dataset.blob) { URL.revokeObjectURL(box.dataset.blob); delete box.dataset.blob; }
+
+                var file = this.files && this.files[0];
+                if (file && /^image\//.test(file.type)) {
+                    var blob = URL.createObjectURL(file);
+                    box.dataset.blob = blob;
+                    img.src = blob;
+                    label.textContent = 'New 360° image (saved when you click Update)';
+                    label.style.color = '#c2410c';
+                    link.style.display = 'none';
+                    box.style.display = '';
+                } else if (box.dataset.currentSrc) {
+                    img.src = box.dataset.currentSrc;
+                    label.textContent = 'Current 360° image';
+                    label.style.color = '#475569';
+                    link.href = box.dataset.currentView;
+                    link.style.display = '';
+                    box.style.display = '';
+                } else {
+                    box.style.display = 'none';
+                }
             });
         });
     </script>
@@ -452,18 +786,31 @@
         $(document).ready(function() {
 
             function hideAllSections() {
-                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap')
+                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrap, #hoardingExtra, #illuminationField, #busShelterSection')
                     .hide();
+
+                // Width/Height are the default for every category, so they come
+                // back on unless a category explicitly replaces them.
+                $('.dimension-field').show();
             }
 
             function showSection(category) {
                 hideAllSections();
                 if (!category) return;
 
+                //  BUS SHELTER — panels instead of one Width x Height
+                if (category.includes('bus-shelter')) {
+                    $('#illuminationField').show();
+                    $('#busShelterSection').show();
+                    $('.dimension-field').hide();
+                }
+
                 //  HOARDINGS
                 if (category.includes('hoardings')) {
                     $('#billboardsId').show();
                     $('#radiusSection').show();
+                    $('#hoardingExtra').show();
+                    $('#illuminationField').show();
                 }
 
                 //  DIGITAL WALL / WALL PAINTING
@@ -565,8 +912,10 @@
                 return;
             }
 
-            // DIFFERENT vendor → generate NEW code
-            $.get("{{ route('media.next.code') }}", {
+            // DIFFERENT vendor → generate NEW code (needs a state + city)
+            if (!$('#state_id').val() || !$('#city_id').val()) return;
+
+            $.get("{{ $nextCodeUrl ?? route('media.next.code') }}", {
                 vendor_id: selectedVendorId,
                 state_id: $('#state_id').val(),
                 city_id: $('#city_id').val()
@@ -580,28 +929,9 @@
 
 
 
-        $('#area_id').on('change', function() {
-
-            let areaId = $(this).val();
-
-            if (!areaId) return;
-
-            // get parent location (state/city)
-            $.get("{{ url('get-area-parents') }}/" + areaId, function(res) {
-
-                // update hidden fields
-                $('#state_id').val(res.state_id);
-                $('#city_id').val(res.city_id);
-
-                // regenerate media code
-                generateEditMediaCode();
-
-            });
-
-        });
-
-        // RUN ON PAGE LOAD (VERY IMPORTANT)
-        generateEditMediaCode();
+        // state / city change - also fired once the saved location has loaded,
+        // which covers the page-load run (see partials/location-script)
+        $(document).on('media:location-changed', generateEditMediaCode);
 
         // vendor change
         $('#vendor_id').on('change', generateEditMediaCode);

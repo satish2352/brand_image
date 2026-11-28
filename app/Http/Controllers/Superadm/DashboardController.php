@@ -133,6 +133,9 @@ class DashboardController extends Controller
             ->where('is_read', 0)
             ->update(['is_read' => 1]);
 
+        // Vendor notifications share the bell, so opening it reads them too.
+        \App\Models\PanelNotification::forAdmin()->where('is_read', false)->update(['is_read' => true]);
+
         return response()->json(['status' => 'success']);
     }
 }

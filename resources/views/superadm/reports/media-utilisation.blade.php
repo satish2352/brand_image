@@ -128,8 +128,11 @@
                                     <th>User Name</th>
                                     <th>Vendor Name</th>
                                     <th>Vendor Code</th>
+                                    <th>Hoarding Code</th>
                                     <th>Media Title</th>
                                     <th>Category</th>
+                                    <th>Highway</th>
+                                    <th>Landmarks</th>
                                     <th>Size (WxH)</th>
                                     <th>From Date</th>
                                     <th>To Date</th>
@@ -147,8 +150,11 @@
                                         <td>{{ $row->user_name }}</td>
                                         <td>{{ $row->vendor_name }}</td>
                                         <td>{{ $row->vendor_code }}</td>
+                                        <td>{{ $row->hoarding_code ?? '-' }}</td>
                                         <td>{{ $row->media_title }}</td>
                                         <td>{{ $row->category_name }}</td>
+                                        <td>{{ $row->highway_name ?? '-' }}</td>
+                                        <td>{{ $row->landmark_names ?? '-' }}</td>
                                         <td>{{ $row->width }} x {{ $row->height }}</td>
                                         <td>{{ \Carbon\Carbon::parse($row->from_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($row->to_date)->format('d-m-Y') }}</td>
@@ -161,7 +167,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="12" class="text-center">No data found</td>
+                                        <td colspan="15" class="text-center">No data found</td>
                                     </tr>
                                 @endforelse
                             </tbody>

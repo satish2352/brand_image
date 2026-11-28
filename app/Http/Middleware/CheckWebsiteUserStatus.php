@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Support\AdminSession;
 use Illuminate\Support\Facades\Auth;
 
 class CheckWebsiteUserStatus
@@ -17,16 +18,14 @@ class CheckWebsiteUserStatus
             if ($user->is_deleted == 1) {
 
                 Auth::guard('website')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+                AdminSession::invalidateKeepingAdmin($request);
 
                 $message = 'Your account has been deleted by admin.';
 
             } elseif ($user->is_active == 0) {
 
                 Auth::guard('website')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+                AdminSession::invalidateKeepingAdmin($request);
 
                 $message = 'Your account has been deactivated by admin.';
 

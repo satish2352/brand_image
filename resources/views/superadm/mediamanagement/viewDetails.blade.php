@@ -85,9 +85,13 @@
         <div class="row">
             <div class="col-lg-12 col-md-12 mx-auto">
 
-                <a href="{{ route('media.list') }}" class="btn btn-outline-secondary mb-4">
-                    ← Back to Media Management List
-                </a>
+                {{-- Small Back button on the right; it only takes its own width, not the whole row. --}}
+                <div class="mb-3" style="display:flex;justify-content:flex-end">
+                    <a href="{{ route('media.list') }}" class="btn btn-sm btn-outline-secondary"
+                        style="width:auto !important;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:4px 12px">
+                        <i class="mdi mdi-arrow-left"></i> Back
+                    </a>
+                </div>
 
                 {{-- ================= BASIC DETAILS ================= --}}
                 <div class="info-card">
@@ -124,12 +128,34 @@
 
                         <div class="info-row">
                             <div class="info-col">
+                                {{-- Read off the code itself: HD000034 is a Hoarding
+                                     Code, BS004944 a Bus Shelter Code. @see MediaCode. --}}
+                                <div class="info-label">{{ \App\Support\MediaCode::labelForCode($media->hoarding_code) }}</div>
+                                <div class="info-value">{{ $media->hoarding_code ?? '-' }}</div>
+                            </div>
+                            <div class="info-col">
                                 <div class="info-label">Media Code</div>
                                 <div class="info-value">{{ $media->media_code ?? '-' }}</div>
                             </div>
+                        </div>
+
+                        <div class="info-row">
                             <div class="info-col">
                                 <div class="info-label">Media Title</div>
                                 <div class="info-value">{{ $media->media_title ?? '-' }}</div>
+                            </div>
+                            <div class="info-col">
+                                <div class="info-label">Highway</div>
+                                <div class="info-value">{{ $media->highway_name ?? '-' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-col">
+                                <div class="info-label">Landmarks</div>
+                                <div class="info-value">
+                                    {{ !empty($media->landmark_names) ? implode(', ', $media->landmark_names) : '-' }}
+                                </div>
                             </div>
                         </div>
 
@@ -178,20 +204,73 @@
                 </div>
 
                 {{-- ================= DIMENSIONS ================= --}}
+                {{-- Panel-sized media (Bus Shelter) has a size per face instead of
+                     one Width x Height, so it shows those rows instead. --}}
                 <div class="info-card">
-                    <div class="info-card-header">Dimensions</div>
+                    <div class="info-card-header">
+                        {{ ($media->location_sizes ?? collect())->isNotEmpty() ? 'Location Size' : 'Dimensions' }}
+                    </div>
                     <div class="info-card-body">
 
-                        <div class="info-row">
-                            <div class="info-col">
-                                <div class="info-label">Width (ft)</div>
-                                <div class="info-value">{{ $media->width ?? '-' }}</div>
+                        @if (($media->location_sizes ?? collect())->isNotEmpty())
+                            @foreach ($media->location_sizes as $panel)
+                                @php
+                                    // Rows written before the quantity column existed carry
+                                    // no value and each stand for a single board.
+                                    $qty  = max(1, (int) ($panel->quantity ?? 1));
+                                    $face = (float) $panel->width * (float) $panel->height;
+                                @endphp
+                                <div class="info-row">
+                                    <div class="info-col">
+                                        <div class="info-label">{{ $panel->label }} — Width (ft)</div>
+                                        <div class="info-value">{{ $panel->width ?? '-' }}</div>
+                                    </div>
+                                    <div class="info-col">
+                                        <div class="info-label">{{ $panel->label }} — Height (ft)</div>
+                                        <div class="info-value">{{ $panel->height ?? '-' }}</div>
+                                    </div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-col">
+                                        <div class="info-label">{{ $panel->label }} — Quantity</div>
+                                        <div class="info-value">{{ $qty }}</div>
+                                    </div>
+                                    <div class="info-col">
+                                        {{-- What this position contributes to Total Area
+                                             below, so the sum can be followed. --}}
+                                        <div class="info-label">{{ $panel->label }} — Area (sq.ft)</div>
+                                        <div class="info-value">
+                                            {{ number_format($face * $qty, 2) }}
+                                            @if ($qty > 1)
+                                                <span class="text-muted">({{ number_format($face, 2) }} × {{ $qty }})</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            <div class="info-row">
+                                <div class="info-col">
+                                    <div class="info-label">Total Area (sq.ft)</div>
+                                    <div class="info-value">{{ $media->area_auto ?? '-' }}</div>
+                                </div>
+                                <div class="info-col">
+                                    <div class="info-label">Illumination</div>
+                                    <div class="info-value">{{ $media->illumination_name ?? '-' }}</div>
+                                </div>
                             </div>
-                            <div class="info-col">
-                                <div class="info-label">Height (ft)</div>
-                                <div class="info-value">{{ $media->height ?? '-' }}</div>
+                        @else
+                            <div class="info-row">
+                                <div class="info-col">
+                                    <div class="info-label">Width (ft)</div>
+                                    <div class="info-value">{{ $media->width ?? '-' }}</div>
+                                </div>
+                                <div class="info-col">
+                                    <div class="info-label">Height (ft)</div>
+                                    <div class="info-value">{{ $media->height ?? '-' }}</div>
+                                </div>
                             </div>
-                        </div>
+                        @endif
 
                     </div>
                 </div>
@@ -226,18 +305,35 @@
                     </div>
                 </div>
 
-                {{-- ================= IMAGES ================= --}}
+                {{-- ================= IMAGES (photos + the 360° image as one more tile) ================= --}}
+                @php
+                    $panoUrl = !empty($media->panorama_image) ? \App\Support\MediaImageUrl::for($media->panorama_image) : null;
+                    $panoViewer = $panoUrl ? url('panorama.html') . '?img=' . urlencode($panoUrl) : null;
+                @endphp
                 <div class="info-card">
                     <div class="info-card-header">Images</div>
                     <div class="info-card-body">
                         <div class="row">
-                            @forelse($media->images as $img)
+                            @foreach ($media->images as $img)
                                 <div class="col-md-3 col-sm-6 mb-3 image-card">
-                                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $img['image'] }}" class="img-fluid">
+                                    {{-- MediaImageUrl: local file when it exists here, otherwise the live server (IMAGE_VIEW). --}}
+                                    <img src="{{ \App\Support\MediaImageUrl::for($img['image']) }}" class="img-fluid" alt="Media photo {{ $loop->iteration }}" loading="lazy">
                                 </div>
-                            @empty
+                            @endforeach
+                            @if ($panoViewer)
+                                <div class="col-md-3 col-sm-6 mb-3 image-card">
+                                    {{-- Opens the interactive 360° viewer (public/panorama.html) in a new tab. --}}
+                                    <a href="{{ $panoViewer }}" target="_blank" rel="noopener" title="Open 360° view"
+                                        style="position:relative;display:block">
+                                        <img src="{{ $panoUrl }}" class="img-fluid" alt="360° image" loading="lazy">
+                                        <span style="position:absolute;left:8px;bottom:8px;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(15,23,42,.8);color:#fff;font-size:12px;font-weight:700">
+                                            <i class="mdi mdi-rotate-3d-variant"></i> 360° View</span>
+                                    </a>
+                                </div>
+                            @endif
+                            @if ($media->images->isEmpty() && !$panoViewer)
                                 <p class="text-muted">No images available</p>
-                            @endforelse
+                            @endif
                         </div>
                     </div>
                 </div>

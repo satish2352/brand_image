@@ -33,9 +33,12 @@ class RevenueExport implements FromCollection, WithHeadings, WithStyles, ShouldA
             if ($this->type === 'media') {
                 return [
                     $index + 1,
+                    $row->hoarding_code ?? '-',
                     $row->media_code,
                     $row->category_name,
                     $row->media_title,
+                    $row->highway_name ?? '-',
+                    $row->landmark_names ?? '-',
                     $row->state_name,
                     $row->district_name,
                     $row->city_name,
@@ -102,9 +105,12 @@ class RevenueExport implements FromCollection, WithHeadings, WithStyles, ShouldA
         if ($this->type === 'media') {
             return [
                 'Sr. No',
+                'Hoarding Code',
                 'Media Code',
                 'Category',
                 'Media Title',
+                'Highway',
+                'Landmarks',
                 'State',
                 'District',
                 'City',

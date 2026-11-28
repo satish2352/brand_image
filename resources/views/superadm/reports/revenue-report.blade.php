@@ -196,9 +196,12 @@
                                 <th>GST (₹)</th>
                                 <th>Final Total (₹)</th>
                             @elseif($type === 'media')
+                                <th>Hoarding Code</th>
                                 <th>Media Code</th>
                                 <th>Category</th>
                                 <th>Media Title</th>
+                                <th>Highway</th>
+                                <th>Landmarks</th>
                                 <th>State</th>
                                 <th>District</th>
                                 <th>City</th>
@@ -247,9 +250,12 @@
                                     <td>₹ {{ number_format($row->gst_amount, 2) }}</td>
                                     <td><strong>₹ {{ number_format($row->grand_total, 2) }}</strong></td>
                                 @elseif($type === 'media')
+                                    <td>{{ $row->hoarding_code ?? '-' }}</td>
                                     <td>{{ $row->media_code }}</td>
                                     <td>{{ $row->category_name }}</td>
                                     <td>{{ $row->media_title }}</td>
+                                    <td>{{ $row->highway_name ?? '-' }}</td>
+                                    <td>{{ $row->landmark_names ?? '-' }}</td>
                                     <td>{{ $row->state_name }}</td>
                                     <td>{{ $row->district_name }}</td>
                                     <td>{{ $row->city_name }}</td>

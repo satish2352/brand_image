@@ -7,19 +7,29 @@
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/campaign/images/logo.png') }}">
+    <link rel="icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="shortcut icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
 
     <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <title>Brand Image – Admin Login</title>
+    <title>Brand Adda Maharashtra's Outdoor Media Platform</title>
 
     <style>
         html,
         body {
             height: 100%;
+        }
+
+        /* .container-fluid carries 12px of gutter padding on both sides. g-0
+           on the row zeroes the ROW gutter, not the container, so the artwork
+           stopped 12px short of the left edge and showed the page through. */
+        .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
         }
 
         /* Left column: full-height image */
@@ -161,7 +171,7 @@
 
             {{-- Left: Image Panel (hidden on mobile) --}}
             <div class="col-md-7 col-img d-none d-md-block">
-                <img src="{{ asset('asset/campaign/images/loginbg.jpeg') }}" alt="Brand Image">
+                <img src="{{ asset('asset/campaign/images/admin_log_img.png') }}" alt="Brand Adda">
                 <div class="overlay"></div>
             </div>
 
@@ -169,9 +179,10 @@
             <div class="col-12 col-md-5 col-form d-flex align-items-center justify-content-center p-4">
                 <div class="login-card">
 
+                
                     {{-- Logo --}}
                     <div class="login-logo text-center mb-3">
-                        <img src="{{ asset('asset/campaign/images/logo.png') }}" alt="Brand Image Logo">
+                        <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" alt="Brand Adda">
                     </div>
 
                     {{-- Title --}}
@@ -214,13 +225,18 @@
                             @enderror
                         </div>
 
-                        {{-- reCAPTCHA --}}
-                        <div class="mb-3">
-                            <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
-                            @error('g-recaptcha-response')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        {{-- reCAPTCHA: only when RECAPTCHA_ENABLED=true. The server
+                             skips the check when it is off, so drawing the widget
+                             then only shows Google's "Invalid site key" on hosts
+                             the key is not registered for (e.g. localhost). --}}
+                        @if (config('services.recaptcha.enabled'))
+                            <div class="mb-3">
+                                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site') }}"></div>
+                                @error('g-recaptcha-response')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endif
 
                         {{-- Submit --}}
                         <div class="d-grid mt-4">
@@ -236,8 +252,10 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- reCAPTCHA -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @if (config('services.recaptcha.enabled'))
+        <!-- reCAPTCHA -->
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    @endif
 
     <script>
         document.getElementById('togglePassword').addEventListener('click', function() {

@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\AreaType;
+use App\Support\MasterCache;
 
 class AreaTypeRepository
 {
@@ -27,7 +28,10 @@ class AreaTypeRepository
 
     public function store(array $data)
     {
-        return AreaType::create($data);
+        $result = AreaType::create($data);
+        MasterCache::forgetAreaTypes();
+
+        return $result;
     }
     public function findDeletedByName($name)
     {
@@ -44,20 +48,29 @@ class AreaTypeRepository
 
     public function update($id, array $data)
     {
-        return AreaType::where('id', $id)->update($data);
+        $result = AreaType::where('id', $id)->update($data);
+        MasterCache::forgetAreaTypes();
+
+        return $result;
     }
 
     public function toggleStatus($id)
     {
         $item = AreaType::findOrFail($id);
-        return $item->update(['is_active' => !$item->is_active]);
+        $result = $item->update(['is_active' => !$item->is_active]);
+        MasterCache::forgetAreaTypes();
+
+        return $result;
     }
 
     public function softDelete($id)
     {
-        return AreaType::where('id', $id)->update([
+        $result = AreaType::where('id', $id)->update([
             'is_deleted' => 1,
             'is_active'  => 0
         ]);
+        MasterCache::forgetAreaTypes();
+
+        return $result;
     }
 }

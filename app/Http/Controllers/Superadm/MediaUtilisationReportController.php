@@ -26,6 +26,7 @@ class MediaUtilisationReportController extends Controller
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
             ->join('vendors as v', 'v.id', '=', 'm.vendor_id')
             ->join('category as c', 'c.id', '=', 'm.category_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             // ->where('o.payment_status', 'paid')
             ->where('m.is_deleted', 0);
 
@@ -67,8 +68,11 @@ class MediaUtilisationReportController extends Controller
         $reports = $query->select(
             'u.name as user_name',
             'm.media_code',
+            'm.hoarding_code',
             'm.media_title',
             'c.category_name',
+            'hw.highway_name',
+            DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
             'm.width',
             'm.height',
             'oi.from_date',
@@ -115,6 +119,7 @@ class MediaUtilisationReportController extends Controller
             ->join('media_management as m', 'm.id', '=', 'oi.media_id')
             ->join('category as c', 'c.id', '=', 'm.category_id')
             ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             // ->where('o.payment_status', 'paid')
             ->where('m.is_deleted', 0);
 
@@ -154,8 +159,11 @@ class MediaUtilisationReportController extends Controller
             'v.vendor_name',
             'v.vendor_code',
             'm.media_code',
+            'm.hoarding_code',
             'm.media_title',
             'c.category_name',
+            'hw.highway_name',
+            DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
             'm.width',
             'm.height',
             'oi.from_date',

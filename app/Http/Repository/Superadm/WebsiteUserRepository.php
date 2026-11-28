@@ -44,7 +44,22 @@ class WebsiteUserRepository
 
     public function getById($id)
     {
+        // Named columns rather than select *: this row is returned straight to
+        // the browser as JSON, and the details modal has no use for the
+        // password hash, the live OTP or the remember token.
         return DB::table('website_users')
+            ->select(
+                'id',
+                'name',
+                'email',
+                'mobile_number',
+                'city',
+                'user_type',
+                'organisation',
+                'gst',
+                'is_active',
+                'created_at'
+            )
             ->where('id', $id)
             ->first();
     }

@@ -45,6 +45,18 @@
           background: #dc3545;
       }
 
+      /* hoarding code — orange to match the public website */
+      .hoarding-code-badge {
+          display: inline-block;
+          background: #f28123;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 3px 9px;
+          border-radius: 4px;
+          letter-spacing: .3px;
+      }
+
       /* BODY */
       .media-body {
           padding: 16px;
@@ -105,7 +117,7 @@
           <div class="media-card h-100">
               {{-- IMAGE --}}
               <div class="media-img-wrap">
-                  <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" alt="">
+                  <img src="{{ \App\Support\MediaImageUrl::for($media->first_image) }}" alt="">
                   <!-- @if ($media->from_date && $media->to_date)
 <span class="status-badge booked">Booked</span>
 @else
@@ -122,10 +134,16 @@
                   <h5 class="media-title">
                       {{ $media->media_title }} {{ $media->area_name }}
                   </h5>
+                  @if (!empty($media->hoarding_code))
+                      <div class="mb-1"><span class="hoarding-code-badge">{{ $media->hoarding_code }}</span></div>
+                  @endif
                   <div class="media-meta">
                       <div><strong>Size:</strong> {{ number_format($media->width, 2) }} ×
                           {{ number_format($media->height, 2) }} ft</div>
                       <div><strong>Area:</strong> {{ number_format($sqft, 2) }} SQFT</div>
+                      @if (!empty($media->highway_name))
+                          <div><strong>Highway:</strong> {{ $media->highway_name }}</div>
+                      @endif
                   </div>
                   <div class="media-price">
                       ₹ {{ number_format($media->price, 2) }}

@@ -31,7 +31,7 @@
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4" id="img-{{ $img->id }}">
                             <div class="border rounded position-relative overflow-hidden">
 
-                                <img src="{{ config('fileConstants.IMAGE_VIEW') . $img->images }}" class="img-fluid w-100"
+                                <img src="{{ \App\Support\MediaImageUrl::for($img->images) }}" class="img-fluid w-100"
                                     style="height:170px; object-fit:cover;">
 
                                 <button type="button" class="btn btn-danger btn-sm position-absolute"

@@ -13,13 +13,12 @@
         <div class="row">
             <!-- Desktop Image -->
             <div class="col-md-12 d-none d-md-block">
-                <img src="{{ asset('assets/img/campaindetail.png') }}" alt="About Banner" class="img-fluid"
-                    style="width: inherit !important;">
+                <img src="{{ asset('assets/img/cap_hero.png') }}" alt="Campaign banner" class="img-fluid w-100">
             </div>
 
             <!-- Mobile Image -->
             <div class="col-md-12 d-block d-md-none">
-                <img src="{{ asset('assets/img/mobile_campain_page.png') }}" alt="About Banner" class="img-fluid">
+                <img src="{{ asset('assets/img/cap_hero_mob.png') }}" alt="Campaign banner" class="img-fluid w-100">
             </div>
         </div>
 
@@ -57,7 +56,7 @@
                                     <div class="carousel-inner">
                                         @foreach ($images as $i => $img)
                                             <div class="carousel-item {{ $i == 0 ? 'active' : '' }}">
-                                                <img src="{{ config('fileConstants.IMAGE_VIEW') . trim($img) }}"
+                                                <img src="{{ \App\Support\MediaImageUrl::for(trim($img)) }}"
                                                     class="d-block w-100 rounded" style="height:360px; object-fit:cover;"
                                                     alt="Media Image">
                                             </div>
@@ -92,7 +91,7 @@
                                     Campaign Name
                                     <span> : {{ $campaign->first()->campaign_name }}</span>
                                 </h3>
-                                <p class="mb-3 " style="color: #2b64b5;">
+                                <p class="mb-3 " style="color: #0F172A;">
                                     {{ $row->media_title ?? 'Media' }}
                                 </p>
 

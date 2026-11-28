@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\RadiusMaster;
+use App\Support\MasterCache;
 
 class RadiusRepository
 {
@@ -15,7 +16,10 @@ class RadiusRepository
 
     public function save($data)
     {
-        return RadiusMaster::create($data);
+        $result = RadiusMaster::create($data);
+        MasterCache::forgetRadius();
+
+        return $result;
     }
 
     public function edit($id)
@@ -25,11 +29,17 @@ class RadiusRepository
 
     public function update($data, $id)
     {
-        return RadiusMaster::where('id', $id)->update($data);
+        $result = RadiusMaster::where('id', $id)->update($data);
+        MasterCache::forgetRadius();
+
+        return $result;
     }
 
     public function delete($id)
     {
-        return RadiusMaster::where('id', $id)->update(['is_deleted' => 1]);
+        $result = RadiusMaster::where('id', $id)->update(['is_deleted' => 1]);
+        MasterCache::forgetRadius();
+
+        return $result;
     }
 }

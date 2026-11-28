@@ -10,11 +10,14 @@ use App\Http\Controllers\Superadm\RevenueGraphController;
 use App\Http\Controllers\Superadm\Master\VendorController;
 use App\Http\Controllers\Superadm\Master\IlluminationController;
 use App\Http\Controllers\Superadm\Master\AreaTypeController;
+use App\Http\Controllers\Superadm\Master\LandmarkController;
+use App\Http\Controllers\Superadm\Master\HighwayController;
 use App\Http\Controllers\Superadm\Master\CategoryController;
 use App\Http\Controllers\Superadm\Master\AreaController;
 use App\Http\Controllers\Superadm\Master\CityController;
 use App\Http\Controllers\Superadm\Master\RadiusController;
 use App\Http\Controllers\Superadm\MediaManagementController;
+use App\Http\Controllers\Superadm\MediaImportExportController;
 use App\Http\Controllers\Superadm\ChangePasswordController;
 use App\Http\Controllers\Website\CartController;
 use App\Http\Controllers\Website\CheckoutController;
@@ -28,12 +31,21 @@ use App\Http\Controllers\Superadm\WebsiteUserController;
 use App\Http\Controllers\Superadm\ContactUsController;
 use App\Http\Controllers\Superadm\UserPaymentController;
 use App\Http\Controllers\Website\GoogleAuthController;
+use App\Http\Controllers\Website\SharedLinkController;
+use App\Http\Controllers\Website\MediaInsightsController;
+use App\Http\Controllers\Superadm\InsightsUsageController;
+use App\Http\Controllers\Website\SearchSessionController;
+use App\Http\Controllers\Website\RequirementController;
+use App\Http\Controllers\Superadm\PortalAccessController;
+use App\Http\Controllers\Superadm\MediaRequirementController;
+use App\Http\Controllers\Superadm\SearchAccessController;
 use App\Http\Controllers\Website\PaymentHistoryController;
 use App\Http\Controllers\Website\ProfileController;
 use App\Http\Controllers\Superadm\CampaingController;
 use App\Http\Controllers\Superadm\HordingBookController;
 use App\Http\Controllers\Superadm\AdminNotificationController;
 use App\Http\Controllers\Common\LocationController;
+use App\Http\Controllers\Website\ExploreController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -109,10 +121,30 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('update/{encodedId}', [MediaManagementController::class, 'update'])->name('media.update');
         Route::post('delete', [MediaManagementController::class, 'delete'])->name('media.delete');
         Route::post('status', [MediaManagementController::class, 'updateStatus'])->name('media.status');
+        Route::post('availability', [MediaManagementController::class, 'updateAvailability'])->name('media.availability');
         Route::get('view/{encodedId}', [MediaManagementController::class, 'view'])->name('media.view');
         Route::post('image/delete', [MediaManagementController::class, 'deleteImage'])->name('media.image.delete');
         Route::post('image/upload', [MediaManagementController::class, 'uploadImage'])->name('media.image.upload');
         Route::get('view-details/{encodedId}', [MediaManagementController::class, 'viewDetails'])->name('media.viewdetails');
+
+        /* NEARBY-PLACES API USAGE — Geoapify / SerpApi credits vs budget, coverage, log */
+        Route::get('insights-usage', [InsightsUsageController::class, 'index'])->name('media.insights.usage');
+        /* API REQUEST MANAGER — switches, daily limits and "run now" for Geoapify / TomTom */
+        Route::post('insights-usage/settings', [InsightsUsageController::class, 'save'])->name('media.insights.usage.save');
+        Route::post('insights-usage/run-places', [InsightsUsageController::class, 'runPlaces'])->middleware('throttle:10,1')->name('media.insights.usage.run-places');
+        Route::post('insights-usage/run-traffic', [InsightsUsageController::class, 'runTraffic'])->middleware('throttle:10,1')->name('media.insights.usage.run-traffic');
+        Route::post('insights-usage/run-one', [InsightsUsageController::class, 'runOne'])->middleware('throttle:20,1')->name('media.insights.usage.run-one');
+        Route::post('insights-usage/clear-pause', [InsightsUsageController::class, 'clearPause'])->name('media.insights.usage.clear-pause');
+
+        /* BULK DATA UPLOAD — IMPORT & EXPORT */
+        Route::get('import-export', [MediaImportExportController::class, 'index'])->name('media.import-export');
+        Route::get('import/template/{category?}', [MediaImportExportController::class, 'template'])->name('media.import.template');
+        Route::post('import/preview', [MediaImportExportController::class, 'preview'])->name('media.import.preview');
+        Route::post('import/publish', [MediaImportExportController::class, 'publish'])->name('media.import.publish');
+        Route::post('import/discard', [MediaImportExportController::class, 'discard'])->name('media.import.discard');
+        Route::get('import/error-log/{token}', [MediaImportExportController::class, 'errorLog'])->name('media.import.errorlog');
+        Route::match(['get', 'post'], 'export', [MediaImportExportController::class, 'export'])->name('media.export');
+        Route::get('export/records', [MediaImportExportController::class, 'records'])->name('media.export.records');
     });
     /* MEDIA AJAX (LOCATION HELPERS) */
     Route::get('get-states', [MediaManagementController::class, 'getStates']);
@@ -131,6 +163,28 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('toggle-status', [WebsiteUserController::class, 'toggleStatus'])->name('website-user.toggle-status');
         Route::post('view', [WebsiteUserController::class, 'view'])->name('website-user.view');
     });
+    /* Requirements sent in through "Share your requirement". */
+    Route::prefix('requirements')->group(function () {
+        Route::get('list', [MediaRequirementController::class, 'index'])->name('requirements.list');
+        Route::get('view/{id}', [MediaRequirementController::class, 'viewDetails'])->name('requirements.view');
+        Route::post('status', [MediaRequirementController::class, 'updateStatus'])->name('requirements.status');
+        Route::post('delete', [MediaRequirementController::class, 'delete'])->name('requirements.delete');
+    });
+
+    /* How long a visitor and a signed-in user may search for. */
+    /* Who has used their search trial, and granting another. */
+    Route::prefix('search-access')->group(function () {
+        Route::get('users', [SearchAccessController::class, 'index'])->name('search-access.users');
+        Route::get('history/{id}', [SearchAccessController::class, 'history'])->name('search-access.history');
+        Route::post('grant', [SearchAccessController::class, 'grant'])->name('search-access.grant');
+        Route::post('revoke', [SearchAccessController::class, 'revoke'])->name('search-access.revoke');
+    });
+
+    Route::prefix('settings')->group(function () {
+        Route::get('portal-access', [PortalAccessController::class, 'edit'])->name('settings.portal-access');
+        Route::post('portal-access', [PortalAccessController::class, 'update'])->name('settings.portal-access.update');
+    });
+
     Route::prefix('contact-us')->group(function () {
         Route::get('list', [ContactUsController::class, 'index'])->name('contact-us.list');
         Route::post('delete', [ContactUsController::class, 'delete'])->name('contact-us.delete');
@@ -245,6 +299,29 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
         Route::post('delete', [AreaTypeController::class, 'delete'])->name('areatype.delete');
         Route::post('update-status', [AreaTypeController::class, 'updateStatus'])->name('areatype.updatestatus');
     });
+
+    /* HIGHWAY MASTER */
+    Route::prefix('highway')->group(function () {
+        Route::get('list', [HighwayController::class, 'index'])->name('highway.list');
+        Route::get('add', [HighwayController::class, 'create'])->name('highway.create');
+        Route::post('add', [HighwayController::class, 'store'])->name('highway.store');
+        Route::get('edit/{encodedId}', [HighwayController::class, 'edit'])->name('highway.edit');
+        Route::post('update/{encodedId}', [HighwayController::class, 'update'])->name('highway.update');
+        Route::post('delete', [HighwayController::class, 'delete'])->name('highway.delete');
+        Route::post('update-status', [HighwayController::class, 'updateStatus'])->name('highway.updatestatus');
+    });
+
+    /* LANDMARK MASTER */
+    Route::prefix('landmark')->group(function () {
+        Route::get('list', [LandmarkController::class, 'index'])->name('landmark.list');
+        Route::get('add', [LandmarkController::class, 'create'])->name('landmark.create');
+        Route::post('add', [LandmarkController::class, 'store'])->name('landmark.store');
+        Route::get('edit/{encodedId}', [LandmarkController::class, 'edit'])->name('landmark.edit');
+        Route::post('update/{encodedId}', [LandmarkController::class, 'update'])->name('landmark.update');
+        Route::post('delete', [LandmarkController::class, 'delete'])->name('landmark.delete');
+        Route::post('update-status', [LandmarkController::class, 'updateStatus'])->name('landmark.updatestatus');
+    });
+
     Route::get(
         'media/next-code',
         [MediaManagementController::class, 'getNextMediaCode']
@@ -268,13 +345,101 @@ Route::group(['middleware' => ['SuperAdmin']], function () {
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 Route::get('/', [HomeController::class, 'index'])->name('website.home');
-Route::get('/search', [HomeController::class, 'searchView'])->name('website.search.view');
-Route::post('/search', [HomeController::class, 'search'])->name('website.search');
+/* The browse-everything routes.
+   - shared.link.visitor  keeps a client holding a shared shortlist out of the
+                          full inventory.
+   - search.access        enforces the timed preview / search window. Neither
+                          touches the controllers, which are unchanged. */
+Route::get('/search', [HomeController::class, 'searchView'])
+    ->middleware(['shared.link.visitor', 'search.access'])->name('website.search.view');
+Route::post('/search', [HomeController::class, 'search'])
+    ->middleware(['shared.link.visitor', 'search.access'])->name('website.search');
+
+/* ============ SHAREABLE HOARDING SHORTLISTS ============
+   The team ticks hoardings on /search and generates a link; the client opens
+   it and sees only those. Generating is admin-gated inside the controller
+   (the admin session is `user_id`, not a guard, so it cannot use auth:*).
+   Viewing is deliberately public — the token IS the credential. */
+Route::post('/shared-links', [SharedLinkController::class, 'store'])->name('shared.link.store');
+Route::post('/shared-links/export/{format}', [SharedLinkController::class, 'export'])
+    ->whereIn('format', ['ppt', 'excel'])
+    ->name('shared.link.export');
+/* GET renders the shortlist; POST is the same page with the client's filters
+   applied. One action either way — the filter card can only narrow the ids on
+   the token, so there is nothing for a second endpoint to guard. */
+Route::match(['get', 'post'], '/shared/{token}', [SharedLinkController::class, 'show'])
+    ->name('shared.link.show');
+
+/* ============ MEDIA LOCATION INSIGHTS ============
+   GET  loads the insights panel into the media details page by AJAX. The
+        first view of a hoarding with no nearby places fetches them once
+        (within the credit budget); later views read MySQL only.
+   POST "Refresh Insights": admin-gated inside the controller like shared
+        links (site admin mode or the admin panel), POST so CSRF applies, and
+        throttled — it is the only web path that can spend API credits. */
+Route::get('/media-details/{encodedId}/insights', [MediaInsightsController::class, 'show'])
+    ->middleware('throttle:60,1')->name('media.insights.show');
+Route::post('/media-details/{encodedId}/insights/refresh', [MediaInsightsController::class, 'refresh'])
+    ->middleware('throttle:6,1')->name('media.insights.refresh');
+/* Stored TomTom Traffic Flow as JSON — reads MySQL only, never calls TomTom
+   (refresh:hoarding-traffic keeps it up to date every 15 days). */
+Route::get('/media-details/{encodedId}/traffic', [MediaInsightsController::class, 'traffic'])
+    ->middleware('throttle:60,1')->name('media.traffic.show');
+
+/* ============ NEW MULTI-SELECT EXPLORE PAGE (Feature 4 + 5) ============ */
+Route::get('/explore', [ExploreController::class, 'index'])
+    ->middleware(['shared.link.visitor', 'search.access'])->name('website.explore');
+Route::match(['get', 'post'], '/explore/search', [ExploreController::class, 'search'])
+    ->middleware('search.access')->name('website.explore.search');
+/* The filter dropdowns feed the same inventory, so they close with it. */
+Route::get('/ajax/get-landmarks', [ExploreController::class, 'landmarks'])
+    ->middleware('search.access')->name('ajax.landmarks');
+Route::get('/ajax/get-highways', [ExploreController::class, 'highways'])
+    ->middleware('search.access')->name('ajax.highways');
+/* Nearby Landmark options for a town, from the saved nearby-places data. */
+Route::get('/ajax/nearby-places', [\App\Http\Controllers\Website\MediaInsightsController::class, 'cityPlaces'])
+    ->middleware('search.access')->name('ajax.nearby-places');
+
+/* ============ SEARCH ACCESS WINDOW ============
+   Status is read-only and rate limited: the countdown polls it, and there is
+   deliberately no endpoint that grants time. */
+Route::get('/search-session/status', [SearchSessionController::class, 'status'])
+    ->middleware('throttle:60,1')->name('search.session.status');
+
+/* Share your requirement — the way forward once a window has closed. */
+Route::get('/share-requirement', [RequirementController::class, 'create'])->name('website.requirement.create');
+/* A returning user's own briefs. Behind the site guard, since they are the
+   user's own records. */
+Route::get('/my-requirements', [RequirementController::class, 'mine'])
+    ->middleware('auth:website')->name('website.requirement.mine');
+Route::post('/share-requirement', [RequirementController::class, 'store'])
+    ->middleware('throttle:10,1')->name('website.requirement.store');
+
 Route::view('/about', 'website.about')->name('website.about');
 Route::get('/media-details/{mediaId}', [HomeController::class, 'getMediaDetails'])->name('website.media-details');
 Route::post('/website/signup', [AuthController::class, 'signup'])->name('website.signup')->middleware('throttle:10,1');
 Route::post('/website/login', [AuthController::class, 'login'])->name('website.login')->middleware('throttle:10,1');
 Route::get('/website/logout', [AuthController::class, 'logout'])->name('website.logout');
+
+/* ============ FRESH CSRF TOKEN ============
+   @csrf stamps the token into the HTML when a page is rendered, so a page
+   left open across a login or a logout elsewhere in the browser posts a token
+   the session no longer recognises and gets a 419. The modal's forms ask here
+   for the current one and retry, rather than making a visitor who has just
+   typed out the registration form do it again. Reading the token is not a
+   capability worth guarding: it is handed to anyone who loads any page. */
+Route::get('/csrf-token', fn() => response()->json(['token' => csrf_token()]))
+    ->name('csrf.token');
+
+/* ============ TEAM LOGIN FROM THE PUBLIC SITE ============
+   The "Login via Admin" pane of the Account Access modal. Same credentials
+   and same session key as /login, so it grants the same rights — see the
+   controller's note. Throttled harder than the customer login beside it
+   because a hit here is worth more. */
+Route::post('/website/admin-login', [LoginController::class, 'websiteAdminLogin'])
+    ->name('website.admin.login')->middleware('throttle:5,1');
+Route::get('/website/admin-logout', [LoginController::class, 'websiteAdminLogout'])
+    ->name('website.admin.logout');
 Route::post('/website/verify-otp', [AuthController::class, 'verifyOtp'])->name('website.verify.otp')->middleware('throttle:5,1');
 Route::post('/website/resend-otp', [AuthController::class, 'resendOtp'])->name('website.resend.otp')->middleware('throttle:3,1');
 
@@ -353,3 +518,7 @@ Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.s
 // Route::get('/{any}', function () {
 //     return view('app');
 // })->where('any', '^(?!api).*$');
+
+// Vendor Inventory Management: vendor panel, its admin screens and the public
+// vendor showcase (/{vendorSlug}). Must stay the LAST include in this file.
+require __DIR__ . '/vendor.php';

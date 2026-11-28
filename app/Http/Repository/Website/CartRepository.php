@@ -4,7 +4,6 @@ namespace App\Http\Repository\Website;
 
 use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class CartRepository
@@ -79,14 +78,6 @@ class CartRepository
     }
 
 
-    private function clearCartCountCache(): void
-    {
-        $userId = Auth::guard('website')->id();
-        if ($userId) {
-            Cache::forget("cart_count_user_{$userId}");
-        }
-    }
-
     public function addItem($mediaId, $price)
     {
         CartItem::create([
@@ -108,7 +99,6 @@ class CartRepository
             'is_deleted' => 0,
         ]);
 
-        $this->clearCartCountCache();
     }
 
     public function getBookedDatesByMedia($mediaId)
@@ -119,7 +109,18 @@ class CartRepository
                 ->where('oi.media_id', $mediaId)
                 ->where('o.payment_status', 'PAID')
                 ->select('oi.from_date', 'oi.to_date')
-                ->get();
+                ->get()
+                // Dates a vendor marked Booked / Blocked in the Vendor Panel.
+                ->concat(
+                    DB::table('media_booked_date')
+                        ->where('media_id', $mediaId)
+                        ->where('source', 'vendor')
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->select('from_date', 'to_date')
+                        ->get()
+                )
+                ->values();
         } catch (\Exception $e) {
             return collect([]);
         }
@@ -146,7 +147,16 @@ class CartRepository
                             ->where('oi.to_date', '>=', $to);
                     });
             })
-            ->exists();
+            ->exists()
+            // ...or a vendor's own Booked / Blocked dates (Vendor Panel).
+            || DB::table('media_booked_date')
+                ->where('media_id', $mediaId)
+                ->where('source', 'vendor')
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->where('from_date', '<=', $to)
+                ->where('to_date', '>=', $from)
+                ->exists();
     }
 
     // 🔄 Update cart dates + price
@@ -196,7 +206,6 @@ class CartRepository
             'is_deleted'    => 0,
         ]);
 
-        $this->clearCartCountCache();
     }
 
 
@@ -211,7 +220,6 @@ class CartRepository
         $query = CartItem::where('id', $itemId);
         $this->ownerCondition($query);
         $query->delete();
-        $this->clearCartCountCache();
     }
     public function clearCart()
     {

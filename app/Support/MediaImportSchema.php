@@ -1,0 +1,625 @@
+<?php
+
+namespace App\Support;
+
+/**
+ * Single source of truth for the bulk media upload sheet.
+ *
+ * The sample template, the import validator, the error log and the on-screen
+ * instructions are all generated from this list, so a column can never drift
+ * between what we hand out and what we accept.
+ *
+ * key      : internal field name used after parsing
+ * label    : exact header written into the sample template
+ * required : row is rejected when this is blank
+ * type     : text | decimal | int | lookup | list | status
+ * aliases  : extra normalised headers accepted from user supplied files
+ *            (the label itself is always accepted)
+ * help     : shown on the Instructions sheet and the Import tab
+ * samples  : two example values written into the template
+ */
+class MediaImportSchema
+{
+    public const COLUMNS = [
+        [
+            'key' => 'media_title',
+            'label' => 'Media Title',
+            // Every category collects a title now — the website names a site
+            // "Media Title + Area" rather than falling back to the category
+            // name — so it is on every template and required everywhere.
+            'required' => true,
+            'type' => 'text',
+            'aliases' => ['title', 'sitename', 'sitetitle', 'mediename'],
+            'help' => 'Display name of the site, e.g. "Mumbai Naka Unipole".',
+            'samples' => ['Mumbai Naka Unipole', 'Airport Road Billboard'],
+        ],
+        [
+            'key' => 'category',
+            'label' => 'Category',
+            'required' => true,
+            'type' => 'lookup',
+            'aliases' => ['mediacategory', 'categoryname'],
+            'help' => 'Must match a Category master name exactly (see Master Reference sheet).',
+            'samples' => ['Hoardings', 'Mall Media'],
+        ],
+        [
+            'key' => 'state',
+            'label' => 'State',
+            'required' => true,
+            'type' => 'lookup',
+            'aliases' => ['statename'],
+            'help' => 'Must match a State master name.',
+            'samples' => ['Maharashtra', 'Maharashtra'],
+        ],
+        [
+            'key' => 'district',
+            'label' => 'District',
+            'required' => true,
+            'type' => 'lookup',
+            'aliases' => ['districtname'],
+            'help' => 'Must belong to the State given in the same row.',
+            'samples' => ['Nashik', 'Pune'],
+        ],
+        [
+            'key' => 'city',
+            'label' => 'City',
+            'required' => true,
+            'type' => 'lookup',
+            'aliases' => ['cityname', 'town', 'townname'],
+            'help' => 'Must belong to the District given in the same row.',
+            'samples' => ['Nashik', 'Pune'],
+        ],
+        [
+            'key' => 'area',
+            'label' => 'Area',
+            'required' => true,
+            'type' => 'lookup',
+            'aliases' => ['areaname', 'location', 'locality'],
+            'help' => 'Must belong to the City given in the same row.',
+            'samples' => ['Mumbai Naka', 'Viman Nagar'],
+        ],
+        [
+            'key' => 'vendor_code',
+            'label' => 'Vendor Code',
+            'required' => true,
+            'type' => 'lookup',
+            'aliases' => ['vendorcd', 'ownercode'],
+            'help' => 'Vendor / owner code from the Vendor master. Leave blank only if Vendor Name is filled.',
+            'samples' => ['VND001', 'VND002'],
+        ],
+        [
+            'key' => 'vendor_name',
+            'label' => 'Vendor Name',
+            'required' => false,
+            'type' => 'lookup',
+            'aliases' => ['owner', 'ownername'],
+            'help' => 'Used only when Vendor Code is blank. Must match the Vendor master name.',
+            'samples' => ['Brand Image Outdoor', 'Skyline Media'],
+        ],
+        [
+            // Only hoardings carry one, so only their template offers the column.
+            // The all-categories template keeps it (no 'scope' => 'full' here):
+            // a mixed sheet may hold hoarding rows, and it is the one column that
+            // tells an upload to update a record instead of adding another.
+            'key' => 'hoarding_code',
+            'label' => 'Hoarding Code',
+            'required' => false,
+            'type' => 'text',
+            'categories' => ['hoarding', 'billboard'],
+            'aliases' => ['hdcode', 'uniquecode'],
+            'help' => 'Leave blank for a new record — a code is generated automatically (HD000001...). '
+                . 'To change a hoarding that is already in the system, put its existing Hoarding Code here '
+                . 'and pick "Add new and update existing" on the Import tab. You can copy the codes from '
+                . 'the Export tab.',
+            'samples' => ['', ''],
+        ],
+        [
+            'key' => 'media_code',
+            'label' => 'Media Code',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['sitecode'],
+            'help' => 'Optional internal code, e.g. MSH_NSK_VND001_01. Must be unique when supplied.',
+            'samples' => ['', ''],
+            'scope' => 'full',
+        ],
+        [
+            'key' => 'address',
+            'label' => 'Address',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['fulladdress', 'siteaddress'],
+            'help' => 'Full postal / descriptive address of the site.',
+            'samples' => ['Near Mumbai Naka Signal, Nashik', 'Airport Road, Pune'],
+            'categories' => ['hoardings'],
+        ],
+        [
+            'key' => 'width',
+            'label' => 'Width (ft)',
+            'required' => true,
+            'type' => 'decimal',
+            'aliases' => ['width', 'w'],
+            'help' => 'Numeric, greater than 0.',
+            'samples' => ['40', '20'],
+            // A Bus Shelter has no single face to measure — its size is the
+            // Front / Back / Side panels below. The Add form hides these two
+            // for it and stores null, so the sheet must not ask for them
+            // either, or an imported shelter would not match a hand-added one.
+            'except' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'height',
+            'label' => 'Height (ft)',
+            'required' => true,
+            'type' => 'decimal',
+            'aliases' => ['height', 'h'],
+            'help' => 'Numeric, greater than 0.',
+            'samples' => ['20', '10'],
+            'except' => ['bus-shelter'],
+        ],
+        [
+            // The panels a Bus Shelter carries. Blank means the shelter has
+            // no panel in that position, exactly as leaving the pair empty on
+            // the Add form does. Their areas add up to the record's total.
+            'key' => 'panel_front_width',
+            'label' => 'Front Width (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['frontwidth', 'frontpanelwidth'],
+            'help' => 'Width of the Front panel in feet. Leave blank if this shelter has none.',
+            'samples' => ['40', '30'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_front_height',
+            'label' => 'Front Height (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['frontheight', 'frontpanelheight'],
+            'help' => 'Height of the Front panel in feet. Give both width and height, or neither.',
+            'samples' => ['20', '15'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            // Boards of this size at this position. Blank means one, which
+            // is what a panel meant before the column existed.
+            'key' => 'panel_front_quantity',
+            'label' => 'Front Quantity',
+            'required' => false,
+            'type' => 'int',
+            'aliases' => ['frontqty', 'frontquantity', 'frontpanelquantity'],
+            'help' => 'How many Front boards of that size. Blank counts as 1.',
+            'samples' => ['1', '2'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_back_width',
+            'label' => 'Back Width (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['backwidth', 'backpanelwidth'],
+            'help' => 'Width of the Back panel in feet. Leave blank if this shelter has none.',
+            'samples' => ['40', '30'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_back_height',
+            'label' => 'Back Height (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['backheight', 'backpanelheight'],
+            'help' => 'Height of the Back panel in feet. Give both width and height, or neither.',
+            'samples' => ['20', '15'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_back_quantity',
+            'label' => 'Back Quantity',
+            'required' => false,
+            'type' => 'int',
+            'aliases' => ['backqty', 'backquantity', 'backpanelquantity'],
+            'help' => 'How many Back boards of that size. Blank counts as 1.',
+            'samples' => ['1', '1'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_side_width',
+            'label' => 'Left-Right Side Width (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['sidewidth', 'sidepanelwidth', 'Side Width (ft)'],
+            'help' => 'Width of the Left-Right Side panel in feet. Leave blank if this shelter has none.',
+            'samples' => ['12', '10'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_side_height',
+            'label' => 'Left-Right Side Height (ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['sideheight', 'sidepanelheight', 'Side Height (ft)'],
+            'help' => 'Height of the Left-Right Side panel in feet. Give both width and height, or neither.',
+            'samples' => ['8', '6'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'panel_side_quantity',
+            'label' => 'Left-Right Side Quantity',
+            'required' => false,
+            'type' => 'int',
+            'aliases' => ['sideqty', 'sidequantity', 'sidepanelquantity', 'Side Quantity'],
+            'help' => 'How many Left-Right Side boards of that size. Blank counts as 1.',
+            'samples' => ['2', '1'],
+            'categories' => ['bus-shelter'],
+        ],
+        [
+            'key' => 'latitude',
+            'label' => 'Latitude',
+            'required' => true,
+            'type' => 'decimal',
+            'aliases' => ['lat', 'gpslatitude'],
+            'help' => 'Decimal degrees between -90 and 90, e.g. 19.9975.',
+            'samples' => ['19.9974533', '18.5679234'],
+        ],
+        [
+            'key' => 'longitude',
+            'label' => 'Longitude',
+            'required' => true,
+            'type' => 'decimal',
+            'aliases' => ['lng', 'lon', 'gpslongitude'],
+            'help' => 'Decimal degrees between -180 and 180, e.g. 73.7898.',
+            'samples' => ['73.7898023', '73.9143210'],
+        ],
+        [
+            'key' => 'price',
+            'label' => 'Price (Monthly)',
+            'required' => true,
+            'type' => 'decimal',
+            'aliases' => ['price', 'rate', 'monthlyprice', 'monthlyrate'],
+            'help' => 'Monthly rental in rupees. Numbers only, no currency symbol or comma.',
+            'samples' => ['85000', '45000'],
+        ],
+        [
+            'key' => 'illumination',
+            'label' => 'Illumination',
+            'required' => false,
+            'type' => 'lookup',
+            'aliases' => ['illuminationname', 'lighting'],
+            'help' => 'Must match an Illumination master name, e.g. "Front Lit".',
+            'samples' => ['Front Lit', 'Non Lit'],
+            // Required on the Add form for a Bus Shelter too, so its sheet
+            // needs the column — see categoryRules().
+            'categories' => ['hoardings', 'bus-shelter'],
+        ],
+        [
+            'key' => 'facing',
+            'label' => 'Facing',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['facingdirection', 'direction'],
+            'help' => 'Free text, e.g. "Facing Mumbai Naka to CBS".',
+            'samples' => ['Mumbai Naka to CBS', 'Airport to City'],
+            'categories' => ['hoardings'],
+        ],
+        [
+            'key' => 'area_type',
+            'label' => 'Area Type',
+            'required' => false,
+            'type' => 'lookup',
+            'aliases' => ['areatype', 'areatypename', 'zone'],
+            'help' => 'Must match an Area Type master name, e.g. "Commercial".',
+            'samples' => ['Commercial', 'Residential'],
+            'categories' => ['hoardings'],
+        ],
+        [
+            'key' => 'highway',
+            'label' => 'Highway',
+            'required' => false,
+            'type' => 'lookup',
+            'aliases' => ['highwayname', 'nh', 'sh'],
+            'help' => 'Must match a Highway master name.',
+            'samples' => ['NH-60', ''],
+            'categories' => ['hoardings'],
+        ],
+        [
+            'key' => 'landmarks',
+            'label' => 'Landmarks',
+            'required' => false,
+            'type' => 'list',
+            'aliases' => ['landmark', 'nearbylandmarks'],
+            'help' => 'Comma separated Landmark master names, e.g. "Bus Stand, City Mall".',
+            'samples' => ['Bus Stand, City Mall', ''],
+            'categories' => ['hoardings'],
+        ],
+        [
+            'key' => 'media_type',
+            'label' => 'Media Type',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['mediatype'],
+            'help' => 'Free text sub type, e.g. "Unipole", "Digital Screen".',
+            'samples' => ['Unipole', 'Billboard'],
+            'categories' => ['airport'],
+        ],
+        [
+            'key' => 'media_format',
+            'label' => 'Media Format',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['format'],
+            'help' => 'Required by the Mall Media category, e.g. "Atrium Branding".',
+            'samples' => ['', 'Atrium Branding'],
+            'categories' => ['mall'],
+        ],
+        [
+            'key' => 'mall_name',
+            'label' => 'Mall Name',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['mall'],
+            'help' => 'Required by the Mall Media category.',
+            'samples' => ['', 'City Centre Mall'],
+            'categories' => ['mall'],
+        ],
+        [
+            'key' => 'airport_name',
+            'label' => 'Airport Name',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['airport'],
+            'help' => 'Required by the Airport Branding category.',
+            'samples' => ['', ''],
+            'categories' => ['airport'],
+        ],
+        [
+            'key' => 'zone_type',
+            'label' => 'Zone Type',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['zonetype'],
+            'help' => 'Airport Branding only. Allowed values: Arrival, Departure.',
+            'samples' => ['', ''],
+            'categories' => ['airport'],
+        ],
+        [
+            'key' => 'transit_type',
+            'label' => 'Transit Type',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['transit'],
+            'help' => 'Required by the Transit Media category, e.g. "Bus".',
+            'samples' => ['', ''],
+            'categories' => ['transit', 'transmit'],
+        ],
+        [
+            'key' => 'branding_type',
+            'label' => 'Branding Type',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['branding'],
+            'help' => 'Required by the Transit Media category, e.g. "Full Wrap".',
+            'samples' => ['', ''],
+            'categories' => ['transit', 'transmit'],
+        ],
+        [
+            'key' => 'vehicle_count',
+            'label' => 'Vehicle Count',
+            'required' => false,
+            'type' => 'int',
+            'aliases' => ['vehicles', 'noofvehicles'],
+            'help' => 'Transit Media only. Whole number.',
+            'samples' => ['', ''],
+            'categories' => ['transit', 'transmit'],
+        ],
+        [
+            'key' => 'building_name',
+            'label' => 'Building Name',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['building'],
+            'help' => 'Required by the Office Branding category.',
+            'samples' => ['', ''],
+            'categories' => ['office'],
+        ],
+        [
+            'key' => 'wall_length',
+            'label' => 'Wall Length',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['walllength'],
+            'help' => 'Office Branding only (the "Branding Type" field on the form).',
+            'samples' => ['', ''],
+            'categories' => ['office'],
+        ],
+        [
+            'key' => 'area_auto',
+            'label' => 'Total Area (Sq Ft)',
+            'required' => false,
+            'type' => 'decimal',
+            'aliases' => ['totalarea', 'areasqft', 'areaauto'],
+            'help' => 'Leave blank to calculate automatically as Width x Height.',
+            'samples' => ['', ''],
+            'scope' => 'full',
+        ],
+        [
+            'key' => 'image_urls',
+            'label' => 'Image URLs',
+            'required' => false,
+            'type' => 'list',
+            'aliases' => ['images', 'imageurl', 'imagelinks', 'photos', 'photourls', 'imagefiles', 'imagefilenames'],
+            'help' => 'Comma separated gallery photos. Write just the file names, e.g. '
+                . 'site-front.jpg, site-side.jpg — put those exact files in a ZIP and upload it in the '
+                . '"Images ZIP" box next to the sheet. The extension may be left off (site-front) as long '
+                . 'as only one picture in the ZIP has that name. (A direct https:// link also works.) '
+                . 'Do NOT paste a path from your own computer such as C:\\Users\\You\\Downloads\\site.jpg — '
+                . 'the server cannot open your drive. JPG, PNG or WebP, up to '
+                . MediaImageFetcher::MAX_GALLERY_IMAGES . ' per row and '
+                . MediaImageFetcher::MAX_GALLERY_KB . 'KB each. Saved when the import is published.',
+            'samples' => ['', ''],
+        ],
+        [
+            'key' => 'panorama_url',
+            'label' => 'Panorama Image URL',
+            'required' => false,
+            'type' => 'text',
+            'aliases' => ['panorama', 'panoramaimage', 'panoramaurl', '360image', '360url', 'panoramafile'],
+            'help' => 'One 360° panorama photo — the file name of a picture inside the images ZIP, e.g. '
+                . 'site-360.jpg, or a direct https:// link. JPG, PNG or WebP, up to '
+                . MediaImageFetcher::MAX_PANORAMA_KB . 'KB. Replaces the existing panorama on update.',
+            'samples' => ['', ''],
+        ],
+        [
+            'key' => 'status',
+            'label' => 'Status',
+            'required' => false,
+            'type' => 'status',
+            'aliases' => ['isactive', 'activestatus'],
+            'help' => 'Active or Inactive. Blank is treated as Active.',
+            'samples' => ['Active', 'Active'],
+            'scope' => 'full',
+        ],
+    ];
+
+    /**
+     * Normalise any header / lookup value to a comparable key:
+     * "Width (ft)" -> "widthft", " Front  Lit " -> "frontlit".
+     */
+    public static function normalise(?string $value): string
+    {
+        return preg_replace('/[^a-z0-9]/', '', strtolower(trim((string) $value)));
+    }
+
+    /**
+     * The columns that apply to one category, in template order.
+     *
+     * Rules:
+     *  - a column marked 'scope' => 'full' appears only in the all-categories
+     *    template (auto / admin fields the Add Media form does not collect);
+     *  - a column with no 'categories' key is a base field, kept for every
+     *    category;
+     *  - a column that lists categories is kept only when the slug contains one
+     *    of its keywords.
+     * A null / empty slug (the all-categories template) keeps everything.
+     *
+     * @return array<int,array>
+     */
+    public static function columnsForSlug(?string $slug): array
+    {
+        if ($slug === null || $slug === '') {
+            return self::COLUMNS;
+        }
+
+        return array_values(array_filter(self::COLUMNS, function ($column) use ($slug) {
+            if (($column['scope'] ?? null) === 'full') {
+                return false;
+            }
+
+            // 'except' is the inverse of 'categories': a column every category
+            // carries BUT one. Width / Height use it, because a Bus Shelter is
+            // measured panel by panel and asking for a face size would invite
+            // a value the Add form would never store.
+            foreach ($column['except'] ?? [] as $keyword) {
+                if (str_contains($slug, $keyword)) {
+                    return false;
+                }
+            }
+
+            if (empty($column['categories'])) {
+                return true;
+            }
+
+            foreach ($column['categories'] as $keyword) {
+                if (str_contains($slug, $keyword)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }));
+    }
+
+    /**
+     * Header labels in template order. Pass a column subset to get the labels
+     * for a single category template.
+     *
+     * @param array<int,array>|null $columns
+     */
+    public static function labels(?array $columns = null): array
+    {
+        return array_column($columns ?? self::COLUMNS, 'label');
+    }
+
+    /**
+     * Map of every accepted normalised header => internal key.
+     */
+    public static function headerLookup(): array
+    {
+        $map = [];
+
+        foreach (self::COLUMNS as $column) {
+            $map[self::normalise($column['label'])] = $column['key'];
+            $map[self::normalise($column['key'])] = $column['key'];
+
+            foreach ($column['aliases'] as $alias) {
+                $map[self::normalise($alias)] = $column['key'];
+            }
+        }
+
+        return $map;
+    }
+
+    public static function requiredColumns(): array
+    {
+        return array_values(array_filter(self::COLUMNS, fn ($c) => $c['required']));
+    }
+
+    public static function optionalColumns(): array
+    {
+        return array_values(array_filter(self::COLUMNS, fn ($c) => !$c['required']));
+    }
+
+    public static function labelFor(string $key): string
+    {
+        foreach (self::COLUMNS as $column) {
+            if ($column['key'] === $key) {
+                return $column['label'];
+            }
+        }
+
+        return $key;
+    }
+
+    /**
+     * Flatten a keyed row into template column order, blanks included.
+     *
+     * @param array<string,mixed>   $row     keyed on the internal field name
+     * @param array<int,array>|null $columns column subset (defaults to all)
+     */
+    public static function rowInColumnOrder(array $row, ?array $columns = null): array
+    {
+        return array_map(
+            fn ($column) => (string) ($row[$column['key']] ?? ''),
+            $columns ?? self::COLUMNS
+        );
+    }
+
+    /**
+     * Illustrative rows used only when the masters are still empty — a live
+     * installation fills the template from its own data instead, see
+     * MediaImportExportService::templateSampleRows().
+     */
+    public static function sampleRows(?array $columns = null): array
+    {
+        $columns = $columns ?? self::COLUMNS;
+        $rows = [];
+
+        for ($i = 0; $i < 2; $i++) {
+            $rows[] = array_map(
+                fn ($column) => $column['samples'][$i] ?? '',
+                $columns
+            );
+        }
+
+        return $rows;
+    }
+}

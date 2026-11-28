@@ -56,9 +56,13 @@ class RevenueReportController extends Controller
         /* ================= MEDIA-WISE ================= */ elseif ($type === 'media') {
 
             $query->select(
+                'm.id as media_id',
                 'm.media_code',
+                'm.hoarding_code',
                 'cat.category_name',
                 'm.media_title',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 's.state_name',
                 'd.district_name',
                 'c.city_name',
@@ -82,9 +86,12 @@ class RevenueReportController extends Controller
                 DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
             )
                 ->groupBy(
+                    'm.id',
                     'm.media_code',
+                    'm.hoarding_code',
                     'cat.category_name',
                     'm.media_title',
+                    'hw.highway_name',
                     's.state_name',
                     'd.district_name',
                     'c.city_name',
@@ -148,6 +155,7 @@ class RevenueReportController extends Controller
             ->leftJoin('cities as c', 'c.id', '=', 'm.city_id')
             ->leftJoin('districts as d', 'd.id', '=', 'm.district_id')
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             // ->where('o.payment_status', 'paid')
             ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
             ->where('m.is_deleted', 0);
@@ -264,9 +272,13 @@ class RevenueReportController extends Controller
         /* ========= MEDIA ========= */ elseif ($type === 'media') {
 
             $query->select(
+                'm.id as media_id',
                 'm.media_code',
+                'm.hoarding_code',
                 'cat.category_name',
                 'm.media_title',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 's.state_name',
                 'd.district_name',
                 'c.city_name',
@@ -289,9 +301,12 @@ class RevenueReportController extends Controller
                 DB::raw('SUM(oi.total_price + (oi.total_price * 18 / 100)) as grand_total')
             )
                 ->groupBy(
+                    'm.id',
                     'm.media_code',
+                    'm.hoarding_code',
                     'cat.category_name',
                     'm.media_title',
+                    'hw.highway_name',
                     's.state_name',
                     'd.district_name',
                     'c.city_name',

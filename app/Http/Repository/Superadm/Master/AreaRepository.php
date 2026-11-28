@@ -3,6 +3,7 @@
 namespace App\Http\Repository\Superadm\Master;
 
 use App\Models\Area;
+use App\Support\LocationCache;
 use Illuminate\Support\Facades\DB;
 
 class AreaRepository
@@ -51,13 +52,17 @@ class AreaRepository
      */
     public function store(array $data)
     {
-        return Area::create([
+        $area = Area::create([
             'state_id'              => $data['state_id'],
             'district_id'           => $data['district_id'],
             'city_id'               => $data['city_id'],
             'area_name'             => $data['area_name'],
             'common_stdiciar_name'  => $data['common_stdiciar_name'],
         ]);
+
+        LocationCache::forgetAreas($area->city_id);
+
+        return $area;
     }
 
     /**
@@ -100,7 +105,10 @@ class AreaRepository
      */
     public function update($id, array $data)
     {
-        return Area::where('id', $id)->update([
+        // Keep the previous city so a moved area drops out of its old bucket too.
+        $oldCityId = Area::where('id', $id)->value('city_id');
+
+        $updated = Area::where('id', $id)->update([
             'state_id'              => $data['state_id'],
             'district_id'           => $data['district_id'],
             'city_id'               => $data['city_id'],
@@ -109,6 +117,10 @@ class AreaRepository
             // 'latitude'              => $data['latitude'],
             // 'longitude'             => $data['longitude'],
         ]);
+
+        LocationCache::forgetAreas($oldCityId, $data['city_id'] ?? null);
+
+        return $updated;
     }
 
     /**
@@ -117,9 +129,13 @@ class AreaRepository
     public function toggleStatus($id)
     {
         $area = Area::findOrFail($id);
-        return $area->update([
+        $updated = $area->update([
             'is_active' => !$area->is_active
         ]);
+
+        LocationCache::forgetAreas($area->city_id);
+
+        return $updated;
     }
 
     /**
@@ -127,10 +143,16 @@ class AreaRepository
      */
     public function softDelete($id)
     {
-        return Area::where('id', $id)->update([
+        $cityId = Area::where('id', $id)->value('city_id');
+
+        $deleted = Area::where('id', $id)->update([
             'is_deleted' => 1,
             'is_active'  => 0
         ]);
+
+        LocationCache::forgetAreas($cityId);
+
+        return $deleted;
     }
 
     public function isAreaUsedInMedia($areaId)

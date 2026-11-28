@@ -8,20 +8,31 @@ use App\Http\Controllers\Controller;
 use App\Http\Services\Website\HomeService;
 use Illuminate\Http\Request;
 use Throwable;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use App\Models\HomeSlider;
+use App\Support\MasterCache;
+use App\Support\AdminSession;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 
 class HomeController extends Controller
 {
+    /**
+     * How many hoardings the home page teaser carousel holds.
+     *
+     * It shows three at a time and loops, so this is about how much a visitor
+     * could plausibly swipe through before using the Explore page instead —
+     * not a cap on the inventory, which /explore pages through in full.
+     */
+    private const HOME_BILLBOARD_LIMIT = 24;
+
     public function __construct(private HomeService $homeService) {}
 
     private function getCachedAreaTypes()
     {
         return Cache::remember(
-            'home_area_types',
-            3600,
+            MasterCache::AREA_TYPES,
+            MasterCache::TTL,
             fn() =>
             DB::table('areatype')->where('is_active', 1)->where('is_deleted', 0)->get()
         );
@@ -36,7 +47,11 @@ class HomeController extends Controller
             DB::table('media_management')
                 ->where('is_deleted', 0)
                 ->where('is_active', 1)
-                ->selectRaw('CAST(MIN(area_auto) AS UNSIGNED) as min_area, CAST(MAX(area_auto) AS UNSIGNED) as max_area')
+                // area_auto is a VARCHAR, so MIN()/MAX() compare it as TEXT: the old
+                // 'CAST(MIN(area_auto) AS UNSIGNED)' aggregated the strings first and
+                // only then cast, which returned min=1122 / max=800 — a backwards
+                // range that left the size slider dead. Cast per row, then aggregate.
+                ->selectRaw('MIN(CAST(area_auto AS DECIMAL(15,2))) as min_area, MAX(CAST(area_auto AS DECIMAL(15,2))) as max_area')
                 ->first()
         );
     }
@@ -44,11 +59,16 @@ class HomeController extends Controller
     public function index()
     {
         $filters = [];
-        $mediaList = $this->homeService->searchMedia($filters);
+        // The search-form only reads $mediaList when a category filter is set,
+        // which never happens on the home page — so skip the heavy search query
+        // here and hand the view a cheap empty paginator instead.
+        $mediaList = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10);
 
+        // Key and TTL come from the model so the admin writes that evict this
+        // cache (HomeSliderRepository) can never target a different key.
         $sliders = Cache::remember(
-            'home_sliders',
-            1800,
+            HomeSlider::CACHE_KEY,
+            HomeSlider::CACHE_TTL,
             fn() =>
             HomeSlider::where('is_active', 1)->where('is_deleted', 0)->orderBy('id', 'desc')->get()
         );
@@ -60,7 +80,8 @@ class HomeController extends Controller
             $this->homeService->getLatestOtherMediaByCategory()
         );
 
-        $billboards = DB::table('media_management as m')
+        $billboards = Cache::remember('home_billboards', 300, fn() =>
+            DB::table('media_management as m')
 
             ->leftJoin('cities as city', 'city.id', '=', 'm.city_id')
             ->leftJoin('areas as a', 'a.id', '=', 'm.area_id')
@@ -77,6 +98,12 @@ class HomeController extends Controller
 
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
+
+            // The home page carousel only ever renders Hoardings — the view
+            // threw every other category away with an @if after the database
+            // had already fetched, joined and hydrated it. Filtered here
+            // instead, so the rows are never built in the first place.
+            ->where('m.category_id', 1)
 
             ->select([
                 'm.id',
@@ -98,6 +125,7 @@ class HomeController extends Controller
                 'a.common_stdiciar_name as common_area_name',
                 'mi.first_image',
                 'm.panorama_image',
+                'm.is_available',
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())), 2) as per_day_price'),
                 DB::raw("CASE
                     WHEN EXISTS (
@@ -113,7 +141,14 @@ class HomeController extends Controller
 
             ])
 
-            ->get();
+            // This is a three-at-a-time teaser carousel, but it had no limit at
+            // all: every active hoarding in the inventory was rendered into it,
+            // each with its own image, so the home page grew heavier with every
+            // record the team added. Newest first, capped.
+            ->orderByDesc('m.id')
+            ->limit(self::HOME_BILLBOARD_LIMIT)
+            ->get()
+        );
 
         $areaTypes = $this->getCachedAreaTypes();
         $areaRange = $this->getCachedAreaRange();
@@ -150,6 +185,10 @@ class HomeController extends Controller
             'city_id',
             'area_id',
             'radius_id',
+            // The Radius slider's two handles. radius_id is kept alongside them
+            // for links and saved sessions from before it had two.
+            'min_radius',
+            'max_radius',
             'from_date',
             'to_date',
             'areatype_id',
@@ -158,7 +197,13 @@ class HomeController extends Controller
             'max_price',   // <- add
             'size_id',   //  FIXED
             'min_area',   //  add
-            'max_area'    //  add
+            'max_area',    //  add
+            'highway_id',     // Highway filter (single)
+            'landmark_ids',   // Landmark filter (multiple, OR logic)
+            'nearby_place',       // "lat,lng" of a place from the nearby-places data
+            'nearby_place_name',  // its name, only to show the choice again
+            'nearby_distance',    // metres around that place
+            'hoarding_code'   // Sector Code, partial match
         ]);
         //  SAVE FILTERS IN SESSION
         session(['search_filters' => $filters]);
@@ -169,7 +214,13 @@ class HomeController extends Controller
             if ($mediaList->isEmpty()) {
                 return '';
             }
-            return view('website.media-home-list', compact('mediaList'))->render();
+            // Lazy-loaded pages are the same search results, so they carry the
+            // shortlist ticks too — otherwise cards appended on scroll would
+            // have no checkbox and could not be shared.
+            return view('website.media-home-list', [
+                'mediaList' => $mediaList,
+                'shareable' => true,
+            ])->render();
         }
         $areaTypes = $this->getCachedAreaTypes();
         $areaRange = $this->getCachedAreaRange();
@@ -194,6 +245,8 @@ class HomeController extends Controller
     }
     public function getMediaDetails($mediaId)
     {
+        $rawMediaId = $mediaId;
+
         try {
             $mediaId = base64_decode($mediaId);
 
@@ -210,8 +263,22 @@ class HomeController extends Controller
                 ->where('oi.is_deleted', 0)
                 ->whereIn('o.payment_status', ['PAID', 'ADMIN_BOOKED'])
                 ->select('oi.from_date', 'oi.to_date')
-                ->orderBy('oi.from_date')
                 ->get();
+
+            // Bookings and blocks added by the vendor or admin (media_booked_date) are
+            // booked too; the calendar used to show only paid orders.
+            $blocked = DB::table('media_booked_date')
+                ->where('media_id', $mediaId)
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->whereDate('to_date', '>=', now()->toDateString())
+                ->select('from_date', 'to_date')
+                ->get();
+
+            $orders = $orders->concat($blocked)
+                ->map(fn ($r) => (object) ['from_date' => substr((string) $r->from_date, 0, 10), 'to_date' => substr((string) $r->to_date, 0, 10)])
+                ->sortBy('from_date')
+                ->values();
 
             // MERGE OVERLAPPING RANGES
             $merged = [];
@@ -241,11 +308,19 @@ class HomeController extends Controller
             $bookedRanges = $merged;
 
             return view('website.media-details', compact('media', 'bookedRanges'));
-        } catch (Exception $e) {
+        } catch (HttpExceptionInterface $e) {
+
+            // abort(404) — the media simply doesn't exist (or is deleted).
+            // Let it render as a real 404 instead of masking it as a redirect.
+            throw $e;
+        } catch (Throwable $e) {
 
             Log::error('Media Details Error', [
-                'media_id' => $mediaId,
-                'message'  => $e->getMessage()
+                'media_id'  => $mediaId,
+                'raw_param' => $rawMediaId,
+                'exception' => get_class($e),
+                'message'   => $e->getMessage(),
+                'file'      => $e->getFile() . ':' . $e->getLine()
             ]);
 
             return redirect()

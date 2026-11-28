@@ -1,6 +1,23 @@
 @extends('superadm.layout.master')
 
 @section('content')
+    <style>
+        /* The admin theme (asset/css/style.css) pushes every checkbox off-screen
+           and draws a fake one on the label after it. These bulk-select boxes
+           have no label, so bring the native checkbox back. */
+        input.media-check[type="checkbox"],
+        input.media-check[type="checkbox"]:checked,
+        input.media-check[type="checkbox"]:not(:checked) {
+            position: static;
+            left: auto;
+            opacity: 1;
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+            accent-color: #008a93;
+            vertical-align: middle;
+        }
+    </style>
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -10,10 +27,52 @@
                     @if (session('success'))
                         <div class="alert alert-success">{{ session('success') }}</div>
                     @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
+
+                    {{-- ROWS THE BULK IMPORT COULD NOT PUBLISH --}}
+                    @if (!empty(session('import_skipped')))
+                        <div class="alert alert-warning">
+                            <b>{{ count(session('import_skipped')) }} row(s) were skipped during the import:</b>
+                            <ul class="mb-0 mt-2">
+                                @foreach (session('import_skipped') as $skipped)
+                                    <li>Row {{ $skipped['row'] }} — {{ $skipped['issues'] }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- IMAGES THE BULK IMPORT COULD NOT DOWNLOAD (the records themselves were saved) --}}
+                    @if (!empty(session('import_image_warnings')))
+                        <div class="alert alert-warning">
+                            <b>
+                                {{ count(session('import_image_warnings')) }} record(s) were saved but some images
+                                could not be downloaded:
+                            </b>
+                            <ul class="mb-0 mt-2">
+                                @foreach (session('import_image_warnings') as $warning)
+                                    <li>
+                                        Row {{ $warning['row'] }}
+                                        @if (!empty($warning['media_title']))
+                                            ({{ $warning['media_title'] }})
+                                        @endif
+                                        — {{ $warning['issues'] }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                            <small class="d-block mt-2">
+                                You can add these images from the Edit Media screen.
+                            </small>
+                        </div>
+                    @endif
 
                     {{-- TABLE --}}
                     <div class="table">
                         <form method="GET" class="mb-3">
+                            @if (request('per_page'))
+                                <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+                            @endif
                             <div class="row">
 
                                 <div class="col-md-3">
@@ -99,7 +158,14 @@
                                     <input type="date" name="to_date" class="form-control"
                                         value="{{ request('to_date') }}">
                                 </div>
-                                <div class="col-md-6 d-flex align-items-end">
+
+                                <div class="col-md-3 mt-3">
+                                    <label><b>Sector Code</b></label>
+                                    <input type="text" name="hoarding_code" class="form-control"
+                                        placeholder="e.g. HD000007 or BS000012" value="{{ request('hoarding_code') }}">
+                                </div>
+
+                                <div class="col-md-6 d-flex align-items-end mt-3">
                                     <button class="btn btn-success m-2">Filter</button>
                                     <a href="{{ route('media.list') }}" class="btn btn-secondary m-2">Reset</a>
                                 </div>
@@ -110,9 +176,42 @@
                         {{-- HEADER --}}
                         <div class="d-flex justify-content-between mb-3">
                             <h4>Media List</h4>
-                            <a href="{{ route('media.create') }}" class="btn btn-add">
-                                Add Media
-                            </a>
+                            <div>
+                                {{-- Opens on the Import tab; the list's current filters still ride along so
+                                     switching to Export keeps whatever the user was browsing. --}}
+                                <a href="{{ route('media.import-export', array_merge(request()->query(), ['tab' => 'import'])) }}"
+                                    class="btn btn-primary">
+                                    <i class="fa fa-exchange-alt"></i> Import / Export
+                                </a>
+                                <a href="{{ route('media.create') }}" class="btn btn-add">
+                                    Add Media
+                                </a>
+                            </div>
+                        </div>
+                        {{-- BULK AVAILABILITY: tick rows, then flag them. A Not Available
+                             hoarding stays on the website but cannot be booked. --}}
+                        <div class="d-flex align-items-center mb-2">
+                            <button type="button" class="btn btn-danger btn-sm m-1 bulk-availability"
+                                data-available="0" disabled>
+                                <i class="fa fa-ban"></i> Not Available
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm m-1 bulk-availability"
+                                data-available="1" disabled>
+                                <i class="fa fa-check"></i> Available
+                            </button>
+                            <span class="text-muted" style="margin-left:12px;font-size:15px;font-weight:500;" id="selectedCount"></span>
+                            {{-- Shown once the whole page is ticked and there are more pages. --}}
+                            @if ($mediaList->total() > $mediaList->count())
+                                <span class="d-none" style="margin-left:12px;font-size:15px;font-weight:600;" id="selectAllPrompt">
+                                    <a href="javascript:void(0)" id="selectAllMatching" style="text-decoration:underline;">
+                                        Select all {{ $mediaList->total() }} media
+                                    </a>
+                                </span>
+                                <span class="d-none" style="margin-left:12px;font-size:15px;" id="clearAllPrompt">
+                                    <b>All {{ $mediaList->total() }} media selected.</b>
+                                    <a href="javascript:void(0)" id="clearSelection">Clear selection</a>
+                                </span>
+                            @endif
                         </div>
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped">
@@ -120,8 +219,14 @@
                                 {{-- <table class="table table-bordered table-striped datatables"> --}}
                                 <thead class="table-light">
                                     <tr>
+                                        <th><input type="checkbox" class="media-check" id="selectAllMedia" title="Select all"></th>
                                         <th>Sr.No</th>
-                                        {{-- <th>Media Code</th> --}}
+                                        {{-- Not "Hoarding Code": the column carries every
+                                             scheme, HD for hoardings and BS for bus
+                                             shelters. Named apart from the Media Code
+                                             column further right, which is a different
+                                             field (media_management.media_code). --}}
+                                        <th>Sector Code</th>
                                         <th>Media Title</th>
                                         <th>Category</th>
                                         <th>State</th>
@@ -138,10 +243,20 @@
 
                                 <tbody>
                                     @forelse ($mediaList as $key => $media)
-                                        <tr>
+                                        <tr class="media-row-link" data-href="{{ route('media.viewdetails', base64_encode($media->id)) }}" title="Open details">
+                                            <td class="no-row-link">
+                                                <input type="checkbox" class="media-check media-select"
+                                                    value="{{ base64_encode($media->id) }}">
+                                            </td>
                                             {{-- <td>{{ $key + 1 }}</td> --}}
                                             <td>{{ $mediaList->firstItem() + $key }}</td>
-                                            <td>{{ $media->media_title ?? '-' }}</td>
+                                            <td><span class="badge bg-success text-white">{{ $media->hoarding_code ?? '-' }}</span></td>
+                                            <td>
+                                                {{ $media->media_title ?? '-' }}
+                                                @if (isset($media->is_available) && !$media->is_available)
+                                                    <br><span class="badge bg-danger text-white">Not Available</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $media->category_name ?? '-' }}</td>
                                             <td>{{ $media->state_name ?? '-' }}</td>
                                             <td>{{ $media->district_name ?? '-' }}</td>
@@ -152,7 +267,7 @@
                                             </td>
                                             <td>{{ $media->vendor_name ?? '-' }}</td>
                                             <td>{{ $media->media_code ?? '-' }}</td>
-                                            <td>
+                                            <td class="no-row-link">
                                                 <label class="switch">
                                                     <input type="checkbox" class="toggle-status"
                                                         data-id="{{ base64_encode($media->id) }}"
@@ -160,7 +275,7 @@
                                                     <span class="slider"></span>
                                                 </label>
                                             </td>
-                                            <td class="d-flex">
+                                            <td class="d-flex no-row-link">
 
                                                 {{-- View Details --}}
                                                 <a href="{{ route('media.viewdetails', base64_encode($media->id)) }}"
@@ -192,7 +307,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="12" class="text-center">
+                                            <td colspan="14" class="text-center">
                                                 No media found
                                             </td>
                                         </tr>
@@ -207,8 +322,19 @@
                                     of {{ $mediaList->total() }} rows
                                 </div>
 
-                                {{-- RIGHT : PAGINATION --}}
-                                <div>
+                                {{-- RIGHT : ROWS PER PAGE + PAGINATION --}}
+                                <div class="d-flex align-items-start">
+                                    <div class="d-flex align-items-center mr-3" style="margin-right:12px;">
+                                        <label for="perPage" class="text-muted mb-0" style="margin-right:6px;">Show</label>
+                                        <select id="perPage" class="form-control form-control-sm" style="width:auto;">
+                                            @foreach ([10, 20, 50, 100] as $size)
+                                                <option value="{{ $size }}"
+                                                    {{ $mediaList->perPage() == $size ? 'selected' : '' }}>
+                                                    {{ $size }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     {{ $mediaList->appends(request()->query())->links() }}
                                 </div>
                             </div>
@@ -220,6 +346,24 @@
         </div>
         @section('scripts')
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <style>
+                .media-row-link { cursor: pointer; }
+                .media-row-link:hover > td { background: #f1f8f9; }
+                .media-row-link > td.no-row-link { cursor: default; }
+            </style>
+            <script>
+                // Clicking a media row opens its View Details page. The select checkbox,
+                // Active switch and action buttons keep their own behaviour; text selection
+                // does not navigate; Ctrl/Cmd or middle click opens a new tab.
+                $(document).on('click auxclick', 'tr.media-row-link', function(e) {
+                    if ($(e.target).closest('a, button, input, select, textarea, label, .no-row-link').length) return;
+                    if (window.getSelection && String(window.getSelection()).length) return;
+                    if (e.type === 'auxclick' && e.button !== 1) return;
+                    var url = this.dataset.href;
+                    if (e.ctrlKey || e.metaKey || e.button === 1) window.open(url, '_blank');
+                    else window.location.href = url;
+                });
+            </script>
             <script>
                 $(document).ready(function() {
 
@@ -295,6 +439,108 @@
                 });
 
 
+                // ================= ROWS PER PAGE =================
+                // Keeps the current filters, restarts at page 1.
+                $(document).on('change', '#perPage', function() {
+                    let url = new URL(window.location.href);
+                    url.searchParams.set('per_page', this.value);
+                    url.searchParams.delete('page');
+                    window.location.href = url.toString();
+                });
+
+
+                // ================= BULK AVAILABILITY =================
+                // true once "Select all N media" is clicked: the action then covers every
+                // record matching the filters, not only the rows on this page.
+                let selectAllMatching = false;
+                const totalMatching = {{ $mediaList->total() }};
+                @php
+                    $listFilters = request()->only(['vendor_id', 'category_id', 'district_id', 'city_id', 'month', 'year', 'from_date', 'to_date', 'hoarding_code']);
+                @endphp
+                const listFilters = @json((object) $listFilters);
+
+                function refreshSelection() {
+                    let count = $('.media-select:checked').length;
+                    let pageFull = count > 0 && count === $('.media-select').length;
+
+                    if (!pageFull) selectAllMatching = false;
+
+                    $('.bulk-availability').prop('disabled', count === 0);
+                    $('#selectAllMedia').prop('checked', pageFull);
+                    $('#selectedCount').text(selectAllMatching ? '' : (count ? count + ' selected' : ''));
+                    $('#selectAllPrompt').toggleClass('d-none', !pageFull || selectAllMatching);
+                    $('#clearAllPrompt').toggleClass('d-none', !selectAllMatching);
+                }
+
+                $(document).on('change', '#selectAllMedia', function() {
+                    $('.media-select').prop('checked', this.checked);
+                    refreshSelection();
+                });
+
+                $(document).on('change', '.media-select', refreshSelection);
+
+                $(document).on('click', '#selectAllMatching', function() {
+                    selectAllMatching = true;
+                    refreshSelection();
+                });
+
+                $(document).on('click', '#clearSelection', function() {
+                    selectAllMatching = false;
+                    $('.media-select').prop('checked', false);
+                    refreshSelection();
+                });
+
+                $(document).on('click', '.bulk-availability', function() {
+
+                    let ids = $('.media-select:checked').map(function() {
+                        return this.value;
+                    }).get();
+                    if (!ids.length) return;
+
+                    let available = $(this).data('available');
+                    let label = available == 1 ? 'Available' : 'Not Available';
+                    let total = selectAllMatching ? totalMatching : ids.length;
+
+                    Swal.fire({
+                        title: 'Mark as ' + label + '?',
+                        text: available == 1 ?
+                            total + ' media will be bookable on the website again.' :
+                            total + ' media will show as Not Available on the website and cannot be booked.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: available == 1 ? '#198754' : '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, mark ' + label
+                    }).then((result) => {
+
+                        if (!result.isConfirmed) return;
+
+                        // select_all carries the list's current filters (from the URL) so the
+                        // server picks the same records the list is showing.
+                        let payload = selectAllMatching ?
+                            Object.assign({}, listFilters, {
+                                select_all: 1
+                            }) : {
+                                ids: ids
+                            };
+
+                        $.post("{{ route('media.availability') }}", Object.assign(payload, {
+                            _token: "{{ csrf_token() }}",
+                            is_available: available
+                        }), function(response) {
+                            toastr.success(response.message);
+                            setTimeout(function() {
+                                location.reload();
+                            }, 700);
+                        }).fail(function(xhr) {
+                            toastr.error(xhr.responseJSON?.message || 'Failed to update availability');
+                        });
+
+                    });
+
+                });
+
+
                 // ================= DELETE =================
                 $(document).on('click', '.delete-btn', function() {
 
@@ -321,6 +567,15 @@
                             },
                             success: function() {
                                 location.reload();
+                            },
+                            // e.g. booked / blocked media cannot be deleted
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Cannot delete',
+                                    text: (xhr.responseJSON && xhr.responseJSON.message) || 'Delete failed. Please try again.',
+                                    confirmButtonColor: '#F97316'
+                                });
                             }
                         });
 

@@ -1,4 +1,4 @@
-@extends('superadm.layout.master')
+@extends($formLayout ?? 'superadm.layout.master')
 @section('styles')
     <style>
         #billboardsId,
@@ -7,6 +7,9 @@
         #transmitMedia,
         #officeBranding,
         #wallWrapSection,
+        #hoardingExtra,
+        #illuminationField,
+        #busShelterSection,
         #radiusSection {
             display: none;
         }
@@ -103,13 +106,12 @@
 @section('content')
     <div class="card shadow-sm">
         <div class="card-body">
-            <h4 class="mb-4">Add Media</h4>
-            <form id="mediaForm" method="POST" action="{{ route('media.store') }}" enctype="multipart/form-data">
+            <h4 class="mb-4">{{ $formTitle ?? 'Add Media' }}</h4>
+            @if (!empty($formIntro))
+                @include($formIntro)
+            @endif
+            <form id="mediaForm" method="POST" action="{{ $formAction ?? route('media.store') }}" enctype="multipart/form-data">
                 @csrf
-                {{-- ================= HIDDEN LOCATION FIELDS ================= --}}
-                <input type="hidden" name="state_id" id="state_id">
-                <input type="hidden" name="district_id" id="district_id">
-                <input type="hidden" name="city_id" id="city_id">
                 <div class="row">
                     {{-- ================= BASIC INFO ================= --}}
                     <div class="col-md-4 mb-3">
@@ -132,16 +134,11 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- ================= AREA (ONLY ONE DROPDOWN) ================= --}}
-                    <div class="col-md-4 mb-3">
-                        <label>Area <span class="">*</span></label>
-                        <select id="area" name="area_id" class="form-control @error('area_id') is-invalid @enderror">
-                            <option value="">Select Area</option>
-                        </select>
-                        @error('area_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @if (!empty($lockedVendor))
+                        {{-- Vendor panel: the signed-in vendor, fixed. The server
+                             ignores any posted vendor_id there anyway. --}}
+                        <input type="hidden" name="vendor_id" id="vendor_id" value="{{ $lockedVendor->id }}">
+                    @else
                     <div class="col-md-4 mb-3">
                         <label>Vendor <span class="text-danger">*</span></label>
                         <select name="vendor_id" id="vendor_id"
@@ -161,8 +158,88 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- ================= DIMENSIONS ================= --}}
+                    @endif
+                    @include('superadm.mediamanagement.partials.location-fields', ['fields' => ['state_id']])
                 </div>
+
+                <div class="row">
+                    @include('superadm.mediamanagement.partials.location-fields', [
+                        'fields' => ['district_id', 'city_id', 'area_id'],
+                    ])
+                </div>
+
+                {{-- ============ HIGHWAY & LANDMARKS (Hoardings only) ============ --}}
+                <div class="row" id="hoardingExtra">
+                    <div class="col-md-6 mb-3">
+                        <label>Highway</label>
+                        <select name="highway_id" id="highway_id"
+                            class="form-control @error('highway_id') is-invalid @enderror">
+                            <option value="">Select Highway</option>
+                            @foreach ($highways as $hw)
+                                <option value="{{ $hw->id }}"
+                                    {{ old('highway_id') == $hw->id ? 'selected' : '' }}>
+                                    {{ $hw->highway_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('highway_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Landmarks <small class="text-muted">(select one or more)</small></label>
+                        <select name="landmark_ids[]" id="landmark_ids" multiple
+                            class="form-control landmark-select @error('landmark_ids') is-invalid @enderror">
+                            @foreach ($landmarks as $lm)
+                                <option value="{{ $lm->id }}"
+                                    {{ collect(old('landmark_ids', []))->contains($lm->id) ? 'selected' : '' }}>
+                                    {{ $lm->landmark_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('landmark_ids')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                {{-- ============ MEDIA TITLE (every category) ============ --}}
+                {{-- Outside #billboardsId on purpose: the website shows
+                     "Media Title + Area" as a site's name, so every category
+                     needs one, not just Hoardings. --}}
+                {{-- Latitude / Longitude sit here rather than down with Width and
+                     Height: they follow on from State → District → City → Area,
+                     and they fill this line for every category so Media Title is
+                     never left on a line of its own. --}}
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Media Title <span class="text-danger">*</span></label>
+                        <input type="text" name="media_title" value="{{ old('media_title') }}"
+                            class="form-control @error('media_title') is-invalid @enderror">
+                        @error('media_title')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Latitude <span class="text-danger">*</span></label>
+                        <input type="text" name="latitude" value="{{ old('latitude') }}"
+                            class="form-control @error('latitude') is-invalid @enderror">
+                        @error('latitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Longitude <span class="text-danger">*</span></label>
+                        <input type="text" name="longitude" value="{{ old('longitude') }}"
+                            class="form-control @error('longitude') is-invalid @enderror">
+                        @error('longitude')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="row" id="billboardsId">
                     <div class="col-md-4 mb-3">
                         <label>Media Code</label>
@@ -173,14 +250,6 @@
                         <input type="hidden" name="media_code" id="media_code_hidden">
                     </div>
 
-                    <div class="col-md-4 mb-3">
-                        <label>Media Title <span class="text-danger">*</span></label>
-                        <input type="text" name="media_title" value="{{ old('media_title') }}"
-                            class="form-control @error('media_title') is-invalid @enderror">
-                        @error('media_title')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-4 mb-3">
                         <label>Facing <span class="text-danger">*</span></label>
                         <input type="text" name="facing" class="form-control @error('facing') is-invalid @enderror"
@@ -194,7 +263,7 @@
 
 
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area Type <span class="text-danger">*</span></label>
                         <select name="areatype_id" class="form-control @error('areatype_id') is-invalid @enderror">
                             <option value="">Select</option>
@@ -210,28 +279,63 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <label>Illumination <span class="text-danger">*</span></label>
-                        <select name="illumination_id" class="form-control @error('illumination_id') is-invalid @enderror">
-                            <option value="">Select</option>
-                            @foreach ($illuminations as $ill)
-                                <option value="{{ $ill->id }}"
-                                    {{ old('illumination_id') == $ill->id ? 'selected' : '' }}>
-                                    {{ $ill->illumination_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('illumination_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-12 mb-3">
                         <label>Address <span class="text-danger">*</span></label>
                         <textarea name="address" class="form-control @error('address') is-invalid @enderror" rows="2">{{ old('address') }}</textarea>
                         @error('address')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                </div>
+
+                {{-- ================= BUS SHELTER ================= --}}
+                {{-- A shelter advertises on separate panels instead of one face,
+                     so it replaces Width/Height with a size per panel. --}}
+                <div class="row" id="busShelterSection">
+                    <div class="col-12 mb-2">
+                        <label class="fw-bold mb-0">Location Size (ft)</label>
+                        <div class="text-muted small">
+                            Enter the panels this shelter carries — width × height, then how many
+                            boards of that size. Leave a panel blank if it has none.
+                        </div>
+                    </div>
+
+                    @foreach (\App\Models\MediaLocationSize::POSITIONS as $position => $label)
+                        <div class="col-md-4 mb-3">
+                            <label>{{ $label }}</label>
+                            <div class="d-flex align-items-center">
+                                <input type="number" step="0.01" min="0"
+                                    name="location_sizes[{{ $position }}][width]"
+                                    value="{{ old('location_sizes.' . $position . '.width') }}"
+                                    placeholder="Width"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.width') is-invalid @enderror">
+                                <span class="mx-2 text-muted">&times;</span>
+                                <input type="number" step="0.01" min="0"
+                                    name="location_sizes[{{ $position }}][height]"
+                                    value="{{ old('location_sizes.' . $position . '.height') }}"
+                                    placeholder="Height"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.height') is-invalid @enderror">
+                                <span class="mx-2 text-muted">—</span>
+                                {{-- How many boards of this size sit at this
+                                     position. Blank means one. --}}
+                                <input type="number" step="1" min="1" max="99"
+                                    name="location_sizes[{{ $position }}][quantity]"
+                                    value="{{ old('location_sizes.' . $position . '.quantity') }}"
+                                    placeholder="Qty" style="max-width:78px"
+                                    class="form-control location-size-input @error('location_sizes.' . $position . '.quantity') is-invalid @enderror">
+                            </div>
+                            @error('location_sizes.' . $position . '.width')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                            @error('location_sizes.' . $position . '.height')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endforeach
+
+                    @error('location_sizes')
+                        <div class="col-12"><div class="text-danger small">{{ $message }}</div></div>
+                    @enderror
                 </div>
                 <div class="row" id="mallMedia">
                     <div class="col-md-6 mb-3">
@@ -261,7 +365,7 @@
                 </div>
                 <div class="row" id="airportBranding">
                     {{-- Airport Name --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Airport Name <span class="text-danger">*</span></label>
                         <input type="text" name="airport_name" value="{{ old('airport_name') }}"
                             class="form-control @error('airport_name') is-invalid @enderror">
@@ -271,7 +375,7 @@
                     </div>
 
                     {{-- Zone Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Zone <span class="text-danger">*</span></label>
                         <select name="zone_type" class="form-control @error('zone_type') is-invalid @enderror">
                             <option value="">Select Zone</option>
@@ -285,7 +389,7 @@
                     </div>
 
                     {{-- Media Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Media Type <span class="text-danger">*</span></label>
                         <select name="media_type" class="form-control @error('media_type') is-invalid @enderror">
                             <option value="">Select Media Type</option>
@@ -302,7 +406,7 @@
                 </div>
                 <div class="row" id="transmitMedia">
                     {{-- Transit Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Transit Type <span class="text-danger">*</span></label>
                         <select name="transit_type" class="form-control @error('transit_type') is-invalid @enderror">
                             <option value="">Select Transit Type</option>
@@ -317,7 +421,7 @@
                     </div>
 
                     {{-- Branding Type --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Branding Type <span class="text-danger">*</span></label>
                         <select name="branding_type" class="form-control @error('branding_type') is-invalid @enderror">
                             <option value="">Select Branding Type</option>
@@ -334,7 +438,7 @@
                     </div>
 
                     {{-- Vehicle Count --}}
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Vehicle Count <span class="text-danger">*</span></label>
                         <input type="number" name="vehicle_count" min="1" value="{{ old('vehicle_count') }}"
                             class="form-control @error('vehicle_count') is-invalid @enderror">
@@ -345,7 +449,7 @@
                 </div>
                 <div class="row" id="officeBranding">
                     {{-- Building Name --}}
-                    <div class="col-md-6 mb-6">
+                    <div class="col-md-6 mb-3">
                         <label>Building Name <span class="text-danger">*</span></label>
                         <input type="text" name="building_name" value="{{ old('building_name') }}"
                             class="form-control @error('building_name') is-invalid @enderror">
@@ -355,7 +459,7 @@
                     </div>
 
                     {{-- Branding Type --}}
-                    <div class="col-md-6 mb-6">
+                    <div class="col-md-6 mb-3">
                         <label>Branding Type <span class="text-danger">*</span></label>
                         <select name="wall_length" class="form-control @error('wall_length') is-invalid @enderror">
                             <option value="">Select Branding Type</option>
@@ -372,7 +476,9 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-3 mb-3">
+                    {{-- Hidden for Bus Shelter, which sizes each panel separately
+                         in #busShelterSection instead of having one face. --}}
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Width (ft) <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="width" id="width" value="{{ old('width') }}"
                             class="form-control @error('width') is-invalid @enderror">
@@ -380,7 +486,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3 dimension-field">
                         <label>Height (ft) <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="height" id="height" value="{{ old('height') }}"
                             class="form-control @error('height') is-invalid @enderror">
@@ -388,23 +494,28 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    {{-- ================= GEO ================= --}}
-                    <div class="col-md-3 mb-3">
-                        <label>Latitude <span class="text-danger">*</span></label>
-                        <input type="text" name="latitude" value="{{ old('latitude') }}"
-                            class="form-control @error('latitude') is-invalid @enderror">
-                        @error('latitude')
+                    {{-- Illumination is shared by more than one category (Hoardings
+                         and Bus Shelter), so it is its own toggleable column rather
+                         than part of a single category's section — two selects with
+                         the same name would both post and fight over the value.
+                         It sits in this line so it is never left on one of its own. --}}
+                    <div class="col-md-4 mb-3" id="illuminationField">
+                        <label>Illumination <span class="text-danger">*</span></label>
+                        <select name="illumination_id" id="illumination_id"
+                            class="form-control @error('illumination_id') is-invalid @enderror">
+                            <option value="">Select</option>
+                            @foreach ($illuminations as $ill)
+                                <option value="{{ $ill->id }}"
+                                    {{ old('illumination_id') == $ill->id ? 'selected' : '' }}>
+                                    {{ $ill->illumination_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('illumination_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label>Longitude <span class="text-danger">*</span></label>
-                        <input type="text" name="longitude" value="{{ old('longitude') }}"
-                            class="form-control @error('longitude') is-invalid @enderror">
-                        @error('longitude')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+
                     <div class="col-md-4 mb-3">
                         <label>Monthly Price <span class="text-danger">*</span></label>
                         <input type="number" step="0.01" name="price" value="{{ old('price') }}"
@@ -413,7 +524,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-4 mb-3">
                         <label>Images <small>(image size must be less then 600kb)</small><span
                                 class="text-danger">*</span></label>
 
@@ -467,7 +578,7 @@
 
                 </div>
                 <div class="row" id="wallWrapSection">
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Area (sq.ft)</label>
                         <input type="text" name="area_auto" id="area_auto" value="{{ old('area_auto') }}"
                             class="form-control @error('area_auto') is-invalid @enderror" readonly>
@@ -479,8 +590,8 @@
 
                 </div>
                 <div class="text-end d-flex justify-content-end">
-                    <a href="{{ route('media.list') }}" class="btn btn-secondary mr-2">Cancel</a>
-                    <button class="btn btn-success">Save Media</button>
+                    <a href="{{ $cancelUrl ?? route('media.list') }}" class="btn btn-secondary mr-2">Cancel</a>
+                    <button class="btn btn-success">{{ $submitLabel ?? 'Save Media' }}</button>
                 </div>
 
             </form>
@@ -491,50 +602,179 @@
 {{-- ================= SCRIPTS ================= --}}
 @section('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    {{-- Select2 for landmark multi-select --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        /* Make Select2 match the existing Bootstrap form-control dropdowns */
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-container--default .select2-selection--multiple {
+            position: relative;
+            /* match the height + rounding of the sibling .form-control inputs */
+            min-height: calc(1.5em + 0.75rem + 2px);
+            border: 1px solid #d9d9d9;
+            border-radius: 0.25rem;
+            padding: 2px 30px 2px 12px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            background-color: #fff;
+        }
+        /* placeholder / typed text — same size + vertical centring as the other fields */
+        .select2-container--default .select2-selection--multiple .select2-search__field {
+            font-size: 1rem;
+            height: calc(1.5em + 0.75rem - 2px);
+            line-height: calc(1.5em + 0.75rem - 2px);
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        /* native-style dropdown caret on the right */
+        .select2-container--default .select2-selection--multiple::after {
+            content: "";
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            width: 7px;
+            height: 7px;
+            border: solid #6c757d;
+            border-width: 0 2px 2px 0;
+            transform: translateY(-70%) rotate(45deg);
+            pointer-events: none;
+        }
+        .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field::placeholder {
+            color: #6c757d;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15);
+            outline: 0;
+        }
+        /* selected value "chips" — clean rounded pills (label first, × after) */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            display: inline-flex !important;
+            align-items: center;
+            background-color: #f28123 !important;
+            border: none !important;
+            color: #fff !important;
+            border-radius: 16px !important;
+            padding: 4px 6px 4px 14px !important;
+            margin: 3px 3px !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            font-weight: 600 !important;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__display {
+            order: 1;
+            padding: 0 !important;
+            color: #fff !important;
+        }
+        /* the × remove button — a clean white cross in a soft circle, AFTER the label */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            order: 2;
+            position: static !important;
+            /* override select2's absolute positioning that overlaps the text */
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            transform: none !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin: 0 0 0 7px !important;
+            padding: 0 !important;
+            border: none !important;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .25) !important;
+            color: #fff !important;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove span {
+            color: #fff !important;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background: rgba(255, 255, 255, .45) !important;
+            color: #fff !important;
+        }
+        /* dropdown option highlight in theme colour */
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #f28123;
+        }
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #fde3cf;
+            color: #b95e16;
+            font-weight: 600;
+        }
+        /* clear ✓ marker so the user can tell what's already selected,
+           and that clicking it again will remove it */
+        .select2-container--default .select2-results__option[aria-selected=true]::after {
+            content: "\2713";
+            float: right;
+            color: #f28123;
+            font-weight: 700;
+        }
+        .select2-container--default .select2-results__option[aria-selected=true]:hover::after {
+            content: "\2715";
+            font-size: 12px;
+            color: #d96f15;
+        }
+        .select2-container--default .select2-search--inline .select2-search__field {
+            margin-top: 0;
+        }
+        .select2-container .select2-selection--multiple .select2-selection__rendered {
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
     <script>
         $(function() {
-
-            console.log('Loading areas...');
-
-            $.get("{{ url('get-all-areas') }}", function(areas) {
-
-                console.log('Areas response:', areas);
-
-                areas.forEach(area => {
-                    $('#area').append(`
-                <option 
-                    value="${area.id}"
-                    data-state="${area.state_id}"
-                    data-district="${area.district_id}"
-                    data-city="${area.city_id}">
-                    ${area.common_stdiciar_name}
-                </option>
-            `);
-                });
-                // 🔥 AUTO GENERATE if old values exist
-                setTimeout(function() {
-                    generateMediaCode();
-                }, 200);
+            $('.landmark-select').select2({
+                placeholder: 'Select landmarks',
+                // no allowClear: its "clear all" × overlapped the dropdown caret;
+                // each chip has its own × to deselect individually instead.
+                allowClear: false,
+                width: '100%'
             });
 
-            $('#area').on('change', function() {
-
-                let selected = $(this).find(':selected');
-
-                $('#state_id').val(selected.data('state'));
-                $('#district_id').val(selected.data('district'));
-                $('#city_id').val(selected.data('city'));
-
-                console.log({
-                    area_id: $(this).val(),
-                    state_id: selected.data('state'),
-                    district_id: selected.data('district'),
-                    city_id: selected.data('city')
-                });
+            /* Location and Vendor are long lists — every area in a city,
+               every vendor on the platform — so all get a type-ahead.
+               Select2 fires a native change, so the cascade handlers in
+               partials/location-script keep working untouched. */
+            $('.location-select, select#vendor_id').select2({
+                width: '100%',
+                placeholder: function () { return $(this).find('option:first').text(); },
+                // Always show the search box, however short the list is.
+                // Select2 hides it below a threshold by default, which meant
+                // Vendor — three active ones today — had no way to type into
+                // it while Area did. Same control, same behaviour, and the
+                // vendor list only grows.
+                minimumResultsForSearch: 0
             });
 
         });
     </script>
+
+    @include('superadm.mediamanagement.partials.location-script', [
+        'selected' => [
+            'state'    => old('state_id'),
+            'district' => old('district_id'),
+            'city'     => old('city_id'),
+            'area'     => old('area_id'),
+        ],
+    ])
     <script>
         $(document).ready(function() {
 
@@ -575,8 +815,12 @@
         $(document).ready(function() {
 
             function hideAllSections() {
-                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrapSection')
+                $('#billboardsId, #mallMedia, #airportBranding, #transmitMedia, #officeBranding, #wallWrapSection, #hoardingExtra, #illuminationField, #busShelterSection')
                     .hide();
+
+                // Width/Height are the default for every category, so they come
+                // back on unless a category explicitly replaces them.
+                $('.dimension-field').show();
             }
 
             function showSection(category) {
@@ -584,10 +828,19 @@
                 // $('#radiusSection').hide(); // default hidden
                 if (!category) return;
 
+                //  BUS SHELTER — panels instead of one Width x Height
+                if (category.includes('bus-shelter')) {
+                    $('#illuminationField').show();
+                    $('#busShelterSection').show();
+                    $('.dimension-field').hide();
+                }
+
                 // if (category.includes('hoardings')) $('#billboardsId').show();
                 //  HOARDINGS
                 if (category.includes('hoardings')) {
                     $('#billboardsId').show();
+                    $('#hoardingExtra').show();
+                    $('#illuminationField').show();
 
                 }
 
@@ -612,10 +865,12 @@
 
                 showSection(categorySlug);
 
-                // Reset media code if not hoardings
+                // Reset media code + highway/landmark if not hoardings
                 if (!categorySlug || !categorySlug.includes('hoardings')) {
                     $('#media_code').val('');
                     $('#media_code_hidden').val('');
+                    $('#highway_id').val('');
+                    $('#landmark_ids').val(null).trigger('change');
                 }
             });
 
@@ -676,7 +931,7 @@
                 return;
             }
 
-            $.get("{{ route('media.next.code') }}", {
+            $.get("{{ $nextCodeUrl ?? route('media.next.code') }}", {
                 vendor_id: vendorId,
                 state_id: stateId,
                 city_id: cityId
@@ -696,17 +951,8 @@
             // when vendor changes
             $('#vendor_id').on('change', generateMediaCode);
 
-            // when area changes (state/city update)
-            $('#area').on('change', function() {
-
-                let selected = $(this).find(':selected');
-
-                $('#state_id').val(selected.data('state'));
-                $('#district_id').val(selected.data('district'));
-                $('#city_id').val(selected.data('city'));
-
-                generateMediaCode(); // ⭐ CALL HERE
-            });
+            // when state / city changes (fired by partials/location-script)
+            $(document).on('media:location-changed', generateMediaCode);
 
         });
     </script>
@@ -732,6 +978,15 @@
                     $(element).removeClass("error is-invalid");
                 },
                 rules: {
+                    state_id: {
+                        required: true
+                    },
+                    district_id: {
+                        required: true
+                    },
+                    city_id: {
+                        required: true
+                    },
                     area_id: {
                         required: true
                     },
@@ -739,13 +994,20 @@
                         required: true
                     },
 
+                    // Not for Bus Shelter: it hides Width/Height and sizes each panel
+                    // instead. (ignore: [] checks hidden fields too, so an unconditional
+                    // rule here silently blocked the Submit for a shelter.)
                     width: {
-                        required: true,
+                        required: function() {
+                            return $('.dimension-field').first().is(':visible');
+                        },
                         number: true,
                         min: 0.1
                     },
                     height: {
-                        required: true,
+                        required: function() {
+                            return $('.dimension-field').first().is(':visible');
+                        },
                         number: true,
                         min: 0.1
                     },
@@ -780,12 +1042,12 @@
                         filesize: 5 * 1024 * 1024, // 5MB
                         minfilesize: 1024 // 1KB
                     },
-                    // HOARDINGS
+                    // Every category carries a title — it is the site's name on
+                    // the website, so it is not tied to the Hoardings section.
                     media_title: {
-                        required: function() {
-                            return $('#billboardsId').is(':visible');
-                        }
+                        required: true
                     },
+                    // HOARDINGS
                     facing: {
                         required: function() {
                             return $('#billboardsId').is(':visible');
@@ -868,6 +1130,9 @@
                     }
                 },
                 messages: {
+                    state_id: "Please select a state",
+                    district_id: "Please select a district",
+                    city_id: "Please select a city",
                     area_id: "Please select an area",
                     category_id: "Please select a category",
                     vendor_id: "Please select a vendor",
@@ -900,6 +1165,18 @@
                 });
                 return valid;
             }, 'File size is too large');
+
+            // The rules above use minfilesize too; without this method jQuery Validate
+            // throws on every check and the form posted with no browser-side validation.
+            $.validator.addMethod('minfilesize', function(value, element, limit) {
+                let valid = true;
+                $.each($(element)[0].files, function(idx, file) {
+                    if (file.size < limit) {
+                        valid = false;
+                    }
+                });
+                return valid;
+            }, 'File size is too small');
 
 
         });

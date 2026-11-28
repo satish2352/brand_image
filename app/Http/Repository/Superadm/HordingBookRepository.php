@@ -19,6 +19,7 @@ class HordingBookRepository
             ->leftJoin('states as s', 's.id', '=', 'm.state_id')
             ->leftJoin('category as c', 'c.id', '=', 'm.category_id')
             ->leftJoin('areatype as at', 'at.id', '=', 'm.areatype_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->leftJoin(DB::raw('
              (SELECT media_id, MIN(images) AS first_image
               FROM media_images
@@ -39,10 +40,14 @@ class HordingBookRepository
 
             ->where('m.is_deleted', 0)
             ->where('m.is_active', 1)
+            // Only approved media can be booked: a vendor's pending or rejected submission never shows here,
+            // even if it was left switched on. (Brand Adda's own media is approved / has no status.)
+            ->where(fn ($q) => $q->whereNull('m.approval_status')->orWhere('m.approval_status', 'approved'))
 
             ->select([
                 'm.id',
                 'm.media_title',
+                'm.hoarding_code',
                 'm.price',
                 'm.category_id',
                 'c.category_name',
@@ -51,6 +56,8 @@ class HordingBookRepository
                 'm.height',
                 'm.facing',
                 'at.areatype_name',
+                'hw.highway_name',
+                'm.highway_id',
                 'a.area_name as area_name',
                 'city.city_name as city_name',
                 'a.common_stdiciar_name as common_area_name',
@@ -153,6 +160,22 @@ class HordingBookRepository
             $query->where('m.area_id', $filters['area_id']);
         }
 
+        /* HIGHWAY FILTER (single or multiple → OR logic) */
+        if (!empty($filters['highway_id'])) {
+            $query->whereIn('m.highway_id', (array) $filters['highway_id']);
+        }
+
+        /* LANDMARK FILTER (multiple → OR logic via pivot) */
+        if (!empty($filters['landmark_ids'])) {
+            $landmarkIds = (array) $filters['landmark_ids'];
+            $query->whereExists(function ($q) use ($landmarkIds) {
+                $q->select(DB::raw(1))
+                    ->from('media_landmark as ml')
+                    ->whereColumn('ml.media_id', 'm.id')
+                    ->whereIn('ml.landmark_id', $landmarkIds);
+            });
+        }
+
         /* SIZE FILTER */
         // if (!empty($filters['size_id'])) {
 
@@ -170,10 +193,12 @@ class HordingBookRepository
         // }
         if (!empty($filters['min_area']) || !empty($filters['max_area'])) {
 
-            $min = $filters['min_area'] ?? 0;
-            $max = $filters['max_area'] ?? 999999999;
+            // area_auto is stored as VARCHAR, so cast to a number to avoid
+            // lexicographic comparison (e.g. '60000' wrongly > '120000').
+            $min = (float) ($filters['min_area'] ?? 0);
+            $max = (float) ($filters['max_area'] ?? 999999999);
 
-            $query->whereBetween('m.area_auto', [$min, $max]);
+            $query->whereRaw('CAST(m.area_auto AS DECIMAL(15,2)) BETWEEN ? AND ?', [$min, $max]);
         }
         /* ================= AVAILABLE DAYS FILTER ================= */
         // if (!empty($filters['available_days'])) {
@@ -274,8 +299,10 @@ class HordingBookRepository
             ->leftJoin('category as ct', 'ct.id', '=', 'm.category_id')
             ->leftJoin('illuminations as il', 'il.id', '=', 'm.illumination_id')
             ->leftJoin('vendors as v', 'v.id', '=', 'm.vendor_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'm.highway_id')
             ->where('m.id', $mediaId)
             ->where('m.is_deleted', 0)
+            ->where(fn ($q) => $q->whereNull('m.approval_status')->orWhere('m.approval_status', 'approved'))
             ->select([
                 'm.*',
                 'ct.category_name',
@@ -286,8 +313,10 @@ class HordingBookRepository
                 'a.common_stdiciar_name as common_area_name',
                 'il.illumination_name',
                 'at.areatype_name as areatype_name',
+                'hw.highway_name as highway_name',
                 'v.vendor_name as vendor_name',
                 'v.vendor_code as vendor_code',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = m.id AND l.is_deleted = 0) as landmark_names'),
                 DB::raw('ROUND(m.price / DAY(LAST_DAY(CURDATE())),2) as per_day_price')
             ])
             ->first();
@@ -358,6 +387,9 @@ class HordingBookRepository
             ->where('media_id', $mediaId)
             ->where('is_active', 1)
             ->where('is_deleted', 0)
+            // Only merge into another booking — never stretch a vendor's
+            // "Blocked" hold (Vendor Inventory module) into a booking.
+            ->where('status_type', 'booked')
             ->where(function ($q) use ($from, $to) {
                 $q->whereBetween('from_date', [$from, $to])
                     ->orWhereBetween('to_date', [$from, $to])
@@ -409,6 +441,9 @@ class HordingBookRepository
                 'o.grand_total',
                 'v.vendor_name',
                 'v.vendor_code',
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT mm2.hoarding_code SEPARATOR ", ") FROM order_items oi2 JOIN media_management mm2 ON mm2.id = oi2.media_id WHERE oi2.order_id = o.id) as hoarding_codes'),
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT hw2.highway_name SEPARATOR ", ") FROM order_items oi3 JOIN media_management mm3 ON mm3.id = oi3.media_id JOIN highway hw2 ON hw2.id = mm3.highway_id WHERE oi3.order_id = o.id) as highway_names'),
+                DB::raw('(SELECT GROUP_CONCAT(DISTINCT l2.landmark_name SEPARATOR ", ") FROM order_items oi4 JOIN media_landmark ml2 ON ml2.media_id = oi4.media_id JOIN landmark l2 ON l2.id = ml2.landmark_id WHERE oi4.order_id = o.id AND l2.is_deleted = 0) as landmark_names')
             )
             ->orderBy('o.id', 'desc')
             ->get();
@@ -433,6 +468,7 @@ class HordingBookRepository
         $items = DB::table('order_items as oi')
             ->join('media_management as mm', 'mm.id', '=', 'oi.media_id')
             ->leftJoin('orders as od', 'od.id', '=', 'oi.order_id')
+            ->leftJoin('highway as hw', 'hw.id', '=', 'mm.highway_id')
             ->where('oi.order_id', $orderId)
             ->select(
                 'oi.id',
@@ -444,6 +480,9 @@ class HordingBookRepository
                 'oi.from_date',
                 'oi.to_date',
                 'mm.media_title',
+                'mm.hoarding_code',
+                'hw.highway_name',
+                DB::raw('(SELECT GROUP_CONCAT(l.landmark_name SEPARATOR ", ") FROM media_landmark ml JOIN landmark l ON l.id = ml.landmark_id WHERE ml.media_id = mm.id AND l.is_deleted = 0) as landmark_names'),
                 'mm.width',
                 'mm.height',
                 'mm.address',

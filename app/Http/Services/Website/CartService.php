@@ -48,9 +48,14 @@ class CartService
     {
         $userId = auth('website')->id();
 
+        // Only the NORMAL cart counts. A CAMPAIGN row is the same media sitting
+        // in a campaign plan, which is a separate list — without this the cart
+        // would refuse the media and then show itself empty, because the cart
+        // listing only ever reads NORMAL rows.
         $exists = DB::table('cart_items')
             ->where('user_id', $userId)
             ->where('media_id', $mediaId)
+            ->where('cart_type', 'NORMAL')
             ->where('is_deleted', 0)
             ->where('is_active', 1)
             ->where('status', 'ACTIVE')
@@ -62,11 +67,15 @@ class CartService
 
         $media = DB::table('media_management')
             ->where('id', $mediaId)
-            ->select('id', 'price')
+            ->select('id', 'price', 'is_available')
             ->first();
 
         if (!$media) {
             throw new \Exception('Media not found.');
+        }
+
+        if ((int) $media->is_available === 0) {
+            throw new \Exception('This media is not available for booking.');
         }
 
         $this->repo->addItem($media->id, $media->price);
@@ -76,6 +85,11 @@ class CartService
         DB::transaction(function () use ($mediaId, $from, $to, $cartType) {
             $fromDate = Carbon::parse($from);
             $toDate   = Carbon::parse($to);
+
+            // 0) Flagged Not Available from the admin Media List
+            if ($cartType === 'NORMAL' && $this->isNotAvailable($mediaId)) {
+                throw new \Exception('This media is not available for booking.');
+            }
 
             // 1) SAME MEDIA + SAME DATE → only for NORMAL
             if ($cartType === 'NORMAL') {
@@ -134,6 +148,13 @@ class CartService
                 $cartType
             );
         });
+    }
+    public function isNotAvailable($mediaId): bool
+    {
+        return DB::table('media_management')
+            ->where('id', $mediaId)
+            ->where('is_available', 0)
+            ->exists();
     }
     public function updateCartDates($cartItemId, $from, $to)
     {

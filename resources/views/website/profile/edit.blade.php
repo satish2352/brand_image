@@ -6,14 +6,14 @@
             max-width: 640px;
             margin: 130px auto 60px auto;
             border-radius: 14px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 4px 24px rgba(15, 23, 42, 0.1);
             overflow: hidden;
         }
 
         .profile-form-header {
-            background: #f28123;
+            background: #F97316;
             padding: 24px 32px;
-            color: #fff;
+            color: #FFFFFF;
             display: flex;
             align-items: center;
             gap: 14px;
@@ -26,7 +26,7 @@
         }
 
         .profile-form-body {
-            background: #fff;
+            background: #FFFFFF;
             padding: 30px 32px;
         }
 
@@ -36,13 +36,13 @@
         }
 
         .profile-form-body .form-control:focus {
-            border-color: #f28123;
-            box-shadow: 0 0 0 0.2rem rgba(242, 129, 35, 0.20);
+            border-color: #F97316;
+            box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.2);
         }
 
         .email-note {
             font-size: 12px;
-            color: #888;
+            color: #0F172A;
             margin-top: 4px;
         }
 

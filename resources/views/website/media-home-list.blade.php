@@ -2,9 +2,16 @@
     @php
         $isBillboard = (int) $media->category_id === 1;
         $isBooked = (int) ($media->is_booked ?? 0);
+        // Flagged "Not Available" by the admin: shown, but never bookable.
+        $isNotAvailable = isset($media->is_available) && (int) $media->is_available === 0;
         $width = (float) ($media->width ?? 0);
         $height = (float) ($media->height ?? 0);
-        $sqft = $width * $height;
+
+        // A Bus Shelter is measured panel by panel, so it has no one width x
+        // height — both columns are null and printing them read "0.00 x 0.00
+        // ft". Its size lives in area_auto, the total of its panels.
+        $hasFaceSize = $width > 0 && $height > 0;
+        $sqft = $hasFaceSize ? $width * $height : (float) ($media->area_auto ?? 0);
     @endphp
     <style>
         .open-panorama {
@@ -24,13 +31,24 @@
         }
 
         .card-shadow {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
             transition: all 0.3s ease;
             margin-bottom: 15px;
             padding: 10px;
             overflow: hidden;
-            background: #fff;
+            background: #FFFFFF;
             border-radius: 10px;
+        }
+
+        /* ⭐ Map ↔ list synchronisation */
+        .media-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .media-card.selected {
+            border-color: #F97316;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.3), 0 8px 20px rgba(15, 23, 42, 0.18);
         }
 
         /* ⭐ IMPORTANT FIX */
@@ -62,35 +80,44 @@
             object-position: center;
         }
 
+        /* ⭐ Keep the "View on Map" / "360° View" icons small (a global img
+           rule was overriding their width="30" attribute). */
+        .media-map img {
+            width: 30px !important;
+            height: auto !important;
+            max-width: 30px !important;
+            object-fit: contain;
+        }
+
         .single-latest-news {
-            background: #fff;
+            background: #FFFFFF;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
             padding: 15px;
             transition: 0.3s;
         }
 
         .single-latest-news:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
         }
 
         .media-title a {
             font-size: 21px;
             font-weight: 600;
-            color: #f28123;
+            color: #F97316;
             /* ⭐ ORANGE */
             text-decoration: none;
         }
 
         .media-title a:hover {
-            color: #f28123;
+            color: #F97316;
         }
 
         .card-btn.cart {
-            background: #f28123 !important;
+            background: #F97316 !important;
             border: none !important;
-            color: #fff !important;
+            color: #FFFFFF !important;
             border-radius: 30px;
             padding: 5px 9px;
             font-weight: 600;
@@ -98,7 +125,7 @@
         }
 
         .card-btn.cart:hover {
-            background: #f28123 !important;
+            background: #F97316 !important;
             transform: scale(1.05);
         }
 
@@ -117,7 +144,7 @@
 
         @media (max-width: 768px) {
             .card-shadow {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+                box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
 
                 transition: all 0.3s ease;
                 margin-bottom: 20px;
@@ -131,15 +158,25 @@
             }
         }
     </style>
-
-    <div class=" card-shadow">
+    <div class="card-shadow media-card" data-media-id="{{ $media->id }}" id="media-card-{{ $media->id }}">
+        {{-- Shortlist tick. Only a logged-in team member sees it; a visitor's
+             card is exactly as it was. $shareable is set by the search page and
+             absent everywhere else this partial is used. --}}
+        @if (!empty($shareable) && site_admin())
+            <label class="share-pick" title="Shortlist this hoarding">
+                <input type="checkbox" class="share-pick-input" value="{{ $media->id }}">
+                <span>Select</span>
+            </label>
+        @endif
         <div class="row">
             <div class="col-lg-5 col-md-5 col-sm-5 px-0">
 
                 <div class="latest-news-bg">
-                    <img src="{{ config('fileConstants.IMAGE_VIEW') . $media->first_image }}" class="media-img">
+                    <img src="{{ \App\Support\MediaImageUrl::for($media->first_image) ?: \App\Support\MediaImageUrl::placeholder() }}" class="media-img" alt="{{ $media->media_title }}" loading="lazy">
 
-                    @if ($isBillboard)
+                    @if ($isNotAvailable)
+                        <span class="media-badge not-available">Ask For Availability</span>
+                    @elseif ($isBillboard)
                         @if ($isBooked === 1)
                             <span class="media-badge booked">Booked</span>
                         @else
@@ -153,14 +190,17 @@
                 <div class="news-text-box mob-right-spacing">
                     <h3 class="media-title">
                         <a href="{{ route('website.media-details', base64_encode($media->id)) }}">
-                            {{ ucfirst($media->media_title ?? $media->category_name) }} {{ $media->area_name }}
+                            {{ ucfirst($media->media_title ?: $media->category_name) }} {{ $media->area_name }}
                         </a>
                     </h3>
 
                     <div class="col-12 mb-1 d-flex">
-                        <strong>Size : </strong>
-                        {{ number_format($media->width, 2) }} x {{ number_format($media->height, 2) }} ft
-                        &nbsp;&nbsp;&nbsp;<strong>Area : </strong>
+                        @if ($hasFaceSize)
+                            <strong>Size : </strong>
+                            {{ number_format($width, 2) }} x {{ number_format($height, 2) }} ft
+                            &nbsp;&nbsp;&nbsp;
+                        @endif
+                        <strong>Area : </strong>
                         {{ number_format($sqft, 2) }} SQFT
                     </div>
                     {{-- <div class="col-6 mb-2 d-flex">
@@ -180,7 +220,7 @@
                         @if (!empty($media->panorama_image))
                             {{-- <a href="{{ asset('panorama.html') }}?img={{ urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image) }}"
                                 target="_blank" class="text-muted d-inline-flex align-items-center gap-1"> --}}
-                            <a href="{{ url('public/panorama.html?img=' . urlencode(config('fileConstants.IMAGE_VIEW') . $media->panorama_image)) }}"
+                            <a href="{{ url('public/panorama.html?img=' . urlencode(\App\Support\MediaImageUrl::for($media->panorama_image))) }}"
                                 target="_blank" class="text-muted d-inline-flex align-items-center gap-1">
                                 <img src="{{ asset('assets/img/360view.png') }}" width="30">
                                 <span>360° View</span>
@@ -193,7 +233,7 @@
                     @endphp
                     <div class="card-actions">
                         @if ($isBillboard)
-                            @if ($isBooked === 0)
+                            @if ($isBooked === 0 && !$isNotAvailable)
                                 <a href="{{ route('website.media-details', base64_encode($media->id)) }}#media-details"
                                     class="card-btn read">
                                     Read More →

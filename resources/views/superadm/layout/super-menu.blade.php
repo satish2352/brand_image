@@ -38,6 +38,49 @@
 
 
 
+    /* Long menu names ("Vendor Inventory & Access", "API Request Manager") wrap
+       beside their icon instead of being cut off: satish.css sets every menu
+       label to white-space: nowrap. */
+    .sidebar-nav #sidebarnav > li > a {
+        display: flex;
+        align-items: center;
+        white-space: normal;
+        line-height: 1.3;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > i {
+        flex: 0 0 auto;
+    }
+
+    /* The theme keeps 35px on the right of every link for a dropdown arrow;
+       only menus with a submenu (Master, Reports) need it. */
+    .sidebar-nav #sidebarnav > li:not(.has-sub) > a {
+        padding-left: 12px;
+        padding-right: 6px;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > i {
+        width: 26px;
+    }
+
+    /* The theme (colors/blue.css) paints a hovered link teal and its icon teal too, so the
+       icon disappeared on hover: keep it white, like the selected item. */
+    .sidebar-nav #sidebarnav li > a:hover i,
+    .sidebar-nav #sidebarnav li > a:focus-visible i,
+    .sidebar-nav #sidebarnav > li.active > a > i {
+        color: #fff !important;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > span {
+        white-space: normal;
+        min-width: 0;
+    }
+
+    .sidebar-nav #sidebarnav > li > a > span.badge {
+        white-space: nowrap;
+        flex: 0 0 auto;
+    }
+
     .nav-item.has-sub .submenu {
         display: none;
     }
@@ -67,6 +110,9 @@
                 request()->is('illumination/*') ||
                 request()->is('category/*') ||
                 request()->is('radius/*') ||
+                request()->is('areatype/*') ||
+                request()->is('landmark/*') ||
+                request()->is('highway/*') ||
                 request()->is('vendor/*');
         @endphp
 
@@ -113,6 +159,20 @@
                     </a>
                 </li>
                 <li
+                    class="{{ request()->is('highway/list') || request()->is('highway/add') || request()->is('highway/edit/*') ? 'active' : '' }}">
+                    <a href="{{ route('highway.list') }}">
+                        <i class="mdi mdi-road-variant"></i>
+                        <span>Highway</span>
+                    </a>
+                </li>
+                <li
+                    class="{{ request()->is('landmark/list') || request()->is('landmark/add') || request()->is('landmark/edit/*') ? 'active' : '' }}">
+                    <a href="{{ route('landmark.list') }}">
+                        <i class="mdi mdi-map-marker"></i>
+                        <span>Landmark</span>
+                    </a>
+                </li>
+                <li
                     class="{{ request()->is('category/list') || request()->is('category/add') || request()->is('category/edit/*') ? 'active' : '' }}">
                     <a href="{{ route('category.list') }}">
                         <i class="mdi mdi-domain"></i>
@@ -135,11 +195,62 @@
                 </li>
             </ul>
         </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.inventory') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.inventory') }}">
+                <i class="mdi mdi-account-key"></i>
+                <span>Vendor Inventory &amp; Access</span>
+            </a>
+        </li>
         <li
             class="nav-item {{ request()->is('media/list') || request()->is('media/add') || request()->is('media/edit/*') ? 'active' : '' }}">
             <a href="{{ route('media.list') }}">
                 <i class="mdi mdi-domain"></i>
                 <span>Media Management</span>
+            </a>
+        </li>
+        <li class="nav-item {{ request()->is('media/import-export') ? 'active' : '' }}">
+            <a href="{{ route('media.import-export') }}">
+                <i class="mdi mdi-swap-vertical"></i>
+                <span>Import &amp; Export</span>
+            </a>
+        </li>
+        @php
+            // Vendor Inventory Management (vendor panel) — Super Admin side.
+            $vpPending = \Illuminate\Support\Facades\DB::table('media_management')
+                ->where('is_deleted', 0)->where('approval_status', 'pending')->count();
+            // Vendor notifications are shown on the top bell (layout/master), not here.
+        @endphp
+        <li class="nav-item {{ request()->routeIs('admin.vendor.approvals*') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.approvals') }}">
+                <i class="mdi mdi-check-decagram"></i>
+                <span>Vendor Approvals</span>
+                @if ($vpPending)<span class="badge badge-warning ml-1">{{ $vpPending }}</span>@endif
+            </a>
+        </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.activity') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.activity') }}">
+                <i class="mdi mdi-history"></i>
+                <span>Vendor Activity Log</span>
+            </a>
+        </li>
+        <li class="nav-item {{ request()->routeIs('admin.vendor.operations*') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.operations') }}">
+                <i class="mdi mdi-camera-outline"></i>
+                <span>Operations</span>
+            </a>
+        </li>
+        @php $vpNewEnquiries = \App\Models\VendorEnquiry::where('status', 'new')->count(); @endphp
+        <li class="nav-item {{ request()->routeIs('admin.vendor.enquiries') ? 'active' : '' }}">
+            <a href="{{ route('admin.vendor.enquiries') }}">
+                <i class="mdi mdi-email-multiple-outline"></i>
+                <span>Vendor Enquiries</span>
+                @if ($vpNewEnquiries)<span class="badge badge-warning ml-1">{{ $vpNewEnquiries }}</span>@endif
+            </a>
+        </li>
+        <li class="nav-item {{ request()->routeIs('media.insights.usage') ? 'active' : '' }}">
+            <a href="{{ route('media.insights.usage') }}">
+                <i class="mdi mdi-chart-donut"></i>
+                <span>API Request Manager</span>
             </a>
         </li>
         <li class="nav-item {{ request()->routeIs('admin-booking.index') ? 'active' : '' }}">
@@ -178,6 +289,27 @@
                 <span>Contact Us</span>
             </a>
         </li>
+
+        <li class="nav-item {{ request()->is('requirements/*') ? 'active' : '' }}">
+            <a href="{{ route('requirements.list') }}">
+                <i class="mdi mdi-clipboard-text"></i>
+                <span>Client Requirements</span>
+            </a>
+        </li>
+
+        <li class="nav-item {{ request()->is('settings/portal-access') ? 'active' : '' }}">
+            <a href="{{ route('settings.portal-access') }}">
+                <i class="mdi mdi-timer-sand"></i>
+                <span>Search Access</span>
+            </a>
+        </li>
+
+        <!-- <li class="nav-item {{ request()->is('search-access/*') ? 'active' : '' }}">
+            <a href="{{ route('search-access.users') }}">
+                <i class="mdi mdi-account-clock"></i>
+                <span>User Search Access</span>
+            </a>
+        </li> -->
         <li
             class="nav-item {{ request()->is('user-payment/list') || request()->is('user-payment/details/*') ? 'active' : '' }}">
             <a href="{{ route('user-payment.list') }}">

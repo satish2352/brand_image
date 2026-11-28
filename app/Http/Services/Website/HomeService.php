@@ -24,6 +24,14 @@ class HomeService
         return $data_output;
     }
 
+
+    /**
+     * The hoardings on a shared link. @see HomeRepository::getMediaByIds
+     */
+    public function getMediaByIds(array $ids, array $filters = [])
+    {
+        return $this->repo->getMediaByIds($ids, $filters);
+    }
     public function getMapMarkers(array $filters)
     {
         return $this->repo->getMapMarkers($filters);

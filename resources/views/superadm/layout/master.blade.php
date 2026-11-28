@@ -9,9 +9,10 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('asset/campaign/images/logo.png') }}"> -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('asset/campaign/images/favicon.png') }}">
-    <title>Printing | Branding | Outdoor Advertising Agency
-        Nashik | Brand Image</title>
+    <link rel="icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="shortcut icon" type="image/webp" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/img/logo/brand_adda_browser.webp') }}">
+    <title>Brand Adda Maharashtra's Outdoor Media Platform</title>
     <link href="{{ asset('asset/css/style.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
 
@@ -59,7 +60,9 @@
         $admin = $adminId ? \App\Models\User::find($adminId) : null;
 
         // Step 3: unread count
-        $notifyCount = \App\Models\Notification::where('user_id', $adminId)->where('is_read', 0)->count();
+        $notifyCount = \App\Models\Notification::where('user_id', $adminId)->where('is_read', 0)->count()
+            // Vendor Inventory module notifications share this bell.
+            + \App\Models\PanelNotification::forAdmin()->where('is_read', false)->count();
 
     @endphp
 
@@ -78,7 +81,7 @@
                     <a class="navbar-brand" href="">
 
 
-                        <img src="{{ asset('asset/images/background/logo.png') }}" class="light-logo" alt="homepage"
+                        <img src="{{ asset('assets/img/logo/brand_adda.webp') }}" class="light-logo" alt="Brand Adda"
                             style="height: 50px; marign:10px !important;" />
                     </a>
                 </div>
@@ -161,10 +164,12 @@
                 <div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
-                            <div class="modal-header">
+                            <div class="modal-header" style="align-items:center">
                                 <h5 class="modal-title">Notifications</h5>
+                                <a href="javascript:void(0)" id="markAllNotificationsRead" style="margin-left:auto;margin-right:12px;font-size:13px;font-weight:600;color:#00929c;white-space:nowrap">
+                                    <i class="mdi mdi-check-all"></i> Mark all as read</a>
 
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-left:0">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
 
@@ -177,6 +182,20 @@
                     </div>
                 </div>
                 <script>
+                    // Bell count: set it to a number (0 removes the badge).
+                    function setNotificationCount(count) {
+                        let badge = $('.fa-bell').next('span.badge');
+                        if (count > 0) {
+                            if (badge.length) {
+                                badge.text(count);
+                            } else {
+                                $('.fa-bell').after('<span class="badge badge-danger" style="position:absolute; top:5px; right:5px;">' + count + '</span>');
+                            }
+                        } else {
+                            badge.remove();
+                        }
+                    }
+
                     function refreshNotificationCount() {
                         $.get("{{ route('admin.notifications.count') }}", function(count) {
                             let badge = $('.fa-bell').next('span.badge');
@@ -199,18 +218,35 @@
                     setInterval(refreshNotificationCount, 10000);
                 </script>
                 <script>
-                    $('#notificationModal').on('shown.bs.modal', function() {
+                    // The modal sits inside .page-wrapper, whose stacking layer
+                    // kept it underneath the backdrop; it belongs on <body>.
+                    $('#notificationModal').appendTo('body');
 
+                    // Opening the bell only lists the notifications; nothing is marked read.
+                    // A notification is marked read when it is clicked (its link marks just that
+                    // one and opens it), and "Mark all as read" clears them all.
+                    $('#notificationModal').on('shown.bs.modal', function() {
                         $.get("{{ route('admin.notifications.data') }}", function(res) {
                             $('#notificationList').html(res);
                         });
+                    });
 
-                        // NOW UPDATE read_at to current time
-                        $.post("{{ route('admin.notifications.markRead') }}", {
-                            _token: "{{ csrf_token() }}"
-                        }, function() {
-                            // remove badge visually
-                            $('.fa-bell').next('span.badge').remove();
+                    // Clicking an unread one: take it off the count straight away (the link itself
+                    // marks it read on the server and opens it).
+                    $(document).on('click', '#notificationList a[data-unread="1"]', function() {
+                        const badge = $('.fa-bell').next('span.badge');
+                        if (badge.length) setNotificationCount(Math.max(0, (parseInt(badge.text(), 10) || 0) - 1));
+                        $(this).attr('data-unread', '0').removeClass('bn-unread').find('.bn-new').remove();
+                        $(this).find('.bn-state').removeClass('is-new').addClass('is-read').html('&#10003; Read');
+                    });
+
+                    $('#markAllNotificationsRead').on('click', function() {
+                        $.post("{{ route('admin.notifications.markRead') }}", { _token: "{{ csrf_token() }}" }, function() {
+                            setNotificationCount(0);
+                            $('#notificationList .bn-unread').removeClass('bn-unread');
+                            $('#notificationList .bn-new').remove();
+                            $('#notificationList .bn-state.is-new').removeClass('is-new').addClass('is-read').html('&#10003; Read');
+                            $('#notificationList a[data-unread="1"]').attr('data-unread', '0');
                         });
                     });
                 </script>
