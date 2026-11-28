@@ -365,6 +365,9 @@ class VendorInventoryModuleTest extends TestCase
         Mail::assertSent(OperationPhotosMail::class, fn ($m) => $m->hasTo('client@example.test'));
         $this->assertSame('monitoring', $op->fresh()->stage);
         $this->assertTrue(VendorActivityLog::where('vendor_id', $this->vendor->id)->where('action', 'Photos Shared with User')->exists());
+        // Brand Adda's bell shows it with its own (share) icon, not the plain bell.
+        $this->withSession(['user_id' => DB::table('users')->value('id') ?? 1, 'name' => 'Test Admin'])
+            ->get(route('admin.notifications.data'))->assertOk()->assertSee('Photos shared by')->assertSee('mdi-share-variant');
         $this->asVendor()->post(route('vendor.operations.share', $op->id), ['stage' => 'installation', 'channel' => 'whatsapp'])->assertSessionHasErrors('to_mobile');
         $other = $this->makeMedia($this->otherVendor);
         $this->asVendor()->post(route('vendor.operations.share', 999999), ['stage' => 'installation', 'channel' => 'email', 'to_email' => 'x@example.test'])->assertNotFound();
