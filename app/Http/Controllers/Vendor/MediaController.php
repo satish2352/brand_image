@@ -245,6 +245,11 @@ class MediaController extends Controller
         $vendor = $this->vendor();
         $media  = $this->inventory->findOwned($vendor->id, $id);
 
+        // Booked or blocked media (today or later) cannot be deleted.
+        if ($why = \App\Support\MediaAvailability::deleteBlockers([$id])[$id] ?? null) {
+            return back()->with('error', $media->display_code . ' is ' . $why . ', so it cannot be deleted. Remove the booking / block first, or delete it after that date.');
+        }
+
         try {
             $this->mediaService->delete($id);
         } catch (\Throwable $e) {

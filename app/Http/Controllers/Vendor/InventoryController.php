@@ -53,9 +53,12 @@ class InventoryController extends Controller
         $filters = $request->only(self::FILTERS);
         $perPage = in_array((int) $request->per_page, [10, 20, 50, 100], true) ? (int) $request->per_page : 10;
 
+        $media = $this->inventory->paginate($vendor->id, $filters, $perPage);
+
         return view('vendor.inventory.index', $this->filterOptions($vendor->id) + [
             'filters' => $filters,
-            'media'   => $this->inventory->paginate($vendor->id, $filters, $perPage),
+            'media'   => $media,
+            'deleteBlockers' => MediaAvailability::deleteBlockers($media->pluck('id')->all()), // booked / blocked: no delete
             'counts'  => $this->inventory->approvalCounts($vendor->id),
             'perPage' => $perPage,
         ]);

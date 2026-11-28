@@ -237,6 +237,7 @@
                         const badge = $('.fa-bell').next('span.badge');
                         if (badge.length) setNotificationCount(Math.max(0, (parseInt(badge.text(), 10) || 0) - 1));
                         $(this).attr('data-unread', '0').removeClass('bn-unread').find('.bn-new').remove();
+                        $(this).find('.bn-state').removeClass('is-new').addClass('is-read').html('&#10003; Read');
                     });
 
                     $('#markAllNotificationsRead').on('click', function() {
@@ -244,6 +245,7 @@
                             setNotificationCount(0);
                             $('#notificationList .bn-unread').removeClass('bn-unread');
                             $('#notificationList .bn-new').remove();
+                            $('#notificationList .bn-state.is-new').removeClass('is-new').addClass('is-read').html('&#10003; Read');
                             $('#notificationList a[data-unread="1"]').attr('data-unread', '0');
                         });
                     });

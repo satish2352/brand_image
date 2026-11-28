@@ -203,7 +203,8 @@ class OperationsController extends Controller
         $data = $request->validate([
             'confirm'      => 'accepted',
             'removal_note' => 'nullable|string|max:500',
-        ], ['confirm.accepted' => 'Confirm that the photos were shared and the flex has been removed.']);
+        ], ['confirm.accepted' => 'Tick the box to confirm the flex / advertisement has been removed.']);
+        $stageBefore = $this->ops->detail($op->vendor_id, $op->id)?->effective_stage ?? $op->stage;
 
         $this->ops->complete($vendor, $op, $data['removal_note'] ?? null);
 
@@ -212,7 +213,8 @@ class OperationsController extends Controller
         VendorAudit::adminDid($op->vendor_id, 'Media Removal Completed', [
             'Booking number'  => $detail->order_no,
             'Completion date' => now()->format('d M Y, h:i A'),
-        ], $media, $op->order_id);
+            'Completed from'  => VendorOperationsService::STAGE_LABELS[$stageBefore] ?? $stageBefore,
+        ] + ($data['removal_note'] ?? null ? ['Note' => $data['removal_note']] : []), $media, $op->order_id);
         VendorAudit::notifyVendor($op->vendor_id, 'media_removed', 'Media removal completed – ' . $media->display_code,
             $detail->order_no, route('vendor.operations', ['stage' => 'completed', 'op' => $op->id]), $media->id, $op->order_id);
 

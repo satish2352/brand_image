@@ -102,6 +102,8 @@
     .ops-sharemenu > summary { list-style: none; cursor: pointer; }
     .ops-sharemenu > summary::-webkit-details-marker { display: none; }
     .ops-sharemenu-list { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 20; min-width: 320px; max-width: calc(100vw - 40px); background: #fff; border: 1px solid var(--o-line); border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.15); padding: 6px; }
+    /* The admin theme hides plain checkboxes (moves them off-screen); this one must be visible. */
+    .ops-check { position: static !important; left: auto !important; opacity: 1 !important; width: 18px; height: 18px; flex: none; margin: 0; accent-color: #F97316; pointer-events: auto !important; }
     .ops-share-btn { min-height: 40px; background: #F97316; color: #0F172A; font-weight: 700; border: 1px solid #F97316; }
     .ops-share-btn:hover { background: #EA580C; border-color: #EA580C; }
     .ops-share-btn.is-again { background: #fff; color: #C2410C; }
@@ -505,20 +507,28 @@
                     {{-- Completed with no photos on record: the banner above says so; no empty photo slots. --}}
                     @endif
 
-                    {{-- ================= REMOVAL (admin, after end-date photos) ================= --}}
-                    @if ($canEdit && $current === 'end_date' && $selected->end_date_shared_at)
-                        <section class="ops-card">
-                            <h3 style="margin-bottom:6px">Mark media removed</h3>
-                            <p class="vp-muted" style="margin:0 0 14px">End-date photos were shared on {{ $fmt($selected->end_date_shared_at) }}. Remove the flex, then record it here.</p>
-                            <form method="POST" action="{{ route($routes['complete'], $selected->id) }}" style="display:flex;flex-direction:column;gap:12px">
+                    {{-- ================= MARK AS COMPLETED (admin, any active stage) ================= --}}
+                    @if ($canEdit && in_array($current, ['installation', 'monitoring', 'end_date'], true))
+                        <section class="ops-card" id="ops-complete">
+                            <h3 style="margin-bottom:6px">Mark as completed</h3>
+                            @if ($selected->end_date_shared_at)
+                                <p class="vp-muted" style="margin:0 0 14px">End-date photos were shared on {{ $fmt($selected->end_date_shared_at) }}. Remove the flex, then mark the booking completed.</p>
+                            @else
+                                <p style="margin:0 0 14px;font-size:13px;padding:8px 10px;background:#FEF3C7;border-radius:8px;color:#92400E">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> The end-date photos have not been shared yet.
+                                    You can still mark it completed, for example if the flex came down early or the campaign was stopped.
+                                </p>
+                            @endif
+                            <form method="POST" action="{{ route($routes['complete'], $selected->id) }}" style="display:flex;flex-direction:column;gap:12px"
+                                data-confirm="Mark this booking as completed? It moves to Completed / Media Remove and can no longer be changed.">
                                 @csrf
                                 @foreach ($baseQuery as $bk => $bv)<input type="hidden" name="{{ $bk }}" value="{{ $bv }}">@endforeach
                                 <label style="display:flex;gap:10px;align-items:center;font-size:14px;margin:0">
-                                    <input type="checkbox" name="confirm" value="1" required style="width:18px;height:18px;accent-color:#F97316">
-                                    Installation, monitoring and end-date photos are done and the flex / advertisement has been removed.
+                                    <input type="checkbox" name="confirm" value="1" required class="ops-check">
+                                    The flex / advertisement has been removed from the site.
                                 </label>
-                                <div><label class="vp-label" for="rnote">Note (optional)</label><textarea id="rnote" name="removal_note" class="vp-input" maxlength="500"></textarea></div>
-                                <div><button type="submit" class="vp-btn vp-btn-n">Mark Media Removed</button></div>
+                                <div><label class="vp-label" for="rnote">Note (optional)</label><textarea id="rnote" name="removal_note" class="vp-input" maxlength="500" placeholder="e.g. Flex removed early on client request"></textarea></div>
+                                <div><button type="submit" class="vp-btn ops-share-btn"><i class="fa-solid fa-flag-checkered"></i>Mark as Completed</button></div>
                             </form>
                         </section>
                     @endif
@@ -565,7 +575,7 @@
                                      : 'Then: while the campaign runs, Brand Adda adds monitoring photos for the dates the customer asks for.'],
                         'end_date' => ['How bookings get here',
                             'A booking in Monitoring Pics moves here automatically on its campaign end date.',
-                            $canEdit ? 'Then: upload the 3 end-date photos and share them, remove the flex, and click Mark Media Removed.'
+                            $canEdit ? 'Then: upload the 3 end-date photos and share them, remove the flex, and click Mark as Completed.'
                                      : 'Then: Brand Adda uploads the end-date photos and removes the flex.'],
                         'completed' => ['How bookings get here',
                             'A booking moves here after its end-date photos are shared and the media is marked removed.',

@@ -674,6 +674,14 @@ class MediaManagementController extends Controller
             $id = base64_decode($request->id);
             $deleted = MediaManagement::find($id);
 
+            // Booked or blocked media (today or later) cannot be deleted.
+            if ($why = \App\Support\MediaAvailability::deleteBlockers([(int) $id])[(int) $id] ?? null) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => ($deleted?->display_code ?: 'This media') . ' is ' . $why . ', so it cannot be deleted. Remove the booking / block first, or delete it after that date.',
+                ], 422);
+            }
+
             $this->mediaService->delete($id);
 
             if ($deleted && $deleted->vendor_id) {

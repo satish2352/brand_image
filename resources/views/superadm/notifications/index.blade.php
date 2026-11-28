@@ -22,7 +22,14 @@
     .bn-section { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #6b7280; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center; }
     .bn-item { display: flex; gap: 12px; padding: 10px 8px; border-bottom: 1px solid #f1f5f9; text-decoration: none !important; color: inherit !important; border-radius: 8px; }
     .bn-item:hover { background: #f8fafc; }
-    .bn-item.bn-unread { background: #FFFBF5; }
+    .bn-item { border-left: 4px solid transparent; align-items: flex-start; }
+    .bn-item.bn-unread { background: #FFEDD5; border-left-color: #F97316; }
+    .bn-item.bn-unread:hover { background: #FED7AA; }
+    .bn-item:not(.bn-unread) strong { font-weight: 500; color: #334155; }
+    /* Read / New status on the right of every vendor notification. */
+    .bn-state { flex: none; align-self: center; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .bn-state.is-new { background: #C2410C; color: #fff; }
+    .bn-state.is-read { background: #F1F5F9; color: #475569; }
     .bn-icon { width: 34px; height: 34px; flex: none; border-radius: 9px; display: grid; place-items: center; font-size: 18px; }
     .bn-new { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: #FFEDD5; color: #9A3412; font-size: 11px; font-weight: 700; }
 </style>
@@ -77,10 +84,10 @@
         <span class="bn-icon" style="background:{{ $bg }};color:{{ $fg }}"><i class="mdi {{ $icon }}"></i></span>
         <span style="flex:1;min-width:0">
             <strong style="font-size:14px">{{ $vn->title }}</strong>
-            @unless ($vn->is_read)<span class="bn-new">New</span>@endunless
             @if ($vn->message)<span class="d-block" style="font-size:13px;color:#374151">{{ $vn->message }}</span>@endif
             <small class="text-muted">{{ $vn->vendor?->vendor_name ? $vn->vendor->vendor_name . ' · ' : '' }}{{ $vn->created_at->diffForHumans() }}</small>
         </span>
+        <span class="bn-state {{ $vn->is_read ? 'is-read' : 'is-new' }}">{!! $vn->is_read ? '&#10003; Read' : 'New' !!}</span>
     </a>
 @empty
     <p class="text-muted mb-0">No vendor notifications yet.</p>

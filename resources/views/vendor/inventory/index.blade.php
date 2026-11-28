@@ -142,11 +142,15 @@
                                     @if ($row->approval_status === 'approved')
                                         <button type="button" class="vp-ib js-availability" data-url="{{ route('vendor.availability.form', $row->id) }}" aria-label="Update availability" title="Update availability"><i class="fa-regular fa-calendar"></i></button>
                                     @endif
-                                    <form method="POST" action="{{ route('vendor.media.destroy', $row->id) }}" style="margin:0"
-                                        data-confirm="Delete {{ $row->hoarding_code ?: $row->media_title }}?" data-confirm-button="Yes, delete">
-                                        @csrf
-                                        <button type="submit" class="vp-ib danger" aria-label="Delete" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
-                                    </form>
+                                    @if ($noDelete = $deleteBlockers[$row->id] ?? null)
+                                        <button type="button" class="vp-ib" disabled aria-label="Cannot delete: {{ $noDelete }}" title="Cannot delete: {{ $noDelete }}" style="opacity:.4;cursor:not-allowed"><i class="fa-regular fa-trash-can"></i></button>
+                                    @else
+                                        <form method="POST" action="{{ route('vendor.media.destroy', $row->id) }}" style="margin:0"
+                                            data-confirm="Delete {{ $row->hoarding_code ?: $row->media_title }}?" data-confirm-button="Yes, delete">
+                                            @csrf
+                                            <button type="submit" class="vp-ib danger" aria-label="Delete" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

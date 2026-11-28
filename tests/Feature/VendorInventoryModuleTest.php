@@ -332,8 +332,10 @@ class VendorInventoryModuleTest extends TestCase
         $this->assertTrue(\App\Models\MediaOperationPhoto::where('operation_id', $op->id)->where('stage', 'end_date')->exists());
         $this->assertSame('monitoring', $op->fresh()->stage); // still monitoring until the end-date photos are shared
 
-        // Removal needs the end-date photos shared first.
-        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['confirm' => 1])->assertSessionHasErrors('complete');
+        // Mark as Completed is offered at any active stage; it needs the removal tick.
+        $this->asAdmin()->get($board)->assertSee('Mark as Completed')->assertSee('The end-date photos have not been shared yet');
+        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), [])->assertSessionHasErrors('confirm');
+        $this->assertSame('monitoring', $op->fresh()->stage);
 
         // The vendor is told and sees the admin's photos, read-only (no upload / share controls or routes).
         $this->assertTrue(PanelNotification::where('audience', 'vendor')->where('vendor_id', $this->vendor->id)->where('type', 'installation_photos')->exists());
@@ -346,6 +348,45 @@ class VendorInventoryModuleTest extends TestCase
         $this->flushSession();
         $this->asVendor()->get(route('admin.vendor.operations'))->assertRedirect();
         $this->asVendor()->post(route('admin.vendor.operations.share', $op->id), ['stage' => 'installation'])->assertRedirect();
+
+        // Brand Adda marks it completed straight from Monitoring; it then shows under Completed, closed for changes.
+        $this->flushSession();
+        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['vendor_id' => $this->vendor->id, 'confirm' => 1, 'removal_note' => 'Removed early'])
+            ->assertRedirect(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'completed', 'op' => $op->id]));
+        $this->assertSame('completed', $op->fresh()->stage);
+        $this->assertNotNull($op->fresh()->completed_at);
+        $this->asAdmin()->get(route('admin.vendor.operations', ['vendor_id' => $this->vendor->id, 'stage' => 'completed', 'op' => $op->id]))->assertOk()
+            ->assertSee('Completed · media removed')->assertDontSee('Mark as Completed')->assertDontSee('Upload Photo');
+        $this->asAdmin()->post(route('admin.vendor.operations.complete', $op->id), ['confirm' => 1])->assertSessionHasErrors('complete');
+    }
+
+    public function test_booked_or_blocked_media_cannot_be_deleted(): void
+    {
+        $range = fn ($media, string $type, int $from, int $to) => DB::table('media_booked_date')->insert([
+            'media_id' => $media->id, 'from_date' => now()->addDays($from)->toDateString(), 'to_date' => now()->addDays($to)->toDateString(),
+            'status_type' => $type, 'source' => 'vendor', 'vendor_id' => $this->vendor->id, 'is_active' => 1, 'is_deleted' => 0,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $booked  = $this->makeMedia($this->vendor);  $range($booked, 'booked', 0, 10);    // booked now
+        $blocked = $this->makeMedia($this->vendor);  $range($blocked, 'blocked', 5, 9);   // blocked later on
+        $past    = $this->makeMedia($this->vendor);  $range($past, 'booked', -20, -2);    // booking already over
+
+        // Vendor panel: refused with the reason, the delete button is disabled.
+        $this->asVendor()->post(route('vendor.media.destroy', $booked->id))->assertSessionHas('error', fn ($m) => str_contains($m, 'booked till'));
+        $this->asVendor()->post(route('vendor.media.destroy', $blocked->id))->assertSessionHas('error', fn ($m) => str_contains($m, 'blocked till'));
+        $this->assertSame(0, (int) $booked->fresh()->is_deleted);
+        $this->assertSame(0, (int) $blocked->fresh()->is_deleted);
+        $this->asVendor()->get(route('vendor.media.show', $booked->id))->assertOk()->assertSee('Cannot delete: this media is booked till');
+
+        // Super Admin: refused too, with a message for the pop-up.
+        $this->asAdmin()->post(route('media.delete'), ['id' => base64_encode((string) $blocked->id)])
+            ->assertStatus(422)->assertJson(['status' => false])->assertJsonFragment(['message' => $blocked->display_code . ' is blocked till ' . now()->addDays(9)->format('d M Y') . ', so it cannot be deleted. Remove the booking / block first, or delete it after that date.']);
+        $this->assertSame(0, (int) $blocked->fresh()->is_deleted);
+
+        // A booking that has ended does not stop the delete.
+        $this->flushSession();
+        $this->asVendor()->post(route('vendor.media.destroy', $past->id))->assertRedirect(route('vendor.inventory'));
+        $this->assertSame(1, (int) $past->fresh()->is_deleted);
     }
 
     public function test_vendor_profile_and_password_from_the_header_menu(): void

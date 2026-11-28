@@ -87,6 +87,48 @@ class MediaAvailability
         return $out;
     }
 
+    /**
+     * Media that must not be deleted: booked or blocked today or later (a vendor range, an admin
+     * booking or a customer order that has not ended yet). Past bookings do not count.
+     *
+     * @return array<int, string> media id => why, e.g. "booked till 30 Nov 2026"
+     */
+    public static function deleteBlockers(array $mediaIds): array
+    {
+        $mediaIds = array_values(array_unique(array_map('intval', $mediaIds)));
+        if (!$mediaIds) {
+            return [];
+        }
+        $today = now()->toDateString();
+        $out = [];
+
+        $ranges = DB::table('media_booked_date')
+            ->whereIn('media_id', $mediaIds)
+            ->where('is_active', 1)
+            ->where('is_deleted', 0)
+            ->where('to_date', '>=', $today)
+            ->orderBy('to_date', 'desc')
+            ->get(['media_id', 'status_type', 'to_date']);
+        foreach ($ranges->groupBy('media_id') as $id => $rows) {
+            $last = $rows->first();
+            $out[(int) $id] = (($last->status_type ?? 'booked') === 'blocked' ? 'blocked' : 'booked')
+                . ' till ' . Carbon::parse($last->to_date)->format('d M Y');
+        }
+
+        $orders = DB::table('order_items')
+            ->whereIn('media_id', array_diff($mediaIds, array_keys($out)))
+            ->where('is_deleted', 0)
+            ->where('to_date', '>=', $today)
+            ->selectRaw('media_id, MAX(to_date) as to_date')
+            ->groupBy('media_id')
+            ->get();
+        foreach ($orders as $row) {
+            $out[(int) $row->media_id] = 'booked till ' . Carbon::parse($row->to_date)->format('d M Y');
+        }
+
+        return $out;
+    }
+
     /** Active and future ranges of one media item, newest first. */
     public static function ranges(int $mediaId)
     {

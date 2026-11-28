@@ -155,10 +155,16 @@
                         @endforeach
                     </div>
                 @endif
-                <form method="POST" action="{{ route('vendor.media.destroy', $media->id) }}" data-confirm="Delete {{ $media->display_code }}? This cannot be undone." data-confirm-button="Yes, delete" style="margin:0">
-                    @csrf
-                    <button type="submit" class="vp-btn vp-btn-r" style="width:100%"><i class="fa-regular fa-trash-can"></i>Delete Media</button>
-                </form>
+                @php $noDelete = \App\Support\MediaAvailability::deleteBlockers([$media->id])[$media->id] ?? null; @endphp
+                @if ($noDelete)
+                    <button type="button" class="vp-btn vp-btn-r" style="width:100%;opacity:.55;cursor:not-allowed" disabled><i class="fa-regular fa-trash-can"></i>Delete Media</button>
+                    <p class="vp-muted" style="font-size:12px;margin:6px 0 0">Cannot delete: this media is {{ $noDelete }}.</p>
+                @else
+                    <form method="POST" action="{{ route('vendor.media.destroy', $media->id) }}" data-confirm="Delete {{ $media->display_code }}? This cannot be undone." data-confirm-button="Yes, delete" style="margin:0">
+                        @csrf
+                        <button type="submit" class="vp-btn vp-btn-r" style="width:100%"><i class="fa-regular fa-trash-can"></i>Delete Media</button>
+                    </form>
+                @endif
             </section>
 
             <section class="vp-card vp-card-pad">

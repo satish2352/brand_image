@@ -567,6 +567,15 @@
                             },
                             success: function() {
                                 location.reload();
+                            },
+                            // e.g. booked / blocked media cannot be deleted
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Cannot delete',
+                                    text: (xhr.responseJSON && xhr.responseJSON.message) || 'Delete failed. Please try again.',
+                                    confirmButtonColor: '#F97316'
+                                });
                             }
                         });
 

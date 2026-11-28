@@ -306,10 +306,10 @@ class VendorOperationsService
 
     public function complete(Vendor $vendor, MediaOperation $op, ?string $note): void
     {
-        if (!$op->end_date_shared_at) {
-            throw ValidationException::withMessages([
-                'complete' => 'Share the end-date photos with the user before removing the media.',
-            ]);
+        // Brand Adda can close a booking at any active stage (flex removed early, campaign cancelled…);
+        // the board warns when the end-date photos were not shared.
+        if ($op->stage === 'completed') {
+            throw ValidationException::withMessages(['complete' => 'This booking is already completed.']);
         }
 
         $op->update([
