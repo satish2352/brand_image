@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\ApiUsageLog;
 use App\Models\Setting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -41,6 +42,12 @@ class ApiControl
     /** Every hoarding is refreshed once in this many days unless the page says otherwise. */
     public const REFRESH_DAYS = 8;
 
+    /**
+     * Auto refresh days keep this share of each daily limit free for page views and
+     * Super Admin runs; the hourly runs use the rest.
+     */
+    public const AUTO_RESERVE = 0.2;
+
     /** Places asked from Geoapify per hoarding; every 20 cost 1 credit. */
     public const PLACES_CHOICES = [20, 40, 60, 80, 100];
 
@@ -63,6 +70,8 @@ class ApiControl
             'traffic_refresh_days' => self::int('api_traffic_refresh_days', self::REFRESH_DAYS, 1),
             'geoapify_places'      => in_array($n = self::int('api_geoapify_places', (int) config('services.geoapify.limit', 60), 1), self::PLACES_CHOICES, true) ? $n : 60,
             'spread_evenly'        => Setting::getBool('api_spread_evenly', true),
+            // Auto: refresh days follow the number of active hoardings (see autoCycle()).
+            'auto_cycle'           => Setting::getBool('api_auto_cycle', true),
         ];
     }
 
@@ -73,6 +82,18 @@ class ApiControl
             $s = self::settings();
         } catch (Throwable) {
             return;
+        }
+
+        // Auto: as hoardings are added (15,000 this month, 20,000 next), the refresh days grow so the
+        // hourly runs keep fitting inside the free plans. The hand-set days apply when Auto is off.
+        if ($s['auto_cycle']) {
+            try {
+                $auto = self::autoCycle($s);
+                $s['places_cache_days'] = $auto['places_days'];
+                $s['traffic_refresh_days'] = $auto['traffic_days'];
+            } catch (Throwable) {
+                // no media table yet: keep the saved days
+            }
         }
 
         config([
@@ -163,6 +184,59 @@ class ApiControl
             ->where('requested_at', '>=', now()->startOfDay())->where('credits_consumed', '>', 0)->count();
 
         return max(0, $perDay - $done);
+    }
+
+    /** Active hoardings, counted at most once an hour (apply() runs on every request). */
+    public static function cachedHoardings(): int
+    {
+        return (int) Cache::remember('api_control.active_hoardings', 3600, fn () => self::activeHoardings());
+    }
+
+    /**
+     * Auto refresh days: the shortest cycle in which the hourly runs can refresh every active
+     * hoarding without passing the daily limits (each capped at its free plan), keeping
+     * AUTO_RESERVE of each limit free. The 1.1 matches scheduleRoom()'s 10% catch-up.
+     *
+     * @return array{hoardings:int,places_days:int,traffic_days:int,places_per_day:int,traffic_per_day:int,places_units:int,places_unit:string,places_budget:int,traffic_budget:int}
+     */
+    public static function autoCycle(array $s, ?int $hoardings = null): array
+    {
+        $h   = max(0, $hoardings ?? self::cachedHoardings());
+        $use = 1 - self::AUTO_RESERVE;
+        $plan = min($s['tomtom_plan_daily_limit'], self::FREE_LIMITS['tomtom']['limit']);
+
+        if ($s['places_provider'] === 'geoapify') {
+            $cost = max(1, (int) ceil($s['geoapify_places'] / 20));
+            $placesBudget = (int) floor(min($s['geoapify_daily_limit'], self::FREE_LIMITS['geoapify']['limit']) * $use); // credits
+            $trafficBudget = (int) floor(min($s['tomtom_traffic_daily_limit'], $plan) * $use);
+            $unit = 'credits';
+        } else {
+            $cost = 1;
+            $placesBudget = (int) floor(min($s['tomtom_daily_limit'], intdiv($plan, 2)) * $use); // TomTom Places + Traffic share the plan
+            $trafficBudget = (int) floor(min($s['tomtom_traffic_daily_limit'], intdiv($plan, 2)) * $use);
+            $unit = 'requests';
+        }
+
+        $days = fn (int $hoardingsPerDayBudget) => $hoardingsPerDayBudget > 0
+            ? min(365, max(1, (int) ceil($h * 1.1 / $hoardingsPerDayBudget)))
+            : 365;
+        $placesDays  = $days(intdiv($placesBudget, $cost));
+        $trafficDays = $days($trafficBudget);
+
+        return [
+            'hoardings'       => $h,
+            'places_days'     => $placesDays,
+            'traffic_days'    => $trafficDays,
+            'places_per_day'  => (int) ceil($h / $placesDays),
+            'traffic_per_day' => (int) ceil($h / $trafficDays),
+            'places_units'    => (int) ceil($h / $placesDays) * $cost,
+            'places_unit'     => $unit,
+            'places_budget'   => $placesBudget,
+            'traffic_budget'  => $trafficBudget,
+            // false: even a 365-day cycle needs more than the daily limit allows (raise the limit)
+            'places_fits'     => (int) ceil($h / $placesDays) * $cost <= $placesBudget,
+            'traffic_fits'    => (int) ceil($h / $trafficDays) <= $trafficBudget,
+        ];
     }
 
     /**

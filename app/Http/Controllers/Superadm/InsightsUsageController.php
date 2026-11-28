@@ -149,7 +149,7 @@ class InsightsUsageController extends Controller
             'tomtom_traffic_daily_limit' => 'TomTom Traffic daily limit', 'tomtom_plan_daily_limit' => 'TomTom plan per day',
             'places_cache_days' => 'reuse places for', 'traffic_refresh_days' => 'refresh traffic every',
         ]);
-        foreach (['geoapify_enabled', 'tomtom_enabled', 'tomtom_traffic_enabled', 'places_auto', 'traffic_auto', 'fetch_on_view', 'spread_evenly'] as $k) {
+        foreach (['geoapify_enabled', 'tomtom_enabled', 'tomtom_traffic_enabled', 'places_auto', 'traffic_auto', 'fetch_on_view', 'spread_evenly', 'auto_cycle'] as $k) {
             $data[$k] = $request->boolean($k);
         }
 

@@ -207,6 +207,7 @@
                                     ['traffic_auto', 'Hourly traffic run', 'Fetches traffic for due hoardings every hour.'],
                                     ['fetch_on_view', 'Fetch when a page is opened', 'A hoarding with no places yet is fetched when someone opens it.'],
                                     ['spread_evenly', 'Spread evenly over the cycle', 'Hourly runs fetch about hoardings ÷ refresh days each day, not everything at once.'],
+                                    ['auto_cycle', 'Auto refresh days', 'Sets the refresh days from the number of active hoardings, so the hourly runs stay inside the free plans as hoardings are added.'],
                                 ] as [$k, $t, $help])
                                     <div class="am-row">
                                         <div><strong>{{ $t }}</strong><div class="am-muted">{{ $help }}</div></div>
@@ -237,10 +238,27 @@
                                     </div>
                                 @endforeach
                                 <span class="am-label mt-2">Reuse saved data</span>
+                                @php $autoCycle = \App\Support\ApiControl::autoCycle($settings); @endphp
+                                @if ($settings['auto_cycle'])
+                                    {{-- Auto: what the hourly runs use now; recalculated as the hoarding count changes. --}}
+                                    <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#065F46">
+                                        <strong>Auto is on</strong> · {{ number_format($autoCycle['hoardings']) }} active hoardings<br>
+                                        Places every <strong>{{ $autoCycle['places_days'] }} {{ \Illuminate\Support\Str::plural('day', $autoCycle['places_days']) }}</strong>
+                                        (about {{ number_format($autoCycle['places_per_day']) }} hoardings, {{ number_format($autoCycle['places_units']) }} {{ $autoCycle['places_unit'] }} a day of {{ number_format($autoCycle['places_budget']) }})<br>
+                                        Traffic every <strong>{{ $autoCycle['traffic_days'] }} {{ \Illuminate\Support\Str::plural('day', $autoCycle['traffic_days']) }}</strong>
+                                        (about {{ number_format($autoCycle['traffic_per_day']) }} requests a day of {{ number_format($autoCycle['traffic_budget']) }})
+                                        @foreach (['places' => 'places', 'traffic' => 'traffic'] as $ak => $al)
+                                            @unless ($autoCycle[$ak . '_fits'])
+                                                <div style="margin-top:6px;padding:6px 8px;border-radius:6px;background:#FEF3C7;color:#92400E"><strong>Too many hoardings for the {{ $al }} daily limit.</strong> Even a 365-day cycle needs more than it allows; raise the {{ $ak === 'traffic' ? 'TomTom Traffic' : 'places' }} daily limit (the free plan allows up to {{ $ak === 'traffic' ? '2,500 shared' : ($autoCycle['places_unit'] === 'credits' ? '3,000' : '2,500 shared') }}).</div>
+                                            @endunless
+                                        @endforeach
+                                        <div style="font-size:11px;margin-top:4px">Uses up to 80% of each daily limit; 20% stays free for page views and Super Admin runs. More hoardings → longer cycle, automatically. Turn Auto off to set the days below by hand.</div>
+                                    </div>
+                                @endif
                                 <div class="am-limit"><label for="pcd" style="margin:0;font-size:13px;color:#111827">Places, for (days)</label>
-                                    <input id="pcd" name="places_cache_days" type="number" min="1" max="365" class="form-control" value="{{ old('places_cache_days', $settings['places_cache_days']) }}" required></div>
+                                    <input id="pcd" name="places_cache_days" type="number" min="1" max="365" class="form-control" value="{{ old('places_cache_days', $settings['places_cache_days']) }}" required @if ($settings['auto_cycle']) title="Used when Auto is off" @endif></div>
                                 <div class="am-limit"><label for="trd" style="margin:0;font-size:13px;color:#111827">Traffic, refresh every (days)</label>
-                                    <input id="trd" name="traffic_refresh_days" type="number" min="1" max="365" class="form-control" value="{{ old('traffic_refresh_days', $settings['traffic_refresh_days']) }}" required></div>
+                                    <input id="trd" name="traffic_refresh_days" type="number" min="1" max="365" class="form-control" value="{{ old('traffic_refresh_days', $settings['traffic_refresh_days']) }}" required @if ($settings['auto_cycle']) title="Used when Auto is off" @endif></div>
                             </div>
                         </div>
                         <div class="text-right mt-3"><button class="btn am-btn"><i class="mdi mdi-content-save"></i> Save Settings</button></div>
