@@ -106,11 +106,18 @@
             $lastHourly = \App\Models\ApiUsageLog::whereIn('source', ['scheduler', 'job'])->max('requested_at');
             $lastHourly = $lastHourly ? \Carbon\Carbon::parse($lastHourly) : null;
             $hourlyWanted = $settings['places_auto'] || $settings['traffic_auto'];
-            $hourlyOk = !$hourlyWanted || ($lastHourly && $lastHourly->gt(now()->subHours(3)));
+            // The server scheduler (cron) touches a heartbeat every minute.
+            $beat = \App\Support\ApiControl::heartbeat();
+            $cronOk = $beat && $beat->gt(now()->subMinutes(5));
+            $hourlyOk = !$hourlyWanted || $cronOk;
+            $cronLine = '* * * * * cd ' . base_path() . ' && php artisan schedule:run >> /dev/null 2>&1';
+            $runLabel = fn ($k) => \App\Support\ApiControl::RUN_EVERY[$settings['run_' . $k . '_every']][0];
+            $hourLabel = fn ($h) => $h === 24 || $h === 0 ? '12 AM' : ($h < 12 ? $h . ' AM' : ($h === 12 ? '12 PM' : ($h - 12) . ' PM'));
+            $anyTime = ($settings['run_from_hour'] === 0 && $settings['run_to_hour'] === 24) || $settings['run_from_hour'] === $settings['run_to_hour'];
             $pctOf = fn ($c) => $c['limit'] ? min(100, (int) round($c['used'] / $c['limit'] * 100)) : 100;
             $issues = [];
             if ($hourlyWanted && !$hourlyOk) {
-                $issues[] = 'Hourly updates are not running' . ($lastHourly ? ' (last run ' . $lastHourly->format('d M Y') . ')' : '') . '. The server needs the scheduler: a cron line that runs <code>php artisan schedule:run</code> every minute.';
+                $issues[] = 'Automatic updates are not running: the server scheduler (cron) has ' . ($beat ? 'not run since ' . $beat->format('d M Y, h:i A') : 'never run') . '. Add the cron line shown under <b>Automatic updates</b> on the server, once.';
             }
             foreach ([$pc, $tc] as $c) {
                 if (!$c['configured']) { $issues[] = e($c['name']) . ': the API key is not set.'; }
@@ -147,13 +154,19 @@
                         <p class="am-muted"><b style="color:#111827">{{ number_format($coverage['traffic']) }}</b> of {{ number_format($coverage['media']) }} hoardings have traffic. Each is refreshed every <b style="color:#111827">{{ $trafficDays }} {{ \Illuminate\Support\Str::plural('day', $trafficDays) }}</b>{{ $settings['auto_cycle'] ? ' (Auto)' : '' }}.</p>
                     </div>
                     <div class="am-tile">
-                        <h6><i class="mdi mdi-clock-outline" style="color:#0F766E"></i> Hourly updates</h6>
+                        <h6><i class="mdi mdi-clock-outline" style="color:#0F766E"></i> Automatic updates</h6>
                         @if (!$hourlyWanted)
                             <p>Switched off. Data is fetched only when a page is opened or from <b>Run now</b>.</p>
-                        @elseif ($hourlyOk)
-                            <p><b style="color:#166534">Running.</b> Last run {{ $lastHourly->diffForHumans() }}.</p>
+                        @elseif ($cronOk)
+                            <p><b style="color:#166534">Server scheduler running</b> (checked {{ $beat->diffForHumans() }}).
+                                Places {{ strtolower($runLabel('places')) }}, traffic {{ strtolower($runLabel('traffic')) }}, {{ $anyTime ? 'any time of day' : 'between ' . $hourLabel($settings['run_from_hour']) . ' and ' . $hourLabel($settings['run_to_hour']) }}.
+                                @if ($lastHourly)<br>Last fetch {{ $lastHourly->diffForHumans() }}.@endif</p>
                         @else
-                            <p><b style="color:#B45309">Not running.</b> {{ $lastHourly ? 'Last run ' . $lastHourly->format('d M Y, h:i A') . '.' : 'No hourly run yet.' }}</p>
+                            <p><b style="color:#B45309">Server scheduler not running.</b> Add this line to the server's crontab once (as the web user):</p>
+                            <div style="display:flex;gap:6px;align-items:center">
+                                <code id="amCron" style="flex:1;min-width:0;overflow-x:auto;white-space:nowrap;background:#0F172A;color:#E2E8F0;padding:6px 8px;border-radius:6px;font-size:11px">{{ $cronLine }}</code>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('amCron').innerText);this.innerText='Copied'">Copy</button>
+                            </div>
                         @endif
                         <p class="am-muted">Each day it fetches about <b style="color:#111827">{{ number_format($autoNow['places_per_day']) }}</b> hoardings for places and <b style="color:#111827">{{ number_format($autoNow['traffic_per_day']) }}</b> for traffic, keeping 20% of each limit free for page views.</p>
                     </div>
@@ -319,6 +332,28 @@
                                         <label class="am-switch"><input type="checkbox" name="{{ $k }}" value="1" {{ $on($k) }} aria-label="{{ $t }}"><span></span></label>
                                     </div>
                                 @endforeach
+
+                                {{-- When the automatic runs start; the server cron only has to call schedule:run every minute. --}}
+                                <span class="am-label mt-3">Automatic run times</span>
+                                @foreach (['places' => 'Places run', 'traffic' => 'Traffic run'] as $rk => $rl)
+                                    <div class="am-limit" style="grid-template-columns:1fr 170px"><label for="run_{{ $rk }}" style="margin:0;font-size:13px;color:#111827">{{ $rl }}</label>
+                                        <select id="run_{{ $rk }}" name="run_{{ $rk }}_every" class="form-control">
+                                            @foreach (\App\Support\ApiControl::RUN_EVERY as $ek => [$el])<option value="{{ $ek }}" @selected($settings['run_' . $rk . '_every'] === $ek)>{{ $el }}</option>@endforeach
+                                        </select></div>
+                                @endforeach
+                                <div style="padding:8px 0">
+                                    <label style="margin:0 0 6px;font-size:13px;color:#111827;display:block">Run only between
+                                        <span class="am-muted" style="font-size:11px;display:block">12 AM → 12 AM = any time. e.g. 10 PM → 6 AM = nights only.</span></label>
+                                    <div style="display:flex;gap:8px;align-items:center">
+                                        <select name="run_from_hour" class="form-control" aria-label="From hour" style="flex:1">
+                                            @for ($h = 0; $h <= 23; $h++)<option value="{{ $h }}" @selected($settings['run_from_hour'] === $h)>{{ $hourLabel($h) }}</option>@endfor
+                                        </select>
+                                        <span class="am-muted">to</span>
+                                        <select name="run_to_hour" class="form-control" aria-label="To hour" style="flex:1">
+                                            @for ($h = 1; $h <= 24; $h++)<option value="{{ $h }}" @selected($settings['run_to_hour'] === $h)>{{ $hourLabel($h) }}</option>@endfor
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="am-muted" style="font-size:13px">Places come from <b style="color:#111827">{{ $settings['places_provider'] === 'geoapify' ? 'Geoapify' : 'TomTom' }}</b>

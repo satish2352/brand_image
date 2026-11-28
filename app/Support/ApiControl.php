@@ -48,6 +48,21 @@ class ApiControl
      */
     public const AUTO_RESERVE = 0.2;
 
+    /**
+     * How often the automatic runs start (Super Admin → API Request Manager). [label, hours between runs];
+     * 'daily' runs once, at the start of the run window.
+     */
+    public const RUN_EVERY = [
+        'hourly' => ['Every hour', 1],
+        'every2' => ['Every 2 hours', 2],
+        'every3' => ['Every 3 hours', 3],
+        'every6' => ['Every 6 hours', 6],
+        'daily'  => ['Once a day', 24],
+    ];
+
+    /** Cache key the scheduler touches every minute, so the page can tell whether the server cron runs. */
+    public const HEARTBEAT_KEY = 'api_control.scheduler_heartbeat';
+
     /** Auto refreshes each hoarding at most this often unless the page says otherwise (once a week). */
     public const AUTO_MIN_DAYS = 7;
 
@@ -78,6 +93,12 @@ class ApiControl
             // Auto never refreshes more often than this (a week by default), even when the free
             // limits would allow it; with many hoardings the worked-out cycle is longer anyway.
             'auto_min_days'        => self::int('api_auto_min_days', self::AUTO_MIN_DAYS, 1),
+            // Automatic run times: how often, and the hours they may run in (0–24 = any time;
+            // e.g. 22 → 6 = nights only).
+            'run_places_every'     => array_key_exists($e = (string) Setting::get('api_run_places_every', 'hourly'), self::RUN_EVERY) ? $e : 'hourly',
+            'run_traffic_every'    => array_key_exists($e = (string) Setting::get('api_run_traffic_every', 'hourly'), self::RUN_EVERY) ? $e : 'hourly',
+            'run_from_hour'        => min(23, self::int('api_run_from_hour', 0)),
+            'run_to_hour'          => min(24, self::int('api_run_to_hour', 24)),
         ];
     }
 
@@ -190,6 +211,76 @@ class ApiControl
             ->where('requested_at', '>=', now()->startOfDay())->where('credits_consumed', '>', 0)->count();
 
         return max(0, $perDay - $done);
+    }
+
+    /* ======================= AUTOMATIC RUN TIMES ======================= */
+
+    /** Settings for the scheduler, safe before migrations (defaults: hourly, any time). */
+    public static function runSettings(): array
+    {
+        try {
+            $s = self::settings();
+        } catch (Throwable) {
+            $s = ['run_places_every' => 'hourly', 'run_traffic_every' => 'hourly', 'run_from_hour' => 0, 'run_to_hour' => 24];
+        }
+
+        return $s;
+    }
+
+    /** Cron expression for the places / traffic run. */
+    public static function runCron(string $kind): string
+    {
+        $s = self::runSettings();
+        $every = $s['run_' . $kind . '_every'];
+        if ($every === 'daily') {
+            return '0 ' . ($s['run_from_hour'] % 24) . ' * * *';
+        }
+        $step = self::RUN_EVERY[$every][1];
+
+        return $step === 1 ? '0 * * * *' : '0 */' . $step . ' * * *';
+    }
+
+    /** Is this hour inside the run window? from < to: same day; from > to: overnight (e.g. 22 → 6). */
+    public static function inRunWindow(?\Carbon\Carbon $at = null, ?array $s = null): bool
+    {
+        $s ??= self::runSettings();
+        $from = (int) $s['run_from_hour'];
+        $to = (int) $s['run_to_hour'];
+        $h = ($at ?? now())->hour;
+        if ($from === $to || ($from === 0 && $to === 24)) {
+            return true;
+        }
+
+        return $from < $to ? ($h >= $from && $h < $to) : ($h >= $from || $h < $to);
+    }
+
+    /**
+     * How many of today's remaining hoardings ($room) this run should take: the rest is split
+     * over the runs still to come today (inside the window), so a day's share is spread out
+     * instead of all fetched by the first run.
+     */
+    public static function runShare(string $kind, int $room, ?\Carbon\Carbon $at = null): int
+    {
+        $s = self::runSettings();
+        $at ??= now();
+        $every = $s['run_' . $kind . '_every'];
+        $runs = 0;
+        for ($h = $at->hour; $h <= 23; $h++) {
+            $slot = $every === 'daily' ? $h === ($s['run_from_hour'] % 24) : $h % self::RUN_EVERY[$every][1] === 0;
+            if (($slot || $h === $at->hour) && self::inRunWindow($at->copy()->setTime($h, 0), $s)) {
+                $runs++;
+            }
+        }
+
+        return (int) ceil(max(0, $room) / max(1, $runs));
+    }
+
+    /** When the server scheduler last ran (null = never seen): it touches this every minute. */
+    public static function heartbeat(): ?\Carbon\Carbon
+    {
+        $t = Cache::get(self::HEARTBEAT_KEY);
+
+        return $t ? \Carbon\Carbon::createFromTimestamp((int) $t) : null;
     }
 
     /** Active hoardings, counted at most once an hour (apply() runs on every request). */

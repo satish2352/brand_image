@@ -21,12 +21,17 @@ Schedule::command('model:prune', [
    Needs the server cron: * * * * * php artisan schedule:run
    and a worker for the "insights" queue (see deployment notes).
 
-   Hourly small batches rather than one big nightly run: spreads requests
-   across the day, and a new or moved hoarding is picked up within the hour.
-   The command queues no more than the day's remaining credits allow. */
-Schedule::command('insights:enrich')
-    ->hourly()
-    ->when(fn () => \App\Support\ApiControl::autoRun('places'))
+   Run times are set in Super Admin → API Request Manager (how often, and the
+   hours they may run in). --sync does the work in this process, so the one
+   cron line is all the server needs (no queue worker). Each run takes only its
+   share of the day's hoardings and stays within the free daily limits. */
+Schedule::call(fn () => \Illuminate\Support\Facades\Cache::forever(\App\Support\ApiControl::HEARTBEAT_KEY, now()->timestamp))
+    ->everyMinute()
+    ->name('scheduler-heartbeat');
+
+Schedule::command('insights:enrich --sync')
+    ->cron(\App\Support\ApiControl::runCron('places'))
+    ->when(fn () => \App\Support\ApiControl::autoRun('places') && \App\Support\ApiControl::inRunWindow())
     ->withoutOverlapping()
     ->onOneServer();
 
@@ -35,8 +40,8 @@ Schedule::command('insights:enrich')
    row yet, next_refresh_at passed (every 15 days per hoarding) or moved.
    Capped by TOMTOM_TRAFFIC_DAILY_LIMIT. Runs in-process — no queue worker. */
 Schedule::command('refresh:hoarding-traffic')
-    ->hourly()
-    ->when(fn () => \App\Support\ApiControl::autoRun('traffic'))
+    ->cron(\App\Support\ApiControl::runCron('traffic'))
+    ->when(fn () => \App\Support\ApiControl::autoRun('traffic') && \App\Support\ApiControl::inRunWindow())
     ->withoutOverlapping()
     ->onOneServer();
 

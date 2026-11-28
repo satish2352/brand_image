@@ -47,8 +47,9 @@ class EnrichMediaInsights extends Command
         // Spread evenly (API Request Manager): about hoardings / refresh-days per day.
         $room = $this->option('limit') ? null : \App\Support\ApiControl::scheduleRoom('places');
         if ($room !== null) {
-            $this->line("Spread evenly: {$room} more hoarding(s) allowed today.");
-            $take = min($take, $room);
+            $share = \App\Support\ApiControl::runShare('places', $room);
+            $this->line("Spread evenly: {$room} more hoarding(s) allowed today; this run takes {$share}.");
+            $take = min($take, $share);
         }
 
         $this->line(sprintf('%s: %d/%d credits used this %s, %d remaining (≤%d per request).',

@@ -323,6 +323,37 @@ class ApiRequestManagerTest extends TestCase
         $this->assertGreaterThanOrEqual(10, (int) config('services.geoapify.cache_days'));
     }
 
+    public function test_run_times_are_set_from_super_admin(): void
+    {
+        // Saved from the page: places every 3 hours, traffic once a day, nights only (10 PM → 6 AM).
+        $this->asAdmin()->post(route('media.insights.usage.save'), $this->defaults([
+            'run_places_every' => 'every3', 'run_traffic_every' => 'daily', 'run_from_hour' => 22, 'run_to_hour' => 6,
+        ]))->assertRedirect();
+        $this->assertSame('0 */3 * * *', ApiControl::runCron('places'));
+        $this->assertSame('0 22 * * *', ApiControl::runCron('traffic'));    // once a day, at the start of the window
+
+        $at = fn (int $h) => now()->setTime($h, 0);
+        $this->assertTrue(ApiControl::inRunWindow($at(23)));
+        $this->assertTrue(ApiControl::inRunWindow($at(3)));
+        $this->assertFalse(ApiControl::inRunWindow($at(12)));
+
+        // Today's share is split over the runs still to come today, this one included.
+        ApiControl::save($this->defaults(['run_places_every' => 'hourly', 'run_from_hour' => 0, 'run_to_hour' => 24]));
+        $this->assertSame(100, ApiControl::runShare('places', 400, $at(20)));   // 20, 21, 22, 23 → 4 runs
+        $this->assertSame(400, ApiControl::runShare('places', 400, $at(23)));   // last run of the day takes the rest
+        $this->assertSame('0 * * * *', ApiControl::runCron('places'));
+    }
+
+    public function test_page_shows_whether_the_server_scheduler_runs(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget(ApiControl::HEARTBEAT_KEY);
+        $this->asAdmin()->get(route('media.insights.usage'))->assertOk()
+            ->assertSee('Server scheduler not running')->assertSee('php artisan schedule:run', false)->assertSee('Automatic run times');
+
+        \Illuminate\Support\Facades\Cache::forever(ApiControl::HEARTBEAT_KEY, now()->timestamp);
+        $this->asAdmin()->get(route('media.insights.usage'))->assertOk()->assertSee('Server scheduler running');
+    }
+
     public function test_shorter_cycle_makes_older_data_due(): void
     {
         $this->fakeTomTom();

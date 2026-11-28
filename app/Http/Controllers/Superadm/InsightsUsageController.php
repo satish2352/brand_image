@@ -144,6 +144,10 @@ class InsightsUsageController extends Controller
             'places_cache_days'          => 'required|integer|min:1|max:365',
             'traffic_refresh_days'       => 'required|integer|min:1|max:365',
             'auto_min_days'              => 'nullable|integer|min:1|max:90',
+            'run_places_every'           => 'nullable|in:' . implode(',', array_keys(ApiControl::RUN_EVERY)),
+            'run_traffic_every'          => 'nullable|in:' . implode(',', array_keys(ApiControl::RUN_EVERY)),
+            'run_from_hour'              => 'nullable|integer|min:0|max:23',
+            'run_to_hour'                => 'nullable|integer|min:1|max:24',
             'geoapify_places'            => 'required|integer|in:' . implode(',', ApiControl::PLACES_CHOICES),
         ], [], [
             'geoapify_daily_limit' => 'Geoapify daily limit', 'tomtom_daily_limit' => 'TomTom Places daily limit',
@@ -152,6 +156,10 @@ class InsightsUsageController extends Controller
             'auto_min_days' => 'refresh at most every',
         ]);
         $data['auto_min_days'] = (int) ($data['auto_min_days'] ?? ApiControl::AUTO_MIN_DAYS);
+        $data['run_places_every'] = $data['run_places_every'] ?? 'hourly';
+        $data['run_traffic_every'] = $data['run_traffic_every'] ?? 'hourly';
+        $data['run_from_hour'] = (int) ($data['run_from_hour'] ?? 0);
+        $data['run_to_hour'] = (int) ($data['run_to_hour'] ?? 24);
         foreach (['geoapify_enabled', 'tomtom_enabled', 'tomtom_traffic_enabled', 'places_auto', 'traffic_auto', 'fetch_on_view', 'spread_evenly', 'auto_cycle'] as $k) {
             $data[$k] = $request->boolean($k);
         }

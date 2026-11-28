@@ -45,7 +45,7 @@ class RefreshHoardingTraffic extends Command
         $take = $this->option('limit') !== null ? min((int) $this->option('limit'), $remaining) : $remaining;
         // Spread evenly (API Request Manager): about hoardings / refresh-days per day.
         if ($this->option('limit') === null && ($room = \App\Support\ApiControl::scheduleRoom('traffic')) !== null) {
-            $take = min($take, $room);
+            $take = min($take, \App\Support\ApiControl::runShare('traffic', $room));   // this run's part of today's share
         }
         $due = $traffic->dueCount();
 
